@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+			crossorigin="anonymous"
+		/>
+		<title>Document</title>
+		<style>
+			body {
+				background-color: #404040;
+			}
+			.message-box {
+				font-family: Arial, sans-serif;
+				width: 100%;
+				height: auto;
+			}
+			.message {
+				max-width: 70%;
+				border-radius: 20px;
+				padding: 10px;
+				margin: 5px 6px 4px 6px;
+				box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+				position: relative;
+				word-wrap: break-word;
+				color: #ffffff;
+			}
+			.message-right {
+				float: right;
+				background-color: #0084ff;
+			}
+			.message-left {
+				float: left;
+				background-color: #404040;
+			}
+			#msg-area {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				border-radius: 20px;
+				width: auto;
+				max-height: 80vh;
+				overflow-y: auto;
+				border-color: #0084ff;
+				border: 2px solid black;
+				background-color: #404040;
+				margin: 5px 20px 20px 20px;
+			}
+			.mmm {
+				margin: 5px 20px 00px 20px;
+			}
+		</style>
+	</head>
+	<body class="container">
+		<div class="row">
+			<div class="col">
+				<canvas class="mmm" height="600px" width="700px"></canvas>
+			</div>
+			<div class="col d-flex flex-column">
+				<div id="msg-area" class="flex-grow-1"></div>
+				<div class="row">
+					<input type="text" class="form-control col" id="msg" placeholder="Message" />
+					<button class="btn btn-warning col" onclick="dbg()">Debug</button>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		const taille_C = 110; //Math.min((window.innerHeight * 0.9) / 6, (window.innerWidth * 0.9) / 7);
+		const width = 7 * taille_C;
+		const height = 6 * taille_C;
+		const canvas = document.querySelector("canvas");
+		canvas.width = width;
+		canvas.height = height;
+		const ctx = canvas.getContext("2d");
+
+		function init() {
+			ctx.fillStyle = "#9c9c9c";
+			ctx.fillRect(0, 0, width, height);
+
+			ctx.strokeStyle = "#4444FF";
+			ctx.lineWidth = 5;
+			for (let i = 0; i < 8; i++) {
+				ctx.beginPath();
+				ctx.moveTo(i * taille_C, 0);
+				ctx.lineTo(i * taille_C, height);
+				ctx.stroke();
+			}
+			for (let i = 0; i < 7; i++) {
+				ctx.beginPath();
+				ctx.moveTo(0, i * taille_C);
+				ctx.lineTo(width, i * taille_C);
+				ctx.stroke();
+			}
+		}
+		const PlayerClrs = ["#000000", "#CE1D30", "#FDD334"];
+		function draw(color, x, y) {
+			ctx.beginPath();
+			ctx.arc(x * taille_C + taille_C / 2, height - (y * taille_C + taille_C / 2), taille_C / 2 - 5, 0, 2 * Math.PI);
+			ctx.fillStyle = color;
+			ctx.fill();
+		}
+		canvas.addEventListener("click", (event) => {
+			const { offsetX: i, offsetY: j } = event;
+			const x = Math.floor(event.offsetX / taille_C);
+			console.log(`Click (${i},${j}) -> c${x}`);
+			socket.send(JSON.stringify({ act: "play", data: x }));
+		});
+		init();
+	</script>
+	<script>
+		let uuid = null;
+		const roomId = 1; //prompt("ID");
+		const socket = new WebSocket("ws://" + window.location.hostname + window.location.pathname);
+
+		socket.addEventListener("open", (event) => {
+			console.log("Connexion établie avec le serveur WebSocket");
+			socket.send(JSON.stringify({ act: "join", data: roomId }));
+		});
+
+		socket.addEventListener("message", (event) => {
+			let message;
+			try {
+				message = JSON.parse(event.data);
+			} catch (error) {
+				console.warn(`Message invalide`);
+				return;
+			}
+			const { act: action, data } = message;
+			console.log(action, data);
+			switch (action) {
+				case "registered":
+					uuid = data;
+					break;
+				case "play":
+					draw(PlayerClrs[data.playerId], data.x, data.y);
+					break;
+				case "sync":
+					for (let x = 0; x < data.length; x++) {
+						for (let y = 0; y < data[x].length; y++) {
+							const id = data[x][y];
+							id && draw(PlayerClrs[id], x, y);
+						}
+					}
+					break;
+				case "message":
+					const container = document.getElementById("msg-area");
+					let tet = `<div class="message-box"> <span class="message message-${uuid == data.clientId ? "right" : "left"}">${data.message}</div> </div>`;
+					container.innerHTML += tet;
+					break;
+				case "restart":
+					init();
+					break;
+				default:
+					break;
+			}
+		});
+
+		socket.addEventListener("close", (event) => {
+			console.log(">>> Connexion WebSocket fermée");
+		});
+
+		function dbg() {
+			socket.send(JSON.stringify({ act: "debug" }));
+		}
+		let inputBox = document.getElementById("msg");
+		inputBox.addEventListener("keypress", (e) => {
+			if (e.charCode === 13) {
+				socket.send(JSON.stringify({ act: "message", data: inputBox.value }));
+				inputBox.value = "";
+			}
+		});
+	</script>
+</html>
