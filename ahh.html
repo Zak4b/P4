@@ -195,54 +195,43 @@
 				return;
 			}
 			const { act: action, data } = message;
-			console.log(action, data);
-			switch (action) {
-				case "registered":
-					uuid = data;
-					break;
-				case "joined":
-					roomId = data.roomId;
-					playerId = data.playerId;
-					const advId = playerId == 1 ? 2 : 1;
-					document.documentElement.style.setProperty("--self-color", PlayerClrs[playerId]);
-					document.documentElement.style.setProperty("--adv-color", [PlayerClrs[advId]]);
-					break;
-				case "play":
-					draw(PlayerClrs[data.playerId], data.x, data.y);
-					changeIndicatorState(data.nextPlayerId);
 
-					break;
-
-				case "game-win":
-					if (data.uuid == uuid) {
-						setTimeout(() => socket.send(JSON.stringify({ act: "restart" })), 5000);
-					}
-					break;
-				case "sync":
-					const board = data.board;
-					changeIndicatorState(data.cPlayer);
-					for (let x = 0; x < board.length; x++) {
-						for (let y = 0; y < board[x].length; y++) {
-							const id = board[x][y];
-							id && draw(PlayerClrs[id], x, y);
-						}
-					}
-					break;
-				case "info":
-					let info = `<div class="message-box"><div class="message">${data}</div> </div>`;
-					container.innerHTML += info;
-					break;
-				case "message":
-					let msg = `<div class="message-box"> <div class="message-${uuid == data.clientId ? "right" : "left"}"> <div class="message-bubble">${data.message}</div> </div> </div>`;
-					container.innerHTML += msg;
-					break;
-				case "restart":
-					init();
-					break;
-				default:
-					break;
+			if (/^[a-z]+$/i.test(String(action))) socket.dispatchEvent(new CustomEvent(`act-${action}`, { detail: data }));
+		});
+		socket.addEventListener("act-registered", ({ detail: data }) => (uuid = data));
+		socket.addEventListener("act-joined", ({ detail: data }) => {
+			roomId = data.roomId;
+			playerId = data.playerId;
+			const advId = playerId == 1 ? 2 : 1;
+			document.documentElement.style.setProperty("--self-color", PlayerClrs[playerId]);
+			document.documentElement.style.setProperty("--adv-color", [PlayerClrs[advId]]);
+		});
+		socket.addEventListener("act-play", ({ detail: data }) => {
+			draw(PlayerClrs[data.playerId], data.x, data.y);
+			changeIndicatorState(data.nextPlayerId);
+		});
+		socket.addEventListener("act-game-win", ({ detail: data }) => {
+			if (data.uuid == uuid) {
+				setTimeout(() => socket.send(JSON.stringify({ act: "restart" })), 5000);
 			}
 		});
+		socket.addEventListener("act-sync", ({ detail: data }) => {
+			const board = data.board;
+			changeIndicatorState(data.cPlayer);
+			for (let x = 0; x < board.length; x++) {
+				for (let y = 0; y < board[x].length; y++) {
+					const id = board[x][y];
+					id && draw(PlayerClrs[id], x, y);
+				}
+			}
+		});
+		socket.addEventListener("act-info", ({ detail: data }) => {
+			container.innerHTML += `<div class="message-box"><div class="message">${data}</div> </div>`;
+		});
+		socket.addEventListener("act-message", ({ detail: data }) => {
+			container.innerHTML += `<div class="message-box"> <div class="message-${uuid == data.clientId ? "right" : "left"}"> <div class="message-bubble">${data.message}</div> </div> </div>`;
+		});
+		socket.addEventListener("act-restart", ({ detail: data }) => init());
 
 		socket.addEventListener("close", (event) => {
 			console.log(">>> Connexion WebSocket fermée");
