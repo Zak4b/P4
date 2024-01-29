@@ -5,10 +5,33 @@ const P4 = require("./P4.js");
 const { Player, GameRoomList } = require("./gameRoom.js");
 const { createReadStream } = require("node:fs");
 
+const pages = {
+	"/": "index.html",
+	"/client.js": "client.js",
+};
+
+function trimSlash(str) {
+	return str.replace(/^\/+|\/+$/g, "");
+}
+function correct(url, root) {
+	url = trimSlash(url);
+	root = trimSlash(root);
+	if (url.startsWith(root)) {
+		url = url.substring(root.length);
+	}
+	return url || "/" + url;
+}
+
 const server = http.createServer(async (req, res) => {
 	const url = new URL(req.url, `http://${req.headers.host}`);
 
-	const stream = createReadStream("./ahh.html");
+	url.pathname = correct(url.pathname, process.env.PATHROOT);
+	const file = pages[url.pathname];
+	if (!file) {
+		res.end();
+		return;
+	}
+	const stream = createReadStream(file);
 	stream.pipe(res);
 });
 
@@ -26,7 +49,7 @@ wss.on("connection", (socket) => {
 	player.send("registered", player.uuid);
 
 	socket.on("message", (message) => {
-		console.log(`${player.uuid} : `, message.toString());
+		//console.log(`${player.uuid} : `, message.toString());
 		try {
 			message = JSON.parse(message);
 		} catch (error) {
@@ -41,9 +64,10 @@ wss.on("connection", (socket) => {
 			rooms.join(data, player);
 		} catch (error) {
 			console.warn(`${player.uuid} : Salle #${data} pleine`);
+			player.send("info", `Impossible de rejoindre la Salle #${data}, salle pleine`);
 			return;
 		}
-		player.send("joined", { roomid: player.room.id, playerId: player.playerId });
+		player.send("joined", { roomId: player.room.id, playerId: player.playerId });
 		player.send("sync", { board: player.room.game.board, cPlayer: player.room.game.cPlayer });
 	});
 	socket.on("act-play", (data) => {
@@ -68,20 +92,22 @@ wss.on("connection", (socket) => {
 		player.room.game.setDefault();
 		player.room.send("restart");
 	});
+	const commandList = {
+		join: (data) => socket.emit("act-join", data),
+		pute: () => player.send("pute"),
+		restart: () => {
+			socket.emit("act-restart");
+		},
+	};
 	socket.on("act-message", (data) => {
 		const text = data.trim();
-		if (text[0] != "/") {
+		if (!text.match(/^\/\w+/)) {
 			if (text[0]) data && player.room.send("message", { clientId: player.uuid, message: text });
 		} else {
-			const command = text.slice(1);
-			switch (command) {
-				case "pute":
-					player.room.send(command);
-					break;
-
-				default:
-					break;
-			}
+			const match = text.match(/^\/(\w+)(?:\s+(\w+))?/);
+			const { 1: command, 2: args } = match;
+			const cb = commandList[command] ?? (() => null);
+			cb(...(args ?? "").split(/\s+/));
 		}
 	});
 	socket.on("act-debug", (data) => {
