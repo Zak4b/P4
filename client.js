@@ -35,7 +35,7 @@ function draw(color, x, y) {
 canvas.addEventListener("click", (event) => {
 	const { offsetX: i, offsetY: j } = event;
 	const x = Math.floor(event.offsetX / taille_C);
-	console.log(`Click (${i},${j}) -> c${x}`);
+	console.debug(`Click (${i},${j}) -> c${x}`);
 	socket.send(JSON.stringify({ act: "play", data: x }));
 });
 init();
@@ -58,9 +58,9 @@ socket.addEventListener("message", (event) => {
 		console.warn(`Message invalide`);
 		return;
 	}
-	console.log(message);
+	console.debug(message);
 	const { act: action, data } = message;
-	if (/^[a-z]+$/i.test(String(action))) socket.dispatchEvent(new CustomEvent(`act-${action}`, { detail: data }));
+	if (/^[a-z\-]+$/i.test(String(action))) socket.dispatchEvent(new CustomEvent(`act-${action}`, { detail: data }));
 });
 socket.addEventListener("act-registered", ({ detail: data }) => (uuid = data));
 socket.addEventListener("act-joined", ({ detail: data }) => {
