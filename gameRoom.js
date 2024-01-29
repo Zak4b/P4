@@ -21,15 +21,9 @@ class Player {
 			delete this;
 		});
 	}
-	/**
-	 * @returns {string}
-	 */
 	get uuid() {
 		return this.#uuid;
 	}
-	/**
-	 * @returns {number}
-	 */
 	get playerId() {
 		return this.#playerId;
 	}
@@ -39,9 +33,6 @@ class Player {
 	set playerId(id) {
 		this.#playerId = id;
 	}
-	/**
-	 * @returns {GameRoom}
-	 */
 	get room() {
 		return this.#room;
 	}
@@ -82,30 +73,18 @@ class GameRoom {
 		if (playerMaxCount) this.#playerMaxCount = playerMaxCount;
 		if (gameClass) this.#game = new gameClass();
 	}
-	/**
-	 * @returns {string}
-	 */
 	get id() {
 		return this.#id;
 	}
-	/**
-	 * @returns {number}
-	 */
 	get playerMaxCount() {
 		return this.#playerMaxCount;
 	}
 	get game() {
 		return this.#game;
 	}
-	/**
-	 * @returns {number}
-	 */
 	get playerCount() {
 		return this.#playerList.length;
 	}
-	/**
-	 * @returns {Player[]}
-	 */
 	get playerList() {
 		return this.#playerList;
 	}

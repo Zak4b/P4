@@ -1,9 +1,15 @@
 class P4 {
+	/** @type {number[][]}} */
 	#board = [];
+	/** @type {1 | 2} */
 	#cPlayer = 1;
+	/** @type {{ x: number, y: number }} */
 	#last = { x: -1, y: -1 };
+	/**@type {boolean | number} */
 	#win = false;
+	/**@type {boolean} */
 	#full = false;
+
 	constructor() {
 		this.setDefault();
 	}
@@ -34,6 +40,11 @@ class P4 {
 		this.#last = { x: -1, y: -1 };
 		this.#win = false;
 	}
+	/**
+	 * @param {1 | 2} playerId
+	 * @param {number} x
+	 * @returns
+	 */
 	play(playerId, x) {
 		if (x < 0 || x > 6) {
 			return -1;
@@ -53,6 +64,11 @@ class P4 {
 	_pSwap() {
 		this.#cPlayer = this.#cPlayer == 2 ? 1 : 2;
 	}
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 * @returns {{c:string, r:string, d1:string, d2:string}}
+	 */
 	getCombs(x, y) {
 		let d1 = "";
 		let d2 = "";
@@ -83,6 +99,11 @@ class P4 {
 
 		return { c: c, r: r, d1: d1, d2: d2 };
 	}
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 * @returns {boolean}
+	 */
 	check(x, y) {
 		if (this.#win) {
 			return this.#win;
@@ -101,6 +122,9 @@ class P4 {
 			return true;
 		}
 	}
+	/**
+	 * @returns {boolean}
+	 */
 	checkFull() {
 		for (let i = 0; i < this.#board.length; i++) {
 			for (let j = 0; j < this.#board[i].length; j++) {
