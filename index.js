@@ -99,6 +99,7 @@ wss.on("connection", (socket) => {
 			socket.emit("act-restart");
 		},
 	};
+	const unknownHandler = () => player.send("info", "Commande inconnue");
 	socket.on("act-message", (data) => {
 		const text = data.trim();
 		if (!text.match(/^\/\w+/)) {
@@ -106,7 +107,7 @@ wss.on("connection", (socket) => {
 		} else {
 			const match = text.match(/^\/(\w+)(?:\s+(\w+))?/);
 			const { 1: command, 2: args } = match;
-			const cb = commandList[command] ?? (() => null);
+			const cb = commandList[command] ?? unknownHandler;
 			cb(...(args ?? "").split(/\s+/));
 		}
 	});
