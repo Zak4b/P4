@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+			crossorigin="anonymous"
+		/>
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+			crossorigin="anonymous"
+		></script>
+
+		<title>Document</title>
+		<style>
+			:root {
+				--self-color: red;
+				--adv-color: yellow;
+			}
+			body {
+				background-color: #404040;
+			}
+			.message-box {
+				font-family: Arial, sans-serif;
+				width: 100%;
+				height: auto;
+				display: flex;
+				flex-direction: column;
+			}
+			.message-left,
+			.message-right {
+				width: auto;
+				max-width: 70%;
+				display: flex;
+				flex-direction: row;
+				box-sizing: border-box;
+			}
+			.message-right {
+				align-self: flex-end; /* Aligner à droite */
+			}
+			.message-left {
+				align-self: flex-start; /* Aligner à gauche */
+			}
+			.message-bubble {
+				border-radius: 20px;
+				max-width: 80%;
+				padding: 10px;
+				margin: 5px 6px 4px 6px;
+				box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+				word-wrap: break-word;
+				color: #ffffff;
+			}
+			.message-right > .message-bubble {
+				background-color: #0084ff;
+			}
+
+			.message-left > .message-bubble {
+				background-color: #404040;
+			}
+			#msg-area {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				border-radius: 20px;
+				width: auto;
+				max-width: 400px;
+				max-height: 80vh;
+				overflow-y: auto;
+				border-color: #0084ff;
+				border: 2px solid black;
+				background-color: #404040;
+				margin: 5px 20px 20px 20px;
+			}
+			.message-left::before,
+			.message-right::after {
+				content: "";
+				display: block;
+				width: 15px;
+				height: 15px;
+				border-radius: 50%;
+				margin-top: 20px;
+			}
+			.message-box .message-left::before {
+				background-color: var(--adv-color);
+				margin-left: 10px;
+			}
+			.message-box .message-right::after {
+				background-color: var(--self-color);
+				margin-right: 10px;
+			}
+		</style>
+	</head>
+	<header class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top mb-3 px-3">
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbar">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item">
+					<a class="nav-link h5" href="#">Salut</a>
+				</li>
+			</ul>
+		</div>
+	</header>
+	<body class="container" style="padding-top: 85px">
+		<div class="row">
+			<div class="col">
+				<canvas class="mmm" height="600px" width="700px"></canvas>
+				<div class="navbar navbar-expand-lg navbar-dark bg-dark mb-3 px-3">
+					<div class="container-fluid">
+						<div id="indicator-j1" class="btn btn-danger mx-auto">Joueur #1</div>
+						<div id="indicator-j2" class="btn btn-warning mx-auto">Joueur #2</div>
+					</div>
+				</div>
+			</div>
+			<div class="col d-flex flex-column">
+				<div id="msg-area" class="flex-grow-1"></div>
+				<div class="row">
+					<input type="text" class="form-control col" id="msg" placeholder="Message" />
+					<button class="btn btn-warning col" onclick="dbg()">Debug</button>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		const base = document.createElement("base");
+		base.href = "/P4/";
+		document.getElementsByTagName("head")[0].appendChild(base);
+	</script>
+	<script src="client.js"></script>
+</html>
