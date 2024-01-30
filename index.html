@@ -28,6 +28,7 @@
 				font-family: Arial, sans-serif;
 				width: 100%;
 				height: auto;
+				padding: 6px 8px 0px 8px;
 				display: flex;
 				flex-direction: column;
 			}
@@ -51,10 +52,9 @@
 				border-radius: 20px;
 				max-width: 80%;
 				padding: 10px;
-				margin: 5px 6px 4px 6px;
+				margin: 0px 6px 0px 6px;
 				box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 				word-wrap: break-word;
-				color: #ffffff;
 			}
 			.message-right > .message-bubble {
 				background-color: #0084ff;
@@ -68,16 +68,15 @@
 				color: #ffffff;
 				display: flex;
 				flex-direction: column;
-				align-items: flex-start;
 				border-radius: 20px;
-				width: auto;
-				max-width: 400px;
+				width: 100%;
 				max-height: 80vh;
 				overflow-y: auto;
 				border-color: #0084ff;
 				border: 2px solid black;
 				background-color: #404040;
 				margin: 5px 20px 20px 20px;
+				padding-top: 10px;
 			}
 			.message-left::before,
 			.message-right::after {
@@ -86,7 +85,7 @@
 				width: 15px;
 				height: 15px;
 				border-radius: 50%;
-				margin-top: 15px;
+				margin-top: 10px;
 			}
 			.message-box .message-left::before {
 				background-color: var(--adv-color);
@@ -98,19 +97,19 @@
 			}
 		</style>
 	</head>
-	<header class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top mb-3 px-3">
-		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		<div class="collapse navbar-collapse" id="navbar">
-			<ul class="navbar-nav mr-auto">
-				<li class="nav-item">
-					<a class="nav-link h5" href="#">Salut</a>
-				</li>
-			</ul>
-		</div>
-	</header>
 	<body class="container" style="padding-top: 85px">
+		<header class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top mb-3 px-3">
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbar">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item">
+						<a class="nav-link h5" href="#">Salut</a>
+					</li>
+				</ul>
+			</div>
+		</header>
 		<div class="row">
 			<div class="col">
 				<canvas class="mmm" height="600px" width="700px"></canvas>
