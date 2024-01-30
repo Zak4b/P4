@@ -1,8 +1,8 @@
-const uuid = require("uuid");
-const WebSocket = require("ws");
-const { EventEmitter } = require("events");
+import { v4 as uuidv4 } from "uuid";
+import { WebSocket } from "ws";
+import { EventEmitter } from "events";
 
-class Player {
+export class Player {
 	/** @type {string} */
 	#uuid = null;
 	/** @type {number} */
@@ -16,7 +16,7 @@ class Player {
 	 */
 	constructor(socket) {
 		this.#socket = socket;
-		this.#uuid = uuid.v4();
+		this.#uuid = uuidv4();
 		socket.on("close", (code) => {
 			this?.room?.remove(this);
 			console.log(`Connexion fermée avec le code : ${code}`);
@@ -55,7 +55,7 @@ class Player {
 		this.#socket.send(JSON.stringify({ act, data }));
 	}
 }
-class GameRoom extends EventEmitter {
+export class GameRoom extends EventEmitter {
 	/** @template GameClass */
 	/** @type {string} */
 	#id = null;
@@ -124,7 +124,7 @@ class GameRoom extends EventEmitter {
 		});
 	}
 }
-class GameRoomList {
+export class GameRoomList {
 	/** @template GameClass */
 	/** @type {object} */
 	#list;
@@ -169,4 +169,3 @@ class GameRoomList {
 		return this.getOrCreate(roomId).join(player);
 	}
 }
-module.exports = { Player, GameRoom, GameRoomList };

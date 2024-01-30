@@ -1,4 +1,4 @@
-class P4 {
+export class P4 {
 	/** @type {number[][]}} */
 	#board = [];
 	/** @type {1 | 2} */
@@ -89,7 +89,7 @@ class P4 {
 		const xz1 = x - z1;
 		const yz1 = y - z1;
 		const rg1 = Math.min(6 - xz1, 5 - yz1) + 1;
-		console.log(`diag1-> {${xz1},${yz1}} length:{${rg1}}`);
+		//console.log(`diag1-> {${xz1},${yz1}} length:{${rg1}}`);
 		for (let i = 0; i < rg1; i++) {
 			d1 += this.#board[i + xz1][i + yz1].toString();
 		}
@@ -98,7 +98,7 @@ class P4 {
 		const xz2 = x + z2;
 		const yz2 = y - z2;
 		const rg2 = Math.min(xz2, 5 - yz2) + 1;
-		console.log(`diag2-> {${xz2},${yz2}} length:{${rg2}}`);
+		//console.log(`diag2-> {${xz2},${yz2}} length:{${rg2}}`);
 		for (let i = 0; i < rg2; i++) {
 			d2 += this.#board[xz2 - i][i + yz2].toString();
 		}
@@ -116,10 +116,10 @@ class P4 {
 			return this.#win;
 		} else {
 			const playerId = this.#board[x][y];
-			console.log(`Check #win Player #${playerId} c{${x},${y}}`);
+			//console.log(`Check #win Player #${playerId} c{${x},${y}}`);
 			const cb = this.getCombs(x, y);
 			const cbString = Object.values(cb).join("|");
-			console.log(cbString, cb);
+			//console.log(cbString, cb);
 
 			if (!new RegExp(`${playerId}{4,}`).test(cbString)) {
 				return false;
@@ -141,4 +141,3 @@ class P4 {
 		return true;
 	}
 }
-module.exports = P4;

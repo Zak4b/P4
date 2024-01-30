@@ -1,9 +1,10 @@
-require("dotenv").config();
-const http = require("http");
-const WebSocket = require("ws");
-const P4 = require("./P4.js");
-const { Player, GameRoomList } = require("./gameRoom.js");
-const { createReadStream } = require("node:fs");
+import dotenv from "dotenv";
+dotenv.config();
+import http from "http";
+import { WebSocketServer } from "ws";
+import { P4 } from "./P4.js";
+import { Player, GameRoomList } from "./gameRoom.js";
+import { createReadStream } from "node:fs";
 
 const pages = {
 	"/": "index.html",
@@ -40,7 +41,7 @@ server.listen(process.env.PORT, process.env.IP, () => {
 });
 
 const rooms = new GameRoomList(2, P4);
-const wss = new WebSocket.Server({ noServer: true });
+const wss = new WebSocketServer({ noServer: true });
 const regAct = /^[a-z]+$/i;
 
 wss.on("connection", (socket) => {
