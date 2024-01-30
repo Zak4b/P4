@@ -8,6 +8,12 @@
 		"start": "node index.js",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
+	"type": "module",
 	"author": "",
-	"license": "ISC"
+	"license": "ISC",
+	"dependencies": {
+		"dotenv": "^16.4.1",
+		"uuid": "^9.0.1",
+		"ws": "^8.16.0"
+	}
 }
