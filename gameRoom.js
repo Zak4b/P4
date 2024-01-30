@@ -1,5 +1,7 @@
 const uuid = require("uuid");
 const WebSocket = require("ws");
+const { EventEmitter } = require("events");
+
 class Player {
 	/** @type {string} */
 	#uuid = null;
@@ -18,7 +20,6 @@ class Player {
 		socket.on("close", (code) => {
 			this?.room?.remove(this);
 			console.log(`Connexion fermée avec le code : ${code}`);
-			delete this;
 		});
 	}
 	get uuid() {
@@ -54,7 +55,7 @@ class Player {
 		this.#socket.send(JSON.stringify({ act, data }));
 	}
 }
-class GameRoom {
+class GameRoom extends EventEmitter {
 	/** @template GameClass */
 	/** @type {string} */
 	#id = null;
@@ -70,6 +71,7 @@ class GameRoom {
 	 * @param {new() => GameClass} gameClass
 	 */
 	constructor(id, playerMaxCount, gameClass) {
+		super();
 		this.#id = id;
 		if (playerMaxCount) this.#playerMaxCount = playerMaxCount;
 		if (gameClass) this.#game = new gameClass();
@@ -108,6 +110,9 @@ class GameRoom {
 	 */
 	remove(player) {
 		this.#playerList = this.#playerList.filter((e) => e.uuid != player.uuid);
+		if (this.playerCount == 0) {
+			this.emit("empty");
+		}
 	}
 	/**
 	 * @param {String} act
@@ -137,20 +142,31 @@ class GameRoomList {
 		if (gameClass) this.#gameClass = gameClass;
 	}
 	/**
-	 * @param {string} id
+	 * @param {string} roomId
 	 * @returns {GameRoom}
 	 */
-	getOrCreate(id) {
-		if (!this.#list[id]) this.#list[id] = new GameRoom(id, this.#playerMaxCount, this.#gameClass);
-		return this.#list[id];
+	getOrCreate(roomId) {
+		if (!this.#list[roomId]) {
+			this.#list[roomId] = this.#newRoom(roomId);
+		}
+		return this.#list[roomId];
+	}
+	#newRoom(roomId) {
+		const room = new GameRoom(roomId, this.#playerMaxCount, this.#gameClass);
+		const cb = () => {
+			delete this.#list[room.id];
+			room.off("empty", cb);
+		};
+		room.on("empty", cb);
+		return room;
 	}
 	/**
-	 * @param {string} id
+	 * @param {string} roomId
 	 * @param {Player} player
 	 * @returns {GameRoom}
 	 */
-	join(id, player) {
-		return this.getOrCreate(id).join(player);
+	join(roomId, player) {
+		return this.getOrCreate(roomId).join(player);
 	}
 }
 module.exports = { Player, GameRoom, GameRoomList };
