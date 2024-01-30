@@ -136,7 +136,10 @@ class canvasInterface {
 	}
 }
 const protocol = location.protocol === "https:" ? "wss://" : "ws://";
-this.socket = new WebSocket(protocol + window.location.hostname + window.location.pathname);
+const socket = new WebSocket(protocol + window.location.hostname + window.location.pathname);
+socket.addEventListener("close", () => {
+	printInfo("Connexion perdue");
+});
 const canvas = document.querySelector("canvas");
 const game = new ClientP4(socket);
 const interface = new canvasInterface(canvas, game.play.bind(game));
@@ -169,7 +172,7 @@ game.addEventListener("sync", ({ detail: data }) => {
 game.addEventListener("win", ({ detail: data }) => {
 	const win = data.uuid == game.uuid;
 	alert(win ? "Victoire" : "Défaite");
-	//win && setTimeout(() => this.socket.send(JSON.stringify({ act: "restart" })), 5000);
+	win && setTimeout(() => game.send("restart"), 2000);
 });
 game.addEventListener("full", ({ detail: data }) => {
 	alert("Match nul");
@@ -185,7 +188,7 @@ game.addEventListener("info", ({ detail: data }) => {
 
 const container = document.getElementById("msg-area");
 function printInfo(texte) {
-	container.innerHTML += `<div class="text-center w-100">${texte}</div>`;
+	container.innerHTML += `<div class="message-box"> <div class="">${texte}</div> </div>`;
 }
 function printMessage(text, self) {
 	container.innerHTML += `<div class="message-box"> <div class="message-${self ? "right" : "left"}"> <div class="message-bubble">${text}</div> </div> </div>`;
