@@ -19,7 +19,7 @@ function correct(url, root) {
 	if (url.startsWith(root)) {
 		url = url.substring(root.length);
 	}
-	return url || "/" + url;
+	return url || "/";
 }
 
 const server = http.createServer(async (req, res) => {
@@ -63,7 +63,7 @@ wss.on("connection", (socket) => {
 		try {
 			rooms.join(data, player);
 		} catch (error) {
-			console.warn(`${player.uuid} : Salle #${data} pleine`);
+			console.warn(`${player.uuid} : ${error.message}`);
 			player.send("info", `Impossible de rejoindre la Salle #${data}, salle pleine`);
 			return;
 		}
@@ -94,7 +94,7 @@ wss.on("connection", (socket) => {
 		if (player.room.game.win | player.room.game.full) {
 			player.room.game.setDefault();
 			player.room.send("restart");
-			player.send("sync", { cPlayer: player.room.game.cPlayer });
+			player.room.send("sync", { cPlayer: player.room.game.cPlayer });
 		} else {
 			// Vote restart
 		}
