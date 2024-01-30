@@ -68,7 +68,9 @@ wss.on("connection", (socket) => {
 			return;
 		}
 		player.send("joined", { roomId: player.room.id, playerId: player.playerId });
-		player.send("sync", { board: player.room.game.board, cPlayer: player.room.game.cPlayer });
+		const syncData = { cPlayer: player.room.game.cPlayer };
+		if (player.room.game.playCount) syncData.board = player.room.game.board;
+		player.send("sync", syncData);
 	});
 	socket.on("act-play", (data) => {
 		const x = data;
@@ -88,9 +90,14 @@ wss.on("connection", (socket) => {
 			}
 		}
 	});
-	socket.on("act-restart", (data) => {
-		player.room.game.setDefault();
-		player.room.send("restart");
+	socket.on("act-restart", () => {
+		if (player.room.game.win | player.room.game.full) {
+			player.room.game.setDefault();
+			player.room.send("restart");
+			player.send("sync", { cPlayer: player.room.game.cPlayer });
+		} else {
+			// Vote restart
+		}
 	});
 	const commandList = {
 		join: (data) => socket.emit("act-join", data),
@@ -103,7 +110,7 @@ wss.on("connection", (socket) => {
 	socket.on("act-message", (data) => {
 		const text = data.trim();
 		if (!text.match(/^\/\w+/)) {
-			if (text[0]) data && player.room.send("message", { clientId: player.uuid, message: text });
+			player.room.send("message", { clientId: player.uuid, message: text });
 		} else {
 			const match = text.match(/^\/(\w+)(?:\s+(\w+))?/);
 			const { 1: command, 2: args } = match;
