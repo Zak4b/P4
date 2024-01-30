@@ -39,11 +39,13 @@
 				flex-direction: row;
 				box-sizing: border-box;
 			}
-			.message-right {
-				align-self: flex-end; /* Aligner à droite */
+			.message-right,
+			.message-right > .message-bubble {
+				margin-left: auto;
 			}
-			.message-left {
-				align-self: flex-start; /* Aligner à gauche */
+			.message-left,
+			.message-left > .message-bubble {
+				margin-right: auto;
 			}
 			.message-bubble {
 				border-radius: 20px;
@@ -62,6 +64,7 @@
 				background-color: #404040;
 			}
 			#msg-area {
+				line-height: normal;
 				color: #ffffff;
 				display: flex;
 				flex-direction: column;
@@ -83,7 +86,7 @@
 				width: 15px;
 				height: 15px;
 				border-radius: 50%;
-				margin-top: 20px;
+				margin-top: 15px;
 			}
 			.message-box .message-left::before {
 				background-color: var(--adv-color);
