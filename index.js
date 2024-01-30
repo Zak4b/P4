@@ -7,7 +7,7 @@ const { createReadStream } = require("node:fs");
 
 const pages = {
 	"/": "index.html",
-	"/client.js": "client.js",
+	"/ClientP4.js": "ClientP4.js",
 };
 
 function trimSlash(str) {
@@ -101,9 +101,13 @@ wss.on("connection", (socket) => {
 	});
 	const commandList = {
 		join: (data) => socket.emit("act-join", data),
-		pute: () => player.send("pute"),
+		xcx: () => {},
 		restart: () => {
 			socket.emit("act-restart");
+		},
+		debug: () => {
+			console.log(rooms);
+			console.log(player);
 		},
 	};
 	const unknownHandler = () => player.send("info", "Commande inconnue");
@@ -117,10 +121,6 @@ wss.on("connection", (socket) => {
 			const cb = commandList[command] ?? unknownHandler;
 			cb(...(args ?? "").split(/\s+/));
 		}
-	});
-	socket.on("act-debug", (data) => {
-		console.log(rooms);
-		console.log(player);
 	});
 });
 // Associez le serveur WebSocket au serveur HTTP
