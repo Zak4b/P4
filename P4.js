@@ -9,6 +9,8 @@ class P4 {
 	#win = false;
 	/**@type {boolean} */
 	#full = false;
+	/** @type {number} */
+	#playCount = 0;
 
 	constructor() {
 		this.setDefault();
@@ -28,6 +30,9 @@ class P4 {
 	get full() {
 		return this.#full || this.checkFull();
 	}
+	get playCount() {
+		return this.#playCount;
+	}
 	setDefault() {
 		this.#board = [];
 		for (let i = 0; i < 7; i++) {
@@ -39,6 +44,7 @@ class P4 {
 		this.#cPlayer = 1;
 		this.#last = { x: -1, y: -1 };
 		this.#win = false;
+		this.#playCount = 0;
 	}
 	/**
 	 * @param {1 | 2} playerId
@@ -55,6 +61,7 @@ class P4 {
 				this.#board[x][y] = playerId;
 				this._pSwap();
 				this.#last = { x: x, y: y };
+				this.#playCount++;
 				return y;
 			}
 			y++;
