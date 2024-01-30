@@ -42,7 +42,8 @@ init();
 let uuid = null;
 let roomId = 1;
 let playerId = null;
-const socket = new WebSocket("ws://" + window.location.hostname + window.location.pathname);
+const protocol = location.protocol === "https:" ? "wss://" : "ws://";
+const socket = new WebSocket(protocol + window.location.hostname + window.location.pathname);
 const container = document.getElementById("msg-area");
 
 socket.addEventListener("open", (event) => {
@@ -76,17 +77,22 @@ socket.addEventListener("act-play", ({ detail: data }) => {
 	changeIndicatorState(data.nextPlayerId);
 });
 socket.addEventListener("act-game-win", ({ detail: data }) => {
-	if (data.uuid == uuid) {
-		setTimeout(() => socket.send(JSON.stringify({ act: "restart" })), 5000);
-	}
+	const win = data.uuid == uuid;
+	alert(win ? "Victoire" : "Défaite");
+	win && setTimeout(() => socket.send(JSON.stringify({ act: "restart" })), 5000);
+});
+socket.addEventListener("act-game-full", ({ detail: data }) => {
+	alert("Match nul");
 });
 socket.addEventListener("act-sync", ({ detail: data }) => {
 	const board = data.board;
 	changeIndicatorState(data.cPlayer);
-	for (let x = 0; x < board.length; x++) {
-		for (let y = 0; y < board[x].length; y++) {
-			const id = board[x][y];
-			id && draw(PlayerClrs[id], x, y);
+	if (board) {
+		for (let x = 0; x < board.length; x++) {
+			for (let y = 0; y < board[x].length; y++) {
+				const id = board[x][y];
+				id && draw(PlayerClrs[id], x, y);
+			}
 		}
 	}
 });
@@ -101,6 +107,7 @@ socket.addEventListener("act-restart", ({ detail: data }) => init());
 socket.addEventListener("close", () => {
 	console.log(">>> Connexion WebSocket fermée");
 });
+
 function info(texte) {
 	container.innerHTML += `<div class="text-center w-100">${texte}</div>`;
 }
