@@ -60,6 +60,7 @@ class GameRoom {
 	#id = null;
 	/** @type {number} */
 	#playerMaxCount = 2;
+	/**@type {GameClass} */
 	#game = null;
 	/** @type {Player[]} */
 	#playerList = [];
@@ -124,7 +125,7 @@ class GameRoomList {
 	#list;
 	/** @type {number} */
 	#playerMaxCount;
-	/** @type {GameClass} */
+	/** @type {new() => GameClass} */
 	#gameClass;
 	/**
 	 * @param {number} playerMaxCount
