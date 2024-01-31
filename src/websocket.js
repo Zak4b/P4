@@ -6,12 +6,12 @@ export const wss = new WebSocketServer({ noServer: true });
 export const rooms = new GameRoomList(2, P4);
 const regAct = /^[a-z]+$/i;
 
-wss.on("connection", (socket) => {
-	console.log("Nouvelle connexion WebSocket");
+wss.on("connection", async (socket) => {
 	const player = new Player(socket);
+	console.log("Nouvelle connexion " + player.uuid);
 	player.send("registered", player.uuid);
 
-	socket.on("message", (message) => {
+	socket.on("message", async (message) => {
 		//console.log(`${player.uuid} : `, message.toString());
 		try {
 			message = JSON.parse(message);
@@ -22,7 +22,7 @@ wss.on("connection", (socket) => {
 		const { act: action, data } = message;
 		if (regAct.test(String(action))) socket.emit(`act-${action}`, data);
 	});
-	socket.on("act-join", (data) => {
+	socket.on("act-join", async (data) => {
 		try {
 			rooms.join(data, player);
 		} catch (error) {
@@ -35,12 +35,9 @@ wss.on("connection", (socket) => {
 		if (player.room.game.playCount) syncData.board = player.room.game.board;
 		player.send("sync", syncData);
 	});
-	socket.on("act-play", (data) => {
+	socket.on("act-play", async (data) => {
 		const x = data;
-		if (player.room.game.win) {
-			return;
-		}
-		if (player.playerId != player.room.game.cPlayer) return;
+		if (player.room.game.win || player.room.game.full || player.playerId != player.room.game.cPlayer) return;
 		const y = player.room.game.play(player.playerId, x);
 		if (y < 0) {
 			console.log("Forbiden");
@@ -53,7 +50,7 @@ wss.on("connection", (socket) => {
 			}
 		}
 	});
-	socket.on("act-restart", () => {
+	socket.on("act-restart", async () => {
 		if (player.room.game.win | player.room.game.full) {
 			player.room.game.setDefault();
 			player.room.send("restart");
@@ -63,18 +60,18 @@ wss.on("connection", (socket) => {
 		}
 	});
 	const commandList = {
-		join: (data) => socket.emit("act-join", data),
-		xcx: () => {},
-		restart: () => {
+		join: async (data) => socket.emit("act-join", data),
+		xcx: async () => {},
+		restart: async () => {
 			socket.emit("act-restart");
 		},
-		debug: () => {
+		debug: async () => {
 			console.log(rooms);
 			console.log(player);
 		},
 	};
-	const unknownHandler = () => player.send("info", "Commande inconnue");
-	socket.on("act-message", (data) => {
+	const unknownHandler = async () => player.send("info", "Commande inconnue");
+	socket.on("act-message", async (data) => {
 		const text = data.trim();
 		if (!text.match(/^\/\w+/)) {
 			player.room.send("message", { clientId: player.uuid, message: text });

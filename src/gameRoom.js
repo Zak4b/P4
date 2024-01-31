@@ -51,7 +51,7 @@ export class Player {
 	 * @param {string} act
 	 * @param {string} data
 	 */
-	send(act, data) {
+	async send(act, data) {
 		this.#socket.send(JSON.stringify({ act, data }));
 	}
 }
@@ -118,7 +118,7 @@ export class GameRoom extends EventEmitter {
 	 * @param {String} act
 	 * @param {String} data
 	 */
-	send(act, data) {
+	async send(act, data) {
 		this.#playerList.forEach((player) => {
 			player.send(act, data);
 		});

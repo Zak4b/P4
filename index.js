@@ -35,7 +35,7 @@ server.listen(process.env.PORT, process.env.IP, () => {
 
 import { wss } from "./src/websocket.js";
 server.on("upgrade", async (request, socket, head) => {
-	wss.handleUpgrade(request, socket, head, (socket) => {
+	wss.handleUpgrade(request, socket, head, async (socket) => {
 		wss.emit("connection", socket, request);
 	});
 });
