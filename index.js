@@ -3,8 +3,8 @@ dotenv.config();
 import express from "express";
 import cookieParser from "cookie-parser";
 import expressWs from "express-ws";
-import { websocketConnection } from "./src/websocket.js";
-import { router } from "./src/routes/gameP4.js";
+import { websocketConnection } from "./dist/websocket.js";
+import { router } from "./dist/routes/gameP4.js";
 
 const app = express();
 expressWs(app);

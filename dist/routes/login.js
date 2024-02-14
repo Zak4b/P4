@@ -5,7 +5,7 @@ loginRouter
 	.route("/")
 	.all((req, res, next) => {
 		if (isLogged(req)) {
-			res.redirect("/P4");
+			res.redirect("./");
 			return;
 		}
 		next();
