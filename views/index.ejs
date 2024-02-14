@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<base href="/P4/" />
+		<link href="bootstrap/bootstrap.min.css" rel="stylesheet" />
+		<script src="bootstrap/bootstrap.bundle.min.js"></script>
+		<link href="style.css" rel="stylesheet" />
+		<script src="indexScript.js" type="module" defer></script>
+		<title>Document</title>
+	</head>
+	<body class="container" style="padding-top: 85px">
+		<header class="navbar navbar-expand navbar-dark bg-dark fixed-top mb-3 px-3">
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbar">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item">
+						<a class="nav-link h5" data-bs-toggle="offcanvas" href="#offcanvas">Liste</a>
+					</li>
+				</ul>
+			</div>
+		</header>
+		<!-- Modal -->
+		<div class="modal fade" id="Modal" tabindex="-1">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5"></h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body"></div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fermer</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- OffCanvas -->
+		<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas">
+			<div class="offcanvas-header">
+				<h5 class="offcanvas-title">Title</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+			</div>
+			<div class="offcanvas-body">
+				<ul class="list-group room-list" data-template="template-room-li">
+					<li class="list-group-item room-list-new room-list-persistent"><button class="btn btn-info w-100">Nouveau</button></li>
+				</ul>
+			</div>
+		</div>
+		<!--  -->
+		<div class="row">
+			<div class="col-lg-7 col-12">
+				<canvas id="canvas" class="mw-100"></canvas>
+				<div class="container-fluid d-flex justify-content-evenly bg-dark p-2 rounded-4">
+					<div id="indicator-j1" class="btn btn-danger disabled">Joueur #1</div>
+					<div id="indicator-j2" class="btn btn-warning disabled">Joueur #2</div>
+				</div>
+			</div>
+			<div class="col-lg-5 col-12 d-flex flex-column">
+				<div
+					id="msg-area"
+					class="msg-area d-flex flex-column flex-grow-1 w-100 py-2 px-1 border border-3 border-black rounded-4 lh-sm"
+					data-msg-target=".msg-area-body"
+					data-msg-input="input.msg-input"
+					data-msg-template-info="#template-message-info"
+					data-msg-template-msg="#template-message-message"
+					data-msg-template-vote="#template-message-vote"
+				>
+					<div class="msg-area-body flex-grow-1 overflow-y-scroll" style="height: 400px"></div>
+					<input type="text" style="position: sticky; bottom: 0" class="msg-input form-control w-100" id="msg" placeholder="Message" />
+				</div>
+			</div>
+		</div>
+
+		<template id="template-message-info">
+			<div class="message-box"><div class="message-content"></div></div>
+		</template>
+		<template id="template-message-message">
+			<div class="message-box">
+				<div class="message-side"><div class="message-bubble message-content"></div></div>
+			</div>
+		</template>
+		<template id="template-message-vote">
+			<div class="message-box">
+				<div class="message-content">Spectateur ?</div>
+				<div class="vote-form mt-1">
+					<button class="btn btn-sm btn-danger vote-no">Non</button>
+					<button class="btn btn-sm btn-success vote-yes">Oui</button>
+				</div>
+			</div>
+		</template>
+		<template id="template-room-li">
+			<li class="list-group-item d-flex justify-content-between align-items-center">
+				<div class="d-flex flex-row">
+					<div class="placeholder-room-id me-3"></div>
+					<div class="badge bg-secondary placeholder-room-state"></div>
+				</div>
+				<button class="btn">Rejoindre</button>
+			</li>
+		</template>
+		<template id="template-room-new-form">
+			<form>
+				<div class="input-group">
+					<input type="text" name="roomId" class="form-control" placeholder="Nom de la salle" />
+					<button class="btn btn-outline-primary" type="submit">Créer</button>
+				</div>
+			</form>
+		</template>
+	</body>
+</html>
