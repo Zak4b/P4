@@ -1,4 +1,6 @@
-export class P4 {
+import { Game } from "./gameRoom.js";
+
+export class P4 extends Game {
 	#board: number[][] = [];
 	#cPlayer: 1 | 2 = 1;
 	#last: { x: number; y: number; } = { x: -1, y: -1 };
@@ -6,7 +8,13 @@ export class P4 {
 	#full: boolean = false;
 	#playCount: number = 0;
 
+	#pidValues:number[] = [1, 2];
+	get pidValues() {
+		return this.#pidValues;
+	}
+
 	constructor() {
+		super()
 		this.setDefault();
 	}
 	get board() {
