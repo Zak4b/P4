@@ -23,6 +23,9 @@ export const deleteUser = () => {
 	//
 };
 
-export const mergeUser = (uuid1: string, uuid2: string) => {
-	//
+export const mergeUser = (id1: number, id2: number) => {
+	db.prepare("UPDATE TOKEN SET userid = ? WHERE userid = ?").run(id1,id2);
+	db.prepare("UPDATE GAMES SET player_1 = ? WHERE player_1 = ?").run(id1,id2);
+	db.prepare("UPDATE GAMES SET player_2 = ? WHERE player_2 = ?").run(id1,id2);
+	db.prepare("DELETE FROM USERS WHERE id = ?").run(id2);
 };
