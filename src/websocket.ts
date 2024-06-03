@@ -1,4 +1,4 @@
-import { saveGame } from "./actions/game.js";
+import game from "./actions/game.js";
 import { P4 } from "./class/P4.js";
 import { Player, GameRoomList } from "./class/gameRoom.js";
 
@@ -62,7 +62,7 @@ export const websocketConnection = async (socket: import("ws").WebSocket, req: i
 			if (player.room.game.check(x, y) || player.room.game.full) {
 				const p1 = player.room.registeredPlayerList.find((e) => e.playerId == 1)!;
 				const p2 = player.room.registeredPlayerList.find((e) => e.playerId == 2)!;
-				saveGame(p1.uuid, p2.uuid, player.room.game.win, JSON.stringify(player.room.game.board));
+				game.save(p1.uuid, p2.uuid, player.room.game.win, JSON.stringify(player.room.game.board));
 				if (player.room.game.full) {
 					player.room.send("game-full");
 				} else {

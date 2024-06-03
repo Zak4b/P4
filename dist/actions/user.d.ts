@@ -1,4 +1,6 @@
-export declare const createUser: (name: string, uuid?: string | null) => number;
-export declare const getUser: (uuid: string) => number;
-export declare const deleteUser: () => void;
-export declare const mergeUser: (id1: number, id2: number) => void;
+declare const _default: {
+    create: (name: string, uuid?: string | null) => number;
+    get: (uuid: string) => number;
+    merge: (id1: number, id2: number) => void;
+};
+export default _default;

@@ -1,10 +1,10 @@
 import express from "express";
-import { isLogged, loggin, cookieName } from "../actions/auth.js";
+import auth from "../actions/auth.js";
 export const loginRouter = express.Router();
 loginRouter
 	.route("/")
 	.all((req, res, next) => {
-		if (isLogged(req, res)) {
+		if (auth.isLogged(req, res)) {
 			res.redirect("./");
 			return;
 		}
@@ -16,9 +16,9 @@ loginRouter
 	.post(async (req, res, next) => {
 		const data = req.body;
 		if (typeof data.username === "string") {
-			loggin(data.username.trim())
+			auth.loggin(data.username.trim())
 				.then((result) => {
-					res.cookie(cookieName, result.cookieContent, { signed: true });
+					res.cookie(auth.cookieName, result.cookieContent, { signed: true });
 					res.status(200).end();
 				})
 				.catch(() => {

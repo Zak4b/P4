@@ -1,7 +1,7 @@
-import { isLogged } from "./actions/auth.js";
+import authM from "./actions/auth.js";
 export const auth = (redirect) => {
     return (req, res, next) => {
-        if (isLogged(req, res)) {
+        if (authM.isLogged(req, res)) {
             next();
         }
         else {
