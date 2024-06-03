@@ -3,7 +3,7 @@ export class P4 extends Game {
     #board = [];
     #cPlayer = 1;
     #last = { x: -1, y: -1 };
-    #win = false;
+    #win = 0;
     #full = false;
     #playCount = 0;
     #pidValues = [1, 2];
@@ -42,7 +42,7 @@ export class P4 extends Game {
         }
         this.#cPlayer = 1;
         this.#last = { x: -1, y: -1 };
-        this.#win = false;
+        this.#win = 0;
         this.#playCount = 0;
     }
     play(playerId, x) {

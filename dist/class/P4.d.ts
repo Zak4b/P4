@@ -9,7 +9,7 @@ export declare class P4 extends Game {
         x: number;
         y: number;
     };
-    get win(): number | boolean;
+    get win(): number;
     get full(): boolean;
     get playCount(): number;
     setDefault(): void;

@@ -1,3 +1,4 @@
+import { saveGame } from "./actions/game.js";
 import { P4 } from "./class/P4.js";
 import { Player, GameRoomList } from "./class/gameRoom.js";
 export const rooms = new GameRoomList(2, P4);
@@ -58,16 +59,21 @@ export const websocketConnection = async (socket, req) => {
         }
         else {
             player.room.send("play", { playerId: player.playerId, x, y, nextPlayerId: player.room.game.cPlayer });
-            if (player.room.game.check(x, y)) {
-                player.room.send("game-win", { uuid: player.uuid, playerid: player.playerId });
-            }
-            else if (player.room.game.full) {
-                player.room.send("game-full");
+            if (player.room.game.check(x, y) || player.room.game.full) {
+                const p1 = player.room.registeredPlayerList.find((e) => e.playerId == 1);
+                const p2 = player.room.registeredPlayerList.find((e) => e.playerId == 2);
+                saveGame(p1.uuid, p2.uuid, player.room.game.win, JSON.stringify(player.room.game.board));
+                if (player.room.game.full) {
+                    player.room.send("game-full");
+                }
+                else {
+                    player.room.send("game-win", { uuid: player.uuid, playerid: player.playerId });
+                }
             }
         }
     });
     socket.on("game-restart", async (data) => {
-        if (player.room === null || typeof data === 'string') {
+        if (player.room === null || typeof data === "string") {
             return;
         }
         if (player.room.game.win || player.room.game.full || data?.forced) {
@@ -87,18 +93,23 @@ export const websocketConnection = async (socket, req) => {
                 return;
             }
             player.data.set("swap", true);
-            const other = player.room.playerList.filter((p) => p.uuid != player.uuid)[0];
-            if (other.data.get("swap") === true) {
-                const tmp = player.playerId;
-                player.playerId = other.playerId;
-                player.data.delete("swap");
-                other.playerId = tmp;
-                other.data.delete("swap");
-                socket.emit("game-restart", { forced: true });
-            }
-            else {
-                player.send("info", "Demande d'échange envoyé");
-                other.send("vote", { text: "Echanger de couleur ?", command: "/swap" });
+            const other = player.room.playerList.find((p) => p.uuid != player.uuid);
+            if (other) {
+                if (other.data?.get("swap") === true) {
+                    player.data.delete("swap");
+                    other.data.delete("swap");
+                    player.playerId = other.playerId;
+                    other.playerId = other.playerId == 1 ? 2 : 1;
+                    const reg = player.room.registeredPlayerList;
+                    reg.forEach((e) => {
+                        e.playerId = e.playerId == 1 ? 2 : 1;
+                    });
+                    socket.emit("game-restart", { forced: true });
+                }
+                else {
+                    player.send("info", "Demande d'échange envoyé");
+                    other.send("vote", { text: "Echanger de couleur ?", command: "/swap" });
+                }
             }
         },
         spect: async (roomId) => {

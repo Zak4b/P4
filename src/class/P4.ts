@@ -4,7 +4,7 @@ export class P4 extends Game {
 	#board: number[][] = [];
 	#cPlayer: 1 | 2 = 1;
 	#last: { x: number; y: number; } = { x: -1, y: -1 };
-	#win: boolean | number = false;
+	#win: number = 0;
 	#full: boolean = false;
 	#playCount: number = 0;
 
@@ -45,7 +45,7 @@ export class P4 extends Game {
 		}
 		this.#cPlayer = 1;
 		this.#last = { x: -1, y: -1 };
-		this.#win = false;
+		this.#win = 0;
 		this.#playCount = 0;
 	}
 	play(playerId: 1 | 2, x: number) {
