@@ -16,3 +16,9 @@ router.get("/", async (req, res, next) => {
 router.get("/rooms", async (req, res, next) => {
 	res.json(rooms.listAll());
 });
+router.get("/history", async (req, res, next) => {
+	res.json(game.history());
+});
+router.get("/score", async (req, res, next) => {
+	res.json(game.playerScore());
+});

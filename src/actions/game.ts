@@ -11,4 +11,29 @@ const save = (uuid1: string, uuid2: string, result: number, board: any) => {
 	}
 };
 
-export default { save };
+const playerScore = () => {
+	const row = db
+		.prepare(
+			`SELECT p,e,count(*) 
+		FROM 
+			(
+				SELECT id, player_1 as p, player_2 as e
+				FROM GAMES
+				WHERE result = 1
+				UNION 
+				SELECT id, player_2 as p, player_1 as e
+				FROM GAMES
+				WHERE result = 2
+			)
+		GROUP by p`
+		)
+		.get();
+	return row;
+};
+
+const history = (limit?: number, startFrom?: number) => {
+	const row = db.prepare(`SELECT * FROM GAMES ${startFrom ? `WHERE id < ${startFrom}` : ""} ORDER BY id DESC ${limit ? `LIMIT ${limit}` : ""}`).get();
+	return row;
+};
+
+export default { save, playerScore, history };
