@@ -91,6 +91,9 @@ export class P4GameInterface {
 export class canvasInterface extends P4GameInterface {
 	#dims = { w: 7, h: 6 };
 	#canvas;
+	#canvasBase;
+	#canvasTokens = [];
+	#t = 0;
 	#ctx;
 	#taille_C = 110;
 
@@ -100,6 +103,7 @@ export class canvasInterface extends P4GameInterface {
 	 * @param {string[]} settings.colors
 	 * @param {number} settings.width
 	 * @param {number} settings.height
+	 * @param {boolean} settings.static
 	 */
 	constructor(canvas, clickHandler = (x) => {}, settings) {
 		super(settings);
@@ -120,6 +124,9 @@ export class canvasInterface extends P4GameInterface {
 			console.debug(`Click (${i},${j}) -> c${x}`);
 			clickHandler(x);
 		});
+		if (!settings.static) {
+			this.#loop();
+		}
 	}
 	get element() {
 		return this.#canvas;
@@ -151,9 +158,14 @@ export class canvasInterface extends P4GameInterface {
 			this.#ctx.lineTo(this.#canvas.width, i * this.#taille_C);
 			this.#ctx.stroke();
 		}
+		this.#canvasBase = document.createElement("canvas");
+		this.#canvasBase.width = this.#canvas.width;
+		this.#canvasBase.height = this.#canvas.height;
+		this.#canvasBase.getContext("2d").drawImage(this.#canvas, 0, 0, this.#canvasBase.width, this.#canvasBase.height);
 	}
 	reset() {
 		this.init();
+		this.#canvasTokens = [];
 	}
 	/**
 	 * @param {string} color
@@ -165,5 +177,53 @@ export class canvasInterface extends P4GameInterface {
 		this.#ctx.arc(x * this.#taille_C + this.#taille_C / 2, this.#canvas.height - (y * this.#taille_C + this.#taille_C / 2), this.#taille_C / 2 - 5, 0, 2 * Math.PI);
 		this.#ctx.fillStyle = color;
 		this.#ctx.fill();
+	}
+	/**
+	 * @param {string} color
+	 * @param {number} x
+	 * @param {number} y
+	 */
+	push(color, x, y) {
+		this.#canvasTokens.push(new CanvasToken(x, y, color));
+	}
+
+	#loop(time = 0) {
+		const t = (time - this.#t) / 1000;
+		this.#t = time;
+		this.#canvas.getContext("2d").drawImage(this.#canvasBase, 0, 0, this.#canvas.width, this.#canvas.height);
+		for (const token of this.#canvasTokens) {
+			this.draw(token.color, token.x, token.y);
+			if (!token.static) {
+				if (token.y == token.targetY) {
+					token.static = true;
+				} else {
+					token.move(t);
+				}
+			}
+		}
+		const aaa = this.#canvasTokens[this.#canvasTokens.length - 1];
+		requestAnimationFrame(this.#loop.bind(this));
+	}
+}
+
+class CanvasToken {
+	color;
+	x;
+	y = 6;
+	targetY;
+	static = false;
+
+	constructor(x, y, color) {
+		this.x = x;
+		this.targetY = y;
+		this.color = color;
+		this.time = new Date().getTime();
+	}
+
+	move(t = 0) {
+		const v = 15;
+		const d = v * t;
+		this.y = this.y - d;
+		if (this.y < this.targetY) this.y = this.targetY;
 	}
 }

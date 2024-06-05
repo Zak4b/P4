@@ -18,7 +18,7 @@ socket.addEventListener("open", () => {
 	});
 });
 game.addEventListener("join", (e) => {
-	gameInterface.init();
+	gameInterface.reset();
 	const { roomId, playerId } = e.detail;
 	const advId = playerId == 1 ? 2 : 1;
 	document.documentElement.style.setProperty("--self-color", gameInterface.getColor(playerId));
@@ -27,7 +27,8 @@ game.addEventListener("join", (e) => {
 });
 game.addEventListener("play", (e) => {
 	const { playerId, x, y, nextPlayerId } = e.detail;
-	gameInterface.draw(gameInterface.getColor(playerId), x, y);
+	gameInterface.push(gameInterface.getColor(playerId), x, y);
+	//new Audio("pop.mp3").play();
 	changeIndicatorState(nextPlayerId);
 });
 game.addEventListener("sync", (e) => {
@@ -37,14 +38,16 @@ game.addEventListener("sync", (e) => {
 	for (let x = 0; x < board.length; x++) {
 		for (let y = 0; y < board[x].length; y++) {
 			const id = board[x][y];
-			id && gameInterface.draw(gameInterface.getColor(id), x, y);
+			id && gameInterface.push(gameInterface.getColor(id), x, y);
 		}
 	}
 });
 game.addEventListener("win", (e) => {
-	const win = e.detail.uuid == game.uuid;
-	showModal(win ? "Victoire" : "Défaite", copyCanvas(gameInterface.element, 460));
-	win && setTimeout(() => game.send("restart"), 1000);
+	setTimeout(() => {
+		const win = e.detail.uuid == game.uuid;
+		showModal(win ? "Victoire" : "Défaite", copyCanvas(gameInterface.element, 460));
+		win && setTimeout(() => game.send("restart"), 1000);
+	}, 1000);
 });
 game.addEventListener("full", (e) => {
 	showModal("Match Nul", copyCanvas(gameInterface.element, 460));
