@@ -27,13 +27,26 @@ const playerScore = () => {
 			)
 		GROUP by p`
 		)
-		.get();
+		.all();
 	return row;
 };
 
 const history = (limit?: number, startFrom?: number) => {
-	const row = db.prepare(`SELECT * FROM GAMES ${startFrom ? `WHERE id < ${startFrom}` : ""} ORDER BY id DESC ${limit ? `LIMIT ${limit}` : ""}`).get();
-	return row;
+	const rows = db
+		.prepare(
+			`SELECT GAMES.*, u1.name as name_1, u2.name as name_2 
+			FROM GAMES
+			INNER JOIN USERS as u1 on player_1 = u1.id
+			INNER JOIN USERS as u2 on player_2 = u2.id
+			${startFrom ? `WHERE GAMES.id < ${startFrom}` : ""}
+			ORDER BY GAMES.id DESC ${limit ? `LIMIT ${limit}` : ""}`
+		)
+		.all();
+	rows.map((e: any) => {
+		e.board = JSON.parse(e.board);
+		return e;
+	});
+	return rows;
 };
 
 export default { save, playerScore, history };
