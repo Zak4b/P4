@@ -38,7 +38,7 @@ game.addEventListener("sync", (e) => {
 	for (let x = 0; x < board.length; x++) {
 		for (let y = 0; y < board[x].length; y++) {
 			const id = board[x][y];
-			id && gameInterface.push(gameInterface.getColor(id), x, y);
+			id && gameInterface.setToken(gameInterface.getColor(id), x, y);
 		}
 	}
 });

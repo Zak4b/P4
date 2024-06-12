@@ -186,13 +186,20 @@ export class canvasInterface extends P4GameInterface {
 	push(color, x, y) {
 		this.#canvasTokens.push(new CanvasToken(x, y, color));
 	}
+	/**
+	 * @param {string} color
+	 * @param {number} x
+	 * @param {number} y
+	 */
+	setToken(color, x, y) {
+		this.#canvasTokens.push(new CanvasToken(x, y, color, false));
+	}
 
 	#loop(time = 0) {
 		const t = (time - this.#t) / 1000;
 		this.#t = time;
 		this.#canvas.getContext("2d").drawImage(this.#canvasBase, 0, 0, this.#canvas.width, this.#canvas.height);
 		for (const token of this.#canvasTokens) {
-			this.draw(token.color, token.x, token.y);
 			if (!token.static) {
 				if (token.y == token.targetY) {
 					token.static = true;
@@ -200,8 +207,11 @@ export class canvasInterface extends P4GameInterface {
 					token.move(t);
 				}
 			}
+			this.draw(token.color, token.x, token.y);
 		}
 		const aaa = this.#canvasTokens[this.#canvasTokens.length - 1];
+		// aaa && this.draw("#888888", aaa.x, aaa.y); dernier pion du tableau mais pas forcément dernier joué si sync
+
 		requestAnimationFrame(this.#loop.bind(this));
 	}
 }
@@ -213,11 +223,14 @@ class CanvasToken {
 	targetY;
 	static = false;
 
-	constructor(x, y, color) {
+	constructor(x, y, color, animate = true) {
 		this.x = x;
 		this.targetY = y;
+		if (!animate) {
+			this.y = y;
+			this.static = true;
+		}
 		this.color = color;
-		this.time = new Date().getTime();
 	}
 
 	move(t = 0) {
