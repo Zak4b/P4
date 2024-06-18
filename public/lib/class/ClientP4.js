@@ -89,23 +89,24 @@ export class P4GameInterface {
 }
 
 export class canvasInterface extends P4GameInterface {
-	#dims = { w: 7, h: 6 };
 	#canvas;
 	#canvasBase;
 	#canvasTokens = [];
 	#t = 0;
 	#ctx;
 	#taille_C = 110;
+	#last = null;
 
 	/**
 	 * @param {HTMLCanvasElement} canvas
+	 * @param {ClientP4} gameObject
 	 * @param {object} settings
 	 * @param {string[]} settings.colors
 	 * @param {number} settings.width
 	 * @param {number} settings.height
 	 * @param {boolean} settings.static
 	 */
-	constructor(canvas, clickHandler = (x) => {}, settings) {
+	constructor(canvas, gameObject, settings) {
 		super(settings);
 		if (settings?.width || settings?.height) {
 			const compare = [];
@@ -118,12 +119,32 @@ export class canvasInterface extends P4GameInterface {
 		this.#canvas.height = this.#taille_C * 6;
 		this.#ctx = this.#canvas.getContext("2d");
 		this.init();
+
 		this.#canvas.addEventListener("click", (event) => {
 			const { offsetX: i, offsetY: j } = event;
 			const x = Math.floor(event.offsetX / (this.width / 7));
 			console.debug(`Click (${i},${j}) -> c${x}`);
-			clickHandler(x);
+			gameObject.play(x);
 		});
+
+		gameObject.addEventListener("join", () => this.reset());
+		gameObject.addEventListener("play", (e) => {
+			const { playerId, x, y } = e.detail;
+			this.push(this.getColor(playerId), x, y);
+		});
+		gameObject.addEventListener("sync", (e) => {
+			const { board, last } = e.detail;
+			if (last) this.#last = last;
+			if (!board) return;
+			for (let x = 0; x < board.length; x++) {
+				for (let y = 0; y < board[x].length; y++) {
+					const id = board[x][y];
+					id && this.setToken(this.getColor(id), x, y);
+				}
+			}
+		});
+		gameObject.addEventListener("restart", () => this.reset());
+
 		if (!settings.static) {
 			this.#loop();
 		}
@@ -166,6 +187,7 @@ export class canvasInterface extends P4GameInterface {
 	reset() {
 		this.init();
 		this.#canvasTokens = [];
+		this.#last = null;
 	}
 	/**
 	 * @param {string} color
@@ -178,13 +200,21 @@ export class canvasInterface extends P4GameInterface {
 		this.#ctx.fillStyle = color;
 		this.#ctx.fill();
 	}
+	highlight(x, y) {
+		this.#ctx.beginPath();
+		this.#ctx.arc(x * this.#taille_C + this.#taille_C / 2, this.#canvas.height - (y * this.#taille_C + this.#taille_C / 2), this.#taille_C / 2 - 5, 0, 2 * Math.PI);
+		this.#ctx.strokeStyle = "#FFFFFF";
+		this.#ctx.stroke();
+	}
 	/**
 	 * @param {string} color
 	 * @param {number} x
 	 * @param {number} y
 	 */
 	push(color, x, y) {
-		this.#canvasTokens.push(new CanvasToken(x, y, color));
+		const newToken = new CanvasToken(x, y, color);
+		this.#canvasTokens.push(newToken);
+		this.#last = newToken;
 	}
 	/**
 	 * @param {string} color
@@ -198,7 +228,7 @@ export class canvasInterface extends P4GameInterface {
 	#loop(time = 0) {
 		const t = (time - this.#t) / 1000;
 		this.#t = time;
-		this.#canvas.getContext("2d").drawImage(this.#canvasBase, 0, 0, this.#canvas.width, this.#canvas.height);
+		this.#ctx.drawImage(this.#canvasBase, 0, 0, this.#canvas.width, this.#canvas.height);
 		for (const token of this.#canvasTokens) {
 			if (!token.static) {
 				if (token.y == token.targetY) {
@@ -209,8 +239,10 @@ export class canvasInterface extends P4GameInterface {
 			}
 			this.draw(token.color, token.x, token.y);
 		}
-		const aaa = this.#canvasTokens[this.#canvasTokens.length - 1];
-		// aaa && this.draw("#888888", aaa.x, aaa.y); dernier pion du tableau mais pas forcément dernier joué si sync
+		if (this.#last) {
+			const { x, y } = this.#last;
+			time % 3000 > 2000 && this.highlight(x, y);
+		}
 
 		requestAnimationFrame(this.#loop.bind(this));
 	}

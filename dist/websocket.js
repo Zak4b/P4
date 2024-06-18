@@ -11,6 +11,7 @@ function getSyncData(player) {
     const syncData = { playerId: player.playerId, cPlayer: game.cPlayer };
     if (game.playCount) {
         syncData.board = game.board;
+        syncData.last = game.last;
     }
     return syncData;
 }

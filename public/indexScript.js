@@ -5,7 +5,7 @@ import { RoomList } from "./lib/class/RoomList.js";
 const protocol = location.protocol === "https:" ? "wss://" : "ws://";
 const socket = new WebSocket(protocol + window.location.hostname + window.location.pathname);
 const game = new ClientP4(socket);
-const gameInterface = new canvasInterface(document.getElementById("canvas"), game.play.bind(game), { width: null });
+const gameInterface = new canvasInterface(document.getElementById("canvas"), game, { width: null });
 const messenger = new Messenger(document.getElementById("msg-area"), document.getElementById("msg"));
 
 socket.addEventListener("open", () => {
@@ -18,7 +18,6 @@ socket.addEventListener("open", () => {
 	});
 });
 game.addEventListener("join", (e) => {
-	gameInterface.reset();
 	const { roomId, playerId } = e.detail;
 	const advId = playerId == 1 ? 2 : 1;
 	document.documentElement.style.setProperty("--self-color", gameInterface.getColor(playerId));
@@ -26,21 +25,13 @@ game.addEventListener("join", (e) => {
 	messenger.info(`Connecté à la Salle #${roomId}`);
 });
 game.addEventListener("play", (e) => {
-	const { playerId, x, y, nextPlayerId } = e.detail;
-	gameInterface.push(gameInterface.getColor(playerId), x, y);
+	const { nextPlayerId } = e.detail;
 	//new Audio("pop.mp3").play();
 	changeIndicatorState(nextPlayerId);
 });
 game.addEventListener("sync", (e) => {
-	const { board, cPlayer } = e.detail;
+	const { cPlayer } = e.detail;
 	changeIndicatorState(cPlayer);
-	if (!board) return;
-	for (let x = 0; x < board.length; x++) {
-		for (let y = 0; y < board[x].length; y++) {
-			const id = board[x][y];
-			id && gameInterface.setToken(gameInterface.getColor(id), x, y);
-		}
-	}
 });
 game.addEventListener("win", (e) => {
 	setTimeout(() => {
@@ -52,7 +43,6 @@ game.addEventListener("win", (e) => {
 game.addEventListener("full", (e) => {
 	showModal("Match Nul", copyCanvas(gameInterface.element, 460));
 });
-game.addEventListener("restart", () => gameInterface.reset());
 game.addEventListener("message", (e) => {
 	const { clientId, message } = e.detail;
 	messenger.message(message, game.uuid == clientId);

@@ -5,7 +5,7 @@ import { Player, GameRoomList } from "./class/gameRoom.js";
 export const rooms = new GameRoomList(2, P4);
 const regType = /^[a-z]+$/i;
 
-type syncObject = { playerId: number | null; cPlayer: number; board?: number[][] };
+type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
 function getSyncData(player: Player<typeof P4>): syncObject {
 	const game = player.room?.game;
 	if (!game) {
@@ -14,6 +14,7 @@ function getSyncData(player: Player<typeof P4>): syncObject {
 	const syncData: syncObject = { playerId: player.playerId, cPlayer: game.cPlayer };
 	if (game.playCount) {
 		syncData.board = game.board;
+		syncData.last = game.last;
 	}
 	return syncData;
 }
