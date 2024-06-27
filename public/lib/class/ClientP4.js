@@ -120,30 +120,32 @@ export class canvasInterface extends P4GameInterface {
 		this.#ctx = this.#canvas.getContext("2d");
 		this.init();
 
-		this.#canvas.addEventListener("click", (event) => {
-			const { offsetX: i, offsetY: j } = event;
-			const x = Math.floor(event.offsetX / (this.width / 7));
-			console.debug(`Click (${i},${j}) -> c${x}`);
-			gameObject.play(x);
-		});
+		if (gameObject) {
+			this.#canvas.addEventListener("click", (event) => {
+				const { offsetX: i, offsetY: j } = event;
+				const x = Math.floor(event.offsetX / (this.width / 7));
+				console.debug(`Click (${i},${j}) -> c${x}`);
+				gameObject.play(x);
+			});
 
-		gameObject.addEventListener("join", () => this.reset());
-		gameObject.addEventListener("play", (e) => {
-			const { playerId, x, y } = e.detail;
-			this.push(this.getColor(playerId), x, y);
-		});
-		gameObject.addEventListener("sync", (e) => {
-			const { board, last } = e.detail;
-			if (last) this.#last = last;
-			if (!board) return;
-			for (let x = 0; x < board.length; x++) {
-				for (let y = 0; y < board[x].length; y++) {
-					const id = board[x][y];
-					id && this.setToken(this.getColor(id), x, y);
+			gameObject.addEventListener("join", () => this.reset());
+			gameObject.addEventListener("play", (e) => {
+				const { playerId, x, y } = e.detail;
+				this.push(this.getColor(playerId), x, y);
+			});
+			gameObject.addEventListener("sync", (e) => {
+				const { board, last } = e.detail;
+				if (last) this.#last = last;
+				if (!board) return;
+				for (let x = 0; x < board.length; x++) {
+					for (let y = 0; y < board[x].length; y++) {
+						const id = board[x][y];
+						id && this.setToken(this.getColor(id), x, y);
+					}
 				}
-			}
-		});
-		gameObject.addEventListener("restart", () => this.reset());
+			});
+			gameObject.addEventListener("restart", () => this.reset());
+		}
 
 		if (!settings.static) {
 			this.#loop();
