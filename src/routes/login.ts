@@ -11,7 +11,7 @@ loginRouter
 		next();
 	})
 	.get(async (req, res, next) => {
-		res.render("auth.ejs");
+		res.render("auth.ejs", { layout: false });
 	})
 	.post(async (req, res, next) => {
 		const data = req.body;

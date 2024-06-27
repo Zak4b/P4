@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
+import expressLayouts from "express-ejs-layouts";
 import cookieParser from "cookie-parser";
 import expressWs from "express-ws";
 import { websocketConnection } from "./dist/websocket.js";
@@ -9,6 +10,7 @@ import { router } from "./dist/routes/gameP4.js";
 const app = express();
 expressWs(app);
 app.set("view engine", "ejs");
+app.use(expressLayouts);
 app.use(cookieParser("shhhhh"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
