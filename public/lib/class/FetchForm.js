@@ -18,7 +18,7 @@ class FetchForm {
 	 */
 	constructor(form, mode = "urlencoded") {
 		this.#form = form;
-		this.#loader = document.querySelector(form.dataset["loader"]).content.cloneNode(true);
+		this.#loader = document.querySelector(form.dataset["loader"])?.content?.cloneNode(true);
 		this.#selectedmode = FetchForm.h[mode];
 		this.#form.addEventListener("submit", (e) => {
 			this.#onSubmit(e);
@@ -71,6 +71,7 @@ class FetchForm {
 			body: this.#selectedmode.formatData(data),
 			headers: {
 				"Content-Type": this.#selectedmode["Content-Type"],
+				Accept: "application/json",
 			},
 		});
 	}
@@ -86,16 +87,21 @@ class FetchForm {
 	 * @param {object} data
 	 */
 	async #onFetchError(res) {
-		const data = await res.json();
-		if (data.errForm) {
-			this.#displayFormErros(data.errForm);
-		}
-		if (data.err) {
-			console.error(data.err);
-		}
-		this.#toogleControls(true);
-		if (this.#loader && this.#submitter) {
-			this.#submitter.innerHTML = this.#submitterContent;
+		try {
+			const data = await res.json();
+			if (data.errForm) {
+				this.#displayFormErros(data.errForm);
+			}
+			if (data.err) {
+				console.error(data.err);
+			}
+		} catch {
+			console.error("La réponse n'est pas au format json");
+		} finally {
+			this.#toogleControls(true);
+			if (this.#loader && this.#submitter) {
+				this.#submitter.innerHTML = this.#submitterContent;
+			}
 		}
 	}
 	#displayFormErros(errors, feedback = true) {
