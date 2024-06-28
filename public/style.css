@@ -80,3 +80,7 @@ body {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
+table.table th,
+table.table td {
+	vertical-align: middle !important;
+}
