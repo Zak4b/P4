@@ -17,6 +17,10 @@ const get = (uuid: string): number => {
 		throw new Error();
 	}
 };
+const listAll = () => {
+	const rows = db.prepare("SELECT * FROM USERS").all();
+	return rows;
+};
 
 const merge = (id1: number, id2: number) => {
 	db.prepare("UPDATE TOKEN SET userid = ? WHERE userid = ?").run(id1, id2);
@@ -25,4 +29,4 @@ const merge = (id1: number, id2: number) => {
 	db.prepare("DELETE FROM USERS WHERE id = ?").run(id2);
 };
 
-export default { create, get, merge };
+export default { create, get, merge, listAll };
