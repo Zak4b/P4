@@ -100,13 +100,9 @@ export class canvasInterface extends P4GameInterface {
 	/**
 	 * @param {HTMLCanvasElement} canvas
 	 * @param {ClientP4} gameObject
-	 * @param {object} settings
-	 * @param {string[]} settings.colors
-	 * @param {number} settings.width
-	 * @param {number} settings.height
-	 * @param {boolean} settings.static
+	 * @param {{colors: ?string[], width: ?number, height: ?number, static: ?boolean}} settings
 	 */
-	constructor(canvas, gameObject, settings) {
+	constructor(canvas, gameObject, settings = {}) {
 		super(settings);
 		if (settings?.width || settings?.height) {
 			const compare = [];
@@ -147,7 +143,7 @@ export class canvasInterface extends P4GameInterface {
 			gameObject.addEventListener("restart", () => this.reset());
 		}
 
-		if (!settings.static) {
+		if (!settings?.static) {
 			this.#loop();
 		}
 	}
