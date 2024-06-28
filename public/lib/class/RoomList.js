@@ -14,10 +14,6 @@ export class RoomList extends EventTarget {
 	constructor(element) {
 		super();
 		this.#element = element;
-		this.#element.querySelector(".room-list-new").addEventListener("click", (e) => {
-			e.preventDefault();
-			this.#create();
-		});
 		this.#template = document.getElementById(element.dataset["template"]);
 		this.#observer = new IntersectionObserver(
 			async (entries) => {
@@ -48,7 +44,7 @@ export class RoomList extends EventTarget {
 				const bt = item.querySelector("button");
 				bt.addEventListener("click", (e) => {
 					e.preventDefault();
-					this.#join(roomId);
+					this.join(roomId);
 				});
 				if (full) {
 					bt.classList.add("btn-secondary");
@@ -67,10 +63,16 @@ export class RoomList extends EventTarget {
 		this.#element.querySelectorAll("li:not(.room-list-persistent)").forEach((e) => e.remove());
 	}
 
-	#create() {
-		this.dispatchEvent(new CustomEvent("create"));
+	create(roomId) {
+		let detail = roomId;
+		if (this.dispatchEvent(new CustomEvent("beforeCreate", { detail, cancelable: true }))) {
+			this.dispatchEvent(new CustomEvent("create", { detail }));
+		}
 	}
-	#join(roomId) {
-		this.dispatchEvent(new CustomEvent("join", { detail: roomId }));
+	join(roomId) {
+		let detail = roomId;
+		if (this.dispatchEvent(new CustomEvent("beforeJoin", { detail, cancelable: true }))) {
+			this.dispatchEvent(new CustomEvent("join", { detail }));
+		}
 	}
 }

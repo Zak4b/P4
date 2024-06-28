@@ -1,11 +1,12 @@
 import { ClientP4, canvasInterface } from "./lib/class/ClientP4.js";
-import { cloneTemplate, cloneTemplateById, copyCanvas, createElement } from "./lib/dom.js";
+import { showModal, roomList, offCanvas, modal } from "./script.js";
+import { copyCanvas } from "./lib/dom.js";
 import { Messenger } from "./lib/class/Messenger.js";
-import { RoomList } from "./lib/class/RoomList.js";
 const socket = new WebSocket(window.location.pathname, ["ws", "wss"]);
+const roomId = new URL(document.location.toString()).searchParams.get("roomId") ?? 1;
 const game = new ClientP4(socket);
 const gameInterface = new canvasInterface(document.getElementById("canvas"), game, { onPlayerUpdate: changeIndicatorState });
-const messenger = new Messenger(document.getElementById("msg-area"), document.getElementById("msg"));
+const messenger = new Messenger(document.getElementById("msg-area"));
 
 socket.addEventListener("open", () => {
 	const intervalId = setInterval(() => {
@@ -54,32 +55,13 @@ function changeIndicatorState(currentId) {
 	j1.classList.toggle("disabled", currentId !== 1);
 	j2.classList.toggle("disabled", currentId !== 2);
 }
-
-function showModal(title, content, footer = false) {
-	const modal = document.getElementById("Modal");
-	modal.querySelector(".modal-title").innerHTML = title;
-	modal.querySelector(".modal-body").replaceChildren(content);
-	if (!footer) modal.querySelector(".modal-footer").classList.toggle("d-none", !footer);
-	const bsModal = new bootstrap.Modal(modal);
-	bsModal.show();
-	return bsModal;
-}
-const offCanvas = new bootstrap.Offcanvas("#offcanvas");
-const rList = new RoomList(document.querySelector(".room-list"));
-
-rList.addEventListener("join", (e) => {
+roomList.addEventListener("beforeJoin", (e) => {
+	e.preventDefault();
 	offCanvas.hide();
 	game.message(`/join ${e.detail}`);
 });
-rList.addEventListener("create", (e) => {
-	offCanvas.hide();
-	const fragment = cloneTemplateById("template-room-new-form");
-	const form = fragment.querySelector("form");
-	const m = showModal("Nouveau", fragment);
-	form.addEventListener("submit", (e) => {
-		e.preventDefault();
-		const data = new FormData(form);
-		game.message(`/join ${data.get("roomId")}`);
-		m.hide();
-	});
+roomList.addEventListener("beforeCreate", (e) => {
+	e.preventDefault();
+	modal.hide();
+	game.message(`/join ${e.detail}`);
 });
