@@ -1,6 +1,8 @@
 export class RoomList extends EventTarget {
 	/**@type {HTMLUListElement} */
 	#element;
+	/**@type {string} */
+	#url;
 	/**@type {HTMLTemplateElement} */
 	#template;
 	/**@type {IntersectionObserver} */
@@ -10,10 +12,12 @@ export class RoomList extends EventTarget {
 
 	/**
 	 * @param {HTMLUListElement} element
+	 * @param {string} url
 	 */
-	constructor(element) {
+	constructor(element, url) {
 		super();
 		this.#element = element;
+		this.#url = url;
 		this.#template = document.getElementById(element.dataset["template"]);
 		this.#observer = new IntersectionObserver(
 			async (entries) => {
@@ -33,7 +37,7 @@ export class RoomList extends EventTarget {
 		if (this.#loading) return;
 		this.#loading = true;
 		try {
-			const rooms = await (await fetch("rooms")).json();
+			const rooms = await (await fetch(this.#url)).json();
 			for (const [roomId, room] of Object.entries(rooms)) {
 				const { count, max } = room;
 				const full = count >= max;

@@ -10,7 +10,7 @@ export function showModal(title, content, footer = false) {
 	modal.show();
 }
 
-export const roomList = new RoomList(document.querySelector(".room-list"));
+export const roomList = new RoomList(document.querySelector(".room-list"), "api/rooms");
 const toRoom = (roomId) => {
 	window.location.href = `?roomId=${roomId}`;
 };
