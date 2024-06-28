@@ -4,7 +4,7 @@ import { Messenger } from "./lib/class/Messenger.js";
 import { RoomList } from "./lib/class/RoomList.js";
 const socket = new WebSocket(window.location.pathname, ["ws", "wss"]);
 const game = new ClientP4(socket);
-const gameInterface = new canvasInterface(document.getElementById("canvas"), game, { width: null });
+const gameInterface = new canvasInterface(document.getElementById("canvas"), game, { onPlayerUpdate: changeIndicatorState });
 const messenger = new Messenger(document.getElementById("msg-area"), document.getElementById("msg"));
 
 socket.addEventListener("open", () => {
@@ -22,15 +22,6 @@ game.addEventListener("join", (e) => {
 	document.documentElement.style.setProperty("--self-color", gameInterface.getColor(playerId));
 	document.documentElement.style.setProperty("--adv-color", gameInterface.getColor(advId));
 	messenger.info(`Connecté à la Salle #${roomId}`);
-});
-game.addEventListener("play", (e) => {
-	const { nextPlayerId } = e.detail;
-	//new Audio("pop.mp3").play();
-	changeIndicatorState(nextPlayerId);
-});
-game.addEventListener("sync", (e) => {
-	const { cPlayer } = e.detail;
-	changeIndicatorState(cPlayer);
 });
 game.addEventListener("win", (e) => {
 	setTimeout(() => {

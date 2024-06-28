@@ -92,6 +92,7 @@ export class canvasInterface extends P4GameInterface {
 	#canvas;
 	#canvasBase;
 	#canvasTokens = [];
+	#onPlayerUpdate = () => {};
 	#t = 0;
 	#ctx;
 	#taille_C = 110;
@@ -100,7 +101,7 @@ export class canvasInterface extends P4GameInterface {
 	/**
 	 * @param {HTMLCanvasElement} canvas
 	 * @param {ClientP4} gameObject
-	 * @param {{colors: ?string[], width: ?number, height: ?number, static: ?boolean}} settings
+	 * @param {{colors: ?string[], width: ?number, height: ?number, static: ?boolean, onPlayerUpdate: ?Function}} settings
 	 */
 	constructor(canvas, gameObject, settings = {}) {
 		super(settings);
@@ -110,6 +111,7 @@ export class canvasInterface extends P4GameInterface {
 			compare.push(Math.floor(settings?.height / 6));
 			this.#taille_C = Math.min(...compare.filter((e) => e)); //Filter NaN
 		}
+		if (settings?.onPlayerUpdate) this.#onPlayerUpdate = settings.onPlayerUpdate;
 		this.#canvas = canvas;
 		this.#canvas.width = this.#taille_C * 7;
 		this.#canvas.height = this.#taille_C * 6;
@@ -126,12 +128,14 @@ export class canvasInterface extends P4GameInterface {
 
 			gameObject.addEventListener("join", () => this.reset());
 			gameObject.addEventListener("play", (e) => {
-				const { playerId, x, y } = e.detail;
+				const { playerId, nextPlayerId, x, y } = e.detail;
 				this.push(this.getColor(playerId), x, y);
+				this.#onPlayerUpdate(nextPlayerId);
 			});
 			gameObject.addEventListener("sync", (e) => {
-				const { board, last } = e.detail;
+				const { cPlayer, board, last } = e.detail;
 				if (last) this.#last = last;
+				this.#onPlayerUpdate(cPlayer);
 				if (!board) return;
 				for (let x = 0; x < board.length; x++) {
 					for (let y = 0; y < board[x].length; y++) {
