@@ -9,6 +9,7 @@ const gameInterface = new canvasInterface(document.getElementById("canvas"), gam
 const messenger = new Messenger(document.getElementById("msg-area"));
 
 socket.addEventListener("open", () => {
+	game.join(roomId);
 	const intervalId = setInterval(() => {
 		socket.send("ping");
 	}, 30000);
@@ -19,6 +20,7 @@ socket.addEventListener("open", () => {
 });
 game.addEventListener("join", (e) => {
 	const { roomId, playerId } = e.detail;
+	history.replaceState({}, null, `?roomId=${roomId}`);
 	const advId = playerId == 1 ? 2 : 1;
 	document.documentElement.style.setProperty("--self-color", gameInterface.getColor(playerId));
 	document.documentElement.style.setProperty("--adv-color", gameInterface.getColor(advId));
@@ -58,10 +60,10 @@ function changeIndicatorState(currentId) {
 roomList.addEventListener("beforeJoin", (e) => {
 	e.preventDefault();
 	offCanvas.hide();
-	game.message(`/join ${e.detail}`);
+	game.join(e.detail);
 });
 roomList.addEventListener("beforeCreate", (e) => {
 	e.preventDefault();
 	modal.hide();
-	game.message(`/join ${e.detail}`);
+	game.join(e.detail);
 });

@@ -43,6 +43,9 @@ export class ClientP4 extends EventTarget {
 	message(text) {
 		this.send("message", text);
 	}
+	join(id) {
+		this.send("join", id);
+	}
 	play(x) {
 		this.send("play", x);
 	}
@@ -68,7 +71,6 @@ export class ClientP4 extends EventTarget {
 	}
 	#onRegistered(e) {
 		this.#uuid = e.detail;
-		this.send("join", 15);
 		this.emit("registered", this.#uuid);
 	}
 	#onJoin(e) {
