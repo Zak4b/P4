@@ -1,17 +1,16 @@
 import game from "./actions/game.js";
 import { P4 } from "./class/P4.js";
-import { Player, GameRoomList } from "./class/gameRoom.js";
+import { Player, GameRoomList, ServerSyncData } from "./class/gameRoom.js";
 
 export const rooms = new GameRoomList(2, P4);
 const regType = /^[a-z]+$/i;
 
-type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
-function getSyncData(player: Player<typeof P4>): syncObject {
+function getSyncData(player: Player<typeof P4>): ServerSyncData {
 	const game = player.room?.game;
 	if (!game) {
 		throw new Error("");
 	}
-	const syncData: syncObject = { playerId: player.playerId, cPlayer: game.cPlayer };
+	const syncData: ServerSyncData = { playerId: player.playerId, cPlayer: game.cPlayer };
 	if (game.playCount) {
 		syncData.board = game.board;
 		syncData.last = game.last;
@@ -40,7 +39,10 @@ export const websocketConnection = async (socket: import("ws").WebSocket, req: i
 		if (!/[\w0-9]+/.test(roomId) || player.room?.id == roomId) return;
 		try {
 			rooms.join(roomId, player);
-			player.send("joined", { roomId: player.room!.id, playerId: player.playerId });
+			if (!player.playerId) {
+				throw new Error();
+			}
+			player.send("join-success", { roomId: player.room!.id, playerId: player.playerId });
 			player.send("sync", getSyncData(player));
 		} catch (error) {
 			if (error instanceof Error) {
@@ -85,7 +87,7 @@ export const websocketConnection = async (socket: import("ws").WebSocket, req: i
 		}
 	});
 	const commandList: { [key: string]: CallableFunction } = {
-		help: async () => player.send("info", Object.keys(commandList)),
+		help: async () => player.send("info", Object.keys(commandList).join(", ")),
 		join: async (roomId: string) => socket.emit("game-join", roomId),
 		swap: async () => {
 			if (!player.room || !player.playerId) {

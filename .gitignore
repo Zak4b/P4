@@ -5,3 +5,4 @@ notes.txt
 users.db
 package-lock.json
 /dist
+/public/js

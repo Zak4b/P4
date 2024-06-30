@@ -2,18 +2,52 @@ import { v4 as uuidv4 } from "uuid";
 import { WebSocket } from "ws";
 import { EventEmitter } from "events";
 
+export type ServerRegisteredData = string; // uuid
+export type ServerJoinedData = { roomId: string; playerId: number };
+export type ServerSyncData = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
+export type ServerPlayData = { playerId: number; x: number; y: number; nextPlayerId: number };
+//
+export type ServerRestartData = void;
+export type ServerMessageData = { clientId: string; message: string };
+export type ServerInfoData = string; // message
+export type ServerVoteData = { text: string; command: string };
+export interface ServerMessageMap {
+	registered: ServerRegisteredData;
+	"join-success": ServerJoinedData;
+	sync: ServerSyncData;
+	play: ServerPlayData;
+	"game-full": void; // full+win = state win ? playerId
+	"game-win": { uuid: string; playerid: number };
+	restart: ServerRestartData;
+	message: ServerMessageData;
+	info: ServerInfoData;
+	vote: ServerVoteData;
+}
+export type ClientJoinData = string; // roomid
+export type ClientPlayData = number; // x
+export type ClientRestartData = void;
+export type ClientMessageData = string;
+export interface ClientMessageMap {
+	join: ClientJoinData;
+	play: ClientPlayData;
+	restart: ClientPlayData;
+	message: ClientMessageData;
+}
+
 export abstract class Game {
-	get pidValues(): number[] { return [1,2]}
+	get pidValues(): number[] {
+		return [1, 2];
+	}
 }
 
 export class Player<T extends new () => Game> {
 	#uuid: string;
-	#playerId: number|null = null;
+	#playerId: number | null = null;
 	#socket: WebSocket;
-	#room: GameRoom<T>|null = null;
+	#room: GameRoom<T> | null = null;
 
 	#data;
-	constructor(socket: WebSocket, uuid :string|null = null) {
+	constructor(socket: WebSocket, uuid: string | null = null) {
 		this.#socket = socket;
 		this.#data = new Map();
 		this.#uuid = uuid ?? uuidv4();
@@ -21,20 +55,20 @@ export class Player<T extends new () => Game> {
 			this.room?.remove(this);
 		});
 	}
-	get uuid() :string{
+	get uuid(): string {
 		return this.#uuid;
 	}
-	get playerId() :number|null{
+	get playerId(): number | null {
 		return this.#playerId;
 	}
 
 	get data() {
 		return this.#data;
 	}
-	set playerId(id: number|null) {
+	set playerId(id: number | null) {
 		this.#playerId = id;
 	}
-	get room():GameRoom<T>|null {
+	get room(): GameRoom<T> | null {
 		return this.#room;
 	}
 	set room(room: GameRoom<T>) {
@@ -44,19 +78,19 @@ export class Player<T extends new () => Game> {
 			this.#room = room;
 		}
 	}
-	async send(type: string, data?: string|object) {
+	async send<K extends keyof ServerMessageMap>(type: K, data?: ServerMessageMap[K]) {
 		this.#socket.send(JSON.stringify({ type, data }));
 	}
 }
-export class GameRoom <T extends new () => Game> extends EventEmitter{
+export class GameRoom<T extends new () => Game> extends EventEmitter {
 	#timestamp: number = -1;
 	#id: string;
 	#playerMaxCount: number = 2;
 	#game: InstanceType<T>;
-	#registeredPlayers: { uuid: string; playerId: number; }[] = [];
+	#registeredPlayers: { uuid: string; playerId: number }[] = [];
 	#onlinePlayerList: Player<T>[] = [];
 	#spectList: Player<T>[] = [];
-	
+
 	constructor(id: string, playerMaxCount: number, gameClass: T) {
 		super();
 		this.#id = id;
@@ -87,7 +121,7 @@ export class GameRoom <T extends new () => Game> extends EventEmitter{
 	#updateTimeStamp() {
 		this.#timestamp = Date.now();
 	}
-	
+
 	#register(player: Player<T>): number {
 		const fplayer = this.#registeredPlayers.find((p) => p.uuid === player.uuid);
 		if (fplayer) {
@@ -96,11 +130,11 @@ export class GameRoom <T extends new () => Game> extends EventEmitter{
 			throw new Error("Toutes les places sont déjà réservés");
 		}
 		const used = this.#registeredPlayers.map((p) => p.playerId);
-		const playerId = [...this.#game.pidValues].filter((id) => !used.includes(id)).shift() as number; 
+		const playerId = [...this.#game.pidValues].filter((id) => !used.includes(id)).shift() as number;
 		this.#registeredPlayers.push({ uuid: player.uuid, playerId });
 		return playerId;
 	}
-	
+
 	join(player: Player<T>) {
 		if (!(player instanceof Player)) {
 			throw new Error("Not a Player");
@@ -114,7 +148,7 @@ export class GameRoom <T extends new () => Game> extends EventEmitter{
 		player.room = this;
 		this.#updateTimeStamp();
 	}
-	
+
 	remove(player: Player<T>) {
 		this.#updateTimeStamp();
 		this.#onlinePlayerList = this.#onlinePlayerList.filter((p) => p.uuid != player.uuid);
@@ -124,14 +158,14 @@ export class GameRoom <T extends new () => Game> extends EventEmitter{
 		}
 	}
 
-	spect(player:Player<T>) {
+	spect(player: Player<T>) {
 		player.room?.remove(player);
 		this.#spectList.push(player);
 		player.playerId = null;
 		player.room = this;
 	}
-	
-	async send(type: string, data?: string|object) {
+
+	async send<K extends keyof ServerMessageMap>(type: K, data?: ServerMessageMap[K]) {
 		for (const player of this.#onlinePlayerList) {
 			player.send(type, data);
 		}
@@ -143,7 +177,7 @@ export class GameRoom <T extends new () => Game> extends EventEmitter{
 	}
 }
 export class GameRoomList<T extends new () => Game> {
-	#list: {[key: string]:GameRoom<T>} = {};
+	#list: { [key: string]: GameRoom<T> } = {};
 	#playerMaxCount: number;
 	#timeout: number = 300000;
 	#gameClass: T;
@@ -155,21 +189,21 @@ export class GameRoomList<T extends new () => Game> {
 	get list() {
 		return this.#list;
 	}
-	
+
 	get(roomId: string): GameRoom<T> | false {
 		return this.#list[roomId] ?? false;
 	}
-	
+
 	getOrCreate(roomId: string): GameRoom<T> {
 		if (!this.#list[roomId]) {
 			this.#list[roomId] = this.#newRoom(roomId);
 		}
 		return this.get(roomId) as GameRoom<T>;
 	}
-	
+
 	#newRoom(roomId: string): GameRoom<T> {
 		const room = new GameRoom(roomId, this.#playerMaxCount, this.#gameClass);
-		let timer:NodeJS.Timeout;
+		let timer: NodeJS.Timeout;
 		const cb = () => {
 			timer && clearTimeout(timer);
 			timer = setTimeout(() => {
@@ -182,7 +216,7 @@ export class GameRoomList<T extends new () => Game> {
 		room.on("empty", cb);
 		return room;
 	}
-	
+
 	join(roomId: string, player: Player<T>) {
 		this.getOrCreate(roomId).join(player);
 	}
