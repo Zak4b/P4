@@ -1,14 +1,12 @@
 # P4
 
-Serveur NodeJS hébergeant plusieurs salles de jeu de Puissance 4
+A NodeJS server hosting multiple Connect 4 game rooms.
 
-![](board.png)
+## Table of Contents
 
-## Table des Matières
-
--   [Installation](#installation)
--   [Usage](#usage)
--   [Preview](#preview)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Preview](#preview)
 
 ## Installation
 
@@ -21,16 +19,16 @@ npm install
 ## Usage
 
 ```bash
-rpm run build
-rpm run start
+npm run build
+npm run start
 ```
 
 ## Preview
 
-#### Interface de jeu
+#### Game Interface
 
 ![](interface.gif)
 
-#### Listing des salles
+#### Room Listing
 
 ![](liste.png)
