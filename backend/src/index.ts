@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
-import expressLayouts from "express-ejs-layouts";
 import cookieParser from "cookie-parser";
 import expressWs from "express-ws";
 import cors from "cors";
@@ -20,14 +19,9 @@ app.use(
 	})
 );
 
-app.set("view engine", "ejs");
-app.use(expressLayouts);
 app.use(cookieParser("shhhhh"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Serve static files for development (when frontend is not built)
-app.use(express.static("public"));
 
 // WebSocket endpoint
 wsApp.ws("/P4", async function (ws, req) {
@@ -48,12 +42,11 @@ import { Request, Response, NextFunction } from "express";
 
 app.use(async (err: Error & { status?: number }, req: Request, res: Response, next: NextFunction) => {
 	if (err.status === 404) {
-		console.error("Not Found", req.url);
-		res.status(404);
-		res.render("404.ejs", { err: "Not Found" });
+		console.error("API endpoint not found", req.url);
+		res.status(404).json({ error: "API endpoint not found" });
 	} else {
 		console.error(err.stack);
-		res.status(500);
+		res.status(500).json({ error: "Internal server error" });
 	}
 });
 
@@ -61,5 +54,5 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const IP = process.env.IP || "localhost";
 
 app.listen(PORT, IP, () => {
-	console.log(`Backend server running on ${IP}:${PORT}`);
+	console.log(`Backend API server running on ${IP}:${PORT}`);
 });

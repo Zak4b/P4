@@ -5,7 +5,6 @@
 	"main": "index.js",
 	"scripts": {
 		"start": "node ./dist/index.js",
-		"test": "echo \"Error: no test specified\" && exit 1",
 		"build": "tsc"
 	},
 	"type": "module",
@@ -16,9 +15,7 @@
 		"cookie-parser": "^1.4.6",
 		"cors": "^2.8.5",
 		"dotenv": "^16.4.5",
-		"ejs": "^3.1.10",
 		"express": "^4.19.2",
-		"express-ejs-layouts": "^2.5.1",
 		"express-ws": "^5.0.2",
 		"uuid": "^9.0.1",
 		"ws": "^8.17.1"
@@ -28,7 +25,6 @@
 		"@types/cookie-parser": "^1.4.9",
 		"@types/cors": "^2.8.12",
 		"@types/express": "^4.17.21",
-		"@types/express-ejs-layouts": "^2.5.4",
 		"@types/express-ws": "^3.0.5",
 		"@types/node": "^20.14.9",
 		"@types/uuid": "^9.0.8",

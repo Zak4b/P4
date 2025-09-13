@@ -1,4 +1,5 @@
 import { RoomList } from "./lib/class/RoomList.js";
+import * as bootstrap from 'bootstrap';
 
 export const offCanvas = new bootstrap.Offcanvas("#offcanvas");
 
