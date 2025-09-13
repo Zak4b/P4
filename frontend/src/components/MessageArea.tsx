@@ -1,8 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-// @ts-ignore - Legacy JS modules  
-import { Messenger } from '../lib/class/Messenger.js'
-
 interface MessageAreaProps {
   roomId: string
 }
@@ -17,24 +14,18 @@ interface Message {
 
 const MessageArea: React.FC<MessageAreaProps> = ({ roomId }) => {
   const messageAreaRef = useRef<HTMLDivElement>(null)
-  const messengerRef = useRef<any>(null)
   const [message, setMessage] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
 
   useEffect(() => {
-    if (messageAreaRef.current) {
-      // Initialize the legacy messenger for now
-      messengerRef.current = new Messenger(messageAreaRef.current)
-      
-      // Add initial welcome message
-      const welcomeMessage: Message = {
-        id: 'welcome',
-        type: 'info',
-        content: `Bienvenue dans la salle ${roomId}`,
-        timestamp: new Date()
-      }
-      setMessages([welcomeMessage])
+    // Add initial welcome message
+    const welcomeMessage: Message = {
+      id: 'welcome',
+      type: 'info',
+      content: `Bienvenue dans la salle ${roomId}`,
+      timestamp: new Date()
     }
+    setMessages([welcomeMessage])
   }, [roomId])
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -51,11 +42,6 @@ const MessageArea: React.FC<MessageAreaProps> = ({ roomId }) => {
 
     setMessages(prev => [...prev, newMessage])
     setMessage('')
-
-    // Also send through the legacy messenger if available
-    if (messengerRef.current) {
-      messengerRef.current.message(message, 'Vous')
-    }
   }
 
   return (
