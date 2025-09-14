@@ -1,33 +1,42 @@
+interface FormatMode {
+	"Content-Type": string;
+	formatData: (dataForm: FormData) => string | URLSearchParams;
+}
+
+interface FormatModes {
+	[key: string]: FormatMode;
+}
 class FetchForm {
-	/**@type {HTMLFormElement} */
-	#form;
-	/**@type {HTMLElement|null} */
-	#submitter = null;
-	#submitterContent = null;
-	/**@type {HTMLElement|null} */
-	#loader = null;
-	/**@type {HTMLElement[]} */
-	#disabledCtrls = [];
-	static h = {
-		urlencoded: { "Content-Type": "application/x-www-form-urlencoded", formatData: (dataForm) => new URLSearchParams(dataForm) },
-		json: { "Content-Type": "application/json", formatData: (dataForm) => JSON.stringify(Object.fromEntries(dataForm)) },
+	#form: HTMLFormElement;
+	#submitter: HTMLElement | null = null;
+	#submitterContent: string | null = null;
+	#loader: HTMLElement | null = null;
+	#disabledCtrls: HTMLElement[] = [];
+
+	static h: FormatModes = {
+		//urlencoded: {
+		//	"Content-Type": "application/x-www-form-urlencoded",
+		//	formatData: (dataForm: FormData): URLSearchParams => new URLSearchParams(dataForm),
+		//},
+		json: {
+			"Content-Type": "application/json",
+			formatData: (dataForm: FormData): string => JSON.stringify(Object.fromEntries(dataForm)),
+		},
 	};
 	#selectedmode;
 	/**
 	 * @param {HTMLFormElement} form
 	 */
-	constructor(form, mode = "urlencoded") {
+	constructor(form: HTMLFormElement, mode = "json") {
 		this.#form = form;
-		this.#loader = document.querySelector(form.dataset["loader"])?.content?.cloneNode(true);
+		const loaderElem = document.querySelector(form.dataset["loader"]);
+		this.#loader = loaderElem instanceof HTMLTemplateElement ? (loaderElem.content.cloneNode(true) as HTMLElement) : null;
 		this.#selectedmode = FetchForm.h[mode];
 		this.#form.addEventListener("submit", (e) => {
 			this.#onSubmit(e);
 		});
 	}
-	/**
-	 * @param {SubmitEvent} event
-	 */
-	#onSubmit(event) {
+	#onSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		this.#submitter = event.submitter;
 		const data = new FormData(this.#form);
@@ -35,19 +44,23 @@ class FetchForm {
 		this.#toogleControls(false);
 
 		this.#fetch(data)
+			.then(async (res) => {
+				if (res && res.ok) {
+					this.#onFetchOK(res);
+				} else if (res) {
+					this.#onFetchError(res);
+				}
+			})
 			.catch((err) => {
 				console.error(err);
-			})
-			.then(async (res) => {
-				res.ok ? this.#onFetchOK(res) : this.#onFetchError(res);
 			});
 	}
 	/**
 	 * @param {boolean} state
 	 */
-	#toogleControls(state = null) {
+	#toogleControls(state: boolean = null) {
 		if (!state) {
-			this.#disabledCtrls = [...this.#form.querySelectorAll(".form-control")];
+			this.#disabledCtrls = Array.from(this.#form.querySelectorAll(".form-control")) as HTMLElement[];
 			if (this.#submitter) {
 				this.#disabledCtrls.push(this.#submitter);
 				if (this.#loader) {
@@ -65,7 +78,7 @@ class FetchForm {
 	 * @param {FormData} data
 	 * @returns {Promise<Response>}
 	 */
-	async #fetch(data) {
+	async #fetch(data: FormData): Promise<Response> {
 		return fetch(this.#form.action, {
 			method: this.#form.method,
 			body: this.#selectedmode.formatData(data),
@@ -79,14 +92,14 @@ class FetchForm {
 	 * @param {Response} res
 	 * @param {object} data
 	 */
-	#onFetchOK(res) {
+	#onFetchOK(res: Response) {
 		window.location.reload();
 	}
 	/**
 	 * @param {Response} res
 	 * @param {object} data
 	 */
-	async #onFetchError(res) {
+	async #onFetchError(res: Response) {
 		try {
 			const data = await res.json();
 			if (data.errForm) {

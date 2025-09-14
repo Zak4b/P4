@@ -18,7 +18,7 @@ export class RoomList extends EventTarget {
 		super();
 		this.#element = element;
 		this.#url = url;
-		this.#template = document.getElementById(element.dataset["template"]);
+		//this.#template = document.getElementById(element.dataset["template"]);
 		this.#observer = new IntersectionObserver(
 			async (entries) => {
 				const entry = entries[0];
@@ -30,7 +30,7 @@ export class RoomList extends EventTarget {
 			},
 			{ rootMargin: "-10px -10px -10px -10px" }
 		);
-		this.#observer.observe(document.querySelector(".room-list"));
+		//this.#observer.observe(document.querySelector(".room-list"));
 	}
 
 	async #onShow() {
