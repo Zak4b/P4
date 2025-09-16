@@ -1,34 +1,26 @@
 {
-	"name": "p4",
+	"name": "p4-root",
 	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
+	"description": "P4 Game - Root package with backend and frontend subrepos",
 	"scripts": {
-		"dev": "node --watch index.js",
-		"start": "node index.js",
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"build": "tsc"
+		"install:all": "npm install --prefix backend && npm install --prefix frontend",
+		"build:all": "npm run build --prefix backend && npm run build --prefix frontend",
+		"dev:backend": "npm run dev --prefix backend",
+		"dev:frontend": "npm run dev --prefix frontend",
+		"start:backend": "npm start --prefix backend",
+		"start:frontend": "npm run preview --prefix frontend",
+		"build": "npm run build:all",
+		"dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
+		"start": "concurrently \"npm run start:backend\" \"npm run start:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\""
 	},
-	"type": "module",
+	"private": true,
 	"author": "",
 	"license": "ISC",
-	"dependencies": {
-		"better-sqlite3": "^11.0.0",
-		"cookie-parser": "^1.4.6",
-		"dotenv": "^16.4.5",
-		"ejs": "^3.1.10",
-		"express": "^4.19.2",
-		"express-ejs-layouts": "^2.5.1",
-		"express-ws": "^5.0.2",
-		"uuid": "^9.0.1",
-		"ws": "^8.17.1"
-	},
+	"workspaces": [
+		"backend",
+		"frontend"
+	],
 	"devDependencies": {
-		"typescript": "^5.5.2",
-		"@types/better-sqlite3": "^7.6.9",
-		"@types/express": "^4.17.21",
-		"@types/node": "^20.14.9",
-		"@types/uuid": "^9.0.8",
-		"@types/ws": "^8.5.10"
+		"concurrently": "^9.2.1"
 	}
 }
