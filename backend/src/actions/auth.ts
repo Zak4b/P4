@@ -7,7 +7,6 @@ const cookie = (req: import("express").Request): object | null => req.signedCook
 
 const isLogged = (req: import("express").Request, res: import("express").Response): boolean => {
 	const data = cookie(req);
-	console.log(data);
 	return !!data;
 };
 

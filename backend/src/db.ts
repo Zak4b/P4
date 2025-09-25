@@ -7,7 +7,7 @@ export const db: DatabaseType = (() => {
 	const dbExists = fs.existsSync(dbName);
 	const database = new Database(dbName);
 	if (!dbExists) {
-		console.log("Creating database and tables...");
+		console.debug("Creating database and tables...");
 		database.exec(
 			`CREATE TABLE "USERS" (
           "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -30,7 +30,7 @@ export const db: DatabaseType = (() => {
           FOREIGN KEY("player_2") REFERENCES "USERS"("id")
       );`
 		);
-		console.log("Database and tables created successfully.");
+		console.debug("Database and tables created successfully.");
 	}
 	return database;
 })();

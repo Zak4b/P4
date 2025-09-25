@@ -1,8 +1,9 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { apiClient } from "../api";
 
 interface AuthContextType {
 	isAuthenticated: boolean;
+	isAuthReady: boolean;
 	login: (username: string) => Promise<void>;
 	logout: () => Promise<void>;
 }
@@ -11,15 +12,36 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [isAuthReady, setIsAuthReady] = useState(false);
+
+	useEffect(() => {
+		let mounted = true;
+		apiClient
+			.getLoginStatus()
+			.then((response) => {
+				if (!mounted) return;
+				setIsAuthenticated(!!response.isLoggedIn);
+			})
+			.catch(() => {
+				if (!mounted) return;
+				setIsAuthenticated(false);
+			})
+			.finally(() => {
+				if (!mounted) return;
+				setIsAuthReady(true);
+			});
+		return () => {
+			mounted = false;
+		};
+	}, []);
 
 	const login = async (username: string) => {
-		apiClient.login(username).then((response) => {
-			if (response.success) {
-				setIsAuthenticated(true);
-			} else {
-				throw new Error(response.error || "Login failed");
-			}
-		});
+		const response = await apiClient.login(username);
+		if (response.success) {
+			setIsAuthenticated(true);
+		} else {
+			throw new Error(response.error || "Login failed");
+		}
 	};
 	const logout = async () => {
 		apiClient
@@ -33,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			});
 	};
 
-	return <AuthContext.Provider value={{ isAuthenticated, login, logout }}>{children}</AuthContext.Provider>;
+	return <AuthContext.Provider value={{ isAuthenticated, isAuthReady, login, logout }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

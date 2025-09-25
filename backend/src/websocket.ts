@@ -22,7 +22,7 @@ function getSyncData(player: Player<typeof P4>): syncObject {
 export const websocketConnection = async (socket: import("ws").WebSocket, req: import("express").Request) => {
 	const uuid = req.signedCookies.token?.uuid;
 	const player = new Player<typeof P4>(socket, uuid);
-	console.log("Nouvelle connexion " + player.uuid);
+	console.debug("WS connexion " + player.uuid);
 	player.send("registered", player.uuid);
 
 	socket.on("message", async (message) => {
@@ -57,7 +57,7 @@ export const websocketConnection = async (socket: import("ws").WebSocket, req: i
 		if (player.room.game.win || player.room.game.full || player.playerId != player.room.game.cPlayer) return;
 		const y = player.room.game.play(player.playerId, x);
 		if (y < 0) {
-			console.log("Forbiden");
+			console.debug("Forbiden");
 		} else {
 			player.room.send("play", { playerId: player.playerId, x, y, nextPlayerId: player.room.game.cPlayer });
 			if (player.room.game.check(x, y) || player.room.game.full) {
@@ -121,8 +121,8 @@ export const websocketConnection = async (socket: import("ws").WebSocket, req: i
 		},
 		restart: async () => socket.emit("game-restart"),
 		debug: async () => {
-			console.log(rooms);
-			console.log(player);
+			console.debug(rooms);
+			console.debug(player);
 		},
 	};
 	const unknownHandler = async () => player.send("info", "Commande inconnue");

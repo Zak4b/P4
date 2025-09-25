@@ -54,5 +54,5 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const IP = process.env.IP || "localhost";
 
 app.listen(PORT, IP, () => {
-	console.log(`Backend API server running on ${IP}:${PORT}`);
+	console.info(`Backend API server running on ${IP}:${PORT}`);
 });
