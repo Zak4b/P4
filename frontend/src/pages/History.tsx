@@ -3,11 +3,12 @@ import { apiClient } from "../api";
 
 interface GameHistory {
 	id: string;
-	roomId: string;
-	winner: string | null;
-	players: string[];
-	createdAt: string;
-	duration?: number;
+	name_1: string;
+	name_2: string;
+	player_1: number;
+	player_2: number;
+	result: number;
+	time: number;
 }
 
 const HistoryPage: React.FC = () => {
@@ -16,43 +17,14 @@ const HistoryPage: React.FC = () => {
 	const [error, setError] = useState("");
 
 	useEffect(() => {
-		loadHistory();
+		apiClient
+			.getHistory()
+			.then(setHistory)
+			.catch(() => setError("error"))
+			.finally(() => setIsLoading(false));
 	}, []);
 
-	const loadHistory = async () => {
-		try {
-			setIsLoading(true);
-			// This would need to be implemented in the API
-			// const response = await apiClient.getGameHistory()
-			// setHistory(response.data || [])
-
-			// For now, show mock data
-			setHistory([
-				{
-					id: "1",
-					roomId: "room1",
-					winner: "Player1",
-					players: ["Player1", "Player2"],
-					createdAt: "2024-01-15T10:30:00Z",
-					duration: 300,
-				},
-				{
-					id: "2",
-					roomId: "room2",
-					winner: "Player2",
-					players: ["Player1", "Player2"],
-					createdAt: "2024-01-15T09:15:00Z",
-					duration: 450,
-				},
-			]);
-		} catch (err) {
-			setError(err instanceof Error ? err.message : "Failed to load history");
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	const formatDate = (dateStr: string) => {
+	const formatDate = (dateStr: string | number) => {
 		return new Date(dateStr).toLocaleString(undefined, {
 			year: "numeric",
 			month: "numeric",
@@ -83,9 +55,7 @@ const HistoryPage: React.FC = () => {
 			<div className="alert alert-danger" role="alert">
 				<h4 className="alert-heading">Erreur</h4>
 				<p>{error}</p>
-				<button className="btn btn-outline-danger" onClick={loadHistory}>
-					Retry
-				</button>
+				<button className="btn btn-outline-danger">Retry</button>
 			</div>
 		);
 	}
@@ -94,7 +64,7 @@ const HistoryPage: React.FC = () => {
 		<div className="history-page">
 			<div className="d-flex justify-content-between align-items-center mb-4">
 				<h1>Game History</h1>
-				<button className="btn btn-outline-primary" onClick={loadHistory}>
+				<button className="btn btn-outline-primary">
 					<i className="bi bi-arrow-clockwise me-2"></i>
 					Refresh
 				</button>
@@ -110,10 +80,7 @@ const HistoryPage: React.FC = () => {
 					<table className="table table-striped table-hover">
 						<thead>
 							<tr>
-								<th>Room ID</th>
 								<th>Players</th>
-								<th>Winner</th>
-								<th>Duration</th>
 								<th>Date</th>
 							</tr>
 						</thead>
@@ -121,19 +88,11 @@ const HistoryPage: React.FC = () => {
 							{history.map((game) => (
 								<tr key={game.id}>
 									<td>
-										<span className="badge bg-secondary">{game.roomId}</span>
+										<span className={`badge bg-${game.result == 1 ? "success" : "danger"} me-1`}>{game.name_1}</span>
+										<span className={`badge bg-${game.result == 2 ? "success" : "danger"} me-1`}>{game.name_2}</span>
 									</td>
 									<td>
-										{game.players.map((player, index) => (
-											<span key={index} className="badge bg-info me-1">
-												{player}
-											</span>
-										))}
-									</td>
-									<td>{game.winner ? <span className="badge bg-success">{game.winner}</span> : <span className="text-muted">Ongoing</span>}</td>
-									<td>{game.duration ? formatDuration(game.duration) : "-"}</td>
-									<td>
-										<small className="text-muted">{formatDate(game.createdAt)}</small>
+										<small className="text-muted">{formatDate(game.time)}</small>
 									</td>
 								</tr>
 							))}

@@ -5,7 +5,7 @@ import { copyCanvas } from "./lib/dom.js";
 const socket = new WebSocket("ws://localhost:3000/P4");
 const roomId = new URL(document.location.toString()).searchParams.get("roomId") ?? "1";
 const client = new ClientP4(socket);
-export const gameInterface = new canvasInterface(client, { onPlayerUpdate: changeIndicatorState });
+export const gameInterface = new canvasInterface(client);
 //const messenger = new Messenger(document.getElementById("msg-area"));
 
 socket.addEventListener("open", () => {
@@ -50,21 +50,3 @@ client.addEventListener("vote", (e: CustomEvent) => {
 //messenger.addEventListener("send", (e: CustomEvent) => {
 //client.message(e.detail);
 //});
-
-function changeIndicatorState(currentId) {
-	return;
-	const j1 = document.getElementById("indicator-j1");
-	const j2 = document.getElementById("indicator-j2");
-	j1.classList.toggle("disabled", currentId !== 1);
-	j2.classList.toggle("disabled", currentId !== 2);
-}
-roomList.addEventListener("beforeJoin", (e: CustomEvent) => {
-	e.preventDefault();
-	//offCanvas.hide();
-	client.join(e.detail);
-});
-roomList.addEventListener("beforeCreate", (e: CustomEvent) => {
-	e.preventDefault();
-	//modal.hide();
-	client.join(e.detail);
-});
