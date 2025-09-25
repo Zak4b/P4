@@ -13,7 +13,7 @@ const OffCanvas: React.FC<OffCanvasProps> = ({ show, onHide, header, children, p
 		<div className={`offcanvas offcanvas-${placement} ${show ? "show" : ""}`} tabIndex={-1} style={{ visibility: show ? "visible" : "hidden" }} aria-modal="true" role="dialog">
 			<div className="offcanvas-header">
 				{header}
-				<button type="button" className="btn-close" aria-label="Close" onClick={onHide} />
+				<button type="button" className="btn-close" onClick={onHide} />
 			</div>
 			<div className="offcanvas-body">{children}</div>
 		</div>

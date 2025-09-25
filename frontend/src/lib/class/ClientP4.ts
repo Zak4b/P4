@@ -79,6 +79,7 @@ type P4Settings = {
 	width?: number;
 	height?: number;
 	static?: boolean;
+	onPlayerUpdate?: (currentId: number) => void;
 };
 
 export class canvasInterface extends P4GameInterface {
@@ -89,6 +90,7 @@ export class canvasInterface extends P4GameInterface {
 	private t: number = 0;
 	readonly cell_size: number = 110;
 	private last = null;
+	private onPlayerUpdate: (currentId: number) => void = () => {};
 
 	constructor(client: ClientP4, settings: P4Settings = {}) {
 		if (!client) throw new Error("ClientP4 is required");
@@ -120,12 +122,12 @@ export class canvasInterface extends P4GameInterface {
 		client.addEventListener("play", (e: CustomEvent) => {
 			const { playerId, nextPlayerId, x, y } = e.detail;
 			this.push(this.getColor(playerId), x, y);
-			//this.onPlayerUpdate(nextPlayerId);
+			this.onPlayerUpdate(nextPlayerId);
 		});
 		client.addEventListener("sync", (e: CustomEvent) => {
 			const { cPlayer, board, last } = e.detail;
 			if (last) this.last = last;
-			//this.onPlayerUpdate(cPlayer);
+			this.onPlayerUpdate(cPlayer);
 			if (!board) return;
 			for (let x = 0; x < board.length; x++) {
 				for (let y = 0; y < board[x].length; y++) {

@@ -1,4 +1,3 @@
-import { Button } from "bootstrap";
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../AuthContext";
@@ -17,7 +16,7 @@ const Navbar: React.FC<NavbarProps> = () => {
 				<NavLink className="navbar-brand" to="/">
 					P4 Game
 				</NavLink>
-				<button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+				<button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
 					<span className="navbar-toggler-icon"></span>
 				</button>
 				<div className="collapse navbar-collapse" id="navbarNav">
@@ -38,7 +37,7 @@ const Navbar: React.FC<NavbarProps> = () => {
 							</button>
 						</li>
 					</ul>
-					<button className="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvas" onClick={() => setShowRooms(true)}>
+					<button className="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" onClick={() => setShowRooms(true)}>
 						Rooms
 					</button>
 				</div>

@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import GameCanvas from "../components/GameCanvas";
 import MessageArea from "../components/MessageArea";
-import LoginForm from "../components/LoginForm";
-import { apiClient } from "../api";
 import { gameInterface } from "../indexScript";
 
 const GamePage: React.FC = () => {

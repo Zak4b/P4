@@ -4,7 +4,7 @@ import { useAuth } from "./AuthContext";
 import Button from "./Elements/Button";
 
 interface LoginFormProps {
-	onLogin: () => void;
+	onLogin?: () => void;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
@@ -22,6 +22,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 
 		try {
 			await login(username);
+			onLogin?.();
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Login failed");
 		} finally {
@@ -47,7 +48,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 							<Button type="submit" variant="primary" className="w-100" disabled={isLoading || !username.trim()}>
 								{isLoading ? (
 									<>
-										<span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+										<span className="spinner-border spinner-border-sm me-2" role="status"></span>
 										Logging in...
 									</>
 								) : (
