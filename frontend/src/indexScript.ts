@@ -1,6 +1,5 @@
 import { ClientP4, canvasInterface } from "./lib/class/ClientP4.js";
 import { showModal, roomList } from "./script.js";
-import { copyCanvas } from "./lib/dom.js";
 //import { Messenger } from "./lib/class/Messenger.js";
 const socket = new WebSocket("ws://localhost:3000/P4");
 const roomId = new URL(document.location.toString()).searchParams.get("roomId") ?? "1";
@@ -29,12 +28,12 @@ client.addEventListener("join", (e: CustomEvent) => {
 client.addEventListener("win", (e: CustomEvent) => {
 	setTimeout(() => {
 		const win = e.detail.uuid == client.uuid;
-		showModal(win ? "Victoire" : "Défaite", copyCanvas(gameInterface.element, 460));
+		//showModal(win ? "Victoire" : "Défaite", copyCanvas(gameInterface.element, 460));
 		win && setTimeout(() => client.send("restart"), 1000);
 	}, 1000);
 });
 client.addEventListener("full", (e) => {
-	showModal("Match Nul", copyCanvas(gameInterface.element, 460));
+	//showModal("Match Nul", copyCanvas(gameInterface.element, 460));
 });
 client.addEventListener("message", (e: CustomEvent) => {
 	const { clientId, message } = e.detail;

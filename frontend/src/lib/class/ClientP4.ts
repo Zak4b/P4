@@ -7,8 +7,8 @@ export class ClientP4 extends EventTarget {
 		super();
 		this.socket = socket;
 		this.socket.addEventListener("message", (e) => this.messageHandler(e));
-		this.socket.addEventListener("game-registered", (e: CustomEvent) => this.#onRegistered(e));
-		this.socket.addEventListener("game-joined", (e: CustomEvent) => this.#onJoin(e));
+		this.socket.addEventListener("game-registered", (e: CustomEvent) => this.onRegistered(e));
+		this.socket.addEventListener("game-joined", (e: CustomEvent) => this.onJoin(e));
 		this.socket.addEventListener("game-play", (e: CustomEvent) => this.emit("play", e.detail));
 		this.socket.addEventListener("game-game-win", (e: CustomEvent) => this.emit("win", e.detail));
 		this.socket.addEventListener("game-game-full", () => this.emit("full", undefined));
@@ -43,8 +43,8 @@ export class ClientP4 extends EventTarget {
 		this.dispatchEvent(new CustomEvent(event, { detail: data }));
 	}
 
-	messageHandler(event: MessageEvent<any>) {
-		let message: { type: any; data: any };
+	private messageHandler(event: MessageEvent<any>) {
+		let message: { type: string; data: any };
 		try {
 			message = JSON.parse(event.data);
 		} catch (error) {
@@ -55,11 +55,11 @@ export class ClientP4 extends EventTarget {
 		const { type, data } = message;
 		if (/^[a-z\-]+$/i.test(String(type))) this.socket.dispatchEvent(new CustomEvent(`game-${type}`, { detail: data }));
 	}
-	#onRegistered(e: { detail: string }) {
+	private onRegistered(e: { detail: string }) {
 		this._uuid = e.detail;
 		this.emit("registered", this._uuid);
 	}
-	#onJoin(e: CustomEvent<{ roomId: string; playerId: number }>) {
+	private onJoin(e: CustomEvent<{ roomId: string; playerId: number }>) {
 		this._roomId = e.detail.roomId;
 		this._playerId = e.detail.playerId;
 		this.emit("join", e.detail);
