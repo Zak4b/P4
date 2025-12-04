@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Box, Paper, CircularProgress, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import { ClientP4 } from "../lib/ClientP4";
 import { useGame } from "./GameContext";
@@ -17,9 +17,15 @@ const BOARD_ROWS = 6;
 
 const P4GameBoard: React.FC<P4GameBoardProps> = ({ roomId, setActivePlayer }) => {
 	const { client, isConnected } = useWebSocket();
-	const { gameState, animatingTokens, handleRestart: contextHandleRestart, joinRoom } = useGame();
+	const { gameState, animatingTokens, handleRestart: contextHandleRestart } = useGame();
 	const [winDialogOpen, setWinDialogOpen] = useState(false);
 	const [winMessage, setWinMessage] = useState("");
+	const setActivePlayerRef = useRef(setActivePlayer);
+	
+	// Synchroniser la ref avec la prop
+	useEffect(() => {
+		setActivePlayerRef.current = setActivePlayer;
+	}, [setActivePlayer]);
 
 	// Écouter les événements win et full pour afficher les dialogs
 	useEffect(() => {
@@ -45,27 +51,18 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ roomId, setActivePlayer }) =>
 		};
 	}, [client]);
 
-	// Rejoindre la room quand roomId change via le contexte
-	useEffect(() => {
-		if (!roomId) return;
-
-		// Si on est déjà dans cette room, s'assurer que isConnecting est false
-		if (gameState.currentRoomId === roomId) {
-			// On appelle quand même joinRoom pour qu'il vérifie et mette isConnecting à false si nécessaire
-			joinRoom(roomId);
-			return;
-		}
-
-		// Nouvelle room ou première connexion
-		joinRoom(roomId);
-	}, [roomId, gameState.currentRoomId, joinRoom]);
+	// Note: Le join de la room est géré par le composant parent (Play.tsx)
+	// Pas besoin de le gérer ici pour éviter les boucles infinies
 
 	// Mettre à jour setActivePlayer quand currentPlayer change
-	useEffect(() => {
-		if (setActivePlayer) {
-			setActivePlayer(gameState.currentPlayer, true);
-		}
-	}, [gameState.currentPlayer, setActivePlayer]);
+	// Désactivé pour éviter les boucles infinies - sera mis à jour via les événements de jeu
+	// const lastPlayerRef = useRef<number | null>(null);
+	// useEffect(() => {
+	// 	if (setActivePlayerRef.current && gameState.currentPlayer && lastPlayerRef.current !== gameState.currentPlayer) {
+	// 		lastPlayerRef.current = gameState.currentPlayer;
+	// 		setActivePlayerRef.current(gameState.currentPlayer, true);
+	// 	}
+	// }, [gameState.currentPlayer]);
 
 	const handleColumnClick = (x: number) => {
 		if (!client || !isConnected) {
@@ -102,7 +99,8 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ roomId, setActivePlayer }) =>
 		if (setActivePlayer) {
 			setActivePlayer(1, true);
 		}
-	}, [client, isConnected, contextHandleRestart, setActivePlayer]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [client, isConnected, contextHandleRestart]);
 
 	const getTokenColor = (color: TokenColor) => {
 		switch (color) {
@@ -116,7 +114,7 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ roomId, setActivePlayer }) =>
 	};
 
 	const canPlay = client && client.playerId !== null && !gameState.isWin && !gameState.isFull && client.playerId === gameState.currentPlayer;
-	const isConnecting = gameState.isConnecting;
+	const isLoading = gameState.loading;
 
 	return (
 		<Box>
@@ -248,7 +246,7 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ roomId, setActivePlayer }) =>
 				</Box>
 
 				{/* Overlay de chargement */}
-				{isConnecting && (
+				{isLoading && (
 					<Box
 						sx={{
 							position: "absolute",

@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { unsign } from "cookie-signature";
-import authM from "./actions/auth.js";
-import { env } from "./config/env.js";
+import authM from "../services/auth.js";
+import { env } from "../config/env.js";
 
 export const auth = async (request: FastifyRequest, reply: FastifyReply) => {
 	// Adapter la requête Fastify pour la compatibilité avec authM.isLogged

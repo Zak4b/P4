@@ -2,7 +2,7 @@ import { FastifyInstance } from "fastify";
 import { loginRoutes } from "./login.js";
 import { apiRoutes } from "./api.js";
 import { gameRoutes } from "./game.js";
-import { auth } from "../midleware.js";
+import { auth } from "../middleware/auth.js";
 
 export async function registerRoutes(fastify: FastifyInstance) {
 	// Public login routes (no auth required)

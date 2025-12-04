@@ -1,5 +1,5 @@
 import { FastifyRequest } from "fastify";
-import auth from "../actions/auth.js";
+import auth from "../services/auth.js";
 import { v4 as uuidv4 } from "uuid";
 
 /**

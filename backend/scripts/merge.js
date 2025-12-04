@@ -1,4 +1,4 @@
-import user from "./dist/actions/user.js";
+import user from "../dist/services/user.js";
 
 const [node, _, ...users] = process.argv;
 for (let i = 1; i < users.length; i++) {

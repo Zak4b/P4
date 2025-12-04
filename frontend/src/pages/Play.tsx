@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Box, CircularProgress, Alert } from "@mui/material";
 import P4GameBoard from "../components/P4GameBoard";
@@ -11,6 +11,7 @@ const GamePage: React.FC = () => {
 	const roomId = searchParams.get("roomId") || "1";
 	const { client, isConnected } = useWebSocket();
 	const { joinRoom, gameState } = useGame();
+	const lastRoomIdRef = useRef<string | null>(null);
 
 	const [playerStates, setPlayerStates] = useState({
 		player1: { active: false, name: "Joueur #1", id: 1 },
@@ -19,12 +20,19 @@ const GamePage: React.FC = () => {
 
 	// Rejoindre la room quand roomId change
 	useEffect(() => {
-		if (roomId) {
-			joinRoom(roomId);
+		if (!roomId || !client || !isConnected) return;
+		
+		// Éviter de rejoindre si on est déjà dans cette room ou si c'est la même room que la dernière
+		if (lastRoomIdRef.current === roomId || gameState.currentRoomId === roomId) {
+			return;
 		}
-	}, [roomId, joinRoom]);
+		
+		lastRoomIdRef.current = roomId;
+		joinRoom(roomId);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [roomId, client, isConnected]);
 
-	const handlePlayerStateChange = (playerNumber: number, active: boolean) => {
+	const handlePlayerStateChange = useCallback((playerNumber: number, active: boolean) => {
 		setPlayerStates((prev) => {
 			// Si un joueur devient actif, l'autre devient inactif
 			if (active) {
@@ -48,7 +56,7 @@ const GamePage: React.FC = () => {
 				},
 			};
 		});
-	};
+	}, []);
 
 	if (!client) {
 		return (

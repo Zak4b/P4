@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import auth from "../actions/auth.js";
+import auth from "../services/auth.js";
 import { z } from "zod";
 import { registerSchema, loginSchema } from "../lib/zod-schemas.js";
 
@@ -120,7 +120,7 @@ export async function loginRoutes(fastify: FastifyInstance) {
 			// Avec @fastify/cookie et secret, les cookies signés sont automatiquement désignés dans request.cookies
 			// Mais si le cookie est signé, il faut utiliser unsignCookie() pour le désigner manuellement
 			let signedCookies: { [key: string]: any } = {};
-			
+
 			// Parser les cookies depuis le header
 			const cookieHeader = request.headers.cookie || "";
 			if (cookieHeader) {
@@ -131,7 +131,7 @@ export async function loginRoutes(fastify: FastifyInstance) {
 					}
 					return acc;
 				}, {});
-				
+
 				// Essayer de désigner le cookie token si présent et si la méthode existe
 				if (cookies.token && typeof (request as any).unsignCookie === "function") {
 					try {
@@ -144,11 +144,11 @@ export async function loginRoutes(fastify: FastifyInstance) {
 					}
 				}
 			}
-			
+
 			// Utiliser request.cookies si disponible (Fastify désigne automatiquement avec secret)
 			// Si le cookie token est dans request.cookies, c'est qu'il a été désigné automatiquement
 			const expressLikeReq = {
-				signedCookies: signedCookies.token ? signedCookies : (request.cookies || {}),
+				signedCookies: signedCookies.token ? signedCookies : request.cookies || {},
 				cookies: request.cookies || {},
 				headers: request.headers,
 			} as any;

@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import rooms from "../actions/rooms.js";
-import user from "../actions/user.js";
-import game from "../actions/game.js";
+import rooms from "../services/rooms.js";
+import user from "../services/user.js";
+import game from "../services/game.js";
 
 export async function apiRoutes(fastify: FastifyInstance) {
 	fastify.get("/rooms", async (request: FastifyRequest, reply: FastifyReply) => {

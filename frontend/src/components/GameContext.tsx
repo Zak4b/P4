@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from "react";
 import { useWebSocket } from "./WebSocketProvider";
 
 type TokenColor = "empty" | "player1" | "player2";
@@ -11,7 +11,7 @@ interface GameState {
 	winningPlayer: number | null;
 	isFull: boolean;
 	isWin: boolean;
-	isConnecting: boolean;
+	loading: boolean;
 	currentRoomId: string | null;
 }
 
@@ -53,11 +53,17 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 		winningPlayer: null,
 		isFull: false,
 		isWin: false,
-		isConnecting: false, // Commencer à false, sera mis à true seulement lors d'une nouvelle connexion
+		loading: false, // Commencer à false, sera mis à true seulement lors d'une nouvelle connexion
 		currentRoomId: null,
 	});
 
 	const [animatingTokens, setAnimatingTokens] = useState<Set<string>>(new Set());
+	const currentRoomIdRef = useRef<string | null>(null);
+
+	// Synchroniser la ref avec l'état
+	useEffect(() => {
+		currentRoomIdRef.current = gameState.currentRoomId;
+	}, [gameState.currentRoomId]);
 
 	const initializeBoard = useCallback(() => {
 		setGameState((prev) => ({
@@ -103,7 +109,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 	const handleSync = useCallback((e: CustomEvent<{ board?: number[][]; cPlayer: number; last?: { x: number; y: number } }>) => {
 		setGameState((prev) => ({
 			...prev,
-			isConnecting: false,
+			loading: false,
 		}));
 
 		const { board, cPlayer, last } = e.detail;
@@ -125,13 +131,13 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 				board: newBoard,
 				currentPlayer: cPlayer,
 				lastMove: last || null,
-				isConnecting: false,
+				loading: false,
 			}));
 		} else {
 			setGameState((prev) => ({
 				...prev,
 				currentPlayer: cPlayer,
-				isConnecting: false,
+				loading: false,
 			}));
 		}
 	}, []);
@@ -162,7 +168,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 	const handleJoin = useCallback((e: CustomEvent<{ roomId: string; playerId: number }>) => {
 		setGameState((prev) => ({
 			...prev,
-			isConnecting: false,
+			loading: false,
 			currentRoomId: e.detail.roomId,
 		}));
 	}, []);
@@ -171,26 +177,20 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 		(roomId: string) => {
 			if (!client || !isConnected || !roomId) return;
 
-			// Si on est déjà dans cette room et connecté, ne pas remettre isConnecting à true
-			if (gameState.currentRoomId === roomId && client.roomId === roomId) {
-				// On est déjà dans cette room, juste s'assurer que isConnecting est false
-				setGameState((prev) => ({
-					...prev,
-					isConnecting: false,
-					currentRoomId: roomId,
-				}));
+			// Si on est déjà dans cette room et connecté, ne rien faire
+			if (currentRoomIdRef.current === roomId && client.roomId === roomId) {
 				return;
 			}
 
-			// Nouvelle room, joindre et mettre isConnecting à true
+			// Nouvelle room, joindre et mettre loading à true
 			client.join(roomId);
 			setGameState((prev) => ({
 				...prev,
-				isConnecting: true,
+				loading: true,
 				currentRoomId: roomId,
 			}));
 		},
-		[client, isConnected, gameState.currentRoomId]
+		[client, isConnected]
 	);
 
 	// Écouter les événements WebSocket

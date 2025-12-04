@@ -1,4 +1,4 @@
-import { Game } from "./gameRoom.js";
+import { Game } from "./room/Game.class.js";
 
 export class P4 extends Game {
 	#board: number[][] = [];
