@@ -26,7 +26,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 				setIsAuthenticated(!!response.isLoggedIn);
 				setUser(response.user || null);
 			})
-			.catch(() => {
+			.catch((error) => {
+				console.error("Failed to get login status:", error);
 				if (!mounted) return;
 				setIsAuthenticated(false);
 				setUser(null);

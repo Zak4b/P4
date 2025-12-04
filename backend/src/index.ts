@@ -2,19 +2,19 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Charger la configuration de l'environnement en premier
-import "./config/env.js";
+import { env } from "./config/env.js";
 
-import express from "express";
-import cookieParser from "cookie-parser";
-import { createServer } from "http";
+import Fastify from "fastify";
 import { Server } from "socket.io";
-import cors from "cors";
 import { unsign } from "cookie-signature";
 import { websocketConnection } from "./websocket.js";
-import { router } from "./routes/gameP4.js";
+import { registerRoutes } from "./routes/routes.js";
 
-const app = express();
-const httpServer = createServer(app);
+const fastify = Fastify({
+	logger: {
+		level: process.env.NODE_ENV === "production" ? "info" : "debug",
+	},
+});
 
 // CORS configuration for frontend
 const corsOptions = {
@@ -22,13 +22,15 @@ const corsOptions = {
 	credentials: true,
 };
 
-app.use(cors(corsOptions));
+// Enregistrer les plugins Fastify
+await fastify.register(import("@fastify/cors"), corsOptions);
+await fastify.register(import("@fastify/cookie"), {
+	secret: env.jwt.secret, // Utiliser le secret JWT depuis la configuration
+	parseOptions: {},
+});
 
-app.use(cookieParser("shhhhh"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Socket.IO setup - utiliser le path par défaut pour éviter les conflits avec les routes Express
+// Socket.IO setup - utiliser le serveur HTTP de Fastify
+const httpServer = fastify.server;
 const io = new Server(httpServer, {
 	cors: corsOptions,
 	path: "/socket.io",
@@ -36,12 +38,12 @@ const io = new Server(httpServer, {
 
 // Socket.IO connection handler
 io.on("connection", async (socket) => {
-	console.log("Socket.IO connection attempt from:", socket.handshake.address);
+	fastify.log.info({ address: socket.handshake.address }, "Socket.IO connection attempt");
 	
 	// Parser les cookies depuis le header Cookie
 	const cookieHeader = socket.handshake.headers.cookie || "";
 	const signedCookies: { [key: string]: any } = {};
-	const cookieSecret = "shhhhh"; // Même secret que cookie-parser
+	const cookieSecret = env.jwt.secret; // Utiliser le secret JWT depuis la configuration
 	
 	// Parser les cookies signés
 	if (cookieHeader) {
@@ -80,34 +82,32 @@ io.on("connection", async (socket) => {
 
 // Gérer les erreurs de connexion Socket.IO
 io.engine.on("connection_error", (err) => {
-	console.error("Socket.IO connection error:", err);
+	fastify.log.error("Socket.IO connection error:", err);
 });
 
-// API routes
-app.use("/P4", router);
+// Enregistrer les routes
+await registerRoutes(fastify);
 
-//Error Handling
-app.use(async (req, res, next) => {
-	const err = new Error("Not Found") as Error & { status?: number };
-	err.status = 404;
-	next(err);
+// Error Handling
+fastify.setNotFoundHandler(async (request, reply) => {
+	fastify.log.error({ url: request.url }, "API endpoint not found");
+	reply.status(404).send({ error: "API endpoint not found" });
 });
 
-import { Request, Response, NextFunction } from "express";
-
-app.use(async (err: Error & { status?: number }, req: Request, res: Response, next: NextFunction) => {
-	if (err.status === 404) {
-		console.error("API endpoint not found", req.url);
-		res.status(404).json({ error: "API endpoint not found" });
-	} else {
-		console.error(err.stack);
-		res.status(500).json({ error: "Internal server error" });
-	}
+fastify.setErrorHandler(async (error: Error & { statusCode?: number }, request, reply) => {
+	fastify.log.error(error);
+	reply.status(error.statusCode || 500).send({
+		error: error.message || "Internal server error",
+	});
 });
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const IP = process.env.IP || "localhost";
 
-httpServer.listen(PORT, IP, () => {
-	console.info(`Backend API server running on ${IP}:${PORT}`);
-});
+try {
+	await fastify.listen({ port: PORT, host: IP });
+	fastify.log.info(`Backend API server running on ${IP}:${PORT}`);
+} catch (err) {
+	fastify.log.error(err);
+	process.exit(1);
+}

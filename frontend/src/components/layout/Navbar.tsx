@@ -50,8 +50,7 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 
 	const handleAccount = () => {
 		setAnchorEl(null);
-		// TODO: Navigate to account page when created
-		// navigate("/account");
+		navigate("/account");
 	};
 
 	const getInitials = (name: string) => {

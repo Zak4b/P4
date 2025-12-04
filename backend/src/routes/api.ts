@@ -1,42 +1,44 @@
-import express from "express";
+import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import rooms from "../actions/rooms.js";
 import user from "../actions/user.js";
 import game from "../actions/game.js";
-export const apiRouter = express.Router();
 
-apiRouter.get("/rooms", async (req, res, next) => {
-	try {
-		res.json(rooms.listAll());
-	} catch (error) {
-		next(error);
-	}
-});
+export async function apiRoutes(fastify: FastifyInstance) {
+	fastify.get("/rooms", async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			reply.send(rooms.listAll());
+		} catch (error) {
+			reply.status(500).send({ error: "Internal server error" });
+		}
+	});
 
-apiRouter.get("/users", async (req, res, next) => {
-	try {
-		const users = await user.listAll();
-		res.json(users);
-	} catch (error) {
-		next(error);
-	}
-});
+	fastify.get("/users", async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			const users = await user.listAll();
+			reply.send(users);
+		} catch (error) {
+			reply.status(500).send({ error: "Internal server error" });
+		}
+	});
 
-apiRouter.get("/history", async (req, res, next) => {
-	try {
-		const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
-		const startFrom = req.query.startFrom ? parseInt(req.query.startFrom as string) : undefined;
-		const history = await game.history(limit, startFrom);
-		res.json(history);
-	} catch (error) {
-		next(error);
-	}
-});
+	fastify.get("/history", async (request: FastifyRequest<{ Querystring: { limit?: string; startFrom?: string } }>, reply: FastifyReply) => {
+		try {
+			const limit = request.query.limit ? parseInt(request.query.limit) : undefined;
+			const startFrom = request.query.startFrom ? parseInt(request.query.startFrom) : undefined;
+			const history = await game.history(limit, startFrom);
+			reply.send(history);
+		} catch (error) {
+			reply.status(500).send({ error: "Internal server error" });
+		}
+	});
 
-apiRouter.get("/score", async (req, res, next) => {
-	try {
-		const scores = await game.playerScore();
-		res.json(scores);
-	} catch (error) {
-		next(error);
-	}
-});
+	fastify.get("/score", async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			const scores = await game.playerScore();
+			reply.send(scores);
+		} catch (error) {
+			reply.status(500).send({ error: "Internal server error" });
+		}
+	});
+}
+

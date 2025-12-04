@@ -1,0 +1,346 @@
+import React, { useEffect, useState } from "react";
+import {
+	Box,
+	Typography,
+	Paper,
+	CircularProgress,
+	Alert,
+	Grid,
+	Card,
+	CardContent,
+	Avatar,
+	Stack,
+	Chip,
+	Divider,
+} from "@mui/material";
+import {
+	Person as PersonIcon,
+	Email as EmailIcon,
+	Badge as BadgeIcon,
+	EmojiEvents as TrophyIcon,
+	SportsEsports as GameIcon,
+	TrendingUp as WinIcon,
+	TrendingDown as LossIcon,
+	Remove as DrawIcon,
+} from "@mui/icons-material";
+import { useAuth } from "../components/AuthContext";
+import { apiClient } from "../api";
+
+interface GameHistory {
+	id: string;
+	name_1: string;
+	name_2: string;
+	player_1: number;
+	player_2: number;
+	result: number;
+	time: number;
+}
+
+interface UserStats {
+	totalGames: number;
+	wins: number;
+	losses: number;
+	draws: number;
+	winRate: number;
+}
+
+const AccountPage: React.FC = () => {
+	const { user } = useAuth();
+	const [history, setHistory] = useState<GameHistory[]>([]);
+	const [stats, setStats] = useState<UserStats | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState("");
+
+	useEffect(() => {
+		if (!user) return;
+
+		const loadData = async () => {
+			setIsLoading(true);
+			setError("");
+			try {
+				const gameHistory = await apiClient.getHistory();
+				setHistory(gameHistory);
+
+				// Calculer les statistiques
+				const userStats = calculateStats(gameHistory, user.id);
+				setStats(userStats);
+			} catch (err) {
+				setError("Failed to load account data");
+				console.error(err);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		loadData();
+	}, [user]);
+
+	const calculateStats = (games: GameHistory[], userId: number): UserStats => {
+		let wins = 0;
+		let losses = 0;
+		let draws = 0;
+
+		games.forEach((game) => {
+			const isPlayer1 = game.player_1 === userId;
+			const isPlayer2 = game.player_2 === userId;
+
+			if (isPlayer1 || isPlayer2) {
+				if (game.result === 0) {
+					draws++;
+				} else if ((isPlayer1 && game.result === 1) || (isPlayer2 && game.result === 2)) {
+					wins++;
+				} else {
+					losses++;
+				}
+			}
+		});
+
+		const totalGames = wins + losses + draws;
+		const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
+
+		return {
+			totalGames,
+			wins,
+			losses,
+			draws,
+			winRate,
+		};
+	};
+
+	const getInitials = (name: string) => {
+		return name
+			.split(" ")
+			.map((n) => n[0])
+			.join("")
+			.toUpperCase()
+			.slice(0, 2);
+	};
+
+	if (isLoading) {
+		return (
+			<Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+				<CircularProgress />
+			</Box>
+		);
+	}
+
+	if (error) {
+		return (
+			<Alert severity="error">
+				{error}
+			</Alert>
+		);
+	}
+
+	if (!user) {
+		return (
+			<Alert severity="warning">
+				User information not available
+			</Alert>
+		);
+	}
+
+	return (
+		<Box>
+			<Typography
+				variant="h4"
+				fontWeight={700}
+				sx={{
+					mb: 4,
+					background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+					WebkitBackgroundClip: "text",
+					WebkitTextFillColor: "transparent",
+					display: "flex",
+					alignItems: "center",
+					gap: 1,
+				}}
+			>
+				<PersonIcon />
+				Mon compte
+			</Typography>
+
+			<Grid container spacing={3}>
+				{/* Informations utilisateur */}
+				<Grid item xs={12} md={4}>
+					<Paper
+						elevation={3}
+						sx={{
+							p: 3,
+							background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+							height: "100%",
+						}}
+					>
+						<Stack spacing={3} alignItems="center">
+							<Avatar
+								sx={{
+									width: 100,
+									height: 100,
+									bgcolor: "primary.main",
+									fontSize: "2.5rem",
+									fontWeight: 700,
+									background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+								}}
+							>
+								{getInitials(user.name)}
+							</Avatar>
+							<Box sx={{ width: "100%" }}>
+								<Stack spacing={2}>
+									<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+										<PersonIcon color="primary" />
+										<Typography variant="h6" fontWeight={600}>
+											{user.name}
+										</Typography>
+									</Box>
+									<Divider />
+									<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+										<EmailIcon color="primary" />
+										<Typography variant="body1" color="text.secondary">
+											{user.email}
+										</Typography>
+									</Box>
+									<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+										<BadgeIcon color="primary" />
+										<Typography variant="body2" color="text.secondary">
+											ID: {user.id}
+										</Typography>
+									</Box>
+								</Stack>
+							</Box>
+						</Stack>
+					</Paper>
+				</Grid>
+
+				{/* Statistiques */}
+				<Grid item xs={12} md={8}>
+					<Grid container spacing={2}>
+						<Grid item xs={12}>
+							<Card
+								elevation={3}
+								sx={{
+									background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+								}}
+							>
+								<CardContent>
+									<Typography variant="h6" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+										<TrophyIcon color="primary" />
+										Statistiques de jeu
+									</Typography>
+									<Divider sx={{ my: 2 }} />
+									{stats ? (
+										<Grid container spacing={3}>
+											<Grid item xs={6} sm={3}>
+												<Box textAlign="center">
+													<Typography variant="h4" fontWeight={700} color="primary">
+														{stats.totalGames}
+													</Typography>
+													<Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 0.5 }}>
+														<GameIcon fontSize="small" />
+														Parties
+													</Typography>
+												</Box>
+											</Grid>
+											<Grid item xs={6} sm={3}>
+												<Box textAlign="center">
+													<Typography variant="h4" fontWeight={700} color="success.main">
+														{stats.wins}
+													</Typography>
+													<Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 0.5 }}>
+														<WinIcon fontSize="small" />
+														Victoires
+													</Typography>
+												</Box>
+											</Grid>
+											<Grid item xs={6} sm={3}>
+												<Box textAlign="center">
+													<Typography variant="h4" fontWeight={700} color="error.main">
+														{stats.losses}
+													</Typography>
+													<Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 0.5 }}>
+														<LossIcon fontSize="small" />
+														Défaites
+													</Typography>
+												</Box>
+											</Grid>
+											<Grid item xs={6} sm={3}>
+												<Box textAlign="center">
+													<Typography variant="h4" fontWeight={700} color="text.secondary">
+														{stats.draws}
+													</Typography>
+													<Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 0.5 }}>
+														<DrawIcon fontSize="small" />
+														Égalités
+													</Typography>
+												</Box>
+											</Grid>
+											<Grid item xs={12}>
+												<Divider sx={{ my: 2 }} />
+												<Box textAlign="center">
+													<Typography variant="h5" fontWeight={700} sx={{ background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+														{stats.winRate}%
+													</Typography>
+													<Typography variant="body2" color="text.secondary">
+														Taux de victoire
+													</Typography>
+												</Box>
+											</Grid>
+										</Grid>
+									) : (
+										<Typography color="text.secondary">Aucune statistique disponible</Typography>
+									)}
+								</CardContent>
+							</Card>
+						</Grid>
+
+						{/* Résumé rapide */}
+						{stats && stats.totalGames > 0 && (
+							<Grid item xs={12}>
+								<Card
+									elevation={3}
+									sx={{
+										background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+									}}
+								>
+									<CardContent>
+										<Typography variant="h6" fontWeight={600} gutterBottom>
+											Résumé
+										</Typography>
+										<Stack direction="row" spacing={2} flexWrap="wrap" sx={{ mt: 2 }}>
+											<Chip
+												label={`${stats.wins} victoires`}
+												color="success"
+												icon={<WinIcon />}
+												sx={{ fontWeight: 600 }}
+											/>
+											<Chip
+												label={`${stats.losses} défaites`}
+												color="error"
+												icon={<LossIcon />}
+												sx={{ fontWeight: 600 }}
+											/>
+											{stats.draws > 0 && (
+												<Chip
+													label={`${stats.draws} égalités`}
+													icon={<DrawIcon />}
+													sx={{ fontWeight: 600 }}
+												/>
+											)}
+											<Chip
+												label={`${stats.winRate}% de victoire`}
+												color="primary"
+												icon={<TrophyIcon />}
+												sx={{ fontWeight: 600 }}
+											/>
+										</Stack>
+									</CardContent>
+								</Card>
+							</Grid>
+						)}
+					</Grid>
+				</Grid>
+			</Grid>
+		</Box>
+	);
+};
+
+export default AccountPage;
+

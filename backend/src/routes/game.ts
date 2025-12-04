@@ -1,4 +1,4 @@
-import express from "express";
+import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
 import { playMoveSchema, restartGameSchema, getGameStateSchema, joinRoomSchema } from "../lib/zod-schemas.js";
 import { rooms } from "../websocket.js";
@@ -6,37 +6,35 @@ import game from "../actions/game.js";
 import { P4 } from "../class/P4.js";
 import { getUserIdentifier } from "../lib/auth-utils.js";
 
-export const gameRouter = express.Router();
-
-// Validation middleware
-const validate = (schema: z.ZodSchema) => {
-	return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+export async function gameRoutes(fastify: FastifyInstance) {
+	// Validation helper
+	const validateBody = (schema: z.ZodSchema) => {
+		return async (request: FastifyRequest<{ Body: any }>, reply: FastifyReply) => {
 		try {
-			schema.parse(req.body);
-			next();
+				schema.parse(request.body);
 		} catch (error) {
 			if (error instanceof z.ZodError) {
-				res.status(400).json({ error: "Invalid request data", details: error.issues });
+					reply.status(400).send({ error: "Invalid request data", details: error.issues });
 				return;
 			}
-			next(error);
+				reply.status(400).send({ error: "Validation error" });
 		}
 	};
 };
 
 // Obtenir l'état d'une partie
-gameRouter.get("/state/:roomId", async (req, res, next) => {
+	fastify.get("/state/:roomId", async (request: FastifyRequest<{ Params: { roomId: string } }>, reply: FastifyReply) => {
 	try {
-		const { roomId } = getGameStateSchema.parse({ roomId: req.params.roomId });
+			const { roomId } = getGameStateSchema.parse({ roomId: request.params.roomId });
 		
 		const room = rooms.get(roomId);
 		if (!room) {
-			res.status(404).json({ error: "Game not found" });
+				reply.status(404).send({ error: "Game not found" });
 			return;
 		}
 
 		const gameInstance = room.game as P4;
-		res.json({
+			reply.send({
 			roomId,
 			board: gameInstance.board,
 			currentPlayer: gameInstance.cPlayer,
@@ -51,69 +49,80 @@ gameRouter.get("/state/:roomId", async (req, res, next) => {
 		});
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			res.status(400).json({ error: "Invalid room ID", details: error.issues });
+				reply.status(400).send({ error: "Invalid room ID", details: error.issues });
 			return;
 		}
-		next(error);
+			reply.status(500).send({ error: "Internal server error" });
 	}
 });
 
 // Rejoindre ou créer une partie
-gameRouter.post("/join", validate(joinRoomSchema), async (req, res, next) => {
+	fastify.post(
+		"/join",
+		{
+			preValidation: validateBody(joinRoomSchema),
+		},
+		async (request: FastifyRequest<{ Body: { roomId: string } }>, reply: FastifyReply) => {
 	try {
-		const userIdentifier = getUserIdentifier(req);
+				const userIdentifier = getUserIdentifier(request);
 		if (!userIdentifier) {
-			res.status(401).json({ error: "Authentication required" });
+					reply.status(401).send({ error: "Authentication required" });
 			return;
 		}
 
-		const { roomId } = req.body;
+				const { roomId } = request.body;
 		
 		// Créer ou obtenir la room (l'état est en RAM)
 		rooms.getOrCreate(roomId);
 
-		res.json({
+				reply.send({
 			success: true,
 			roomId,
 			message: "Room joined successfully",
 		});
 	} catch (error) {
-		next(error);
+				reply.status(500).send({ error: "Internal server error" });
+			}
 	}
-});
+	);
 
 // Jouer un coup
-gameRouter.post("/play", validate(playMoveSchema), async (req, res, next) => {
+	fastify.post(
+		"/play",
+		{
+			preValidation: validateBody(playMoveSchema),
+		},
+		async (request: FastifyRequest<{ Body: { roomId: string; x: number } }>, reply: FastifyReply) => {
 	try {
-		const userIdentifier = getUserIdentifier(req);
+				const userIdentifier = getUserIdentifier(request);
 		if (!userIdentifier) {
-			res.status(401).json({ error: "Authentication required" });
+					reply.status(401).send({ error: "Authentication required" });
 			return;
 		}
 
-		const { roomId, x } = req.body;
+				const { roomId, x } = request.body;
 
 		const room = rooms.get(roomId);
 		if (!room) {
-			res.status(404).json({ error: "Room not found" });
+					reply.status(404).send({ error: "Room not found" });
 			return;
 		}
 
 		const player = room.playerList.find((p) => p.uuid === userIdentifier);
 		if (!player || player.playerId === null) {
-			res.status(403).json({ error: "You are not a player in this room" });
+					reply.status(403).send({ error: "You are not a player in this room" });
 			return;
 		}
 
 		const gameInstance = room.game as P4;
 		if (gameInstance.win || gameInstance.full || player.playerId !== gameInstance.cPlayer) {
-			res.status(400).json({ error: "Invalid move" });
+					reply.status(400).send({ error: "Invalid move" });
 			return;
 		}
 
 		const y = gameInstance.play(player.playerId as 1 | 2, x);
 		if (y < 0) {
-			res.status(400).json({ error: "Invalid column" });
+					reply.status(400).send({ error: "Invalid column" });
 			return;
 		}
 
@@ -143,7 +152,7 @@ gameRouter.post("/play", validate(playMoveSchema), async (req, res, next) => {
 			room.send("game-full");
 		}
 
-		res.json({
+				reply.send({
 			success: true,
 			x,
 			y,
@@ -152,30 +161,36 @@ gameRouter.post("/play", validate(playMoveSchema), async (req, res, next) => {
 			isFull,
 		});
 	} catch (error) {
-		next(error);
+				reply.status(500).send({ error: "Internal server error" });
+			}
 	}
-});
+	);
 
 // Redémarrer une partie
-gameRouter.post("/restart", validate(restartGameSchema), async (req, res, next) => {
+	fastify.post(
+		"/restart",
+		{
+			preValidation: validateBody(restartGameSchema),
+		},
+		async (request: FastifyRequest<{ Body: { roomId: string; forced?: boolean } }>, reply: FastifyReply) => {
 	try {
-		const userIdentifier = getUserIdentifier(req);
+				const userIdentifier = getUserIdentifier(request);
 		if (!userIdentifier) {
-			res.status(401).json({ error: "Authentication required" });
+					reply.status(401).send({ error: "Authentication required" });
 			return;
 		}
 
-		const { roomId, forced } = req.body;
+				const { roomId, forced } = request.body;
 
 		const room = rooms.get(roomId);
 		if (!room) {
-			res.status(404).json({ error: "Room not found" });
+					reply.status(404).send({ error: "Room not found" });
 			return;
 		}
 
 		const gameInstance = room.game as P4;
 		if (!gameInstance.win && !gameInstance.full && !forced) {
-			res.status(400).json({ error: "Game is still in progress" });
+					reply.status(400).send({ error: "Game is still in progress" });
 			return;
 		}
 
@@ -188,12 +203,14 @@ gameRouter.post("/restart", validate(restartGameSchema), async (req, res, next) 
 			cPlayer: gameInstance.cPlayer,
 		});
 
-		res.json({
+				reply.send({
 			success: true,
 			message: "Game restarted",
 		});
 	} catch (error) {
-		next(error);
+				reply.status(500).send({ error: "Internal server error" });
+			}
+		}
+	);
 	}
-});
 

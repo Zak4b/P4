@@ -6,6 +6,7 @@ import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import GamePage from "./pages/Play";
 import HistoryPage from "./pages/History";
+import AccountPage from "./pages/Account";
 import ErrorPage from "./pages/ErrorPage";
 
 export const routes = createBrowserRouter([
@@ -39,6 +40,10 @@ export const routes = createBrowserRouter([
 					{
 						path: "/history",
 						element: <HistoryPage />,
+					},
+					{
+						path: "/account",
+						element: <AccountPage />,
 					},
 				],
 			},
