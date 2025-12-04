@@ -6,7 +6,6 @@ import { env } from "./config/env.js";
 
 import Fastify from "fastify";
 import { Server } from "socket.io";
-import { unsign } from "cookie-signature";
 import { websocketConnection } from "./websocket.js";
 import { registerRoutes } from "./routes/routes.js";
 
@@ -54,7 +53,6 @@ io.on("connection", async (socket) => {
 	// Parser les cookies depuis le header Cookie
 	const cookieHeader = socket.handshake.headers.cookie || "";
 	const signedCookies: { [key: string]: any } = {};
-	const cookieSecret = env.jwt.secret;
 	
 	if (cookieHeader) {
 		// Parser les cookies
@@ -66,31 +64,9 @@ io.on("connection", async (socket) => {
 			return acc;
 		}, {});
 		
-		// Extraire et désigner le token si présent
+		// Extraire le token JWT directement (non signé par Fastify)
 		if (cookies.token) {
-			let tokenValue = cookies.token;
-			
-			// Essayer de désigner le cookie (format "s:value.signature" ou signature directe)
-			if (tokenValue.startsWith("s:")) {
-				const unsigned = unsign(tokenValue.slice(2), cookieSecret);
-				if (unsigned !== false) {
-					tokenValue = unsigned;
-				}
-			} else {
-				// Si le token a plus de 3 parties, c'est probablement signé par Fastify
-				const parts = tokenValue.split('.');
-				if (parts.length > 3) {
-					const unsigned = unsign(tokenValue, cookieSecret);
-					if (unsigned !== false) {
-						tokenValue = unsigned;
-					} else {
-						// Extraire les 3 premières parties (JWT valide)
-						tokenValue = parts.slice(0, 3).join('.');
-					}
-				}
-			}
-			
-			signedCookies.token = tokenValue.trim().replace(/\s+/g, '');
+			signedCookies.token = cookies.token.trim().replace(/\s+/g, '');
 		}
 	}
 	

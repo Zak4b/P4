@@ -31,9 +31,8 @@ export async function loginRoutes(fastify: FastifyInstance) {
 
 				const result = await auth.register(name, email, password);
 
-				// Définir le cookie avec le token JWT
 				reply.setCookie(auth.cookieName, result.token, {
-					signed: true,
+					signed: false, // Non signé car le JWT est déjà signé
 					httpOnly: true,
 					secure: process.env.NODE_ENV === "production",
 					sameSite: "lax",
@@ -70,9 +69,8 @@ export async function loginRoutes(fastify: FastifyInstance) {
 
 				const result = await auth.login(email, password);
 
-				// Définir le cookie avec le token JWT
 				reply.setCookie(auth.cookieName, result.token, {
-					signed: true,
+					signed: false,
 					httpOnly: true,
 					secure: process.env.NODE_ENV === "production",
 					sameSite: "lax",
@@ -117,38 +115,9 @@ export async function loginRoutes(fastify: FastifyInstance) {
 	// Statut de connexion
 	fastify.get("/status", async (request: FastifyRequest, reply: FastifyReply) => {
 		try {
-			// Avec @fastify/cookie et secret, les cookies signés sont automatiquement désignés dans request.cookies
-			// Mais si le cookie est signé, il faut utiliser unsignCookie() pour le désigner manuellement
-			let signedCookies: { [key: string]: any } = {};
-
-			// Parser les cookies depuis le header
-			const cookieHeader = request.headers.cookie || "";
-			if (cookieHeader) {
-				const cookies = cookieHeader.split(";").reduce((acc: { [key: string]: string }, cookie) => {
-					const [key, value] = cookie.trim().split("=");
-					if (key && value) {
-						acc[key] = decodeURIComponent(value);
-					}
-					return acc;
-				}, {});
-
-				// Essayer de désigner le cookie token si présent et si la méthode existe
-				if (cookies.token && typeof (request as any).unsignCookie === "function") {
-					try {
-						const unsigned = (request as any).unsignCookie(cookies.token);
-						if (unsigned && unsigned.valid) {
-							signedCookies.token = unsigned.value;
-						}
-					} catch (e) {
-						// Si unsignCookie échoue, utiliser request.cookies (désigné automatiquement)
-					}
-				}
-			}
-
-			// Utiliser request.cookies si disponible (Fastify désigne automatiquement avec secret)
-			// Si le cookie token est dans request.cookies, c'est qu'il a été désigné automatiquement
-			const expressLikeReq = {
-				signedCookies: signedCookies.token ? signedCookies : request.cookies || {},
+			// Les cookies ne sont plus signés, Fastify les met directement dans request.cookies
+			const Req = {
+				signedCookies: request.cookies || {},
 				cookies: request.cookies || {},
 				headers: request.headers,
 			} as any;
@@ -159,8 +128,8 @@ export async function loginRoutes(fastify: FastifyInstance) {
 				}),
 			} as any;
 
-			const isLogged = auth.isLogged(expressLikeReq, expressLikeRes);
-			const userPayload = auth.getUserFromRequest(expressLikeReq);
+			const isLogged = auth.isLogged(Req, expressLikeRes);
+			const userPayload = auth.getUserFromRequest(Req);
 
 			reply.send({
 				isLoggedIn: isLogged,
