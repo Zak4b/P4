@@ -21,19 +21,17 @@ const getToken = (req: RequestLike): string | null => {
 	const cookieToken = req.signedCookies[cookieName] || req.cookies[cookieName];
 	if (cookieToken) {
 		const token = typeof cookieToken === "string" ? cookieToken : cookieToken.token || null;
-		console.debug("[auth.getToken] Found token in cookies", { hasToken: !!token, cookieName });
-		return token;
+		if (token) {
+			return token;
+		}
 	}
 
 	// Sinon, essayer depuis le header Authorization
 	const authHeader = req.headers.authorization;
 	if (authHeader && authHeader.startsWith("Bearer ")) {
-		const token = authHeader.substring(7);
-		console.debug("[auth.getToken] Found token in Authorization header");
-		return token;
+		return authHeader.substring(7);
 	}
 
-	console.debug("[auth.getToken] No token found", { signedCookiesKeys: Object.keys(req.signedCookies || {}), cookiesKeys: Object.keys(req.cookies || {}) });
 	return null;
 };
 
@@ -43,17 +41,15 @@ const cookie = (req: RequestLike): { userId?: number; username?: string; uuid?: 
 };
 
 // Vérifier si l'utilisateur est authentifié
-const isLogged = (req: RequestLike, res: ResponseLike): boolean => {
+	const isLogged = (req: RequestLike, res: ResponseLike): boolean => {
 	try {
 		const token = getToken(req);
 		if (!token) {
-			console.debug("[auth.isLogged] No token found", { signedCookies: req.signedCookies, cookies: req.cookies });
 			return false;
 		}
 
 		const payload = verifyToken(token);
 		if (!payload || !payload.userId) {
-			console.debug("[auth.isLogged] Invalid token or no userId", { payload });
 			return false;
 		}
 
@@ -61,7 +57,6 @@ const isLogged = (req: RequestLike, res: ResponseLike): boolean => {
 		(req as any).user = payload;
 		return true;
 	} catch (error) {
-		console.debug("[auth.isLogged] Error verifying token:", error);
 		return false;
 	}
 };
@@ -73,7 +68,6 @@ const getUserFromRequest = (req: RequestLike): JWTPayload | null => {
 		if (!token) {
 			return null;
 		}
-
 		return verifyToken(token);
 	} catch (error) {
 		return null;

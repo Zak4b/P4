@@ -23,7 +23,6 @@ function getSyncData(player: Player<typeof P4>): syncObject {
 export const websocketConnection = async (socket: import("socket.io").Socket, req: any) => {
 	const userIdentifier = getUserIdentifier(req);
 	const player = new Player<typeof P4>(socket, userIdentifier);
-	console.debug("Socket.IO connexion " + player.uuid);
 	player.send({ type: "registered", data: player.uuid });
 
 	// Socket.IO gère les événements directement - écouter les événements de jeu
@@ -47,9 +46,7 @@ export const websocketConnection = async (socket: import("socket.io").Socket, re
 
 		if (player.room.game.win || player.room.game.full || player.localId != player.room.game.cPlayer) return;
 		const y = player.room.game.play(player.localId, x);
-		if (y < 0) {
-			console.debug("Forbiden");
-		} else {
+		if (y >= 0) {
 			player.room.send({ type: "play", data: { playerId: player.localId, x, y, nextPlayerId: player.room.game.cPlayer } });
 			if (player.room.game.check(x, y) || player.room.game.full) {
 				const p1 = player.room.registeredPlayerList.find((e) => e.playerId == 1)!;
@@ -111,8 +108,7 @@ export const websocketConnection = async (socket: import("socket.io").Socket, re
 		},
 		restart: async () => socket.emit("restart"),
 		debug: async () => {
-			console.debug(rooms);
-			console.debug(player);
+			// Debug command - output removed
 		},
 	};
 	const unknownHandler = async () => player.send({ type: "info", data: "Commande inconnue" });

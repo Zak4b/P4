@@ -55,13 +55,11 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 			setClient(gameClient);
 
 			socket.on("connect", () => {
-				console.log("Socket.IO connected");
 				setIsConnected(true);
 				reconnectAttempts.current = 0;
 			});
 
 			socket.on("disconnect", (reason) => {
-				console.log("Socket.IO disconnected", reason);
 				setIsConnected(false);
 				setClient(null);
 
@@ -69,7 +67,6 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 				if (isAuthenticated && reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
 					reconnectAttempts.current++;
 					const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000); // Backoff exponentiel, max 30s
-					console.log(`Tentative de reconnexion ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS} dans ${delay}ms`);
 
 					reconnectTimeoutRef.current = setTimeout(() => {
 						connect();

@@ -38,7 +38,6 @@ export class Player<T extends new () => Game> {
 	}
 
 	public async send(msg: ServerMessage) {
-		console.debug(`Sending message to player ${this.uuid}:`, msg);
 		// Utiliser socket.emit() pour que le frontend puisse écouter les événements nommés
 		this.socket.emit(msg.type, msg.data);
 	}

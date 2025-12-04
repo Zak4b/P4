@@ -8,23 +8,27 @@ import { v4 as uuidv4 } from "uuid";
  * Pour les anciens cookies: utilise l'UUID
  * Sinon: génère un nouveau UUID (utilisateur anonyme)
  */
-export const getUserIdentifier = (req: FastifyRequest): string => {
+export const getUserIdentifier = (req: FastifyRequest | any): string => {
 	// Adapter la requête Fastify pour la compatibilité avec auth
+	// Pour WebSocket, req.signedCookies contient le token désigné
+	// Pour les requêtes HTTP Fastify, req.cookies contient les cookies désignés
+	const signedCookies = (req as any).signedCookies || req.cookies || {};
+	const cookies = req.cookies || {};
+	
 	const expressLikeReq = {
-		signedCookies: req.cookies,
-		cookies: req.cookies,
+		signedCookies,
+		cookies,
 		headers: req.headers,
 	} as any;
 
 	// Essayer d'abord JWT
 	const userPayload = auth.getUserFromRequest(expressLikeReq);
 	if (userPayload) {
-		// Utiliser l'email comme identifiant unique pour JWT
 		return userPayload.email;
 	}
 
 	// Sinon, essayer les cookies (rétrocompatibilité)
-	const cookieToken = req.cookies.token;
+	const cookieToken = cookies.token || signedCookies.token;
 	if (cookieToken && typeof cookieToken === "object") {
 		const tokenObj = cookieToken as { uuid?: string };
 		if (tokenObj.uuid && typeof tokenObj.uuid === "string") {

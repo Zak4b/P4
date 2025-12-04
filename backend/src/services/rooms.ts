@@ -1,15 +1,17 @@
-import { stat } from "node:fs";
 import { rooms } from "../websocket.js";
 
 const listAll = (uuid?: string) => {
-	const playerCounts = Object.entries(rooms.list).map(([roomId, room]) => {
+	// rooms.list est maintenant une Map, pas un objet
+	const playerCounts = Array.from(rooms.list.values()).map((room) => {
 		//room.registeredPlayerList.map((p) => p.uuid).includes(uuid);
+		const playerCount = room.playerList.length;
+		const playerLimit = room.playerLimit;
 		return {
 			id: room.id,
 			name: room.id,
-			count: room.playerCount,
-			max: room.playerMaxCount,
-			joinable: room.playerCount >= room.playerMaxCount,
+			count: playerCount,
+			max: playerLimit,
+			joinable: playerCount < playerLimit, // Une room est joinable si elle n'est pas pleine
 			status: "playing",
 		};
 	});

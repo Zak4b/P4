@@ -74,7 +74,6 @@ export class RoomManager<T extends new () => Game> {
 		if (!room) return;
 		room.lock_clean();
 		this._list.delete(room.id);
-		console.debug(`Deleted GameRoom: "${roomId}"`);
 	}
 
 	public join(roomId: string, player: Player<T>): void {
