@@ -17,9 +17,20 @@ const fastify = Fastify({
 });
 
 // CORS configuration for frontend
+// Support multiple origins for development (Vite on 5173 and Next.js on 3001)
+const allowedOrigins = process.env.FRONTEND_URL 
+	? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+	: ["http://localhost:3001", "http://localhost:5173"];
+
+// Log allowed origins for debugging
+console.log("CORS Allowed Origins:", allowedOrigins);
+
 const corsOptions = {
-	origin: process.env.FRONTEND_URL || "http://localhost:5173",
+	origin: allowedOrigins,
 	credentials: true,
+	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+	allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+	exposedHeaders: ["Set-Cookie"],
 };
 
 // Enregistrer les plugins Fastify
@@ -32,7 +43,10 @@ await fastify.register(import("@fastify/cookie"), {
 // Socket.IO setup - utiliser le serveur HTTP de Fastify
 const httpServer = fastify.server;
 const io = new Server(httpServer, {
-	cors: corsOptions,
+	cors: {
+		origin: allowedOrigins,
+		credentials: true,
+	},
 	path: "/socket.io",
 });
 
