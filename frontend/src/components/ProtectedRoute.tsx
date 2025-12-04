@@ -1,5 +1,6 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
+import { Box, CircularProgress } from "@mui/material";
 import { useAuth } from "./AuthContext";
 
 interface ProtectedRouteProps {
@@ -12,11 +13,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
 	if (!isAuthReady) {
 		return (
-			<div className="d-flex justify-content-center align-items-center" style={{ minHeight: 200 }}>
-				<div className="spinner-border" role="status">
-					<span className="visually-hidden">Loading...</span>
-				</div>
-			</div>
+			<Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
+				<CircularProgress />
+			</Box>
 		);
 	}
 

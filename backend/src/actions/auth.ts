@@ -1,21 +1,138 @@
-import { v4 as uuidv4 } from "uuid";
+import { Request, Response } from "express";
 import user from "./user.js";
+import { generateToken, verifyToken, JWTPayload } from "../lib/jwt.js";
+import { v4 as uuidv4 } from "uuid";
 
 const cookieName: string = "token";
 
-const cookie = (req: import("express").Request): object | null => req.signedCookies[cookieName];
-
-const isLogged = (req: import("express").Request, res: import("express").Response): boolean => {
-	const data = cookie(req);
-	return !!data;
+// Obtenir le token depuis les cookies ou le header Authorization
+const getToken = (req: Request): string | null => {
+	// Essayer d'abord depuis les cookies
+	const cookieToken = req.signedCookies[cookieName];
+	if (cookieToken) {
+		return typeof cookieToken === "string" ? cookieToken : cookieToken.token || null;
+	}
+	
+	// Sinon, essayer depuis le header Authorization
+	const authHeader = req.headers.authorization;
+	if (authHeader && authHeader.startsWith("Bearer ")) {
+		return authHeader.substring(7);
+	}
+	
+	return null;
 };
 
+// Obtenir les données du cookie (pour rétrocompatibilité)
+const cookie = (req: Request): { userId?: number; username?: string; uuid?: string } | null => {
+	return req.signedCookies[cookieName] || null;
+};
+
+// Vérifier si l'utilisateur est authentifié
+const isLogged = (req: Request, res: Response): boolean => {
+	try {
+		const token = getToken(req);
+		if (!token) {
+			return false;
+		}
+		
+		const payload = verifyToken(token);
+		if (!payload || !payload.userId) {
+			return false;
+		}
+		
+		// Attacher les infos utilisateur à la requête
+		(req as any).user = payload;
+		return true;
+	} catch (error) {
+		return false;
+	}
+};
+
+// Obtenir l'utilisateur depuis le token
+const getUserFromRequest = (req: Request): JWTPayload | null => {
+	try {
+		const token = getToken(req);
+		if (!token) {
+			return null;
+		}
+		
+		return verifyToken(token);
+	} catch (error) {
+		return null;
+	}
+};
+
+// S'inscrire
+const register = async (name: string, email: string, password: string): Promise<{ token: string; user: { id: number; name: string; email: string } }> => {
+	// Vérifier si l'email existe déjà
+	const existingUser = await user.findByEmail(email);
+	if (existingUser) {
+		throw new Error("Email already exists");
+	}
+	
+	// Créer l'utilisateur
+	const userId = await user.create(name, email, password);
+	const userData = await user.getById(userId);
+	
+	if (!userData) {
+		throw new Error("Failed to create user");
+	}
+	
+	// Générer le token JWT
+	const token = generateToken({
+		userId: userData.id,
+		email: userData.email,
+		name: userData.name,
+	});
+	
+	return {
+		token,
+		user: {
+			id: userData.id,
+			name: userData.name,
+			email: userData.email,
+		},
+	};
+};
+
+// Se connecter
+const login = async (email: string, password: string): Promise<{ token: string; user: { id: number; name: string; email: string } }> => {
+	// Vérifier les identifiants
+	const userData = await user.verifyCredentials(email, password);
+	if (!userData) {
+		throw new Error("Invalid email or password");
+	}
+	
+	// Générer le token JWT
+	const token = generateToken({
+		userId: userData.id,
+		email: userData.email,
+		name: userData.name,
+	});
+	
+	return {
+		token,
+		user: {
+			id: userData.id,
+			name: userData.name,
+			email: userData.email,
+		},
+	};
+};
+
+// Connexion simple (pour rétrocompatibilité)
 const loggin = async (username: string): Promise<{ cookieContent: { userId: number; username: string; uuid: string } }> => {
-	return new Promise((resolve, reject) => {
+	return new Promise(async (resolve, reject) => {
 		try {
 			const uuid = uuidv4();
-			const userId = user.create(username, uuid);
-			resolve({ cookieContent: { userId, username, uuid } });
+			const userId = await user.createSimple(username, uuid);
+			const userData = await user.getById(userId);
+			
+			if (!userData) {
+				throw new Error("Failed to create user");
+			}
+			
+			resolve({ cookieContent: { userId, username: userData.name, uuid } });
 		} catch (error) {
 			console.error(error);
 			reject(error);
@@ -23,4 +140,13 @@ const loggin = async (username: string): Promise<{ cookieContent: { userId: numb
 	});
 };
 
-export default { loggin, isLogged, cookie, cookieName };
+export default { 
+	login, 
+	register, 
+	loggin, 
+	isLogged, 
+	getUserFromRequest,
+	cookie, 
+	cookieName,
+	getToken,
+};

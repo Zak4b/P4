@@ -1,6 +1,7 @@
 import game from "./actions/game.js";
 import { P4 } from "./class/P4.js";
 import { Player, GameRoomList } from "./class/gameRoom.js";
+import { getUserIdentifier } from "./lib/auth-utils.js";
 
 export const rooms = new GameRoomList(2, P4);
 const regType = /^[a-z]+$/i;
@@ -19,24 +20,14 @@ function getSyncData(player: Player<typeof P4>): syncObject {
 	return syncData;
 }
 
-export const websocketConnection = async (socket: import("ws").WebSocket, req: import("express").Request) => {
-	const uuid = req.signedCookies.token?.uuid;
-	const player = new Player<typeof P4>(socket, uuid);
-	console.debug("WS connexion " + player.uuid);
+export const websocketConnection = async (socket: import("socket.io").Socket, req: any) => {
+	const userIdentifier = getUserIdentifier(req);
+	const player = new Player<typeof P4>(socket, userIdentifier);
+	console.debug("Socket.IO connexion " + player.uuid);
 	player.send("registered", player.uuid);
 
-	socket.on("message", async (message) => {
-		try {
-			const messageObject = JSON.parse(message.toString());
-			const { type, data } = messageObject;
-			if (regType.test(String(type))) {
-				socket.emit(`game-${type}`, data);
-			}
-		} catch (error) {
-			return;
-		}
-	});
-	socket.on("game-join", async (roomId: string) => {
+	// Socket.IO gère les événements directement - écouter les événements de jeu
+	socket.on("join", async (roomId: string) => {
 		if (!/[\w0-9]+/.test(roomId) || player.room?.id == roomId) return;
 		try {
 			rooms.join(roomId, player);
@@ -51,7 +42,7 @@ export const websocketConnection = async (socket: import("ws").WebSocket, req: i
 			return;
 		}
 	});
-	socket.on("game-play", async (x: number) => {
+	socket.on("play", async (x: number) => {
 		if (player.playerId === null || player.room === null) return;
 
 		if (player.room.game.win || player.room.game.full || player.playerId != player.room.game.cPlayer) return;
@@ -63,7 +54,12 @@ export const websocketConnection = async (socket: import("ws").WebSocket, req: i
 			if (player.room.game.check(x, y) || player.room.game.full) {
 				const p1 = player.room.registeredPlayerList.find((e) => e.playerId == 1)!;
 				const p2 = player.room.registeredPlayerList.find((e) => e.playerId == 2)!;
-				game.save(p1.uuid, p2.uuid, player.room.game.win, JSON.stringify(player.room.game.board));
+				try {
+					await game.save(p1.uuid, p2.uuid, player.room.game.win, JSON.stringify(player.room.game.board));
+				} catch (error) {
+					console.error(`Failed to save game result for room ${player.room.id}:`, error);
+					// Continue execution - game state is already updated, just logging the save failure
+				}
 				if (player.room.game.full) {
 					player.room.send("game-full");
 				} else {
@@ -72,7 +68,7 @@ export const websocketConnection = async (socket: import("ws").WebSocket, req: i
 			}
 		}
 	});
-	socket.on("game-restart", async (data?: { forced?: boolean }) => {
+	socket.on("restart", async (data?: { forced?: boolean }) => {
 		if (player.room === null || typeof data === "string") {
 			return;
 		}
@@ -86,7 +82,7 @@ export const websocketConnection = async (socket: import("ws").WebSocket, req: i
 	});
 	const commandList: { [key: string]: CallableFunction } = {
 		help: async () => player.send("info", Object.keys(commandList)),
-		join: async (roomId: string) => socket.emit("game-join", roomId),
+		join: async (roomId: string) => socket.emit("join", roomId),
 		swap: async () => {
 			if (!player.room || !player.playerId) {
 				return;
@@ -104,7 +100,7 @@ export const websocketConnection = async (socket: import("ws").WebSocket, req: i
 						e.playerId = e.playerId == 1 ? 2 : 1;
 					});
 
-					socket.emit("game-restart", { forced: true });
+					socket.emit("restart", { forced: true });
 				} else {
 					player.send("info", "Demande d'échange envoyé");
 					other.send("vote", { text: "Echanger de couleur ?", command: "/swap" });
@@ -119,14 +115,14 @@ export const websocketConnection = async (socket: import("ws").WebSocket, req: i
 				player.send("sync", getSyncData(player));
 			}
 		},
-		restart: async () => socket.emit("game-restart"),
+		restart: async () => socket.emit("restart"),
 		debug: async () => {
 			console.debug(rooms);
 			console.debug(player);
 		},
 	};
 	const unknownHandler = async () => player.send("info", "Commande inconnue");
-	socket.on("game-message", async (data: string) => {
+	socket.on("message", async (data: string) => {
 		const text = (data ?? "").toString().trim();
 		if (!text.match(/^\/\w+/)) {
 			if (text.length > 0 && player.playerId !== null) player.room?.send("message", { clientId: player.uuid, message: text });

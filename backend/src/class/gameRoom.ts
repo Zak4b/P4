@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { WebSocket } from "ws";
+import { Socket } from "socket.io";
 import { EventEmitter } from "events";
 
 export abstract class Game {
@@ -9,15 +9,15 @@ export abstract class Game {
 export class Player<T extends new () => Game> {
 	#uuid: string;
 	#playerId: number|null = null;
-	#socket: WebSocket;
+	#socket: Socket;
 	#room: GameRoom<T>|null = null;
 
 	#data;
-	constructor(socket: WebSocket, uuid :string|null = null) {
+	constructor(socket: Socket, uuid :string|null = null) {
 		this.#socket = socket;
 		this.#data = new Map();
 		this.#uuid = uuid ?? uuidv4();
-		socket.on("close", () => {
+		socket.on("disconnect", () => {
 			this.room?.remove(this);
 		});
 	}
@@ -45,7 +45,7 @@ export class Player<T extends new () => Game> {
 		}
 	}
 	async send(type: string, data?: string|object) {
-		this.#socket.send(JSON.stringify({ type, data }));
+		this.#socket.emit(type, data);
 	}
 }
 export class GameRoom <T extends new () => Game> extends EventEmitter{

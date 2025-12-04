@@ -1,10 +1,12 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { apiClient } from "../api";
+import { apiClient, User } from "../api";
 
 interface AuthContextType {
 	isAuthenticated: boolean;
 	isAuthReady: boolean;
-	login: (username: string) => Promise<void>;
+	user: User | null;
+	login: (email: string, password: string) => Promise<void>;
+	register: (name: string, email: string, password: string) => Promise<void>;
 	logout: () => Promise<void>;
 }
 
@@ -13,6 +15,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [isAuthReady, setIsAuthReady] = useState(false);
+	const [user, setUser] = useState<User | null>(null);
 
 	useEffect(() => {
 		let mounted = true;
@@ -21,10 +24,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			.then((response) => {
 				if (!mounted) return;
 				setIsAuthenticated(!!response.isLoggedIn);
+				setUser(response.user || null);
 			})
 			.catch(() => {
 				if (!mounted) return;
 				setIsAuthenticated(false);
+				setUser(null);
 			})
 			.finally(() => {
 				if (!mounted) return;
@@ -35,19 +40,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		};
 	}, []);
 
-	const login = async (username: string) => {
-		const response = await apiClient.login(username);
-		if (response.success) {
+	const login = async (email: string, password: string) => {
+		const response = await apiClient.login(email, password);
+		if (response.success && response.user) {
 			setIsAuthenticated(true);
+			setUser(response.user);
 		} else {
 			throw new Error(response.error || "Login failed");
 		}
 	};
+
+	const register = async (name: string, email: string, password: string) => {
+		const response = await apiClient.register(name, email, password);
+		if (response.success && response.user) {
+			setIsAuthenticated(true);
+			setUser(response.user);
+		} else {
+			throw new Error(response.error || "Registration failed");
+		}
+	};
+
 	const logout = async () => {
 		apiClient
 			.logout()
 			.then(() => {
 				setIsAuthenticated(false);
+				setUser(null);
 				window.location.reload();
 			})
 			.catch((error) => {
@@ -55,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			});
 	};
 
-	return <AuthContext.Provider value={{ isAuthenticated, isAuthReady, login, logout }}>{children}</AuthContext.Provider>;
+	return <AuthContext.Provider value={{ isAuthenticated, isAuthReady, user, login, register, logout }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

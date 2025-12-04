@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String   @default("Bob")
+  email     String   @unique
+  password  String // Hashed password
+  tokens    Token[]
+  gamesAsP1 Game[]   @relation("Player1")
+  gamesAsP2 Game[]   @relation("Player2")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+model Token {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Game {
+  id          Int      @id @default(autoincrement())
+  player1     Int
+  player2     Int
+  result      Int // 0 = draw, 1 = player1 wins, 2 = player2 wins
+  board       String // JSON string of the board
+  time        BigInt
+  player1User User     @relation("Player1", fields: [player1], references: [id])
+  player2User User     @relation("Player2", fields: [player2], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([player1])
+  @@index([player2])
+}

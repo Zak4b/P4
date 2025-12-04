@@ -1,46 +1,40 @@
-import React, { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import { apiClient } from "../../api";
+import React, { useState } from "react";
+import { Outlet, useSearchParams } from "react-router-dom";
+import { Container, Box } from "@mui/material";
 import RoomList from "../Rooms/RoomList";
 import GameModal from "../GameModal";
+import LiveChat from "../LiveChat";
 import Navbar from "./Navbar";
 
-interface LayoutProps {
-	children: React.ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
+const Layout: React.FC = () => {
 	const [showRooms, setShowRooms] = useState(false);
-
-	useEffect(() => {
-		checkLoginStatus();
-	}, []);
-
-	const checkLoginStatus = async () => {
-		try {
-			const status = await apiClient.getLoginStatus();
-			setIsLoggedIn(status.isLoggedIn);
-		} catch (error) {
-			console.error("Failed to check login status:", error);
-			setIsLoggedIn(false);
-		}
-	};
+	const [searchParams] = useSearchParams();
+	const roomId = searchParams.get("roomId") || "1";
 
 	return (
-		<div className="container" style={{ paddingTop: "85px" }}>
+		<Box
+			sx={{
+				minHeight: "100vh",
+				background: "linear-gradient(135deg, #e0e7ff 0%, #fce7f3 50%, #fef3c7 100%)",
+			}}
+		>
 			{/* Navbar */}
-			<Navbar />
+			<Navbar onRoomsClick={() => setShowRooms(true)} />
 
 			{/* Main Content */}
-			<main>{children}</main>
+			<Container maxWidth="xl" sx={{ mt: 10, mb: 4 }}>
+				<Outlet />
+			</Container>
 
-			{/* Room list OffCanvas */}
-			<RoomList show={showRooms} onHide={() => setShowRooms(false)} />
+			{/* Room list Drawer */}
+			<RoomList open={showRooms} onClose={() => setShowRooms(false)} />
 
 			{/* Game Modal */}
 			<GameModal />
-		</div>
+
+			{/* Live Chat - Fixed position */}
+			<LiveChat roomId={roomId} />
+		</Box>
 	);
 };
 

@@ -1,4 +1,21 @@
 import React, { useEffect, useState } from "react";
+import {
+	Box,
+	Typography,
+	Button,
+	CircularProgress,
+	Alert,
+	Paper,
+	Table,
+	TableBody,
+	TableCell,
+	TableContainer,
+	TableHead,
+	TableRow,
+	Chip,
+	Stack,
+} from "@mui/material";
+import { Refresh as RefreshIcon, History as HistoryIcon } from "@mui/icons-material";
 import { apiClient } from "../api";
 
 interface GameHistory {
@@ -16,12 +33,18 @@ const HistoryPage: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState("");
 
-	useEffect(() => {
+	const loadHistory = () => {
+		setIsLoading(true);
+		setError("");
 		apiClient
 			.getHistory()
 			.then(setHistory)
-			.catch(() => setError("error"))
+			.catch(() => setError("Failed to load history"))
 			.finally(() => setIsLoading(false));
+	};
+
+	useEffect(() => {
+		loadHistory();
 	}, []);
 
 	const formatDate = (dateStr: string | number) => {
@@ -34,73 +57,131 @@ const HistoryPage: React.FC = () => {
 		});
 	};
 
-	const formatDuration = (seconds: number) => {
-		const minutes = Math.floor(seconds / 60);
-		const remainingSeconds = seconds % 60;
-		return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-	};
-
 	if (isLoading) {
 		return (
-			<div className="d-flex justify-content-center align-items-center" style={{ minHeight: "400px" }}>
-				<div className="spinner-border" role="status">
-					<span className="visually-hidden">Loading...</span>
-				</div>
-			</div>
+			<Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+				<CircularProgress />
+			</Box>
 		);
 	}
 
 	if (error) {
 		return (
-			<div className="alert alert-danger" role="alert">
-				<h4 className="alert-heading">Erreur</h4>
-				<p>{error}</p>
-				<button className="btn btn-outline-danger">Retry</button>
-			</div>
+			<Alert
+				severity="error"
+				action={
+					<Button color="inherit" size="small" onClick={loadHistory}>
+						Retry
+					</Button>
+				}
+			>
+				{error}
+			</Alert>
 		);
 	}
 
 	return (
-		<div className="history-page">
-			<div className="d-flex justify-content-between align-items-center mb-4">
-				<h1>Game History</h1>
-				<button className="btn btn-outline-primary">
-					<i className="bi bi-arrow-clockwise me-2"></i>
+		<Box>
+			<Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+				<Typography
+					variant="h4"
+					fontWeight={700}
+					sx={{
+						background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+						WebkitBackgroundClip: "text",
+						WebkitTextFillColor: "transparent",
+						display: "flex",
+						alignItems: "center",
+						gap: 1,
+					}}
+				>
+					<HistoryIcon />
+					Game History
+				</Typography>
+				<Button
+					variant="outlined"
+					startIcon={<RefreshIcon />}
+					onClick={loadHistory}
+					disabled={isLoading}
+					sx={{
+						borderColor: "#6366f1",
+						color: "#6366f1",
+						"&:hover": {
+							borderColor: "#4f46e5",
+							background: "rgba(99, 102, 241, 0.1)",
+						},
+					}}
+				>
 					Refresh
-				</button>
-			</div>
+				</Button>
+			</Stack>
 
 			{history.length === 0 ? (
-				<div className="text-center py-5">
-					<h3 className="text-muted">No games played yet</h3>
-					<p className="text-muted">Start a game to see your history here!</p>
-				</div>
+				<Paper
+					elevation={3}
+					sx={{
+						p: 6,
+						textAlign: "center",
+						background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+					}}
+				>
+					<Typography variant="h5" color="text.secondary" gutterBottom>
+						No games played yet
+					</Typography>
+					<Typography variant="body1" color="text.secondary">
+						Start a game to see your history here!
+					</Typography>
+				</Paper>
 			) : (
-				<div className="table-responsive">
-					<table className="table table-striped table-hover">
-						<thead>
-							<tr>
-								<th>Players</th>
-								<th>Date</th>
-							</tr>
-						</thead>
-						<tbody>
+				<TableContainer component={Paper} elevation={3}>
+					<Table>
+						<TableHead>
+							<TableRow sx={{ background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)" }}>
+								<TableCell sx={{ color: "white", fontWeight: 600 }}>Players</TableCell>
+								<TableCell sx={{ color: "white", fontWeight: 600 }}>Date</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody>
 							{history.map((game) => (
-								<tr key={game.id}>
-									<td>
-										<span className={`badge bg-${game.result == 1 ? "success" : "danger"} me-1`}>{game.name_1}</span>
-										<span className={`badge bg-${game.result == 2 ? "success" : "danger"} me-1`}>{game.name_2}</span>
-									</td>
-									<td>
-										<small className="text-muted">{formatDate(game.time)}</small>
-									</td>
-								</tr>
+								<TableRow
+									key={game.id}
+									sx={{
+										"&:nth-of-type(odd)": {
+											backgroundColor: "#f8fafc",
+										},
+										"&:hover": {
+											backgroundColor: "#f1f5f9",
+										},
+									}}
+								>
+									<TableCell>
+										<Stack direction="row" spacing={1}>
+											<Chip
+												label={game.name_1}
+												color={game.result == 1 ? "success" : "error"}
+												size="small"
+												sx={{ fontWeight: 600 }}
+											/>
+											<Chip
+												label={game.name_2}
+												color={game.result == 2 ? "success" : "error"}
+												size="small"
+												sx={{ fontWeight: 600 }}
+											/>
+										</Stack>
+									</TableCell>
+									<TableCell>
+										<Typography variant="body2" color="text.secondary">
+											{formatDate(game.time)}
+										</Typography>
+									</TableCell>
+								</TableRow>
 							))}
-						</tbody>
-					</table>
-				</div>
+						</TableBody>
+					</Table>
+				</TableContainer>
 			)}
-		</div>
+		</Box>
 	);
 };
 

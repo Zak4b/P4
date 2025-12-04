@@ -120,4 +120,37 @@ export class P4 extends Game {
 		}
 		return true;
 	}
+	
+	// Méthode pour restaurer l'état depuis un objet
+	restoreState(state: {
+		board: number[][];
+		currentPlayer: number;
+		win: number;
+		isFull: boolean;
+		playCount: number;
+		lastMove: { x: number; y: number } | null;
+	}) {
+		// Copier le plateau
+		this.#board = [];
+		for (let i = 0; i < state.board.length; i++) {
+			this.#board[i] = [...state.board[i]];
+		}
+		this.#cPlayer = state.currentPlayer as 1 | 2;
+		this.#win = state.win;
+		this.#full = state.isFull;
+		this.#playCount = state.playCount;
+		this.#last = state.lastMove || { x: -1, y: -1 };
+	}
+	
+	// Méthode pour obtenir l'état complet
+	getState() {
+		return {
+			board: this.#board.map(col => [...col]),
+			currentPlayer: this.#cPlayer,
+			win: this.#win,
+			isFull: this.full,
+			playCount: this.#playCount,
+			lastMove: this.#last.x >= 0 ? this.#last : null,
+		};
+	}
 }

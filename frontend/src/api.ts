@@ -2,14 +2,29 @@
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 const API_BASE = `${BACKEND_URL}/P4`;
 
+export interface User {
+	id: number;
+	name: string;
+	email: string;
+}
+
 interface LoginResponse {
 	success: boolean;
 	message?: string;
 	error?: string;
+	user?: User;
+}
+
+interface RegisterResponse {
+	success: boolean;
+	message?: string;
+	error?: string;
+	user?: User;
 }
 
 interface LoginStatus {
 	isLoggedIn: boolean;
+	user: User | null;
 }
 
 interface ApiResponse<T> {
@@ -48,10 +63,17 @@ class ApiClient {
 	}
 
 	// Auth endpoints
-	async login(username: string): Promise<LoginResponse> {
+	async register(name: string, email: string, password: string): Promise<RegisterResponse> {
+		return this.request<RegisterResponse>("/login/register", {
+			method: "POST",
+			body: JSON.stringify({ name, email, password }),
+		});
+	}
+
+	async login(email: string, password: string): Promise<LoginResponse> {
 		return this.request<LoginResponse>("/login", {
 			method: "POST",
-			body: JSON.stringify({ username }),
+			body: JSON.stringify({ email, password }),
 		});
 	}
 
@@ -70,6 +92,13 @@ class ApiClient {
 		return this.request<Room[]>("/api/rooms");
 	}
 
+	async joinRoom(roomId: string): Promise<{ success: boolean; roomId: string; message?: string }> {
+		return this.request<{ success: boolean; roomId: string; message?: string }>("/game/join", {
+			method: "POST",
+			body: JSON.stringify({ roomId }),
+		});
+	}
+
 	async getUsers(): Promise<any[]> {
 		return this.request<any[]>("/api/users");
 	}
@@ -84,4 +113,4 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
-export type { LoginResponse, LoginStatus };
+export type { LoginResponse, RegisterResponse, LoginStatus };

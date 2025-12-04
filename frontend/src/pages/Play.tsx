@@ -1,45 +1,78 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import GameCanvas from "../components/GameCanvas";
-import MessageArea from "../components/MessageArea";
-import { gameInterface } from "../indexScript";
+import { Box, CircularProgress, Alert } from "@mui/material";
+import P4GameBoard from "../components/P4GameBoard";
+import PlayerIndicator from "../components/PlayerIndicator";
+import { useWebSocket } from "../components/WebSocketProvider";
+import { useGame } from "../components/GameContext";
 
 const GamePage: React.FC = () => {
 	const [searchParams] = useSearchParams();
+	const roomId = searchParams.get("roomId") || "1";
+	const { client, isConnected } = useWebSocket();
+	const { joinRoom, gameState } = useGame();
+
 	const [playerStates, setPlayerStates] = useState({
-		player1: { active: false, name: "Joueur #1" },
-		player2: { active: false, name: "Joueur #2" },
+		player1: { active: false, name: "Joueur #1", id: 1 },
+		player2: { active: false, name: "Joueur #2", id: 2 },
 	});
 
-	const roomId = searchParams.get("roomId") || "1";
+	// Rejoindre la room quand roomId change
+	useEffect(() => {
+		if (roomId) {
+			joinRoom(roomId);
+		}
+	}, [roomId, joinRoom]);
 
 	const handlePlayerStateChange = (playerNumber: number, active: boolean) => {
-		console.log(`Player ${playerNumber} is now ${active ? "active" : "inactive"}`);
 		setPlayerStates((prev) => {
-			const a = {
+			// Si un joueur devient actif, l'autre devient inactif
+			if (active) {
+				return {
+					player1: {
+						...prev.player1,
+						active: playerNumber === 1,
+					},
+					player2: {
+						...prev.player2,
+						active: playerNumber === 2,
+					},
+				};
+			}
+			// Sinon, juste mettre à jour le joueur concerné
+			return {
 				...prev,
 				[`player${playerNumber}`]: {
 					...prev[`player${playerNumber}` as keyof typeof prev],
 					active,
 				},
 			};
-			return a;
 		});
 	};
 
+	if (!client) {
+		return (
+			<Box display="flex" flexDirection="column" alignItems="center" gap={2} py={4}>
+				<CircularProgress />
+				<Alert severity="info">Initialisation du client...</Alert>
+			</Box>
+		);
+	}
+
+	if (!isConnected) {
+		return (
+			<Box display="flex" flexDirection="column" alignItems="center" gap={2} py={4}>
+				<CircularProgress />
+				<Alert severity="info">Connexion au serveur...</Alert>
+			</Box>
+		);
+	}
+
 	return (
-		<div className="row">
-			<div className="col-lg-7 col-12">
-				<GameCanvas canvas_i={gameInterface} setActivePlayer={handlePlayerStateChange} />
-				<div className="container-fluid d-flex justify-content-evenly bg-dark p-2 rounded-4 mt-3">
-					<div className={`btn  ${playerStates.player1.active ? "btn-danger" : "btn-outline-danger disabled"}`}>{playerStates.player1.name}</div>
-					<div className={`btn  ${playerStates.player2.active ? "btn-warning" : "btn-outline-warning disabled"}`}>{playerStates.player2.name}</div>
-				</div>
-			</div>
-			<div className="col-lg-5 col-12 d-flex flex-column">
-				<MessageArea roomId={roomId} />
-			</div>
-		</div>
+		<Box>
+			<P4GameBoard roomId={roomId} setActivePlayer={handlePlayerStateChange} />
+			<PlayerIndicator player1={playerStates.player1} player2={playerStates.player2} />
+		</Box>
 	);
 };
 

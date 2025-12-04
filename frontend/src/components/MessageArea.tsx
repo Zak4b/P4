@@ -1,4 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
+import {
+	Box,
+	Paper,
+	TextField,
+	Button,
+	Typography,
+	Stack,
+	Alert,
+	Chip,
+} from "@mui/material";
+import { Send as SendIcon, Info as InfoIcon } from "@mui/icons-material";
 
 interface MessageAreaProps {
 	roomId: string;
@@ -28,6 +39,13 @@ const MessageArea: React.FC<MessageAreaProps> = ({ roomId }) => {
 		setMessages([welcomeMessage]);
 	}, [roomId]);
 
+	useEffect(() => {
+		// Auto-scroll to bottom when new messages arrive
+		if (messageAreaRef.current) {
+			messageAreaRef.current.scrollTop = messageAreaRef.current.scrollHeight;
+		}
+	}, [messages]);
+
 	const handleSendMessage = (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!message.trim()) return;
@@ -45,24 +63,67 @@ const MessageArea: React.FC<MessageAreaProps> = ({ roomId }) => {
 	};
 
 	return (
-		<div className="message-area-container d-flex flex-column h-100">
-			{/* Message display area */}
-			<div ref={messageAreaRef} className="msg-area d-flex flex-column flex-grow-1 w-100 py-2 px-1 border border-3 border-secondary rounded-4 lh-sm mb-2" style={{ minHeight: "400px" }}>
-				<div className="msg-area-body flex-grow-1 overflow-y-scroll">
+		<Box
+			sx={{
+				display: "flex",
+				flexDirection: "column",
+				height: "100%",
+				minHeight: "500px",
+			}}
+		>
+			<Paper
+				elevation={3}
+				ref={messageAreaRef}
+				sx={{
+					flexGrow: 1,
+					p: 2,
+					mb: 2,
+					borderRadius: 3,
+					overflowY: "auto",
+					background: "linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)",
+					maxHeight: "600px",
+				}}
+			>
+				<Stack spacing={2}>
 					{messages.map((msg) => (
 						<MessageItem key={msg.id} message={msg} />
 					))}
-				</div>
-			</div>
+				</Stack>
+			</Paper>
 
-			{/* Message input */}
-			<form onSubmit={handleSendMessage} className="d-flex">
-				<input type="text" className="form-control me-2" placeholder="Tapez votre message..." value={message} onChange={(e) => setMessage(e.target.value)} />
-				<button type="submit" className="btn btn-primary" disabled={!message.trim()}>
+			<form onSubmit={handleSendMessage}>
+				<Stack direction="row" spacing={1}>
+					<TextField
+						fullWidth
+						placeholder="Tapez votre message..."
+						value={message}
+						onChange={(e) => setMessage(e.target.value)}
+						size="small"
+						variant="outlined"
+						sx={{
+							"& .MuiOutlinedInput-root": {
+								borderRadius: 2,
+							},
+						}}
+					/>
+					<Button
+						type="submit"
+						variant="contained"
+						disabled={!message.trim()}
+						startIcon={<SendIcon />}
+						sx={{
+							borderRadius: 2,
+							background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+							"&:hover": {
+								background: "linear-gradient(135deg, #4f46e5 0%, #db2777 100%)",
+							},
+						}}
+					>
 					Envoyer
-				</button>
+					</Button>
+				</Stack>
 			</form>
-		</div>
+		</Box>
 	);
 };
 
@@ -71,47 +132,77 @@ interface MessageItemProps {
 }
 
 const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
-	const timeStr = message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+	const timeStr = message.timestamp.toLocaleTimeString([], {
+		hour: "2-digit",
+		minute: "2-digit",
+	});
 
 	switch (message.type) {
 		case "info":
 			return (
-				<div className="message-box mb-2">
-					<div className="message-content text-info">
-						<small className="text-muted">[{timeStr}] </small>
+				<Alert
+					severity="info"
+					icon={<InfoIcon />}
+					sx={{
+						borderRadius: 2,
+					}}
+				>
+					<Box>
+						<Typography variant="caption" color="text.secondary" sx={{ mr: 1 }}>
+							[{timeStr}]
+						</Typography>
 						{message.content}
-					</div>
-				</div>
+					</Box>
+				</Alert>
 			);
 
 		case "message":
 			return (
-				<div className="message-box mb-2">
-					<div className="message-side">
-						<div className="message-bubble bg-primary text-white p-2 rounded">
-							<div className="message-header">
-								<small className="text-light opacity-75">
+				<Box
+					sx={{
+						display: "flex",
+						justifyContent: "flex-end",
+					}}
+				>
+					<Box
+						sx={{
+							maxWidth: "70%",
+							p: 2,
+							borderRadius: 3,
+							background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+							color: "white",
+						}}
+					>
+						<Typography variant="caption" sx={{ opacity: 0.9, display: "block", mb: 0.5 }}>
 									{message.author} - {timeStr}
-								</small>
-							</div>
-							<div className="message-content">{message.content}</div>
-						</div>
-					</div>
-				</div>
+						</Typography>
+						<Typography variant="body2">{message.content}</Typography>
+					</Box>
+				</Box>
 			);
 
 		case "vote":
 			return (
-				<div className="message-box mb-2">
-					<div className="message-content">
-						<small className="text-muted">[{timeStr}] </small>
-						{message.content}
-					</div>
-					<div className="vote-form mt-1">
-						<button className="btn btn-sm btn-danger me-2">Non</button>
-						<button className="btn btn-sm btn-success">Oui</button>
-					</div>
-				</div>
+				<Paper
+					elevation={1}
+					sx={{
+						p: 2,
+						borderRadius: 2,
+						bgcolor: "background.paper",
+					}}
+				>
+					<Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+						[{timeStr}] {message.content}
+					</Typography>
+					<Stack direction="row" spacing={1}>
+						<Button size="small" variant="contained" color="error">
+							Non
+						</Button>
+						<Button size="small" variant="contained" color="success">
+							Oui
+						</Button>
+					</Stack>
+				</Paper>
 			);
 
 		default:

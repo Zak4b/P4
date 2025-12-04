@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import LoginForm from "../components/LoginForm";
+import RegisterForm from "../components/RegisterForm";
 import { useAuth } from "../components/AuthContext";
 
-const LoginPage: React.FC = () => {
+const RegisterPage: React.FC = () => {
 	const { isAuthenticated } = useAuth();
 	const navigate = useNavigate();
 	const location = useLocation() as any;
@@ -15,7 +15,7 @@ const LoginPage: React.FC = () => {
 		}
 	}, [isAuthenticated, navigate, location.state]);
 
-	return <LoginForm onLogin={() => navigate("/", { replace: true })} />;
+	return <RegisterForm onRegister={() => navigate("/", { replace: true })} />;
 };
 
-export default LoginPage;
+export default RegisterPage;

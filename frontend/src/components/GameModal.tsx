@@ -1,4 +1,14 @@
 import React, { useState, useEffect } from "react";
+import {
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	Button,
+	IconButton,
+	Typography,
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
 
 interface GameModalProps {
 	show?: boolean;
@@ -54,25 +64,63 @@ const GameModal: React.FC<GameModalProps> = ({ show = false, title = "", message
 		}
 	};
 
-	if (!isVisible) return null;
-
 	return (
-		<div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-			<div className="modal-dialog modal-dialog-centered">
-				<div className="modal-content">
-					<div className="modal-header">
-						<h1 className="modal-title fs-5">{modalTitle}</h1>
-						<button type="button" className="btn-close" onClick={handleClose} />
-					</div>
-					<div className="modal-body">{modalMessage && <div dangerouslySetInnerHTML={{ __html: modalMessage }} />}</div>
-					<div className="modal-footer">
-						<button type="button" className="btn btn-primary" onClick={handleClose}>
+		<Dialog
+			open={isVisible}
+			onClose={handleClose}
+			maxWidth="sm"
+			fullWidth
+			PaperProps={{
+				sx: {
+					borderRadius: 3,
+					background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+				},
+			}}
+		>
+			<DialogTitle
+				sx={{
+					background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+					color: "white",
+					display: "flex",
+					justifyContent: "space-between",
+					alignItems: "center",
+				}}
+			>
+				<Typography variant="h6" fontWeight={700}>
+					{modalTitle}
+				</Typography>
+				<IconButton
+					onClick={handleClose}
+					sx={{
+						color: "white",
+						"&:hover": {
+							backgroundColor: "rgba(255, 255, 255, 0.2)",
+						},
+					}}
+				>
+					<CloseIcon />
+				</IconButton>
+			</DialogTitle>
+			<DialogContent sx={{ pt: 3 }}>
+				{modalMessage && (
+					<Typography variant="body1" dangerouslySetInnerHTML={{ __html: modalMessage }} />
+				)}
+			</DialogContent>
+			<DialogActions sx={{ p: 2 }}>
+				<Button
+					onClick={handleClose}
+					variant="contained"
+					sx={{
+						background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+						"&:hover": {
+							background: "linear-gradient(135deg, #4f46e5 0%, #db2777 100%)",
+						},
+					}}
+				>
 							Fermer
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
+				</Button>
+			</DialogActions>
+		</Dialog>
 	);
 };
 

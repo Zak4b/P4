@@ -10,34 +10,51 @@ import {
 	Box,
 	Link,
 	CircularProgress,
+	FormHelperText,
 } from "@mui/material";
-import { Login as LoginIcon } from "@mui/icons-material";
+import { PersonAdd as PersonAddIcon } from "@mui/icons-material";
 import { useAuth } from "./AuthContext";
 import { Link as RouterLink } from "react-router-dom";
 
-interface LoginFormProps {
-	onLogin?: () => void;
+interface RegisterFormProps {
+	onRegister?: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
+	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
-	const { login } = useAuth();
+	const { register } = useAuth();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!email.trim() || !password.trim()) return;
+
+		if (!name.trim() || !email.trim() || !password.trim()) {
+			setError("All fields are required");
+			return;
+		}
+
+		if (password.length < 8) {
+			setError("Password must be at least 8 characters long");
+			return;
+		}
+
+		if (password !== confirmPassword) {
+			setError("Passwords do not match");
+			return;
+		}
 
 		setIsLoading(true);
 		setError("");
 
 		try {
-			await login(email, password);
-			onLogin?.();
+			await register(name, email, password);
+			onRegister?.();
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Login failed");
+			setError(err instanceof Error ? err.message : "Registration failed");
 		} finally {
 			setIsLoading(false);
 		}
@@ -45,17 +62,30 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 
 	return (
 		<Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-			<Card sx={{ maxWidth: 450, width: "100%", background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)" }}>
+			<Card sx={{ maxWidth: 500, width: "100%", background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)" }}>
 				<CardHeader
 					title={
 						<Typography variant="h5" fontWeight={700} sx={{ background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-							Login to P4 Game
+							Register to P4 Game
 						</Typography>
 					}
 					sx={{ pb: 1 }}
 				/>
 				<CardContent>
 						<form onSubmit={handleSubmit}>
+						<TextField
+							fullWidth
+							label="Name"
+							type="text"
+							value={name}
+							onChange={(e) => setName(e.target.value)}
+							required
+							disabled={isLoading}
+							autoComplete="name"
+							margin="normal"
+							variant="outlined"
+							sx={{ mb: 2 }}
+						/>
 						<TextField
 							fullWidth
 							label="Email"
@@ -77,7 +107,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 									onChange={(e) => setPassword(e.target.value)}
 									required
 									disabled={isLoading}
-									autoComplete="current-password"
+									autoComplete="new-password"
+							inputProps={{ minLength: 8 }}
+							margin="normal"
+							variant="outlined"
+							sx={{ mb: 1 }}
+							helperText="Minimum 8 characters"
+						/>
+						<TextField
+							fullWidth
+							label="Confirm Password"
+									type="password"
+									value={confirmPassword}
+									onChange={(e) => setConfirmPassword(e.target.value)}
+									required
+									disabled={isLoading}
+									autoComplete="new-password"
 							inputProps={{ minLength: 8 }}
 							margin="normal"
 							variant="outlined"
@@ -87,8 +132,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 							type="submit"
 							variant="contained"
 							fullWidth
-							disabled={isLoading || !email.trim() || !password.trim()}
-							startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <LoginIcon />}
+							disabled={isLoading || !name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()}
+							startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <PersonAddIcon />}
 							sx={{
 								mb: 2,
 								py: 1.5,
@@ -98,7 +143,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 								},
 							}}
 						>
-							{isLoading ? "Logging in..." : "Login"}
+							{isLoading ? "Registering..." : "Register"}
 							</Button>
 						</form>
 					{error && (
@@ -108,9 +153,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 					)}
 					<Box textAlign="center" mt={2}>
 						<Typography variant="body2" color="text.secondary">
-							Don't have an account?{" "}
-							<Link component={RouterLink} to="/register" sx={{ color: "#6366f1", fontWeight: 600 }}>
-								Register here
+							Already have an account?{" "}
+							<Link component={RouterLink} to="/login" sx={{ color: "#6366f1", fontWeight: 600 }}>
+								Login here
 							</Link>
 						</Typography>
 					</Box>
@@ -120,4 +165,4 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 	);
 };
 
-export default LoginForm;
+export default RegisterForm;

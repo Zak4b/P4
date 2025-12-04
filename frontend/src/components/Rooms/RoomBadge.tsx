@@ -1,3 +1,4 @@
+import { Chip } from "@mui/material";
 import { Room } from "../../api";
 
 const GameBadge: React.FC<{ status: Room["status"] }> = ({ status }) => {
@@ -14,20 +15,29 @@ const GameBadge: React.FC<{ status: Room["status"] }> = ({ status }) => {
 		}
 	};
 
-	const getClass = (status: Room["status"]) => {
+	const getColor = (status: Room["status"]): "warning" | "success" | "default" | "info" => {
 		switch (status) {
 			case "waiting":
-				return "bg-warning";
+				return "warning";
 			case "playing":
-				return "bg-success";
+				return "success";
 			case "finished":
-				return "bg-secondary";
+				return "default";
 			default:
-				return "bg-secondary";
+				return "default";
 		}
 	};
 
-	return <span className={`mb-1 badge ${getClass(status)}`}>{getText(status)}</span>;
+	return (
+		<Chip
+			label={getText(status)}
+			color={getColor(status)}
+			size="small"
+			sx={{
+				fontWeight: 600,
+			}}
+		/>
+	);
 };
 
 export default GameBadge;
