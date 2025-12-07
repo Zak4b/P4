@@ -15,16 +15,15 @@ export default function PlayPage() {
 	const { joinRoom, gameState } = useGame();
 	const lastRoomIdRef = useRef<string | null>(null);
 
-	const [playerStates, setPlayerStates] = useState({
-		player1: { active: false, name: "Joueur #1", id: 1 },
-		player2: { active: false, name: "Joueur #2", id: 2 },
-	});
+	const [players, setPlayers] = useState([
+		{ id: 1, name: "Joueur #1" },
+		{ id: 2, name: "Joueur #2" },
+	]);
+	const [activePlayerIndex, setActivePlayerIndex] = useState(0);
 
-	// Rejoindre la room quand roomId change
 	useEffect(() => {
 		if (!roomId || !client || !isConnected) return;
 		
-		// Éviter de rejoindre si on est déjà dans cette room ou si c'est la même room que la dernière
 		if (lastRoomIdRef.current === roomId || gameState.currentRoomId === roomId) {
 			return;
 		}
@@ -35,29 +34,9 @@ export default function PlayPage() {
 	}, [roomId, client, isConnected]);
 
 	const handlePlayerStateChange = useCallback((playerNumber: number, active: boolean) => {
-		setPlayerStates((prev) => {
-			// Si un joueur devient actif, l'autre devient inactif
-			if (active) {
-				return {
-					player1: {
-						...prev.player1,
-						active: playerNumber === 1,
-					},
-					player2: {
-						...prev.player2,
-						active: playerNumber === 2,
-					},
-				};
-			}
-			// Sinon, juste mettre à jour le joueur concerné
-			return {
-				...prev,
-				[`player${playerNumber}`]: {
-					...prev[`player${playerNumber}` as keyof typeof prev],
-					active,
-				},
-			};
-		});
+		if (active) {
+			setActivePlayerIndex(playerNumber - 1);
+		}
 	}, []);
 
 	if (!client) {
@@ -81,7 +60,7 @@ export default function PlayPage() {
 	return (
 		<Box>
 			<P4GameBoard roomId={roomId} setActivePlayer={handlePlayerStateChange} />
-			<PlayerIndicator player1={playerStates.player1} player2={playerStates.player2} />
+			<PlayerIndicator players={players} activePlayerIndex={activePlayerIndex} />
 		</Box>
 	);
 }

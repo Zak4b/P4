@@ -10,19 +10,31 @@ import {
 import { Person as PersonIcon } from "@mui/icons-material";
 
 interface Player {
-	active: boolean;
 	name: string;
 	id: number;
 }
 
 interface PlayerIndicatorProps {
-	player1: Player;
-	player2: Player;
+	players: Player[];
+	activePlayerIndex: number;
 }
 
-const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ player1, player2 }) => {
-	const activePlayer = player1.active ? player1 : player2;
-	const inactivePlayer = player1.active ? player2 : player1;
+const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ players, activePlayerIndex }) => {
+	if (!players || players.length === 0) {
+		return null;
+	}
+
+	if (activePlayerIndex < 0 || activePlayerIndex >= players.length) {
+		return null;
+	}
+
+	const activePlayer = players[activePlayerIndex];
+	const inactivePlayerIndex = activePlayerIndex === 0 ? 1 : 0;
+	const inactivePlayer = players[inactivePlayerIndex];
+
+	if (!activePlayer || !inactivePlayer) {
+		return null;
+	}
 
 	return (
 		<Paper
@@ -32,7 +44,7 @@ const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ player1, player2 }) =
 				p: 2.5,
 				background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
 				borderRadius: 3,
-				border: `3px solid ${player1.active ? "#ef4444" : "#f59e0b"}`,
+				border: `3px solid ${activePlayer.id === 1 ? "#ef4444" : "#f59e0b"}`,
 				position: "relative",
 				overflow: "hidden",
 				"&::before": {
@@ -42,7 +54,7 @@ const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ player1, player2 }) =
 					left: 0,
 					right: 0,
 					height: "4px",
-					background: `linear-gradient(90deg, ${player1.active ? "#ef4444" : "#f59e0b"} 0%, ${player1.active ? "#dc2626" : "#d97706"} 100%)`,
+					background: `linear-gradient(90deg, ${activePlayer.id === 1 ? "#ef4444" : "#f59e0b"} 0%, ${activePlayer.id === 1 ? "#dc2626" : "#d97706"} 100%)`,
 				},
 			}}
 		>
