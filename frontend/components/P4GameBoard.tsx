@@ -1,13 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useRef } from "react";
 import { Box, Paper, CircularProgress, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
-import { ClientP4 } from "@/lib/ClientP4";
 import { useGame } from "./GameContext";
-import { useWebSocket } from "./WebSocketProvider";
 
 interface P4GameBoardProps {
-	roomId: string;
 	setActivePlayer?: (playerNumber: number, active: boolean) => void;
 }
 
@@ -17,92 +14,33 @@ const CELL_SIZE = 80;
 const BOARD_COLS = 7;
 const BOARD_ROWS = 6;
 
-const P4GameBoard: React.FC<P4GameBoardProps> = ({ roomId, setActivePlayer }) => {
-	const { client, isConnected } = useWebSocket();
-	const { gameState, animatingTokens, handleRestart: contextHandleRestart } = useGame();
-	const [winDialogOpen, setWinDialogOpen] = useState(false);
-	const [winMessage, setWinMessage] = useState("");
+const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
+	const {
+		gameState,
+		animatingTokens,
+		playMove,
+		restart,
+		winDialogOpen,
+		setWinDialogOpen,
+		winMessage,
+	} = useGame();
 	const setActivePlayerRef = useRef(setActivePlayer);
 	
 	// Synchroniser la ref avec la prop
-	useEffect(() => {
+	React.useEffect(() => {
 		setActivePlayerRef.current = setActivePlayer;
 	}, [setActivePlayer]);
 
-	// Écouter les événements win et full pour afficher les dialogs
-	useEffect(() => {
-		if (!client) return;
-
-		const handleWin = (e: CustomEvent<{ uuid: string; playerid: number }>) => {
-			const isWinner = client.uuid === e.detail.uuid;
-			setWinMessage(isWinner ? "🎉 Vous avez gagné !" : "😢 Vous avez perdu !");
-			setWinDialogOpen(true);
-		};
-
-		const handleFull = () => {
-			setWinMessage("🤝 Match nul !");
-			setWinDialogOpen(true);
-		};
-
-		client.addEventListener("win", handleWin as EventListener);
-		client.addEventListener("full", handleFull as EventListener);
-
-		return () => {
-			client.removeEventListener("win", handleWin as EventListener);
-			client.removeEventListener("full", handleFull as EventListener);
-		};
-	}, [client]);
-
-	// Note: Le join de la room est géré par le composant parent (Play.tsx)
-	// Pas besoin de le gérer ici pour éviter les boucles infinies
-
-	// Mettre à jour setActivePlayer quand currentPlayer change
-	// Désactivé pour éviter les boucles infinies - sera mis à jour via les événements de jeu
-	// const lastPlayerRef = useRef<number | null>(null);
-	// useEffect(() => {
-	// 	if (setActivePlayerRef.current && gameState.currentPlayer && lastPlayerRef.current !== gameState.currentPlayer) {
-	// 		lastPlayerRef.current = gameState.currentPlayer;
-	// 		setActivePlayerRef.current(gameState.currentPlayer, true);
-	// 	}
-	// }, [gameState.currentPlayer]);
-
 	const handleColumnClick = (x: number) => {
-		if (!client || !isConnected) {
-			return;
-		}
-
-		if (gameState.isWin || gameState.isFull) {
-			return;
-		}
-
-		if (!client.playerId) {
-			return;
-		}
-
-		if (client.playerId !== gameState.currentPlayer) {
-			return;
-		}
-
-		// Vérifier si la colonne est pleine
-		const topCell = gameState.board[x][BOARD_ROWS - 1];
-		if (topCell !== "empty") {
-			return;
-		}
-
-		client.play(x);
+		playMove(x);
 	};
 
-	const handleRestart = useCallback(() => {
-		if (client && isConnected) {
-			client.send("restart", { forced: true });
-		}
-		contextHandleRestart();
-		setWinDialogOpen(false);
+	const handleRestart = () => {
+		restart(true);
 		if (setActivePlayer) {
 			setActivePlayer(1, true);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [client, isConnected, contextHandleRestart]);
+	};
 
 	const getTokenColor = (color: TokenColor) => {
 		switch (color) {
@@ -115,7 +53,9 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ roomId, setActivePlayer }) =>
 		}
 	};
 
-	const canPlay = client && client.playerId !== null && !gameState.isWin && !gameState.isFull && client.playerId === gameState.currentPlayer;
+	// Déterminer si le joueur peut jouer
+	// Note: La vérification complète est faite dans playMove du GameProvider
+	const canPlay = !gameState.isWin && !gameState.isFull;
 	const isLoading = gameState.loading;
 
 	return (
@@ -187,16 +127,14 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ roomId, setActivePlayer }) =>
 								.fill(0)
 								.map((_, col) => {
 									const x = col;
-									const y = BOARD_ROWS - 1 - row; // Inverser Y pour avoir (0,0) en bas à gauche
+									const y = BOARD_ROWS - 1 - row;
 
-									// Déterminer la couleur du jeton
 									const displayColor = gameState.board[x][y];
 									const tokenKey = `${x}-${y}`;
 									const isAnimating = animatingTokens.has(tokenKey);
 
 									// Mettre en surbrillance le dernier coup
 									const isLastMove = gameState.lastMove?.x === x && gameState.lastMove?.y === y;
-									const isWinning = gameState.isWin && gameState.winningPlayer;
 
 									return (
 										<Box
@@ -270,7 +208,7 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ roomId, setActivePlayer }) =>
 			</Paper>
 
 			{/* Dialog de victoire/match nul */}
-			<Dialog open={winDialogOpen} onClose={() => {}} maxWidth="sm" fullWidth>
+			<Dialog open={winDialogOpen} onClose={() => setWinDialogOpen(false)} maxWidth="sm" fullWidth>
 				<DialogTitle sx={{ textAlign: "center", fontSize: "1.5rem" }}>{winMessage}</DialogTitle>
 				<DialogContent>
 					<Typography textAlign="center" color="text.secondary">

@@ -25,8 +25,14 @@ interface GameContextType {
 	handleFull: () => void;
 	handleRestart: () => void;
 	joinRoom: (roomId: string) => void;
+	playMove: (x: number) => void;
+	restart: (forced?: boolean) => void;
 	animatingTokens: Set<string>;
 	setAnimatingTokens: React.Dispatch<React.SetStateAction<Set<string>>>;
+	winDialogOpen: boolean;
+	setWinDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+	winMessage: string;
+	setWinMessage: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const BOARD_COLS = 7;
@@ -58,6 +64,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 	});
 
 	const [animatingTokens, setAnimatingTokens] = useState<Set<string>>(new Set());
+	const [winDialogOpen, setWinDialogOpen] = useState(false);
+	const [winMessage, setWinMessage] = useState("");
 	const currentRoomIdRef = useRef<string | null>(null);
 
 	// Synchroniser la ref avec l'état
@@ -145,6 +153,9 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 	const handleWin = useCallback(
 		(e: CustomEvent<{ uuid: string; playerid: number }>) => {
 			if (!client) return;
+			const isWinner = client.uuid === e.detail.uuid;
+			setWinMessage(isWinner ? "🎉 Vous avez gagné !" : "😢 Vous avez perdu !");
+			setWinDialogOpen(true);
 			setGameState((prev) => ({
 				...prev,
 				winningPlayer: e.detail.playerid,
@@ -155,6 +166,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 	);
 
 	const handleFull = useCallback(() => {
+		setWinMessage("🤝 Match nul !");
+		setWinDialogOpen(true);
 		setGameState((prev) => ({
 			...prev,
 			isFull: true,
@@ -177,8 +190,18 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 		(roomId: string) => {
 			if (!client || !isConnected || !roomId) return;
 
-			// Si on est déjà dans cette room et connecté, ne rien faire
+			// Si on est déjà dans cette room et connecté, et que le jeu est déjà chargé, ne rien faire
 			if (currentRoomIdRef.current === roomId && client.roomId === roomId) {
+				// S'assurer que loading est à false si on est déjà dans la room et que le jeu est chargé
+				setGameState((prev) => {
+					if (prev.loading && prev.currentRoomId === roomId) {
+						return {
+							...prev,
+							loading: false,
+						};
+					}
+					return prev;
+				});
 				return;
 			}
 
@@ -191,6 +214,46 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 			}));
 		},
 		[client, isConnected]
+	);
+
+	const playMove = useCallback(
+		(x: number) => {
+			if (!client || !isConnected) {
+				return;
+			}
+
+			if (gameState.isWin || gameState.isFull) {
+				return;
+			}
+
+			if (!client.playerId) {
+				return;
+			}
+
+			if (client.playerId !== gameState.currentPlayer) {
+				return;
+			}
+
+			// Vérifier si la colonne est pleine
+			const topCell = gameState.board[x][BOARD_ROWS - 1];
+			if (topCell !== "empty") {
+				return;
+			}
+
+			client.play(x);
+		},
+		[client, isConnected, gameState]
+	);
+
+	const restart = useCallback(
+		(forced: boolean = false) => {
+			if (client && isConnected) {
+				client.send("restart", { forced });
+			}
+			handleRestart();
+			setWinDialogOpen(false);
+		},
+		[client, isConnected, handleRestart]
 	);
 
 	// Écouter les événements WebSocket
@@ -247,8 +310,14 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 				handleFull,
 				handleRestart,
 				joinRoom,
+				playMove,
+				restart,
 				animatingTokens,
 				setAnimatingTokens,
+				winDialogOpen,
+				setWinDialogOpen,
+				winMessage,
+				setWinMessage,
 			}}
 		>
 			{children}

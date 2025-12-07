@@ -24,14 +24,15 @@ export default function PlayPage() {
 	useEffect(() => {
 		if (!roomId || !client || !isConnected) return;
 		
-		if (lastRoomIdRef.current === roomId || gameState.currentRoomId === roomId) {
+		// Si on est déjà dans cette room et que le jeu n'est pas en chargement, ne rien faire
+		if (lastRoomIdRef.current === roomId || (gameState.currentRoomId === roomId && !gameState.loading)) {
 			return;
 		}
 		
 		lastRoomIdRef.current = roomId;
 		joinRoom(roomId);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [roomId, client, isConnected]);
+	}, [roomId, client, isConnected, gameState.currentRoomId, gameState.loading]);
 
 	const handlePlayerStateChange = useCallback((playerNumber: number, active: boolean) => {
 		if (active) {
