@@ -35,7 +35,7 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 	};
 
 	const handleJoinRoom = (roomId: string) => {
-		router.push(`/?roomId=${roomId}`);
+		router.push(`/play/${roomId}`);
 		onClose();
 	};
 

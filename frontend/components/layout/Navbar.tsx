@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import {
 	AppBar,
 	Toolbar,
@@ -24,6 +25,35 @@ import {
 	Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../AuthContext";
+
+interface NavButtonProps {
+	href: string;
+	icon: React.ReactNode;
+	children: React.ReactNode;
+	pathname: string;
+}
+
+function NavButton({ href, icon, children, pathname }: NavButtonProps) {
+	const isActive = pathname === href;
+	return (
+		<Link href={href} style={{ textDecoration: "none", color: "inherit" }}>
+			<Button
+				color="inherit"
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				startIcon={icon as any}
+				sx={{
+					bgcolor: isActive ? "rgba(255, 255, 255, 0.2)" : "transparent",
+					"&:hover": {
+						bgcolor: "rgba(255, 255, 255, 0.15)",
+					},
+				}}
+			>
+				{/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+				{children as any}
+			</Button>
+		</Link>
+	);
+}
 
 interface NavbarProps {
 	onRoomsClick: () => void;
@@ -74,45 +104,31 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 			<Toolbar>
 				<Typography
 					variant="h6"
-					component="div"
+					component={Link}
+					href="/"
 					sx={{
 						flexGrow: 0,
 						mr: 4,
 						fontWeight: 700,
 						cursor: "pointer",
+						color: "inherit",
+						textDecoration: "none",
 					}}
-					onClick={() => router.push("/")}
 				>
 					🎮 P4 Game
 				</Typography>
 
 				<Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
-					<Button
-						color="inherit"
-						startIcon={<PlayIcon />}
-						onClick={() => router.push("/")}
-						sx={{
-							bgcolor: pathname === "/" ? "rgba(255, 255, 255, 0.2)" : "transparent",
-							"&:hover": {
-								bgcolor: "rgba(255, 255, 255, 0.15)",
-							},
-						}}
+					<NavButton href="/play" icon={<PlayIcon />} pathname={pathname || ""}>
+						Play
+					</NavButton>
+					<NavButton
+						href="/history"
+						icon={<HistoryIcon />}
+						pathname={pathname || ""}
 					>
-								Play
-					</Button>
-					<Button
-						color="inherit"
-						startIcon={<HistoryIcon />}
-						onClick={() => router.push("/history")}
-						sx={{
-							bgcolor: pathname === "/history" ? "rgba(255, 255, 255, 0.2)" : "transparent",
-							"&:hover": {
-								bgcolor: "rgba(255, 255, 255, 0.15)",
-							},
-						}}
-					>
-								History
-					</Button>
+						History
+					</NavButton>
 				</Box>
 
 				<Button

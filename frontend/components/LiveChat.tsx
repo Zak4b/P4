@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import {
 	Box,
 	Paper,
@@ -32,11 +32,26 @@ interface Message {
 	timestamp: Date;
 }
 
+type MessageAction =
+	| { type: "add"; payload: Message }
+	| { type: "reset"; payload: Message[] };
+
+const messageReducer = (state: Message[], action: MessageAction): Message[] => {
+	switch (action.type) {
+		case "add":
+			return [...state, action.payload];
+		case "reset":
+			return action.payload;
+		default:
+			return state;
+	}
+};
+
 const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 	const messageAreaRef = useRef<HTMLDivElement>(null);
 	const [isOpen, setIsOpen] = useState(false);
 	const [message, setMessage] = useState("");
-	const [messages, setMessages] = useState<Message[]>([]);
+	const [messages, dispatchMessages] = useReducer(messageReducer, []);
 
 	useEffect(() => {
 		// Add initial welcome message
@@ -46,7 +61,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 			content: `Bienvenue dans la salle ${roomId}`,
 			timestamp: new Date(),
 		};
-		setMessages([welcomeMessage]);
+		dispatchMessages({ type: "reset", payload: [welcomeMessage] });
 	}, [roomId]);
 
 	useEffect(() => {
@@ -68,7 +83,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 			timestamp: new Date(),
 		};
 
-		setMessages((prev) => [...prev, newMessage]);
+		dispatchMessages({ type: "add", payload: newMessage });
 		setMessage("");
 	};
 

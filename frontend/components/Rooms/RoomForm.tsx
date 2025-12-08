@@ -46,7 +46,7 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 			if (response.success) {
 				setName("");
 				// Naviguer vers la salle créée
-				router.push(`/?roomId=${response.roomId}`);
+				router.push(`/play/${response.roomId}`);
 				// Recharger la liste des salles
 				onRoomCreated?.();
 				// Fermer le drawer

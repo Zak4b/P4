@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Container, Box } from "@mui/material";
 import RoomList from "../Rooms/RoomList";
 import GameModal from "../GameModal";
@@ -14,8 +14,8 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
 	const [showRooms, setShowRooms] = useState(false);
-	const searchParams = useSearchParams();
-	const roomId = searchParams?.get("roomId") || "1";
+	const params = useParams();
+	const roomId = (params?.id as string) || "1";
 
 	return (
 		<Box
