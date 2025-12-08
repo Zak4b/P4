@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from "uuid";
 
 // Type pour les requêtes Fastify
 type RequestLike = {
-	signedCookies: { [key: string]: any };
 	cookies: { [key: string]: any };
 	headers: { [key: string]: string | undefined; authorization?: string };
 };
@@ -17,8 +16,8 @@ const cookieName: string = "token";
 
 // Obtenir le token depuis les cookies ou le header Authorization
 const getToken = (req: RequestLike): string | null => {
-	// Essayer d'abord depuis les cookies signés (Fastify les met dans cookies après désignature)
-	const cookieToken = req.signedCookies[cookieName] || req.cookies[cookieName];
+	// Essayer d'abord depuis les cookies
+	const cookieToken = req.cookies[cookieName];
 	if (cookieToken) {
 		const token = typeof cookieToken === "string" ? cookieToken : cookieToken.token || null;
 		if (token) {
@@ -37,7 +36,7 @@ const getToken = (req: RequestLike): string | null => {
 
 // Obtenir les données du cookie (pour rétrocompatibilité)
 const cookie = (req: RequestLike): { userId?: number; username?: string; uuid?: string } | null => {
-	return req.signedCookies[cookieName] || null;
+	return req.cookies[cookieName] || null;
 };
 
 // Vérifier si l'utilisateur est authentifié

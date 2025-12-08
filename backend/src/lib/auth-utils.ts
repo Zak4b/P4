@@ -3,7 +3,6 @@ import auth from "../services/auth.js";
 
 // Construit un objet minimal compatible avec auth.* à partir d'une requête Fastify
 export const toAuthRequest = (req: FastifyRequest | any) => ({
-	signedCookies: req.signedCookies || req.cookies || {},
 	cookies: req.cookies || {},
 	headers: req.headers,
 });

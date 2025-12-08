@@ -28,14 +28,6 @@ const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ players, activePlayer
 		return null;
 	}
 
-	const activePlayer = players[activePlayerIndex];
-	const inactivePlayerIndex = activePlayerIndex === 0 ? 1 : 0;
-	const inactivePlayer = players[inactivePlayerIndex];
-
-	if (!activePlayer || !inactivePlayer) {
-		return null;
-	}
-
 	return (
 		<Paper
 			elevation={4}
@@ -44,139 +36,75 @@ const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ players, activePlayer
 				p: 2.5,
 				background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
 				borderRadius: 3,
-				border: `3px solid ${activePlayer.id === 1 ? "#ef4444" : "#f59e0b"}`,
-				position: "relative",
 				overflow: "hidden",
-				"&::before": {
-					content: '""',
-					position: "absolute",
-					top: 0,
-					left: 0,
-					right: 0,
-					height: "4px",
-					background: `linear-gradient(90deg, ${activePlayer.id === 1 ? "#ef4444" : "#f59e0b"} 0%, ${activePlayer.id === 1 ? "#dc2626" : "#d97706"} 100%)`,
-				},
 			}}
 		>
-			<Stack 
-				direction={{ xs: "column", sm: "row" }} 
-				spacing={2} 
-				alignItems="center" 
-				justifyContent="space-between"
-			>
-				{/* Inactive Player */}
-				<Box
-					sx={{
-						flex: { xs: 1, sm: 1 },
-						display: "flex",
-						alignItems: "center",
-						gap: 1.5,
-						opacity: 0.4,
-						transition: "opacity 0.3s ease",
-						width: { xs: "100%", sm: "auto" },
-					}}
-				>
-					<Avatar
-						sx={{
-							width: 48,
-							height: 48,
-							bgcolor: inactivePlayer.id === 1 ? "error.dark" : "warning.dark",
-							border: "2px solid rgba(255, 255, 255, 0.2)",
-						}}
-					>
-						<PersonIcon />
-					</Avatar>
-					<Box>
-						<Typography variant="body2" sx={{ color: "rgba(255, 255, 255, 0.7)", fontWeight: 500 }}>
-							{inactivePlayer.name}
-						</Typography>
-						<Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.5)" }}>
-							En attente
-						</Typography>
-					</Box>
-				</Box>
-
-				{/* Active Player Indicator */}
-				<Box
-					sx={{
-						flex: { xs: 1, sm: 1.5 },
-						display: "flex",
-						flexDirection: "column",
-						alignItems: "center",
-						gap: 1,
-						position: "relative",
-						width: { xs: "100%", sm: "auto" },
-					}}
-				>
-					<Box
-						sx={{
-							position: "absolute",
-							top: -12,
-							px: 2,
-							py: 0.5,
-							bgcolor: activePlayer.id === 1 ? "error.main" : "warning.main",
-							borderRadius: 2,
-							boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-						}}
-					>
-						<Typography variant="caption" sx={{ color: "white", fontWeight: 700, fontSize: "0.7rem" }}>
-							AU TOUR DE
-						</Typography>
-					</Box>
-					<Box
-						sx={{
-							display: "flex",
-							alignItems: "center",
-							gap: 2,
-							bgcolor: activePlayer.id === 1 ? "rgba(239, 68, 68, 0.2)" : "rgba(245, 158, 11, 0.2)",
-							p: 2,
-							borderRadius: 2,
-							border: `2px solid ${activePlayer.id === 1 ? "#ef4444" : "#f59e0b"}`,
-							boxShadow: `0 0 20px ${activePlayer.id === 1 ? "rgba(239, 68, 68, 0.5)" : "rgba(245, 158, 11, 0.5)"}`,
-							transition: "all 0.3s ease",
-							animation: "pulse 2s ease-in-out infinite",
-							"@keyframes pulse": {
-								"0%, 100%": {
-									boxShadow: `0 0 20px ${activePlayer.id === 1 ? "rgba(239, 68, 68, 0.5)" : "rgba(245, 158, 11, 0.5)"}`,
-								},
-								"50%": {
-									boxShadow: `0 0 30px ${activePlayer.id === 1 ? "rgba(239, 68, 68, 0.8)" : "rgba(245, 158, 11, 0.8)"}`,
-								},
-							},
-						}}
-					>
-						<Avatar
+			<Stack direction="column" spacing={1.5}>
+				{players.map((player, index) => {
+					const isActive = index === activePlayerIndex;
+					return (
+						<Box
+							key={player.id}
 							sx={{
-								width: 56,
-								height: 56,
-								bgcolor: activePlayer.id === 1 ? "error.main" : "warning.main",
-								border: "3px solid white",
-								boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+								display: "flex",
+								alignItems: "center",
+								gap: 1.5,
+								p: 1.5,
+								borderRadius: 2,
+								bgcolor: isActive
+									? player.id === 1
+										? "rgba(239, 68, 68, 0.18)"
+										: "rgba(245, 158, 11, 0.18)"
+									: "rgba(255, 255, 255, 0.04)",
+								border: isActive
+									? `2px solid ${player.id === 1 ? "#ef4444" : "#f59e0b"}`
+									: "1px solid rgba(255,255,255,0.08)",
+								boxShadow: isActive
+									? `0 0 16px ${player.id === 1 ? "rgba(239, 68, 68, 0.35)" : "rgba(245, 158, 11, 0.35)"}`
+									: "none",
+								transition: "all 0.25s ease",
 							}}
 						>
-							<PersonIcon sx={{ fontSize: 32 }} />
-						</Avatar>
-						<Box>
-							<Typography variant="h6" sx={{ color: "white", fontWeight: 700, mb: 0.5 }}>
-								{activePlayer.name}
-							</Typography>
-							<Chip
-								label="Joueur actif"
-								size="small"
+							<Avatar
 								sx={{
-									bgcolor: activePlayer.id === 1 ? "error.dark" : "warning.dark",
-									color: "white",
-									fontWeight: 600,
-									fontSize: "0.7rem",
-									height: 20,
+									width: 48,
+									height: 48,
+									bgcolor: player.id === 1 ? "error.main" : "warning.main",
+									border: isActive ? "3px solid white" : "2px solid rgba(255,255,255,0.35)",
+									boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.35)" : "none",
 								}}
-							/>
+							>
+								<PersonIcon />
+							</Avatar>
+							<Box sx={{ flex: 1 }}>
+								<Typography
+									variant="subtitle1"
+									sx={{ color: "white", fontWeight: isActive ? 700 : 600, lineHeight: 1.1 }}
+								>
+									{player.name}
+								</Typography>
+								<Typography
+									variant="caption"
+									sx={{ color: isActive ? "white" : "rgba(255,255,255,0.6)", fontWeight: 500 }}
+								>
+									{isActive ? "Au tour de ce joueur" : "En attente"}
+								</Typography>
+							</Box>
+							{isActive && (
+								<Chip
+									label="Actif"
+									size="small"
+									sx={{
+										bgcolor: player.id === 1 ? "error.dark" : "warning.dark",
+										color: "white",
+										fontWeight: 700,
+										height: 22,
+									}}
+								/>
+							)}
 						</Box>
-					</Box>
-				</Box>
-
-				{/* Placeholder for symmetry */}
-				<Box sx={{ flex: { xs: 0, sm: 1 }, display: { xs: "none", sm: "block" } }} />
+					);
+				})}
 			</Stack>
 		</Paper>
 	);

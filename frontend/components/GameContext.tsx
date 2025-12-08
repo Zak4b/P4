@@ -115,39 +115,35 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const handleSync = useCallback((e: CustomEvent<{ board?: number[][]; cPlayer: number; last?: { x: number; y: number } }>) => {
-		setGameState((prev) => ({
-			...prev,
-			loading: false,
-		}));
-
 		const { board, cPlayer, last } = e.detail;
 
-		if (board) {
+		setGameState((prev) => {
 			const newBoard: Board = createEmptyBoard();
 
-			for (let x = 0; x < board.length; x++) {
-				for (let y = 0; y < board[x].length; y++) {
-					const playerId = board[x][y];
-					if (playerId) {
-						newBoard[x][y] = getPlayerColor(playerId);
+			if (board) {
+				for (let x = 0; x < board.length; x++) {
+					for (let y = 0; y < board[x].length; y++) {
+						const playerId = board[x][y];
+						if (playerId) {
+							newBoard[x][y] = getPlayerColor(playerId);
+						}
 					}
 				}
 			}
 
-			setGameState((prev) => ({
+			return {
 				...prev,
 				board: newBoard,
 				currentPlayer: cPlayer,
 				lastMove: last || null,
+				isFull: false,
+				isWin: false,
+				winningPlayer: null,
 				loading: false,
-			}));
-		} else {
-			setGameState((prev) => ({
-				...prev,
-				currentPlayer: cPlayer,
-				loading: false,
-			}));
-		}
+			};
+		});
+
+		setAnimatingTokens(new Set());
 	}, []);
 
 	const handleWin = useCallback(

@@ -10,14 +10,12 @@ import {
 	Typography,
 	Stack,
 	Alert,
-	Collapse,
 	Avatar,
 } from "@mui/material";
 import {
 	Send as SendIcon,
 	Info as InfoIcon,
 	Close as CloseIcon,
-	Minimize as MinimizeIcon,
 	Chat as ChatIcon,
 } from "@mui/icons-material";
 
@@ -37,7 +35,6 @@ interface Message {
 const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 	const messageAreaRef = useRef<HTMLDivElement>(null);
 	const [isOpen, setIsOpen] = useState(false);
-	const [isMinimized, setIsMinimized] = useState(false);
 	const [message, setMessage] = useState("");
 	const [messages, setMessages] = useState<Message[]>([]);
 
@@ -54,10 +51,10 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 
 	useEffect(() => {
 		// Auto-scroll to bottom when new messages arrive
-		if (messageAreaRef.current && isOpen && !isMinimized) {
+		if (messageAreaRef.current && isOpen) {
 			messageAreaRef.current.scrollTop = messageAreaRef.current.scrollHeight;
 		}
-	}, [messages, isOpen, isMinimized]);
+	}, [messages, isOpen]);
 
 	const handleSendMessage = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -77,17 +74,6 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 
 	const toggleChat = () => {
 		setIsOpen(!isOpen);
-		if (!isOpen) {
-			setIsMinimized(false);
-		}
-	};
-
-	const handleMinimize = () => {
-		setIsMinimized(true);
-	};
-
-	const handleExpand = () => {
-		setIsMinimized(false);
 	};
 
 	return (
@@ -102,25 +88,83 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 				alignItems: "flex-end",
 			}}
 		>
-			{/* Chat Window */}
-			<Collapse in={isOpen} orientation="vertical">
-				<Paper
-					elevation={8}
-					sx={{
-						width: { xs: "calc(100vw - 32px)", sm: 380 },
-						height: isMinimized ? 60 : 500,
-						mb: 1,
-						display: "flex",
-						flexDirection: "column",
-						borderRadius: 2,
-						overflow: "hidden",
-						background: "white",
-						transition: "height 0.3s ease-in-out",
-					}}
-				>
-					{/* Chat Header */}
+			<Paper
+				elevation={isOpen ? 8 : 4}
+				onClick={!isOpen ? toggleChat : undefined}
+				sx={{
+					position: "relative",
+					width: isOpen ? { xs: "calc(100vw - 32px)", sm: 380 } : 56,
+					height: isOpen ? 500 : 56,
+					bottom: isOpen ? 0 : 12,
+					right: isOpen ? 0 : 0,
+					display: "flex",
+					flexDirection: "column",
+					borderRadius: isOpen ? 2 : "50%",
+					overflow: "hidden",
+					bgcolor: isOpen ? "white" : "primary.main",
+					color: isOpen ? "inherit" : "white",
+					cursor: !isOpen ? "pointer" : "default",
+					transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+					boxShadow: isOpen
+						? "0 8px 24px rgba(0,0,0,0.15)"
+						: "0 4px 12px rgba(0,0,0,0.15)",
+				}}
+			>
+				{/* Chat Button State */}
+				{!isOpen && (
 					<Box
-						onClick={isMinimized ? handleExpand : undefined}
+						sx={{
+							width: "100%",
+							height: "100%",
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							position: "relative",
+						}}
+					>
+						<IconButton
+							onClick={toggleChat}
+							sx={{
+								width: "100%",
+								height: "100%",
+								color: "white",
+								"&:hover": {
+									bgcolor: "primary.dark",
+								},
+							}}
+						>
+							<ChatIcon />
+						</IconButton>
+						{messages.filter((m) => m.type === "message").length > 0 && (
+							<Box
+								sx={{
+									position: "absolute",
+									top: -4,
+									right: -4,
+									minWidth: 20,
+									height: 20,
+									borderRadius: "50%",
+									bgcolor: "error.main",
+									color: "white",
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+									fontSize: "0.75rem",
+									fontWeight: 600,
+									border: "2px solid white",
+								}}
+							>
+								{messages.filter((m) => m.type === "message").length}
+							</Box>
+						)}
+					</Box>
+				)}
+
+				{/* Chat Window State */}
+				{isOpen && (
+					<>
+						{/* Chat Header */}
+						<Box
 						sx={{
 							background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
 							color: "white",
@@ -128,7 +172,6 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 							display: "flex",
 							alignItems: "center",
 							justifyContent: "space-between",
-							cursor: isMinimized ? "pointer" : "default",
 						}}
 					>
 						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -145,28 +188,15 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 							</Avatar>
 							<Box>
 								<Typography variant="body2" fontWeight={600}>
-									Chat - Salle {roomId}
+										Chat
 								</Typography>
-								{!isMinimized && messages.length > 0 && (
+									{messages.length > 0 && (
 									<Typography variant="caption" sx={{ opacity: 0.8 }}>
 										{messages.filter((m) => m.type === "message").length} messages
 									</Typography>
 								)}
 							</Box>
 						</Box>
-						<Box sx={{ display: "flex", gap: 0.5 }}>
-							{!isMinimized && (
-								<IconButton
-									size="small"
-									onClick={(e) => {
-										e.stopPropagation();
-										handleMinimize();
-									}}
-									sx={{ color: "white" }}
-								>
-									<MinimizeIcon fontSize="small" />
-								</IconButton>
-							)}
 							<IconButton
 								size="small"
 								onClick={(e) => {
@@ -177,12 +207,9 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 							>
 								<CloseIcon fontSize="small" />
 							</IconButton>
-						</Box>
 					</Box>
 
 					{/* Chat Content */}
-					{!isMinimized && (
-						<>
 							<Box
 								ref={messageAreaRef}
 								sx={{
@@ -216,6 +243,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 							<Box
 								component="form"
 								onSubmit={handleSendMessage}
+							onClick={(e) => e.stopPropagation()}
 								sx={{
 									p: 1.5,
 									borderTop: "1px solid",
@@ -269,50 +297,6 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 						</>
 					)}
 				</Paper>
-			</Collapse>
-
-			{/* Chat Button */}
-			<Box sx={{ position: "relative" }}>
-				<IconButton
-					onClick={toggleChat}
-					sx={{
-						width: 56,
-						height: 56,
-						bgcolor: "primary.main",
-						color: "white",
-						boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-						"&:hover": {
-							bgcolor: "primary.dark",
-							boxShadow: "0 6px 16px rgba(0,0,0,0.2)",
-						},
-						transition: "all 0.3s ease",
-					}}
-				>
-					{isOpen ? <CloseIcon /> : <ChatIcon />}
-				</IconButton>
-				{messages.filter((m) => m.type === "message").length > 0 && !isOpen && (
-					<Box
-						sx={{
-							position: "absolute",
-							top: -4,
-							right: -4,
-							minWidth: 20,
-							height: 20,
-							borderRadius: "50%",
-							bgcolor: "error.main",
-							color: "white",
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-							fontSize: "0.75rem",
-							fontWeight: 600,
-							border: "2px solid white",
-						}}
-					>
-						{messages.filter((m) => m.type === "message").length}
-					</Box>
-				)}
-			</Box>
 		</Box>
 	);
 };

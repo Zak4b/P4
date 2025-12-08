@@ -59,9 +59,13 @@ export default function PlayPage() {
 	}
 
 	return (
-		<Box>
-			<P4GameBoard roomId={roomId} setActivePlayer={handlePlayerStateChange} />
-			<PlayerIndicator players={players} activePlayerIndex={activePlayerIndex} />
+		<Box display="flex" gap={3} alignItems="flex-start" flexWrap="wrap">
+			<Box flex="0 0 260px">
+				<PlayerIndicator players={players} activePlayerIndex={activePlayerIndex} />
+			</Box>
+			<Box flex="1 1 auto" minWidth="360px">
+				<P4GameBoard roomId={roomId} setActivePlayer={handlePlayerStateChange} />
+			</Box>
 		</Box>
 	);
 }

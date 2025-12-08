@@ -7,6 +7,8 @@ import { env } from "./config/env.js";
 import Fastify from "fastify";
 import { Server } from "socket.io";
 import { websocketConnection } from "./websocket.js";
+import { toAuthRequest } from "./lib/auth-utils.js";
+import { parse as parseCookie } from "cookie";
 import { registerRoutes } from "./routes/routes.js";
 
 const fastify = Fastify({
@@ -50,32 +52,13 @@ const io = new Server(httpServer, {
 io.on("connection", async (socket) => {
 	fastify.log.info({ address: socket.handshake.address }, "Socket.IO connection attempt");
 	
-	// Parser les cookies depuis le header Cookie
 	const cookieHeader = socket.handshake.headers.cookie || "";
-	const signedCookies: { [key: string]: any } = {};
-	
-	if (cookieHeader) {
-		// Parser les cookies
-		const cookies = cookieHeader.split(";").reduce((acc: { [key: string]: string }, cookie) => {
-			const [key, value] = cookie.trim().split("=");
-			if (key && value) {
-				acc[key] = decodeURIComponent(value);
-			}
-			return acc;
-		}, {});
-		
-		// Extraire le token JWT directement (non signé par Fastify)
-		if (cookies.token) {
-			signedCookies.token = cookies.token.trim().replace(/\s+/g, '');
-		}
-	}
-	
-	// Créer un objet req-like à partir du handshake Socket.IO pour la compatibilité
-	const req = {
-		signedCookies,
+	const cookies = cookieHeader ? parseCookie(cookieHeader) : {};
+
+	const req = toAuthRequest({
+		cookies,
 		headers: socket.handshake.headers,
-		cookies: {},
-	} as any;
+	});
 	websocketConnection(socket, req);
 });
 

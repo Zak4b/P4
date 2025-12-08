@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useEffect } from "react";
 import { Box, Paper, CircularProgress, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import { useGame } from "./GameContext";
+import { useWebSocket } from "./WebSocketProvider";
 
 interface P4GameBoardProps {
+	roomId?: string;
 	setActivePlayer?: (playerNumber: number, active: boolean) => void;
 }
 
@@ -24,12 +26,8 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 		setWinDialogOpen,
 		winMessage,
 	} = useGame();
-	const setActivePlayerRef = useRef(setActivePlayer);
+	const { client } = useWebSocket();
 	
-	// Synchroniser la ref avec la prop
-	React.useEffect(() => {
-		setActivePlayerRef.current = setActivePlayer;
-	}, [setActivePlayer]);
 
 	const handleColumnClick = (x: number) => {
 		playMove(x);
@@ -42,6 +40,10 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 		}
 	};
 
+	useEffect(() => {
+		setActivePlayer?.(gameState.currentPlayer, true);
+	}, [gameState.currentPlayer, setActivePlayer]);
+
 	const getTokenColor = (color: TokenColor) => {
 		switch (color) {
 			case "player1":
@@ -53,10 +55,10 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 		}
 	};
 
-	// Déterminer si le joueur peut jouer
-	// Note: La vérification complète est faite dans playMove du GameProvider
-	const canPlay = !gameState.isWin && !gameState.isFull;
+	// Déterminer si le joueur peut jouer (turn-based + pas de win/full/loading)
+	// Note: La vérification complète reste faite dans playMove côté provider
 	const isLoading = gameState.loading;
+	const canPlay = !gameState.isWin && !gameState.isFull && !isLoading && client?.playerId === gameState.currentPlayer;
 
 	return (
 		<Box>

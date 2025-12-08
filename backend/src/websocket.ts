@@ -1,10 +1,10 @@
+import { Socket } from "socket.io";
 import game from "./services/game.js";
 import { P4 } from "./game/P4.js";
 import { Player, RoomManager } from "./game/room/index.js";
 import { getUserIdentifier } from "./lib/auth-utils.js";
 
 export const rooms = new RoomManager(2, P4);
-const regType = /^[a-z]+$/i;
 
 type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
 function getSyncData(player: Player<typeof P4>): syncObject {
@@ -20,13 +20,12 @@ function getSyncData(player: Player<typeof P4>): syncObject {
 	return syncData;
 }
 
-export const websocketConnection = async (socket: import("socket.io").Socket, req: any) => {
+export const websocketConnection = async (socket: Socket, req: any) => {
 	try {
 		const userIdentifier = getUserIdentifier(req);
 		const player = new Player<typeof P4>(socket, userIdentifier);
 		player.send({ type: "registered", data: player.uuid });
 
-	// Socket.IO gère les événements directement - écouter les événements de jeu
 	socket.on("join", async (roomId: string) => {
 		if (!/[\w0-9]+/.test(roomId) || player.room?.id == roomId) return;
 		try {
@@ -56,7 +55,6 @@ export const websocketConnection = async (socket: import("socket.io").Socket, re
 					await game.save(p1.uuid, p2.uuid, player.room.game.win, JSON.stringify(player.room.game.board));
 				} catch (error) {
 					console.error(`Failed to save game result for room ${player.room.id}:`, error);
-					// Continue execution - game state is already updated, just logging the save failure
 				}
 				if (player.room.game.full) {
 					player.room.send({ type: "game-full" });

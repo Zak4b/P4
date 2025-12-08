@@ -45,12 +45,14 @@ export interface Room {
 class ApiClient {
 	private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
 		const url = `${API_BASE}${endpoint}`;
+		const hasBody = options.body !== undefined;
+		const headers: HeadersInit = {
+			...(hasBody ? { "Content-Type": "application/json" } : {}),
+			...options.headers,
+		};
 		const response = await fetch(url, {
 			credentials: "include",
-			headers: {
-				"Content-Type": "application/json",
-				...options.headers,
-			},
+			headers,
 			...options,
 		});
 

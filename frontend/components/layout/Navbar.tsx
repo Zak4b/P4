@@ -19,7 +19,6 @@ import {
 	PlayArrow as PlayIcon,
 	History as HistoryIcon,
 	MeetingRoom as RoomIcon,
-	Person as PersonIcon,
 	Logout as LogoutIcon,
 	AccountCircle as AccountIcon,
 	Settings as SettingsIcon,
