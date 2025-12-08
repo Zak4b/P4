@@ -21,9 +21,10 @@ function getSyncData(player: Player<typeof P4>): syncObject {
 }
 
 export const websocketConnection = async (socket: import("socket.io").Socket, req: any) => {
-	const userIdentifier = getUserIdentifier(req);
-	const player = new Player<typeof P4>(socket, userIdentifier);
-	player.send({ type: "registered", data: player.uuid });
+	try {
+		const userIdentifier = getUserIdentifier(req);
+		const player = new Player<typeof P4>(socket, userIdentifier);
+		player.send({ type: "registered", data: player.uuid });
 
 	// Socket.IO gère les événements directement - écouter les événements de jeu
 	socket.on("join", async (roomId: string) => {
@@ -126,4 +127,9 @@ export const websocketConnection = async (socket: import("socket.io").Socket, re
 			cb(...argsArray);
 		}
 	});
+	} catch (error) {
+		socket.emit("error", "Authentication required");
+		socket.disconnect(true);
+		return;
+	}
 };

@@ -1,29 +1,12 @@
 import { FastifyRequest } from "fastify";
 import auth from "../services/auth.js";
-import { v4 as uuidv4 } from "uuid";
 
-/**
- * Normalise une requête Fastify pour l'authentification JWT
- * Crée un objet compatible avec auth.getUserFromRequest()
- * 
- * Dans Fastify avec @fastify/cookie:
- * - Les cookies non signés sont dans request.cookies
- * - Les cookies signés sont aussi dans request.cookies après désignature
- * - On met request.cookies dans signedCookies et cookies pour compatibilité
- */
-export const normalizeRequestForAuth = (req: FastifyRequest | any): any => {
-	// Adapter la requête Fastify pour la compatibilité avec auth
-	// Pour WebSocket, req.signedCookies contient le token désigné
-	// Pour les requêtes HTTP Fastify, req.cookies contient les cookies
-	const signedCookies = (req as any).signedCookies || req.cookies || {};
-	const cookies = req.cookies || {};
-	
-	return {
-		signedCookies,
-		cookies,
-		headers: req.headers,
-	};
-};
+// Construit un objet minimal compatible avec auth.* à partir d'une requête Fastify
+export const toAuthRequest = (req: FastifyRequest | any) => ({
+	signedCookies: req.signedCookies || req.cookies || {},
+	cookies: req.cookies || {},
+	headers: req.headers,
+});
 
 /**
  * Obtenir un identifiant unique pour un utilisateur depuis JWT ou les cookies
@@ -32,33 +15,23 @@ export const normalizeRequestForAuth = (req: FastifyRequest | any): any => {
  * Sinon: génère un nouveau UUID (utilisateur anonyme)
  */
 export const getUserIdentifier = (req: FastifyRequest | any): string => {
-	const expressLikeReq = normalizeRequestForAuth(req);
+	const request = toAuthRequest(req);
 
 	// Essayer d'abord JWT
-	const userPayload = auth.getUserFromRequest(expressLikeReq);
+	const userPayload = auth.getUserFromRequest(request);
 	if (userPayload) {
 		return userPayload.email;
 	}
 
-	// Sinon, essayer les cookies (rétrocompatibilité)
-	const cookieToken = expressLikeReq.cookies.token || expressLikeReq.signedCookies.token;
-	if (cookieToken && typeof cookieToken === "object") {
-		const tokenObj = cookieToken as { uuid?: string };
-		if (tokenObj.uuid && typeof tokenObj.uuid === "string") {
-			return tokenObj.uuid;
-		}
-	}
-
-	// Sinon, générer un nouveau UUID (utilisateur anonyme)
-	return uuidv4();
+	throw new Error("Authentication required");
 };
 
 /**
  * Obtenir l'ID utilisateur depuis JWT
  */
 export const getUserId = (req: FastifyRequest): number | null => {
-	const expressLikeReq = normalizeRequestForAuth(req);
-	const userPayload = auth.getUserFromRequest(expressLikeReq);
+	const request = toAuthRequest(req);
+	const userPayload = auth.getUserFromRequest(request);
 	return userPayload?.userId || null;
 };
 
@@ -66,20 +39,14 @@ export const getUserId = (req: FastifyRequest): number | null => {
  * Obtenir le payload JWT complet depuis la requête
  */
 export const getUserFromRequest = (req: FastifyRequest | any) => {
-	const expressLikeReq = normalizeRequestForAuth(req);
-	return auth.getUserFromRequest(expressLikeReq);
+	const request = toAuthRequest(req);
+	return auth.getUserFromRequest(request);
 };
 
 /**
  * Vérifier si l'utilisateur est authentifié
  */
-export const isLogged = (req: FastifyRequest | any, res?: any): boolean => {
-	const expressLikeReq = normalizeRequestForAuth(req);
-	const expressLikeRes = res || {
-		status: (code: number) => ({
-			json: (data: any) => data,
-		}),
-	};
-	return auth.isLogged(expressLikeReq, expressLikeRes);
+export const isLogged = (req: FastifyRequest | any): boolean => {
+	const request = toAuthRequest(req);
+	return auth.isLogged(request);
 };
-

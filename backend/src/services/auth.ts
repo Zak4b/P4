@@ -41,7 +41,7 @@ const cookie = (req: RequestLike): { userId?: number; username?: string; uuid?: 
 };
 
 // Vérifier si l'utilisateur est authentifié
-	const isLogged = (req: RequestLike, res: ResponseLike): boolean => {
+const isLogged = (req: RequestLike): boolean => {
 	try {
 		const token = getToken(req);
 		if (!token) {

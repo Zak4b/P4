@@ -2,10 +2,9 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { unsign } from "cookie-signature";
 import authM from "../services/auth.js";
 import { env } from "../config/env.js";
+import { toAuthRequest } from "../lib/auth-utils.js";
 
 export const auth = async (request: FastifyRequest, reply: FastifyReply) => {
-	// Adapter la requête Fastify pour la compatibilité avec authM.isLogged
-	// Utiliser la même logique que la route /status qui fonctionne
 	let unsignedToken: string | null = null;
 
 	// Parser les cookies depuis le header pour obtenir la valeur brute
@@ -63,20 +62,8 @@ export const auth = async (request: FastifyRequest, reply: FastifyReply) => {
 		}
 	}
 
-	// Construire l'objet de requête avec le token désigné
-	const expressLikeReq = {
-		signedCookies: unsignedToken ? { token: unsignedToken } : {},
-		cookies: request.cookies || {},
-		headers: request.headers,
-	} as any;
-
-	const expressLikeRes = {
-		status: (code: number) => ({
-			json: (data: any) => reply.status(code).send(data),
-		}),
-	} as any;
-
-	if (authM.isLogged(expressLikeReq, expressLikeRes)) {
+	const authRequest = toAuthRequest(request);
+	if (authM.isLogged(authRequest)) {
 		return;
 	} else {
 		reply.status(401).send({ error: "Authentication required" });

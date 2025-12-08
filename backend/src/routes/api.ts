@@ -2,8 +2,8 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import rooms from "../services/rooms.js";
 import user from "../services/user.js";
 import game from "../services/game.js";
-import { normalizeRequestForAuth } from "../lib/auth-utils.js";
 import auth from "../services/auth.js";
+import { toAuthRequest } from "../lib/auth-utils.js";
 
 export async function apiRoutes(fastify: FastifyInstance) {
 	fastify.get("/rooms", async (request: FastifyRequest, reply: FastifyReply) => {
@@ -25,9 +25,9 @@ export async function apiRoutes(fastify: FastifyInstance) {
 
 	fastify.get("/history", async (request: FastifyRequest<{ Querystring: { limit?: string; startFrom?: string } }>, reply: FastifyReply) => {
 		try {
-			// Normaliser la requête pour l'authentification JWT (même méthode que /login/status)
-			const expressLikeReq = normalizeRequestForAuth(request);
-			const userPayload = auth.getUserFromRequest(expressLikeReq);
+			// Construire un objet compatible avec auth.* depuis la requête Fastify
+			const authRequest = toAuthRequest(request);
+			const userPayload = auth.getUserFromRequest(authRequest);
 			
 			const limit = request.query.limit ? parseInt(request.query.limit) : undefined;
 			const startFrom = request.query.startFrom ? parseInt(request.query.startFrom) : undefined;

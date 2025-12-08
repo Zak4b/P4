@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import auth from "../services/auth.js";
 import { z } from "zod";
 import { registerSchema, loginSchema } from "../lib/zod-schemas.js";
-import { normalizeRequestForAuth, isLogged as checkIsLogged } from "../lib/auth-utils.js";
+import { isLogged as checkIsLogged, toAuthRequest } from "../lib/auth-utils.js";
 
 export async function loginRoutes(fastify: FastifyInstance) {
 	// Validation helper
@@ -116,7 +116,7 @@ export async function loginRoutes(fastify: FastifyInstance) {
 	// Statut de connexion
 	fastify.get("/status", async (request: FastifyRequest, reply: FastifyReply) => {
 		try {
-			const expressLikeReq = normalizeRequestForAuth(request);
+			const authRequest = toAuthRequest(request);
 
 			const expressLikeRes = {
 				status: (code: number) => ({
@@ -124,8 +124,8 @@ export async function loginRoutes(fastify: FastifyInstance) {
 				}),
 			} as any;
 
-			const loggedIn = checkIsLogged(request, expressLikeRes);
-			const userPayload = auth.getUserFromRequest(expressLikeReq);
+			const loggedIn = checkIsLogged(authRequest);
+			const userPayload = auth.getUserFromRequest(authRequest);
 
 			reply.send({
 				isLoggedIn: loggedIn,
