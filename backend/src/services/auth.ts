@@ -1,6 +1,5 @@
 import user from "./user.js";
 import { generateToken, verifyToken, JWTPayload } from "../lib/jwt.js";
-import { v4 as uuidv4 } from "uuid";
 
 // Type pour les requêtes Fastify
 type RequestLike = {
@@ -32,11 +31,6 @@ const getToken = (req: RequestLike): string | null => {
 	}
 
 	return null;
-};
-
-// Obtenir les données du cookie (pour rétrocompatibilité)
-const cookie = (req: RequestLike): { userId?: number; username?: string; uuid?: string } | null => {
-	return req.cookies[cookieName] || null;
 };
 
 // Vérifier si l'utilisateur est authentifié
@@ -74,7 +68,7 @@ const getUserFromRequest = (req: RequestLike): JWTPayload | null => {
 };
 
 // S'inscrire
-const register = async (name: string, email: string, password: string): Promise<{ token: string; user: { id: number; name: string; email: string } }> => {
+const register = async (login: string, email: string, password: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
 	// Vérifier si l'email existe déjà
 	const existingUser = await user.findByEmail(email);
 	if (existingUser) {
@@ -82,7 +76,7 @@ const register = async (name: string, email: string, password: string): Promise<
 	}
 
 	// Créer l'utilisateur
-	const userId = await user.create(name, email, password);
+	const userId = await user.create(login, email, password);
 	const userData = await user.getById(userId);
 
 	if (!userData) {
@@ -93,21 +87,21 @@ const register = async (name: string, email: string, password: string): Promise<
 	const token = generateToken({
 		userId: userData.id,
 		email: userData.email,
-		name: userData.name,
+		login: userData.login,
 	});
 
 	return {
 		token,
 		user: {
 			id: userData.id,
-			name: userData.name,
+			login: userData.login,
 			email: userData.email,
 		},
 	};
 };
 
 // Se connecter
-const login = async (email: string, password: string): Promise<{ token: string; user: { id: number; name: string; email: string } }> => {
+const login = async (email: string, password: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
 	// Vérifier les identifiants
 	const userData = await user.verifyCredentials(email, password);
 	if (!userData) {
@@ -118,46 +112,24 @@ const login = async (email: string, password: string): Promise<{ token: string; 
 	const token = generateToken({
 		userId: userData.id,
 		email: userData.email,
-		name: userData.name,
+		login: userData.login,
 	});
 
 	return {
 		token,
 		user: {
 			id: userData.id,
-			name: userData.name,
+			login: userData.login,
 			email: userData.email,
 		},
 	};
 };
 
-// Connexion simple (pour rétrocompatibilité)
-const loggin = async (username: string): Promise<{ cookieContent: { userId: number; username: string; uuid: string } }> => {
-	return new Promise(async (resolve, reject) => {
-		try {
-			const uuid = uuidv4();
-			const userId = await user.createSimple(username, uuid);
-			const userData = await user.getById(userId);
-
-			if (!userData) {
-				throw new Error("Failed to create user");
-			}
-
-			resolve({ cookieContent: { userId, username: userData.name, uuid } });
-		} catch (error) {
-			console.error(error);
-			reject(error);
-		}
-	});
-};
-
 export default {
 	login,
 	register,
-	loggin,
 	isLogged,
 	getUserFromRequest,
-	cookie,
 	cookieName,
 	getToken,
 };

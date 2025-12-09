@@ -4,9 +4,9 @@ const JWT_SECRET = (process.env.JWT_SECRET || "your-secret-key-change-in-product
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || "7d") as string;
 
 export interface JWTPayload {
-	userId: number;
+	userId: string;
 	email: string;
-	name: string;
+	login: string;
 }
 
 export const generateToken = (payload: JWTPayload): string => {

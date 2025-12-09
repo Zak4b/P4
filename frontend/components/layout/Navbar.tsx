@@ -84,8 +84,9 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 		router.push("/account");
 	};
 
-	const getInitials = (name: string) => {
-		return name
+const getInitials = (login?: string | null) => {
+	if (!login) return "";
+	return login
 			.split(" ")
 			.map((n) => n[0])
 			.join("")
@@ -169,7 +170,7 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 									fontSize: "1rem",
 								}}
 							>
-								{getInitials(user.name)}
+								{getInitials(user.login)}
 							</Avatar>
 						</IconButton>
 						<Menu
@@ -215,11 +216,11 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 											height: 40,
 										}}
 									>
-										{getInitials(user.name)}
+										{getInitials(user.login)}
 									</Avatar>
 									<Box sx={{ ml: 1.5 }}>
 										<Typography variant="body2" fontWeight={600}>
-											{user.name}
+											{user.login}
 										</Typography>
 										<Typography variant="caption" color="text.secondary">
 											{user.email}

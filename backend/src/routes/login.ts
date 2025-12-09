@@ -26,11 +26,11 @@ export async function loginRoutes(fastify: FastifyInstance) {
 		{
 			preValidation: validateBody(registerSchema),
 		},
-		async (request: FastifyRequest<{ Body: { name: string; email: string; password: string } }>, reply: FastifyReply) => {
+		async (request: FastifyRequest<{ Body: { login: string; email: string; password: string } }>, reply: FastifyReply) => {
 			try {
-				const { name, email, password } = request.body;
+				const { login, email, password } = request.body;
 
-				const result = await auth.register(name, email, password);
+				const result = await auth.register(login, email, password);
 
 				reply.setCookie(auth.cookieName, result.token, {
 					signed: false, // Non signé car le JWT est déjà signé
@@ -96,22 +96,8 @@ export async function loginRoutes(fastify: FastifyInstance) {
 		}
 	);
 
-	// Connexion simple (rétrocompatibilité)
-	fastify.post("/simple", async (request: FastifyRequest<{ Body: { username?: string } }>, reply: FastifyReply) => {
-		const data = request.body;
-		if (typeof data.username === "string") {
-			try {
-				const result = await auth.loggin(data.username.trim());
-				// Convertir l'objet en JSON string pour le cookie
-				reply.setCookie(auth.cookieName, JSON.stringify(result.cookieContent), { signed: true });
-				reply.status(200).send({ success: true, message: "Login successful" });
-			} catch {
-				reply.status(401).send({ error: "Invalid username or password" });
-			}
-		} else {
-			reply.status(400).send({ error: "Username is required" });
-		}
-	});
+	// Connexion simple (rétrocompatibilité) - SUPPRIMÉ
+	// La route /simple a été supprimée car les utilisateurs invités ne sont plus supportés.
 
 	// Statut de connexion
 	fastify.get("/status", async (request: FastifyRequest, reply: FastifyReply) => {
@@ -132,7 +118,7 @@ export async function loginRoutes(fastify: FastifyInstance) {
 				user: userPayload
 					? {
 							id: userPayload.userId,
-							name: userPayload.name,
+							login: userPayload.login,
 							email: userPayload.email,
 					  }
 					: null,

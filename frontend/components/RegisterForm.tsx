@@ -22,7 +22,7 @@ interface RegisterFormProps {
 }
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
-	const [name, setName] = useState("");
+	const [login, setLogin] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
@@ -33,7 +33,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (!name.trim() || !email.trim() || !password.trim()) {
+		if (!login.trim() || !email.trim() || !password.trim()) {
 			setError("All fields are required");
 			return;
 		}
@@ -52,7 +52,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 		setError("");
 
 		try {
-			await register(name, email, password);
+			await register(login, email, password);
 			onRegister?.();
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Registration failed");
@@ -76,13 +76,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 						<form onSubmit={handleSubmit}>
 						<TextField
 							fullWidth
-							label="Name"
+							label="Login"
 							type="text"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
+							value={login}
+							onChange={(e) => setLogin(e.target.value)}
 							required
 							disabled={isLoading}
-							autoComplete="name"
+							autoComplete="username"
 							margin="normal"
 							variant="outlined"
 							sx={{ mb: 2 }}
@@ -133,7 +133,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 							type="submit"
 							variant="contained"
 							fullWidth
-							disabled={isLoading || !name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()}
+							disabled={isLoading || !login.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()}
 							startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <PersonAddIcon />}
 							sx={{
 								mb: 2,

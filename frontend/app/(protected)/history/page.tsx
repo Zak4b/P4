@@ -20,13 +20,13 @@ import {
 import { Refresh as RefreshIcon, History as HistoryIcon } from "@mui/icons-material";
 import { apiClient } from "@/lib/api";
 
+type Winner = "PLAYER1" | "PLAYER2" | "DRAW";
 interface GameHistory {
 	id: string;
-	name_1: string;
-	name_2: string;
-	player_1: number;
-	player_2: number;
-	result: number;
+	player1: { id: string; login: string };
+	player2: { id: string; login: string };
+	winner: Winner;
+	board: number[][];
 	time: number;
 }
 
@@ -46,7 +46,8 @@ export default function HistoryPage() {
 	};
 
 	useEffect(() => {
-		loadHistory();
+		const t = setTimeout(() => loadHistory(), 0);
+		return () => clearTimeout(t);
 	}, []);
 
 	const formatDate = (dateStr: string | number) => {
@@ -144,7 +145,10 @@ export default function HistoryPage() {
 							</TableRow>
 						</TableHead>
 						<TableBody>
-							{history.map((game) => (
+							{history.map((game) => {
+								const player1Won = game.winner === "PLAYER1";
+								const player2Won = game.winner === "PLAYER2";
+								return (
 								<TableRow
 									key={game.id}
 									sx={{
@@ -159,14 +163,14 @@ export default function HistoryPage() {
 									<TableCell>
 										<Stack direction="row" spacing={1}>
 											<Chip
-												label={game.name_1}
-												color={game.result == 1 ? "success" : "error"}
+												label={game.player1.login}
+												color={player1Won ? "success" : player2Won ? "error" : "default"}
 												size="small"
 												sx={{ fontWeight: 600 }}
 											/>
 											<Chip
-												label={game.name_2}
-												color={game.result == 2 ? "success" : "error"}
+												label={game.player2.login}
+												color={player2Won ? "success" : player1Won ? "error" : "default"}
 												size="small"
 												sx={{ fontWeight: 600 }}
 											/>
@@ -178,7 +182,7 @@ export default function HistoryPage() {
 										</Typography>
 									</TableCell>
 								</TableRow>
-							))}
+							)})}
 						</TableBody>
 					</Table>
 				</TableContainer>

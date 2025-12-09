@@ -3,8 +3,8 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:300
 const API_BASE = `${BACKEND_URL}/P4`;
 
 export interface User {
-	id: number;
-	name: string;
+	id: string;
+	login: string;
 	email: string;
 }
 
@@ -65,10 +65,10 @@ class ApiClient {
 	}
 
 	// Auth endpoints
-	async register(name: string, email: string, password: string): Promise<RegisterResponse> {
+	async register(login: string, email: string, password: string): Promise<RegisterResponse> {
 		return this.request<RegisterResponse>("/login/register", {
 			method: "POST",
-			body: JSON.stringify({ name, email, password }),
+			body: JSON.stringify({ login, email, password }),
 		});
 	}
 

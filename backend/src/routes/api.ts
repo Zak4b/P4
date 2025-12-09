@@ -25,13 +25,8 @@ export async function apiRoutes(fastify: FastifyInstance) {
 
 	fastify.get("/history", async (request: FastifyRequest<{ Querystring: { limit?: string; startFrom?: string } }>, reply: FastifyReply) => {
 		try {
-			// Construire un objet compatible avec auth.* depuis la requête Fastify
-			const authRequest = toAuthRequest(request);
-			const userPayload = auth.getUserFromRequest(authRequest);
-			
 			const limit = request.query.limit ? parseInt(request.query.limit) : undefined;
-			const startFrom = request.query.startFrom ? parseInt(request.query.startFrom) : undefined;
-			const history = await game.history(limit, startFrom);
+			const history = await game.history(limit);
 			reply.send(history);
 		} catch (error) {
 			reply.status(500).send({ error: "Internal server error" });

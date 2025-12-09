@@ -28,13 +28,13 @@ import {
 import { useAuth } from "@/components/AuthContext";
 import { apiClient } from "@/lib/api";
 
+type Winner = "PLAYER1" | "PLAYER2" | "DRAW";
 interface GameHistory {
 	id: string;
-	name_1: string;
-	name_2: string;
-	player_1: number;
-	player_2: number;
-	result: number;
+	player1: { id: string; login: string };
+	player2: { id: string; login: string };
+	winner: Winner;
+	board: any;
 	time: number;
 }
 
@@ -77,19 +77,19 @@ export default function AccountPage() {
 		loadData();
 	}, [user]);
 
-	const calculateStats = (games: GameHistory[], userId: number): UserStats => {
+	const calculateStats = (games: GameHistory[], userId: string): UserStats => {
 		let wins = 0;
 		let losses = 0;
 		let draws = 0;
 
 		games.forEach((game) => {
-			const isPlayer1 = game.player_1 === userId;
-			const isPlayer2 = game.player_2 === userId;
+			const isPlayer1 = game.player1.id === userId;
+			const isPlayer2 = game.player2.id === userId;
 
 			if (isPlayer1 || isPlayer2) {
-				if (game.result === 0) {
+				if (game.winner === "DRAW") {
 					draws++;
-				} else if ((isPlayer1 && game.result === 1) || (isPlayer2 && game.result === 2)) {
+				} else if ((isPlayer1 && game.winner === "PLAYER1") || (isPlayer2 && game.winner === "PLAYER2")) {
 					wins++;
 				} else {
 					losses++;
@@ -109,8 +109,9 @@ export default function AccountPage() {
 		};
 	};
 
-	const getInitials = (name: string) => {
-		return name
+	const getInitials = (login?: string | null) => {
+		if (!login) return "";
+		return login
 			.split(" ")
 			.map((n) => n[0])
 			.join("")
@@ -183,14 +184,14 @@ export default function AccountPage() {
 									background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
 								}}
 							>
-								{getInitials(user.name)}
+								{getInitials(user.login)}
 							</Avatar>
 							<Box sx={{ width: "100%" }}>
 								<Stack spacing={2}>
 									<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
 										<PersonIcon color="primary" />
 										<Typography variant="h6" fontWeight={600}>
-											{user.name}
+											{user.login}
 										</Typography>
 									</Box>
 									<Divider />

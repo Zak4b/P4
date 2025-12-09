@@ -1,15 +1,15 @@
-import { EventEmitter } from "events";
 import { Game } from "./Game.class.js";
 import { Player } from "./Player.js";
 import { ServerMessage } from "./types.js";
+import { TypedEventEmitter } from "./TypedEventEmitter.js";
 
 export type RoomEvent = "join" | "leave" | "empty" | "timeout" | "end";
-type EventDetailMap = {
+type RoomEventMap = {
 	join: { id: number };
 	leave: { id: number };
 	empty: undefined;
 	timeout: undefined;
-	end: { winner: string | undefined };
+	end: undefined;
 };
 
 export interface RoomProps<T extends new () => Game> {
@@ -20,8 +20,7 @@ export interface RoomProps<T extends new () => Game> {
 	locked?: boolean;
 }
 
-export class Room<T extends new () => Game> {
-	private events = new EventEmitter();
+export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventMap> {
 	private lastActionTimestamp: number = -1;
 	private locked: boolean;
 	private isEnded: boolean = false;
@@ -51,6 +50,7 @@ export class Room<T extends new () => Game> {
 	} = { registered: new Map(), online: new Map() };
 
 	constructor({ id, playerLimit, game, players, locked }: RoomProps<T>) {
+		super();
 		this.id = id;
 		this.locked = locked ?? false;
 		this.playerLimit = playerLimit ?? 2;
@@ -60,9 +60,9 @@ export class Room<T extends new () => Game> {
 			} catch (error) {}
 		});
 		this.game = new game() as InstanceType<T>;
-		// TODO add game event listener
-		//this.game.on("end", (winner) => {
-		//	this.emit("end", winner);
+		//this.game.on("end", () => {
+		//	this.lock_clean();
+		//	this.emit("end");
 		//});
 	}
 	private updateTimeStamp = () => (this.lastActionTimestamp = Date.now());
@@ -73,22 +73,7 @@ export class Room<T extends new () => Game> {
 		this.players.online.forEach((player) => {
 			this.remove(player);
 		});
-		this.events.removeAllListeners();
-	}
-
-	public on<T extends RoomEvent>(event_type: T, cb: EventDetailMap[T] extends undefined ? () => void : (data: EventDetailMap[T]) => void) {
-		this.events.on(event_type, cb);
-	}
-	public once<T extends RoomEvent>(event_type: T, cb: EventDetailMap[T] extends undefined ? () => void : (data: EventDetailMap[T]) => void) {
-		this.events.once(event_type, cb);
-	}
-
-	public off<T extends RoomEvent>(event_type: T, cb: EventDetailMap[T] extends undefined ? () => void : (data: EventDetailMap[T]) => void) {
-		this.events.off(event_type, cb);
-	}
-
-	public emit<T extends RoomEvent>(event_type: T, ...args: EventDetailMap[T] extends undefined ? [] : [data: EventDetailMap[T]]) {
-		this.events.emit(event_type, args[0]);
+		this.removeAllListeners();
 	}
 
 	private addPlayer(uuid: string): number;
@@ -137,7 +122,7 @@ export class Room<T extends new () => Game> {
 		this.updateTimeStamp();
 		this.players.online.delete(player.uuid);
 		if (this.players.online.size == 0) {
-			this.events.emit("empty");
+			this.emit("empty");
 		}
 	}
 
@@ -156,7 +141,6 @@ export class Room<T extends new () => Game> {
 			winner = undefined;
 		}
 		this.send({ type: "info", data: { ended: true } });
-		this.emit("end", { winner });
 		this.lock_clean();
 	}
 

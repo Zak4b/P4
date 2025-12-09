@@ -1,8 +1,8 @@
 import { Socket } from "socket.io";
-import game from "./services/game.js";
+import GameService from "./services/game.js";
 import { P4 } from "./game/P4.js";
 import { Player, RoomManager } from "./game/room/index.js";
-import { getUserIdentifier } from "./lib/auth-utils.js";
+import { getUserIdentifier, getUserId } from "./lib/auth-utils.js";
 
 export const rooms = new RoomManager(2, P4);
 
@@ -23,7 +23,9 @@ function getSyncData(player: Player<typeof P4>): syncObject {
 export const websocketConnection = async (socket: Socket, req: any) => {
 	try {
 		const userIdentifier = getUserIdentifier(req);
-		const player = new Player<typeof P4>(socket, userIdentifier);
+		const userId = getUserId(req);
+		const playerUuid = userId ?? userIdentifier;
+		const player = new Player<typeof P4>(socket, playerUuid);
 		player.send({ type: "registered", data: player.uuid });
 
 	socket.on("join", async (roomId: string) => {
@@ -43,33 +45,30 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 	});
 	socket.on("play", async (x: number) => {
 		if (player.localId === null || player.room === null) return;
+		const {game} = player.room;
 
-		if (player.room.game.win || player.room.game.full || player.localId != player.room.game.cPlayer) return;
-		const y = player.room.game.play(player.localId, x);
-		if (y >= 0) {
-			player.room.send({ type: "play", data: { playerId: player.localId, x, y, nextPlayerId: player.room.game.cPlayer } });
-			if (player.room.game.check(x, y) || player.room.game.full) {
-				const p1 = player.room.registeredPlayerList.find((e) => e.playerId == 1)!;
-				const p2 = player.room.registeredPlayerList.find((e) => e.playerId == 2)!;
-				try {
-					await game.save(p1.uuid, p2.uuid, player.room.game.win, JSON.stringify(player.room.game.board));
-				} catch (error) {
-					console.error(`Failed to save game result for room ${player.room.id}:`, error);
-				}
-				if (player.room.game.full) {
-					player.room.send({ type: "game-full" });
-				} else {
-					player.room.send({ type: "game-win", data: { uuid: player.uuid, playerid: player.localId } });
-				}
+		try {
+			const {y} = await game.play(player.localId, x);
+			await player.room.send({ type: "play", data: { playerId: player.localId, x, y, nextPlayerId: player.room.game.cPlayer } });
+			if (!game.isEnded) {
+				return;
 			}
+			GameService.finalizeFromRoom(player.room.registeredPlayerList, game.winner ?? 0, game.board);
+			if (game.winner === 0) {
+				player.room.send({ type: "game-draw" });
+			} else {
+				player.room.send({ type: "game-win", data: { uuid: player.uuid, playerid: player.localId } });
+			}
+		} catch (error) {
+			// TODO error
 		}
 	});
-	socket.on("restart", async (data?: { forced?: boolean }) => {
-		if (player.room === null || typeof data === "string") {
+	socket.on("restart", async ({ forced = false }: { forced?: boolean }) => {
+		if (player.room === null || player.localId === null) {
 			return;
 		}
-		if (player.room.game.win || player.room.game.full || data?.forced) {
-			player.room.game.setDefault();
+		if (forced || player.room.game.isEnded) {
+			player.room.game.reset();
 			player.room.send({ type: "restart" });
 			player.room.send({ type: "sync", data: getSyncData(player) });
 		} else {

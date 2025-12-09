@@ -36,8 +36,8 @@ export const getGameStateSchema = z.object({
 
 // Schema pour l'inscription
 export const registerSchema = z.object({
-	name: z.string().min(1).max(100),
-	email: z.string().email(),
+	login: z.string().min(1).max(100),
+	email: z.email().transform(email => email.toLowerCase()),
 	password: z.string().min(8).max(100),
 });
 
