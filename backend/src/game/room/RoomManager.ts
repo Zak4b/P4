@@ -60,7 +60,7 @@ export class RoomManager<T extends new () => Game> {
 		const timerJoin = setTimeout(() => room.emit("timeout"), timeoutDelay);
 		room.once("join", () => clearTimeout(timerJoin));
 
-		room.on("end", (e) => {
+		room.on("end", () => {
 			// TODO save game result
 			setTimeout(() => this.deleteRoom(room.id), 1000);
 		});
