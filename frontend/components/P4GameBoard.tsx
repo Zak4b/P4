@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { Box, Paper, CircularProgress, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import { useGame } from "@/store/useGameStore";
 import { useWebSocket } from "./WebSocketProvider";
+import { colors, gradients } from "@/lib/styles";
 
 interface P4GameBoardProps {
 	roomId?: string;
@@ -66,7 +67,7 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 				elevation={4}
 				sx={{
 					p: 2,
-					background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+					background: gradients.background,
 					borderRadius: 3,
 					maxWidth: BOARD_COLS * CELL_SIZE + 32,
 					mx: "auto",
@@ -222,9 +223,9 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 						variant="contained"
 						onClick={handleRestart}
 						sx={{
-							background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+							backgroundColor: colors.primary,
 							"&:hover": {
-								background: "linear-gradient(135deg, #4f46e5 0%, #db2777 100%)",
+								backgroundColor: colors.primaryHover,
 							},
 						}}
 					>

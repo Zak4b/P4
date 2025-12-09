@@ -7,6 +7,7 @@ import { Refresh as RefreshIcon, Close as CloseIcon } from "@mui/icons-material"
 import { apiClient, Room } from "@/lib/api";
 import RoomBadge from "./RoomBadge";
 import RoomForm from "./RoomForm";
+import { colors } from "@/lib/styles";
 
 interface RoomListProps {
 	open: boolean;
@@ -47,12 +48,12 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 			PaperProps={{
 				sx: {
 					width: { xs: "100%", sm: 400 },
-					background: "linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)",
+					background: colors.backgroundLight,
 				},
 			}}
 		>
 			<Box sx={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
-				<Box sx={{ p: 2, background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)", color: "white" }}>
+				<Box sx={{ p: 2, backgroundColor: colors.primary, color: "white" }}>
 					<Typography variant="h6" fontWeight={700}>
 						Rooms
 					</Typography>
@@ -94,9 +95,9 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 											onClick={() => handleJoinRoom(room.id)}
 											disabled={!room.joinable}
 											sx={{
-												background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+												backgroundColor: colors.primary,
 												"&:hover": {
-													background: "linear-gradient(135deg, #4f46e5 0%, #db2777 100%)",
+													backgroundColor: colors.primaryHover,
 												},
 											}}
 										>

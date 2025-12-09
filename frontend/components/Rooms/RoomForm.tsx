@@ -5,6 +5,7 @@ import { TextField, Button, Stack, Alert, CircularProgress } from "@mui/material
 import { Add as AddIcon } from "@mui/icons-material";
 import { apiClient } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { colors } from "@/lib/styles";
 
 interface RoomFormProps {
 	onSubmit: (roomId?: string) => void;
@@ -84,9 +85,9 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 						startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <AddIcon />}
 						disabled={isLoading || !name.trim()}
 						sx={{
-							background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+							backgroundColor: colors.primary,
 							"&:hover": {
-								background: "linear-gradient(135deg, #4f46e5 0%, #db2777 100%)",
+								backgroundColor: colors.primaryHover,
 							},
 						}}
 					>

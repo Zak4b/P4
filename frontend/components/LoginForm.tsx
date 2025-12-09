@@ -15,6 +15,12 @@ import {
 import { Login as LoginIcon } from "@mui/icons-material";
 import { useAuth } from "./AuthContext";
 import Link from "next/link";
+import {
+	cardStyles,
+	typographyStyles,
+	buttonStyles,
+	spacing,
+} from "@/lib/styles";
 
 interface LoginFormProps {
 	onLogin?: () => void;
@@ -46,10 +52,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 
 	return (
 		<Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-			<Card sx={{ maxWidth: 450, width: "100%", background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)" }}>
+			<Card sx={cardStyles.authCard}>
 				<CardHeader
 					title={
-						<Typography variant="h5" fontWeight={700} sx={{ background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+						<Typography variant="h5" fontWeight={700} sx={typographyStyles.gradientHeading}>
 							Login to P4 Game
 						</Typography>
 					}
@@ -68,7 +74,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 									autoComplete="email"
 							margin="normal"
 							variant="outlined"
-							sx={{ mb: 2 }}
+							sx={spacing.mb2}
 						/>
 						<TextField
 							fullWidth
@@ -82,7 +88,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 							inputProps={{ minLength: 8 }}
 							margin="normal"
 							variant="outlined"
-							sx={{ mb: 3 }}
+							sx={spacing.mb3}
 								/>
 						<Button
 							type="submit"
@@ -90,20 +96,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 							fullWidth
 							disabled={isLoading || !email.trim() || !password.trim()}
 							startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <LoginIcon />}
-							sx={{
-								mb: 2,
-								py: 1.5,
-								background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
-								"&:hover": {
-									background: "linear-gradient(135deg, #4f46e5 0%, #db2777 100%)",
-								},
-							}}
+							sx={[buttonStyles.gradientButton, spacing.mb2, { py: 1.5 }]}
 						>
 							{isLoading ? "Logging in..." : "Login"}
 							</Button>
 						</form>
 					{error && (
-						<Alert severity="error" sx={{ mt: 2 }}>
+						<Alert severity="error" sx={spacing.mt2}>
 							{error}
 						</Alert>
 					)}

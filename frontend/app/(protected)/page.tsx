@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Box, Button, Typography, Container, Stack, Paper, Grid } from "@mui/material";
 import { PlayArrow as PlayIcon, Bolt, Group } from "@mui/icons-material";
+import { colors } from "@/lib/styles";
 
 const STATS = [
 	{ value: "1k+", label: "Players", color: "primary.main" },
@@ -39,7 +40,7 @@ export default function HomePage() {
 					width: 400,
 					height: 400,
 					borderRadius: "50%",
-					background: "linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(236, 72, 153, 0.3) 100%)",
+					background: colors.transparentPrimary,
 					filter: "blur(80px)",
 					zIndex: 0,
 				}}
@@ -52,7 +53,7 @@ export default function HomePage() {
 					width: 300,
 					height: 300,
 					borderRadius: "50%",
-					background: "linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(251, 191, 36, 0.2) 100%)",
+					background: colors.transparentSecondary,
 					filter: "blur(60px)",
 					zIndex: 0,
 				}}
@@ -114,11 +115,11 @@ export default function HomePage() {
 										fontSize: "1.1rem",
 										fontWeight: 700,
 										borderRadius: 3,
-										background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+										backgroundColor: colors.primary,
 										boxShadow: "0 10px 20px -5px rgba(99, 102, 241, 0.4)",
 										transition: "all 0.3s ease",
 										"&:hover": {
-											background: "linear-gradient(135deg, #4f46e5 0%, #db2777 100%)",
+											backgroundColor: colors.primaryHover,
 											transform: "translateY(-2px)",
 											boxShadow: "0 15px 25px -5px rgba(99, 102, 241, 0.5)",
 										},
@@ -285,7 +286,7 @@ export default function HomePage() {
 															width: "40%",
 															height: "40%",
 															borderRadius: "50%",
-															background: "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%)",
+															background: colors.whiteOverlay,
 													  }
 													: {},
 										}}

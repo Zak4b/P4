@@ -7,6 +7,7 @@ import RoomList from "../Rooms/RoomList";
 import GameModal from "../GameModal";
 import LiveChat from "../LiveChat";
 import Navbar from "./Navbar";
+import { colors } from "@/lib/styles";
 
 interface LayoutProps {
 	children: React.ReactNode;
@@ -23,7 +24,7 @@ export default function Layout({ children }: LayoutProps) {
 				minHeight: "100vh",
 				display: "flex",
 				flexDirection: "column",
-				background: "linear-gradient(135deg, #e0e7ff 0%, #fce7f3 50%, #fef3c7 100%)",
+				background: colors.backgroundLight,
 			}}
 		>
 			{/* Navbar */}

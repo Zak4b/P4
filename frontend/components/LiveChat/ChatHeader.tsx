@@ -2,6 +2,7 @@ import React from "react";
 import { Box, IconButton, Typography, Avatar } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { Message } from "./types";
+import { colors } from "@/lib/styles";
 
 interface ChatHeaderProps {
 	messages: Message[];
@@ -12,7 +13,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ messages, onClose }) => 
 	return (
 		<Box
 			sx={{
-				background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+				backgroundColor: colors.primary,
 				color: "white",
 				p: 1.5,
 				display: "flex",

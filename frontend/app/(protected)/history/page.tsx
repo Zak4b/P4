@@ -20,6 +20,14 @@ import {
 } from "@mui/material";
 import { Refresh as RefreshIcon, History as HistoryIcon } from "@mui/icons-material";
 import { apiClient } from "@/lib/api";
+import {
+	layoutStyles,
+	typographyStyles,
+	paperStyles,
+	buttonStyles,
+	tableStyles,
+	chipStyles,
+} from "@/lib/styles";
 
 type Winner = "PLAYER1" | "PLAYER2" | "DRAW";
 interface GameHistory {
@@ -98,20 +106,9 @@ export default function HistoryPage() {
 	}
 
 	return (
-		<Container maxWidth="lg" sx={{ py: 6 }}>
+		<Container maxWidth="lg" sx={layoutStyles.container}>
 			<Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-				<Typography
-					variant="h4"
-					fontWeight={700}
-					sx={{
-						background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
-						WebkitBackgroundClip: "text",
-						WebkitTextFillColor: "transparent",
-						display: "flex",
-						alignItems: "center",
-						gap: 1,
-					}}
-				>
+				<Typography variant="h4" fontWeight={700} sx={typographyStyles.gradientTitle}>
 					<HistoryIcon />
 					Game History
 				</Typography>
@@ -120,28 +117,14 @@ export default function HistoryPage() {
 					startIcon={<RefreshIcon />}
 					onClick={loadHistory}
 					disabled={isLoading}
-					sx={{
-						borderColor: "#6366f1",
-						color: "#6366f1",
-						"&:hover": {
-							borderColor: "#4f46e5",
-							background: "rgba(99, 102, 241, 0.1)",
-						},
-					}}
+					sx={buttonStyles.primaryOutlined}
 				>
 					Refresh
 				</Button>
 			</Stack>
 
 			{history.length === 0 ? (
-				<Paper
-					elevation={3}
-					sx={{
-						p: 6,
-						textAlign: "center",
-						background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
-					}}
-				>
+				<Paper elevation={3} sx={paperStyles.gradientPaperLarge}>
 					<Typography variant="h5" color="text.secondary" gutterBottom>
 						No games played yet
 					</Typography>
@@ -160,17 +143,17 @@ export default function HistoryPage() {
 				>
 					<Table sx={{ minWidth: 650 }}>
 						<TableHead>
-							<TableRow sx={{ background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)" }}>
-								<TableCell sx={{ color: "white", fontWeight: 700, fontSize: "0.95rem", py: 2 }}>
+							<TableRow sx={tableStyles.gradientHeader}>
+								<TableCell sx={tableStyles.headerCell}>
 									Joueurs
 								</TableCell>
-								<TableCell sx={{ color: "white", fontWeight: 700, fontSize: "0.95rem", py: 2 }}>
+								<TableCell sx={tableStyles.headerCell}>
 									Résultat
 								</TableCell>
-								<TableCell sx={{ color: "white", fontWeight: 700, fontSize: "0.95rem", py: 2 }}>
+								<TableCell sx={tableStyles.headerCell}>
 									Durée
 								</TableCell>
-								<TableCell sx={{ color: "white", fontWeight: 700, fontSize: "0.95rem", py: 2 }}>
+								<TableCell sx={tableStyles.headerCell}>
 									Date
 								</TableCell>
 							</TableRow>
@@ -183,28 +166,15 @@ export default function HistoryPage() {
 								return (
 								<TableRow
 									key={game.id}
-									sx={{
-										"&:nth-of-type(odd)": {
-											backgroundColor: "#f8fafc",
-										},
-										"&:hover": {
-											backgroundColor: "#e2e8f0",
-											transition: "background-color 0.2s ease-in-out",
-										},
-										transition: "background-color 0.2s ease-in-out",
-									}}
+									sx={tableStyles.bodyRow}
 								>
-									<TableCell sx={{ py: 2 }}>
+									<TableCell sx={tableStyles.bodyCell}>
 										<Stack direction="row" spacing={1.5} alignItems="center">
 											<Chip
 												label={game.player1.login}
 												color={player1Won ? "success" : player2Won ? "error" : "default"}
 												size="medium"
-												sx={{ 
-													fontWeight: 600,
-													fontSize: "0.875rem",
-													height: 32,
-												}}
+												sx={chipStyles.standard}
 											/>
 											<Typography variant="body2" color="text.secondary" sx={{ mx: 0.5 }}>
 												vs
@@ -213,32 +183,28 @@ export default function HistoryPage() {
 												label={game.player2.login}
 												color={player2Won ? "success" : player1Won ? "error" : "default"}
 												size="medium"
-												sx={{ 
-													fontWeight: 600,
-													fontSize: "0.875rem",
-													height: 32,
-												}}
+												sx={chipStyles.standard}
 											/>
 										</Stack>
 									</TableCell>
-									<TableCell sx={{ py: 2 }}>
+									<TableCell sx={tableStyles.bodyCell}>
 										{isDraw ? (
 											<Chip
 												label="Match nul"
 												color="default"
 												size="small"
-												sx={{ fontWeight: 600 }}
+												sx={chipStyles.small}
 											/>
 										) : (
 											<Chip
 												label={player1Won ? game.player1.login : game.player2.login}
 												color="success"
 												size="small"
-												sx={{ fontWeight: 600 }}
+												sx={chipStyles.small}
 											/>
 										)}
 									</TableCell>
-									<TableCell sx={{ py: 2 }}>
+									<TableCell sx={tableStyles.bodyCell}>
 										<Typography 
 											variant="body2" 
 											sx={{ 
@@ -250,7 +216,7 @@ export default function HistoryPage() {
 											{formatDuration(game.duration)}
 										</Typography>
 									</TableCell>
-									<TableCell sx={{ py: 2 }}>
+									<TableCell sx={tableStyles.bodyCell}>
 										<Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem" }}>
 											{formatDate(game.time)}
 										</Typography>

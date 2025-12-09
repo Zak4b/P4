@@ -12,6 +12,7 @@ import {
 	Chip,
 } from "@mui/material";
 import { Send as SendIcon, Info as InfoIcon } from "@mui/icons-material";
+import { colors } from "@/lib/styles";
 
 interface MessageAreaProps {
 	roomId: string;
@@ -82,7 +83,7 @@ const MessageArea: React.FC<MessageAreaProps> = ({ roomId }) => {
 					mb: 2,
 					borderRadius: 3,
 					overflowY: "auto",
-					background: "linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)",
+					background: colors.backgroundLight,
 					maxHeight: "600px",
 				}}
 			>
@@ -115,9 +116,9 @@ const MessageArea: React.FC<MessageAreaProps> = ({ roomId }) => {
 						startIcon={<SendIcon />}
 						sx={{
 							borderRadius: 2,
-							background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+							backgroundColor: colors.primary,
 							"&:hover": {
-								background: "linear-gradient(135deg, #4f46e5 0%, #db2777 100%)",
+								backgroundColor: colors.primaryHover,
 							},
 						}}
 					>
@@ -171,7 +172,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
 							maxWidth: "70%",
 							p: 2,
 							borderRadius: 3,
-							background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+							backgroundColor: colors.primary,
 							color: "white",
 						}}
 					>

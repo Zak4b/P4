@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
 	AppBar,
@@ -25,6 +25,10 @@ import {
 	Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../AuthContext";
+import {
+	appBarStyles,
+	layoutStyles,
+} from "@/lib/styles";
 
 interface NavButtonProps {
 	href: string;
@@ -41,12 +45,7 @@ function NavButton({ href, icon, children, pathname }: NavButtonProps) {
 				color="inherit"
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				startIcon={icon as any}
-				sx={{
-					bgcolor: isActive ? "rgba(255, 255, 255, 0.2)" : "transparent",
-					"&:hover": {
-						bgcolor: "rgba(255, 255, 255, 0.15)",
-					},
-				}}
+				sx={isActive ? { ...(appBarStyles.navButton as any), bgcolor: "rgba(255, 255, 255, 0.2)" } : appBarStyles.navButton}
 			>
 				{/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
 				{children as any}
@@ -61,7 +60,6 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 	const { logout, user } = useAuth();
-	const router = useRouter();
 	const pathname = usePathname();
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
@@ -79,11 +77,6 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 		setAnchorEl(null);
 	};
 
-	const handleAccount = () => {
-		setAnchorEl(null);
-		router.push("/account");
-	};
-
 const getInitials = (login?: string | null) => {
 	if (!login) return "";
 	return login
@@ -97,10 +90,7 @@ const getInitials = (login?: string | null) => {
 	return (
 		<AppBar
 			position="fixed"
-			sx={{
-				background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
-				boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-			}}
+			sx={appBarStyles.gradientAppBar}
 		>
 			<Toolbar>
 				<Typography
@@ -119,7 +109,7 @@ const getInitials = (login?: string | null) => {
 					🎮 P4 Game
 				</Typography>
 
-				<Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
+				<Box sx={{ ...(layoutStyles.flexCenter as any), flexGrow: 1 }}>
 					<NavButton href="/play" icon={<PlayIcon />} pathname={pathname || ""}>
 						Play
 					</NavButton>
@@ -136,13 +126,7 @@ const getInitials = (login?: string | null) => {
 					color="inherit"
 					startIcon={<RoomIcon />}
 					onClick={onRoomsClick}
-					sx={{
-						mr: 2,
-						bgcolor: "rgba(255, 255, 255, 0.2)",
-						"&:hover": {
-							bgcolor: "rgba(255, 255, 255, 0.3)",
-						},
-					}}
+					sx={{ ...(appBarStyles.navButtonActive as any), mr: 2 }}
 				>
 					Rooms
 				</Button>
@@ -177,6 +161,7 @@ const getInitials = (login?: string | null) => {
 							anchorEl={anchorEl}
 							open={open}
 							onClose={handleMenuClose}
+							onClick={handleMenuClose}
 							PaperProps={{
 								elevation: 3,
 								sx: {
@@ -208,13 +193,11 @@ const getInitials = (login?: string | null) => {
 							anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
 						>
 							<Box sx={{ px: 2, py: 1.5 }}>
-								<Box sx={{ display: "flex", alignItems: "center" }}>
+								<Box sx={layoutStyles.flexCenter}>
 									<Avatar
-										sx={{
-											bgcolor: "primary.main",
-											width: 40,
-											height: 40,
-										}}
+										sx={[
+											{ bgcolor: "primary.main", width: 40, height: 40 },
+										]}
 									>
 										{getInitials(user.login)}
 									</Avatar>
@@ -229,13 +212,13 @@ const getInitials = (login?: string | null) => {
 								</Box>
 							</Box>
 							<Divider />
-							<MenuItem onClick={handleAccount}>
+							<MenuItem component={Link} href="/account">
 								<ListItemIcon>
 									<AccountIcon fontSize="small" />
 								</ListItemIcon>
 								Mon compte
 							</MenuItem>
-							<MenuItem onClick={handleMenuClose}>
+							<MenuItem component={Link} href="/settings">
 								<ListItemIcon>
 									<SettingsIcon fontSize="small" />
 								</ListItemIcon>

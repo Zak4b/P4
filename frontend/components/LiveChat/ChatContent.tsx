@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Stack } from "@mui/material";
 import { Message } from "./types";
 import { MessageItem } from "./MessageItem";
+import { colors } from "@/lib/styles";
 
 interface ChatContentProps {
 	messages: Message[];
@@ -17,7 +18,7 @@ export const ChatContent: React.FC<ChatContentProps> = ({ messages, currentUserI
 				flexGrow: 1,
 				p: 2,
 				overflowY: "auto",
-				background: "linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)",
+				background: colors.backgroundLight,
 				"&::-webkit-scrollbar": {
 					width: "6px",
 				},

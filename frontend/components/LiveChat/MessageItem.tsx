@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Typography, Alert, Paper, Button, Stack } from "@mui/material";
 import { Info as InfoIcon } from "@mui/icons-material";
 import { Message } from "./types";
+import { colors } from "@/lib/styles";
 
 interface MessageItemProps {
 	message: Message;
@@ -48,9 +49,12 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 							maxWidth: "75%",
 							p: 1.5,
 							borderRadius: 3,
+							backgroundColor: isOwnMessage
+								? colors.primary
+								: undefined,
 							background: isOwnMessage
-								? "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)"
-								: "linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%)",
+								? undefined
+								: colors.messageBg,
 							color: isOwnMessage ? "white" : "text.primary",
 							boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
 						}}

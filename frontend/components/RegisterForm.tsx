@@ -16,6 +16,12 @@ import {
 import { PersonAdd as PersonAddIcon } from "@mui/icons-material";
 import { useAuth } from "./AuthContext";
 import Link from "next/link";
+import {
+	cardStyles,
+	typographyStyles,
+	buttonStyles,
+	spacing,
+} from "@/lib/styles";
 
 interface RegisterFormProps {
 	onRegister?: () => void;
@@ -63,10 +69,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 
 	return (
 		<Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-			<Card sx={{ maxWidth: 500, width: "100%", background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)" }}>
+			<Card sx={cardStyles.authCardLarge}>
 				<CardHeader
 					title={
-						<Typography variant="h5" fontWeight={700} sx={{ background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+						<Typography variant="h5" fontWeight={700} sx={typographyStyles.gradientHeading}>
 							Register to P4 Game
 						</Typography>
 					}
@@ -85,7 +91,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 							autoComplete="username"
 							margin="normal"
 							variant="outlined"
-							sx={{ mb: 2 }}
+							sx={spacing.mb2}
 						/>
 						<TextField
 							fullWidth
@@ -98,7 +104,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 									autoComplete="email"
 							margin="normal"
 							variant="outlined"
-							sx={{ mb: 2 }}
+							sx={spacing.mb2}
 						/>
 						<TextField
 							fullWidth
@@ -127,7 +133,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 							inputProps={{ minLength: 8 }}
 							margin="normal"
 							variant="outlined"
-							sx={{ mb: 3 }}
+							sx={spacing.mb3}
 								/>
 						<Button
 							type="submit"
@@ -135,20 +141,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 							fullWidth
 							disabled={isLoading || !login.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()}
 							startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <PersonAddIcon />}
-							sx={{
-								mb: 2,
-								py: 1.5,
-								background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
-								"&:hover": {
-									background: "linear-gradient(135deg, #4f46e5 0%, #db2777 100%)",
-								},
-							}}
+							sx={[buttonStyles.gradientButton, spacing.mb2, { py: 1.5 }]}
 						>
 							{isLoading ? "Registering..." : "Register"}
 							</Button>
 						</form>
 					{error && (
-						<Alert severity="error" sx={{ mt: 2 }}>
+						<Alert severity="error" sx={spacing.mt2}>
 							{error}
 						</Alert>
 					)}

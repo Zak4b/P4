@@ -1,17 +1,18 @@
 "use client";
 
-import { Container, Box } from "@mui/material";
+import { Container, Box, useTheme } from "@mui/material";
 
 export default function AuthLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
+	const theme = useTheme();
 	return (
 		<Box
 			sx={{
 				minHeight: "100vh",
-				background: "linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #f59e0b 100%)",
+				backgroundColor: theme.palette.primary.main,
 				display: "flex",
 				alignItems: "center",
 				justifyContent: "center",

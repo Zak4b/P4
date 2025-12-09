@@ -8,6 +8,7 @@ import {
 	Stack,
 } from "@mui/material";
 import { Person as PersonIcon } from "@mui/icons-material";
+import { colors } from "@/lib/styles";
 
 interface Player {
 	name: string;
@@ -34,7 +35,7 @@ const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ players, activePlayer
 			sx={{
 				mt: 3,
 				p: 2.5,
-				background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+				backgroundColor: colors.dark,
 				borderRadius: 3,
 				overflow: "hidden",
 			}}

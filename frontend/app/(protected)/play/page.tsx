@@ -25,6 +25,7 @@ import {
 	CheckCircleOutline,
 	Search,
 } from "@mui/icons-material";
+import { colors } from "@/lib/styles";
 
 export default function PlayIndexPage() {
 	const router = useRouter();
@@ -70,8 +71,7 @@ export default function PlayIndexPage() {
 									borderRadius: 3,
 									textTransform: "none",
 									fontWeight: "bold",
-									background:
-										"linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+									backgroundColor: colors.primary,
 									boxShadow: "0 8px 16px -4px rgba(99, 102, 241, 0.4)",
 								}}
 							>

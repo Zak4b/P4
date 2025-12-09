@@ -11,6 +11,7 @@ import {
 	Typography,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
+import { colors, gradients } from "@/lib/styles";
 
 interface GameModalProps {
 	show?: boolean;
@@ -75,13 +76,13 @@ const GameModal: React.FC<GameModalProps> = ({ show = false, title = "", message
 			PaperProps={{
 				sx: {
 					borderRadius: 3,
-					background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+					background: gradients.background,
 				},
 			}}
 		>
 			<DialogTitle
 				sx={{
-					background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+					backgroundColor: colors.primary,
 					color: "white",
 					display: "flex",
 					justifyContent: "space-between",
@@ -113,9 +114,9 @@ const GameModal: React.FC<GameModalProps> = ({ show = false, title = "", message
 					onClick={handleClose}
 					variant="contained"
 					sx={{
-						background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+						backgroundColor: colors.primary,
 						"&:hover": {
-							background: "linear-gradient(135deg, #4f46e5 0%, #db2777 100%)",
+							backgroundColor: colors.primaryHover,
 						},
 					}}
 				>

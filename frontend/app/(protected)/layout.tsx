@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Box, CircularProgress } from "@mui/material";
 import { useAuth } from "@/components/AuthContext";
 import Layout from "@/components/layout/Layout";
+import { colors } from "@/lib/styles";
 
 export default function ProtectedLayout({
 	children,
@@ -28,7 +29,7 @@ export default function ProtectedLayout({
 				alignItems="center"
 				minHeight="100vh"
 				sx={{
-					background: "linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #f59e0b 100%)",
+					backgroundColor: colors.primary,
 				}}
 			>
 				<CircularProgress sx={{ color: "white" }} />
