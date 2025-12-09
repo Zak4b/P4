@@ -21,6 +21,8 @@ export default function Layout({ children }: LayoutProps) {
 		<Box
 			sx={{
 				minHeight: "100vh",
+				display: "flex",
+				flexDirection: "column",
 				background: "linear-gradient(135deg, #e0e7ff 0%, #fce7f3 50%, #fef3c7 100%)",
 			}}
 		>
@@ -28,7 +30,17 @@ export default function Layout({ children }: LayoutProps) {
 			<Navbar onRoomsClick={() => setShowRooms(true)} />
 
 			{/* Main Content */}
-			<Container maxWidth="xl" sx={{ mt: 10, mb: 4 }}>
+			<Container
+				maxWidth={false}
+				disableGutters
+				sx={{
+					mt: 8,
+					flexGrow: 1,
+					display: "flex",
+					flexDirection: "column",
+					px: { xs: 2, md: 4 },
+				}}
+			>
 				{children}
 			</Container>
 

@@ -23,7 +23,6 @@ export default function HomePage() {
 	return (
 		<Box
 			sx={{
-				minHeight: "80vh",
 				display: "flex",
 				flexDirection: "column",
 				justifyContent: "center",
