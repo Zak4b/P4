@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useRef, ReactNode, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "./AuthContext";
-import { RegisteredEvent, JoinResponse, SyncEvent } from "@/lib/socketTypes";
+import { SyncEvent } from "@/lib/socketTypes";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000";
 

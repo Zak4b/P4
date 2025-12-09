@@ -31,6 +31,20 @@ export interface JoinResponse {
 	error?: string;
 }
 
+export interface MessageEvent {
+	clientId: string;
+	message: string;
+}
+
+export interface InfoEvent {
+	data: string;
+}
+
+export interface VoteEvent {
+	text: string;
+	command: string;
+}
+
 // Types pour les événements Socket.IO écoutés par le serveur
 export interface SocketClient {
 	socket: Socket | null;

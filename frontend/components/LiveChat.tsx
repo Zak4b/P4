@@ -18,6 +18,8 @@ import {
 	Close as CloseIcon,
 	Chat as ChatIcon,
 } from "@mui/icons-material";
+import { useWebSocket } from "./WebSocketProvider";
+import { MessageEvent, InfoEvent, VoteEvent } from "@/lib/socketTypes";
 
 interface LiveChatProps {
 	roomId?: string;
@@ -34,7 +36,8 @@ interface Message {
 
 type MessageAction =
 	| { type: "add"; payload: Message }
-	| { type: "reset"; payload: Message[] };
+	| { type: "reset"; payload: Message[] }
+	| { type: "remove"; payload: string }; // ID du message à retirer
 
 const messageReducer = (state: Message[], action: MessageAction): Message[] => {
 	switch (action.type) {
@@ -42,6 +45,8 @@ const messageReducer = (state: Message[], action: MessageAction): Message[] => {
 			return [...state, action.payload];
 		case "reset":
 			return action.payload;
+		case "remove":
+			return state.filter((msg) => msg.id !== action.payload);
 		default:
 			return state;
 	}
@@ -52,6 +57,8 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [message, setMessage] = useState("");
 	const [messages, dispatchMessages] = useReducer(messageReducer, []);
+	const [unreadCount, setUnreadCount] = useState(0);
+	const { socket, isConnected, uuid } = useWebSocket();
 
 	useEffect(() => {
 		// Add initial welcome message
@@ -65,6 +72,62 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 	}, [roomId]);
 
 	useEffect(() => {
+		if (!socket || !isConnected) return;
+
+		const messageHandler = (data: MessageEvent) => {
+			const isOwnMessage = data.clientId === uuid;
+			
+			const newMessage: Message = {
+				id: `msg-${Date.now()}-${Math.random()}`,
+				type: "message",
+				content: data.message,
+				author: isOwnMessage ? "Vous" : `Joueur ${data.clientId.slice(0, 8)}`,
+				authorId: data.clientId,
+				timestamp: new Date(),
+			};
+			dispatchMessages({ type: "add", payload: newMessage });
+			
+			// Incrémenter le compteur de messages non lus si le chat est fermé et que ce n'est pas notre message
+			if (!isOpen && !isOwnMessage) {
+				setUnreadCount((prev) => prev + 1);
+			}
+		};
+
+		const infoHandler = (data: string | InfoEvent) => {
+			const content = typeof data === "string" ? data : data.data;
+			const newMessage: Message = {
+				id: `info-${Date.now()}-${Math.random()}`,
+				type: "info",
+				content,
+				timestamp: new Date(),
+			};
+			dispatchMessages({ type: "add", payload: newMessage });
+		};
+
+		const voteHandler = (data: VoteEvent) => {
+			const newMessage: Message = {
+				id: `vote-${Date.now()}-${Math.random()}`,
+				type: "vote",
+				content: data.text,
+				timestamp: new Date(),
+			};
+			dispatchMessages({ type: "add", payload: newMessage });
+		};
+
+		// Enregistrer les listeners
+		socket.on("message", messageHandler);
+		socket.on("info", infoHandler);
+		socket.on("vote", voteHandler);
+
+		return () => {
+			// Nettoyer les listeners
+			socket.off("message", messageHandler);
+			socket.off("info", infoHandler);
+			socket.off("vote", voteHandler);
+		};
+	}, [socket, isConnected, uuid]);
+
+	useEffect(() => {
 		// Auto-scroll to bottom when new messages arrive
 		if (messageAreaRef.current && isOpen) {
 			messageAreaRef.current.scrollTop = messageAreaRef.current.scrollHeight;
@@ -73,21 +136,30 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 
 	const handleSendMessage = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!message.trim()) return;
+		if (!message.trim() || !socket || !isConnected || !uuid) return;
 
-		const newMessage: Message = {
-			id: `msg-${Date.now()}`,
-			type: "message",
-			content: message,
-			author: "Vous",
-			timestamp: new Date(),
-		};
-
-		dispatchMessages({ type: "add", payload: newMessage });
+		const messageText = message.trim();
+		
+		socket.emit("message", messageText, (response: { success: boolean; message?: string }) => {
+			if (response.success === false) {
+				dispatchMessages({
+					type: "add",
+					payload: {
+						id: `error-${Date.now()}`,
+						type: "info",
+						content: response.message || "Erreur lors de l'envoi du message",
+						timestamp: new Date(),
+					},
+				});
+			}
+		});
 		setMessage("");
 	};
 
 	const toggleChat = () => {
+		if (!isOpen) {
+			setUnreadCount(0);
+		}
 		setIsOpen(!isOpen);
 	};
 
@@ -103,77 +175,56 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 				alignItems: "flex-end",
 			}}
 		>
-			<Paper
-				elevation={isOpen ? 8 : 4}
-				onClick={!isOpen ? toggleChat : undefined}
-				sx={{
-					position: "relative",
-					width: isOpen ? { xs: "calc(100vw - 32px)", sm: 380 } : 56,
-					height: isOpen ? 500 : 56,
-					bottom: isOpen ? 0 : 12,
-					right: isOpen ? 0 : 0,
-					display: "flex",
-					flexDirection: "column",
-					borderRadius: isOpen ? 2 : "50%",
-					overflow: "hidden",
-					bgcolor: isOpen ? "white" : "primary.main",
-					color: isOpen ? "inherit" : "white",
-					cursor: !isOpen ? "pointer" : "default",
-					transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-					boxShadow: isOpen
-						? "0 8px 24px rgba(0,0,0,0.15)"
-						: "0 4px 12px rgba(0,0,0,0.15)",
-				}}
-			>
-				{/* Chat Button State */}
-				{!isOpen && (
-					<Box
-						sx={{
-							width: "100%",
-							height: "100%",
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-							position: "relative",
-						}}
-					>
-						<IconButton
-							onClick={toggleChat}
+			<Box sx={{ position: "relative" }}>
+				<Paper
+					elevation={isOpen ? 8 : 4}
+					onClick={!isOpen ? toggleChat : undefined}
+					sx={{
+						position: "relative",
+						width: isOpen ? { xs: "calc(100vw - 32px)", sm: 380 } : 56,
+						height: isOpen ? 500 : 56,
+						bottom: isOpen ? 0 : 12,
+						right: isOpen ? 0 : 0,
+						display: "flex",
+						flexDirection: "column",
+						borderRadius: isOpen ? 2 : "50%",
+						overflow: "hidden",
+						bgcolor: isOpen ? "white" : "primary.main",
+						color: isOpen ? "inherit" : "white",
+						cursor: !isOpen ? "pointer" : "default",
+						transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+						boxShadow: isOpen
+							? "0 8px 24px rgba(0,0,0,0.15)"
+							: "0 4px 12px rgba(0,0,0,0.15)",
+					}}
+				>
+					{/* Chat Button State */}
+					{!isOpen && (
+						<Box
 							sx={{
 								width: "100%",
 								height: "100%",
-								color: "white",
-								"&:hover": {
-									bgcolor: "primary.dark",
-								},
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+								position: "relative",
 							}}
 						>
-							<ChatIcon />
-						</IconButton>
-						{messages.filter((m) => m.type === "message").length > 0 && (
-							<Box
+							<IconButton
+								onClick={toggleChat}
 								sx={{
-									position: "absolute",
-									top: -4,
-									right: -4,
-									minWidth: 20,
-									height: 20,
-									borderRadius: "50%",
-									bgcolor: "error.main",
+									width: "100%",
+									height: "100%",
 									color: "white",
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "center",
-									fontSize: "0.75rem",
-									fontWeight: 600,
-									border: "2px solid white",
+									"&:hover": {
+										bgcolor: "primary.dark",
+									},
 								}}
 							>
-								{messages.filter((m) => m.type === "message").length}
-							</Box>
-						)}
-					</Box>
-				)}
+								<ChatIcon />
+							</IconButton>
+						</Box>
+					)}
 
 				{/* Chat Window State */}
 				{isOpen && (
@@ -312,6 +363,41 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 						</>
 					)}
 				</Paper>
+				{/* Badge de notification - en dehors du Paper pour éviter overflow hidden */}
+				{!isOpen && unreadCount > 0 && (
+					<Box
+						sx={{
+							position: "absolute",
+							top: -10,
+							right: -6,
+							minWidth: 24,
+							height: 24,
+							borderRadius: "50%",
+							bgcolor: "#ef4444",
+							color: "white",
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							fontSize: "0.75rem",
+							fontWeight: 700,
+							border: "3px solid white",
+							boxShadow: "0 2px 8px rgba(239, 68, 68, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.8)",
+							zIndex: 1301,
+							animation: "pulse 2s infinite",
+							"@keyframes pulse": {
+								"0%, 100%": {
+									transform: "scale(1)",
+								},
+								"50%": {
+									transform: "scale(1.1)",
+								},
+							},
+						}}
+					>
+						{unreadCount > 99 ? "99+" : unreadCount}
+					</Box>
+				)}
+			</Box>
 		</Box>
 	);
 };

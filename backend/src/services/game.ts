@@ -98,6 +98,7 @@ const history = async (limit?: number) => {
 			winner: game.winner,
 			board: game.moves,
 			time: game.createdAt.getTime(),
+			duration: game.duration,
 		};
 	});
 };

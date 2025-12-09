@@ -1,8 +1,8 @@
-import { rooms } from "../websocket.js";
+import { manager } from "../websocket.js";
 
 const listAll = (uuid?: string) => {
 	// rooms.list est maintenant une Map, pas un objet
-	const playerCounts = Array.from(rooms.list.values()).map((room) => {
+	const playerCounts = Array.from(manager.list.values()).map((room) => {
 		//room.registeredPlayerList.map((p) => p.uuid).includes(uuid);
 		const playerCount = room.playerList.length;
 		const playerLimit = room.playerLimit;

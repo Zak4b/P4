@@ -21,12 +21,12 @@ export class RoomManager<T extends new () => Game> {
 	}
 
 	public get(roomId: string): Room<T> | undefined {
-		return this.list.get(roomId);
+		return this._list.get(roomId);
 	}
 
 	public getOrCreate(roomId: string): Room<T> {
-		if (!this.list.has(roomId)) {
-			this.list.set(roomId, this.newRoom());
+		if (!this._list.has(roomId)) {
+			this._list.set(roomId, this.newRoom());
 		}
 		return this.get(roomId) as Room<T>;
 	}

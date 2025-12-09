@@ -31,7 +31,10 @@ export const getUserIdentifier = (req: FastifyRequest | any): string => {
 export const getUserId = (req: FastifyRequest): string | null => {
 	const request = toAuthRequest(req);
 	const userPayload = auth.getUserFromRequest(request);
-	return userPayload?.userId || null;
+	if (!userPayload) {
+		throw new Error("Authentication required");
+	}
+	return userPayload.userId;
 };
 
 /**

@@ -16,6 +16,7 @@ import {
 	TableRow,
 	Chip,
 	Stack,
+	Container,
 } from "@mui/material";
 import { Refresh as RefreshIcon, History as HistoryIcon } from "@mui/icons-material";
 import { apiClient } from "@/lib/api";
@@ -28,6 +29,7 @@ interface GameHistory {
 	winner: Winner;
 	board: number[][];
 	time: number;
+	duration: number;
 }
 
 export default function HistoryPage() {
@@ -60,6 +62,18 @@ export default function HistoryPage() {
 		});
 	};
 
+	const formatDuration = (seconds: number) => {
+		if (seconds < 60) {
+			return `${seconds}s`;
+		}
+		const minutes = Math.floor(seconds / 60);
+		const remainingSeconds = seconds % 60;
+		if (remainingSeconds === 0) {
+			return `${minutes}min`;
+		}
+		return `${minutes}min ${remainingSeconds}s`;
+	};
+
 	if (isLoading) {
 		return (
 			<Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
@@ -84,7 +98,7 @@ export default function HistoryPage() {
 	}
 
 	return (
-		<Box>
+		<Container maxWidth="lg" sx={{ py: 6 }}>
 			<Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
 				<Typography
 					variant="h4"
@@ -136,18 +150,36 @@ export default function HistoryPage() {
 					</Typography>
 				</Paper>
 			) : (
-				<TableContainer component={Paper} elevation={3}>
-					<Table>
+				<TableContainer 
+					component={Paper} 
+					elevation={3}
+					sx={{
+						borderRadius: 2,
+						overflow: "hidden",
+					}}
+				>
+					<Table sx={{ minWidth: 650 }}>
 						<TableHead>
 							<TableRow sx={{ background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)" }}>
-								<TableCell sx={{ color: "white", fontWeight: 600 }}>Players</TableCell>
-								<TableCell sx={{ color: "white", fontWeight: 600 }}>Date</TableCell>
+								<TableCell sx={{ color: "white", fontWeight: 700, fontSize: "0.95rem", py: 2 }}>
+									Joueurs
+								</TableCell>
+								<TableCell sx={{ color: "white", fontWeight: 700, fontSize: "0.95rem", py: 2 }}>
+									Résultat
+								</TableCell>
+								<TableCell sx={{ color: "white", fontWeight: 700, fontSize: "0.95rem", py: 2 }}>
+									Durée
+								</TableCell>
+								<TableCell sx={{ color: "white", fontWeight: 700, fontSize: "0.95rem", py: 2 }}>
+									Date
+								</TableCell>
 							</TableRow>
 						</TableHead>
 						<TableBody>
 							{history.map((game) => {
 								const player1Won = game.winner === "PLAYER1";
 								const player2Won = game.winner === "PLAYER2";
+								const isDraw = game.winner === "DRAW";
 								return (
 								<TableRow
 									key={game.id}
@@ -156,28 +188,70 @@ export default function HistoryPage() {
 											backgroundColor: "#f8fafc",
 										},
 										"&:hover": {
-											backgroundColor: "#f1f5f9",
+											backgroundColor: "#e2e8f0",
+											transition: "background-color 0.2s ease-in-out",
 										},
+										transition: "background-color 0.2s ease-in-out",
 									}}
 								>
-									<TableCell>
-										<Stack direction="row" spacing={1}>
+									<TableCell sx={{ py: 2 }}>
+										<Stack direction="row" spacing={1.5} alignItems="center">
 											<Chip
 												label={game.player1.login}
 												color={player1Won ? "success" : player2Won ? "error" : "default"}
-												size="small"
-												sx={{ fontWeight: 600 }}
+												size="medium"
+												sx={{ 
+													fontWeight: 600,
+													fontSize: "0.875rem",
+													height: 32,
+												}}
 											/>
+											<Typography variant="body2" color="text.secondary" sx={{ mx: 0.5 }}>
+												vs
+											</Typography>
 											<Chip
 												label={game.player2.login}
 												color={player2Won ? "success" : player1Won ? "error" : "default"}
-												size="small"
-												sx={{ fontWeight: 600 }}
+												size="medium"
+												sx={{ 
+													fontWeight: 600,
+													fontSize: "0.875rem",
+													height: 32,
+												}}
 											/>
 										</Stack>
 									</TableCell>
-									<TableCell>
-										<Typography variant="body2" color="text.secondary">
+									<TableCell sx={{ py: 2 }}>
+										{isDraw ? (
+											<Chip
+												label="Match nul"
+												color="default"
+												size="small"
+												sx={{ fontWeight: 600 }}
+											/>
+										) : (
+											<Chip
+												label={player1Won ? game.player1.login : game.player2.login}
+												color="success"
+												size="small"
+												sx={{ fontWeight: 600 }}
+											/>
+										)}
+									</TableCell>
+									<TableCell sx={{ py: 2 }}>
+										<Typography 
+											variant="body2" 
+											sx={{ 
+												fontWeight: 600,
+												color: "#6366f1",
+												fontSize: "0.9rem",
+											}}
+										>
+											{formatDuration(game.duration)}
+										</Typography>
+									</TableCell>
+									<TableCell sx={{ py: 2 }}>
+										<Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem" }}>
 											{formatDate(game.time)}
 										</Typography>
 									</TableCell>
@@ -187,7 +261,7 @@ export default function HistoryPage() {
 					</Table>
 				</TableContainer>
 			)}
-		</Box>
+		</Container>
 	);
 }
 

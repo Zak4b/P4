@@ -162,9 +162,9 @@ export default function AccountPage() {
 				Mon compte
 			</Typography>
 
-			<Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 3 }}>
+			<Grid container spacing={3}>
 				{/* Informations utilisateur */}
-				<Box sx={{ width: { xs: "100%", md: "33.333%" } }}>
+				<Grid size={{ xs: 12, md: 6 }}>
 					<Paper
 						elevation={3}
 						sx={{
@@ -211,137 +211,88 @@ export default function AccountPage() {
 							</Box>
 						</Stack>
 					</Paper>
-				</Box>
+				</Grid>
 
 				{/* Statistiques */}
-				<Box sx={{ width: { xs: "100%", md: "66.666%" } }}>
-					<Stack spacing={2}>
-						<Box>
-							<Card
-								elevation={3}
-								sx={{
-									background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
-								}}
-							>
-								<CardContent>
-									<Typography variant="h6" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-										<TrophyIcon color="primary" />
-										Statistiques de jeu
-									</Typography>
-									<Divider sx={{ my: 2 }} />
-									{stats ? (
-										<Grid container spacing={3}>
-											<Grid size={{xs: 6, sm: 3}}>
-												<Box textAlign="center">
-													<Typography variant="h4" fontWeight={700} color="primary">
-														{stats.totalGames}
-													</Typography>
-													<Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 0.5 }}>
-														<GameIcon fontSize="small" />
-														Parties
-													</Typography>
-												</Box>
-											</Grid>
-											<Grid size={{xs: 6, sm: 3}}>
-												<Box textAlign="center">
-													<Typography variant="h4" fontWeight={700} color="success.main">
-														{stats.wins}
-													</Typography>
-													<Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 0.5 }}>
-														<WinIcon fontSize="small" />
-														Victoires
-													</Typography>
-												</Box>
-											</Grid>
-											<Grid size={{xs: 6, sm: 3}}>
-												<Box textAlign="center">
-													<Typography variant="h4" fontWeight={700} color="error.main">
-														{stats.losses}
-													</Typography>
-													<Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 0.5 }}>
-														<LossIcon fontSize="small" />
-														Défaites
-													</Typography>
-												</Box>
-											</Grid>
-											<Grid size={{xs: 6, sm: 3}}>
-												<Box textAlign="center">
-													<Typography variant="h4" fontWeight={700} color="text.secondary">
-														{stats.draws}
-													</Typography>
-													<Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 0.5 }}>
-														<DrawIcon fontSize="small" />
-														Égalités
-													</Typography>
-												</Box>
-											</Grid>
-											<Grid size={{xs: 12}}>
-												<Divider sx={{ my: 2 }} />
-												<Box textAlign="center">
-													<Typography variant="h5" fontWeight={700} sx={{ background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-														{stats.winRate}%
-													</Typography>
-													<Typography variant="body2" color="text.secondary">
-														Taux de victoire
-													</Typography>
-												</Box>
-											</Grid>
-										</Grid>
-									) : (
-										<Typography color="text.secondary">Aucune statistique disponible</Typography>
-									)}
-								</CardContent>
-							</Card>
-						</Box>
-
-						{/* Résumé rapide */}
-						{stats && stats.totalGames > 0 && (
-							<Box>
-								<Card
-									elevation={3}
-									sx={{
-										background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
-									}}
-								>
-									<CardContent>
-										<Typography variant="h6" fontWeight={600} gutterBottom>
-											Résumé
-										</Typography>
-										<Stack direction="row" spacing={2} flexWrap="wrap" sx={{ mt: 2 }}>
-											<Chip
-												label={`${stats.wins} victoires`}
-												color="success"
-												icon={<WinIcon />}
-												sx={{ fontWeight: 600 }}
-											/>
-											<Chip
-												label={`${stats.losses} défaites`}
-												color="error"
-												icon={<LossIcon />}
-												sx={{ fontWeight: 600 }}
-											/>
-											{stats.draws > 0 && (
-												<Chip
-													label={`${stats.draws} égalités`}
-													icon={<DrawIcon />}
-													sx={{ fontWeight: 600 }}
-												/>
-											)}
-											<Chip
-												label={`${stats.winRate}% de victoire`}
-												color="primary"
-												icon={<TrophyIcon />}
-												sx={{ fontWeight: 600 }}
-											/>
-										</Stack>
-									</CardContent>
-								</Card>
-							</Box>
-						)}
-					</Stack>
-				</Box>
-			</Box>
+				<Grid size={{ xs: 12, md: 6 }}>
+					<Card
+						elevation={3}
+						sx={{
+							background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+							height: "100%",
+						}}
+					>
+						<CardContent>
+							<Typography variant="h6" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+								<TrophyIcon color="primary" />
+								Statistiques de jeu
+							</Typography>
+							<Divider sx={{ my: 2 }} />
+							{stats ? (
+								<Grid container spacing={3}>
+									<Grid size={{xs: 6, sm: 3}}>
+										<Box textAlign="center">
+											<Typography variant="h4" fontWeight={700} color="primary">
+												{stats.totalGames}
+											</Typography>
+											<Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 0.5 }}>
+												<GameIcon fontSize="small" />
+												Parties
+											</Typography>
+										</Box>
+									</Grid>
+									<Grid size={{xs: 6, sm: 3}}>
+										<Box textAlign="center">
+											<Typography variant="h4" fontWeight={700} color="success.main">
+												{stats.wins}
+											</Typography>
+											<Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 0.5 }}>
+												<WinIcon fontSize="small" />
+												Victoires
+											</Typography>
+										</Box>
+									</Grid>
+									<Grid size={{xs: 6, sm: 3}}>
+										<Box textAlign="center">
+											<Typography variant="h4" fontWeight={700} color="error.main">
+												{stats.losses}
+											</Typography>
+											<Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 0.5 }}>
+												<LossIcon fontSize="small" />
+												Défaites
+											</Typography>
+										</Box>
+									</Grid>
+									<Grid size={{xs: 6, sm: 3}}>
+										<Box textAlign="center">
+											<Typography variant="h4" fontWeight={700} color="text.secondary">
+												{stats.draws}
+											</Typography>
+											<Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 0.5 }}>
+												<DrawIcon fontSize="small" />
+												Égalités
+											</Typography>
+										</Box>
+									</Grid>
+									<Grid size={{xs: 12}}>
+										<Divider sx={{ my: 2 }} />
+										<Box textAlign="center">
+											<Typography variant="h5" fontWeight={700} sx={{ background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+												{stats.winRate}%
+											</Typography>
+											<Typography variant="body2" color="text.secondary">
+												Taux de victoire
+											</Typography>
+										</Box>
+									</Grid>
+								</Grid>
+							) : (
+								<Typography color="text.secondary">Aucune statistique disponible</Typography>
+							)}
+						</CardContent>
+					</Card>
+				</Grid>
+			</Grid>
 		</Box>
 	);
 }
-

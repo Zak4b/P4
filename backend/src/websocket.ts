@@ -2,9 +2,9 @@ import { Socket } from "socket.io";
 import GameService from "./services/game.js";
 import { P4 } from "./game/P4.js";
 import { Player, RoomManager } from "./game/room/index.js";
-import { getUserIdentifier, getUserId } from "./lib/auth-utils.js";
+import { getUserFromRequest } from "./lib/auth-utils.js";
 
-export const rooms = new RoomManager(2, P4);
+export const manager = new RoomManager(2, P4);
 
 type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
 type JoinResponse = { success: boolean; roomId?: string; playerId?: number; error?: string };
@@ -24,10 +24,11 @@ function getSyncData(player: Player<typeof P4>): syncObject {
 
 export const websocketConnection = async (socket: Socket, req: any) => {
 	try {
-		const userIdentifier = getUserIdentifier(req);
-		const userId = getUserId(req);
-		const playerUuid = userId ?? userIdentifier;
-		const player = new Player<typeof P4>(socket, playerUuid);
+		const user = getUserFromRequest(req);
+		if (!user) {
+			throw new Error("Authentication required");
+		}
+		const player = new Player<typeof P4>(socket, user.userId, user.login);
 		player.send({ type: "registered", data: player.uuid });
 
 	socket.on("join", async (roomId: string, callback?: (response: JoinResponse) => void) => {
@@ -35,7 +36,7 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 			if (!/[\w0-9]+/.test(roomId)) {
 				throw new Error("Invalid room ID format");
 			}
-			rooms.join(roomId, player);
+			manager.join(roomId, player);
 
 			callback?.({
 				success: true,
@@ -111,9 +112,8 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 			}
 		},
 		spect: async (roomId: string) => {
-			const room = rooms.get(roomId);
+			const room = manager.get(roomId);
 			if (room) {
-				// TODO: Implement spect functionality
 				player.send({ type: "info", data: "Spectator mode not yet implemented" });
 			}
 		},
@@ -123,10 +123,29 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 		},
 	};
 	const unknownHandler = async () => player.send({ type: "info", data: "Commande inconnue" });
-	socket.on("message", async (data: string) => {
+	socket.on("message", async (data: string, callback?: (response: { success: boolean; message?: string }) => void) => {
 		const text = (data ?? "").toString().trim();
-		if (!text.match(/^\/\w+/)) {
-			if (text.length > 0 && player.localId !== null) player.room?.send({ type: "message", data: { clientId: player.uuid, message: text } });
+		
+		if (text.length === 0) {
+			callback?.({ success: false });
+			return;
+		}
+		
+		if (!text.startsWith("/")) {
+			if (!player.room || player.localId === null) {
+				const errorMsg = "Vous devez être dans une partie pour envoyer des messages";
+				player.send({ type: "info", data: errorMsg });
+				callback?.({ success: false, message: errorMsg });
+				return;
+			}
+			
+			try {
+				player.room.send({ type: "message", data: { clientId: player.uuid, message: text } });
+				callback?.({ success: true });
+			} catch (error) {
+				const errorMsg = error instanceof Error ? error.message : "Erreur lors de l'envoi du message";
+				callback?.({ success: false, message: errorMsg });
+			}
 		} else {
 			const match = text.match(/^\/(\w+)(?:\s+(\w+))?/);
 			const command = match ? match[1] : "";
@@ -134,7 +153,14 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 
 			const cb: CallableFunction = commandList[command] ?? unknownHandler;
 			const argsArray: string[] = (args ?? "").split(/\s+/).filter((e: string) => e);
-			cb(...argsArray);
+			
+			try {
+				await cb(...argsArray);
+				callback?.({ success: true });
+			} catch (error) {
+				const errorMsg = error instanceof Error ? error.message : "Erreur lors de l'exécution de la commande";
+				callback?.({ success: false, message: errorMsg });
+			}
 		}
 	});
 	} catch (error) {

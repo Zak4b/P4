@@ -6,13 +6,15 @@ import { ServerMessage } from "./types.js";
 
 export class Player<T extends new () => Game> {
 	public readonly uuid: string;
+	public readonly displayName: string;
 	private _localId: number | null = null;
 	public readonly socket: Socket;
 	private _room: Room<T> | null = null;
 
-	constructor(socket: Socket, uuid: string | null = null) {
+	constructor(socket: Socket, uuid: string, displayName:string) {
 		this.socket = socket;
-		this.uuid = uuid ?? uuidv4();
+		this.uuid = uuid;
+		this.displayName = displayName;
 		socket.on("disconnect", () => {
 			this.leaveRoom();
 		});
