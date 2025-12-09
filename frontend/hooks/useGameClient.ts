@@ -2,16 +2,18 @@
 
 import { useEffect, useRef } from "react";
 import { useWebSocket } from "../components/WebSocketProvider";
+import { useGame } from "@/store/useGameStore";
 
 export const useGameClient = (roomId: string) => {
-	const { client, isConnected } = useWebSocket();
+	const { socket, isConnected } = useWebSocket();
+	const { joinRoom } = useGame();
 	const currentRoomIdRef = useRef<string | null>(null);
 
 	useEffect(() => {
-		// Rejoindre la salle quand le client est connecté ou quand on change de roomId
-		if (client && isConnected) {
+		// Rejoindre la salle quand le socket est connecté ou quand on change de roomId
+		if (socket && isConnected) {
 			if (currentRoomIdRef.current !== roomId) {
-				client.join(roomId);
+				joinRoom(roomId);
 				currentRoomIdRef.current = roomId;
 			}
 		}
@@ -20,7 +22,7 @@ export const useGameClient = (roomId: string) => {
 		if (!isConnected) {
 			currentRoomIdRef.current = null;
 		}
-	}, [client, isConnected, roomId]);
+	}, [socket, isConnected, roomId, joinRoom]);
 
-	return { client, isConnected };
+	return { socket, isConnected };
 };

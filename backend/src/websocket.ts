@@ -7,6 +7,8 @@ import { getUserIdentifier, getUserId } from "./lib/auth-utils.js";
 export const rooms = new RoomManager(2, P4);
 
 type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
+type JoinResponse = { success: boolean; roomId?: string; playerId?: number; error?: string };
+
 function getSyncData(player: Player<typeof P4>): syncObject {
 	const game = player.room?.game;
 	if (!game) {
@@ -28,21 +30,32 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 		const player = new Player<typeof P4>(socket, playerUuid);
 		player.send({ type: "registered", data: player.uuid });
 
-	socket.on("join", async (roomId: string) => {
-		if (!/[\w0-9]+/.test(roomId) || player.room?.id == roomId) return;
+	socket.on("join", async (roomId: string, callback?: (response: JoinResponse) => void) => {
 		try {
+			if (!/[\w0-9]+/.test(roomId)) {
+				throw new Error("Invalid room ID format");
+			}
 			rooms.join(roomId, player);
-			player.send({ type: "joined", data: { roomId: player.room!.id, playerId: player.localId } });
+
+			callback?.({
+				success: true,
+				roomId: player.room!.id,
+				playerId: player.localId ?? undefined,
+			});
+			
 			player.send({ type: "sync", data: getSyncData(player) });
 		} catch (error) {
-			if (error instanceof Error) {
-				console.warn(`${player.uuid} : ${error.message}`);
-				player.send({ type: "info", data: `Impossible de rejoindre la Salle #${roomId}, ${error.message}` });
-				player.send({ type: "vote", data: { text: "Passer en mode spectateur ?", command: `/spect ${roomId}` } });
-			}
-			return;
+			const errorMessage = error instanceof Error ? error.message : "Failed to join room";
+			const errorResponse: JoinResponse = {
+				success: false,
+				error: errorMessage,
+			};
+			player.send({ type: "info", data: `Impossible de rejoindre la Salle #${roomId}, ${errorMessage}` });
+			player.send({ type: "vote", data: { text: "Passer en mode spectateur ?", command: `/spect ${roomId}` } });
+			callback?.({ success: false, error: errorMessage });
 		}
 	});
+
 	socket.on("play", async (x: number) => {
 		if (player.localId === null || player.room === null) return;
 		const {game} = player.room;

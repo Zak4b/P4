@@ -1,13 +1,18 @@
-import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef, ReactNode, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
-import { ClientP4 } from "@/lib/ClientP4";
 import { useAuth } from "./AuthContext";
+import { RegisteredEvent, JoinResponse, SyncEvent } from "@/lib/socketTypes";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000";
 
 interface WebSocketContextType {
-	client: ClientP4 | null;
+	socket: Socket | null;
 	isConnected: boolean;
+	uuid: string | null;
+	roomId: string | null;
+	playerId: number | null;
+	setRoomId: (roomId: string | null) => void;
+	setPlayerId: (playerId: number | null) => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
@@ -26,12 +31,23 @@ interface WebSocketProviderProps {
 
 export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }) => {
 	const { isAuthenticated, isAuthReady } = useAuth();
-	const [client, setClient] = useState<ClientP4 | null>(null);
+	const [socket, setSocket] = useState<Socket | null>(null);
 	const [isConnected, setIsConnected] = useState(false);
+	const [uuid, setUuid] = useState<string | null>(null);
+	const [roomId, setRoomIdState] = useState<string | null>(null);
+	const [playerId, setPlayerIdState] = useState<number | null>(null);
 	const socketRef = useRef<Socket | null>(null);
 	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const reconnectAttempts = useRef(0);
 	const MAX_RECONNECT_ATTEMPTS = 5;
+
+	const setRoomId = useCallback((newRoomId: string | null) => {
+		setRoomIdState(newRoomId);
+	}, []);
+
+	const setPlayerId = useCallback((newPlayerId: number | null) => {
+		setPlayerIdState(newPlayerId);
+	}, []);
 
 	const connect = () => {
 		// Ne pas se connecter si l'authentification n'est pas prête ou si l'utilisateur n'est pas authentifié
@@ -41,7 +57,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
 		try {
 			// Socket.IO se connecte automatiquement
-			const socket = io(WS_URL, {
+			const newSocket = io(WS_URL, {
 				path: "/socket.io",
 				transports: ["websocket", "polling"], // Permettre polling puis upgrade vers websocket
 				reconnection: false, // On gère la reconnexion manuellement
@@ -49,19 +65,32 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 				withCredentials: true, // Important pour envoyer les cookies
 			});
 
-			socketRef.current = socket;
+			socketRef.current = newSocket;
+			setSocket(newSocket);
 
-			const gameClient = new ClientP4(socket);
-			setClient(gameClient);
+			// Écouter l'événement registered pour obtenir l'UUID
+			newSocket.on("registered", (data: string) => {
+				setUuid(data);
+			});
 
-			socket.on("connect", () => {
+			// Écouter l'événement sync pour mettre à jour playerId
+			newSocket.on("sync", (data: SyncEvent) => {
+				if (data.playerId !== null) {
+					setPlayerIdState(data.playerId);
+				}
+			});
+
+			newSocket.on("connect", () => {
 				setIsConnected(true);
 				reconnectAttempts.current = 0;
 			});
 
-			socket.on("disconnect", (reason) => {
+			newSocket.on("disconnect", (reason) => {
 				setIsConnected(false);
-				setClient(null);
+				setSocket(null);
+				setUuid(null);
+				setRoomIdState(null);
+				setPlayerIdState(null);
 
 				// Tentative de reconnexion si l'utilisateur est toujours authentifié
 				if (isAuthenticated && reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
@@ -74,7 +103,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 				}
 			});
 
-			socket.on("connect_error", (error) => {
+			newSocket.on("connect_error", (error) => {
 				console.error("Socket.IO connection error:", error);
 				setIsConnected(false);
 			});
@@ -95,8 +124,11 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 			socketRef.current = null;
 		}
 
-		setClient(null);
+		setSocket(null);
 		setIsConnected(false);
+		setUuid(null);
+		setRoomId(null);
+		setPlayerId(null);
 		reconnectAttempts.current = 0;
 	};
 
@@ -120,5 +152,9 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAuthenticated, isAuthReady]); // Dépendances nécessaires pour la connexion
 
-	return <WebSocketContext.Provider value={{ client, isConnected }}>{children}</WebSocketContext.Provider>;
+	return (
+		<WebSocketContext.Provider value={{ socket, isConnected, uuid, roomId, playerId, setRoomId, setPlayerId }}>
+			{children}
+		</WebSocketContext.Provider>
+	);
 };

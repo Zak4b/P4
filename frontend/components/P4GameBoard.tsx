@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { Box, Paper, CircularProgress, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
-import { useGame } from "./GameContext";
+import { useGame } from "@/store/useGameStore";
 import { useWebSocket } from "./WebSocketProvider";
 
 interface P4GameBoardProps {
@@ -26,7 +26,7 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 		setWinDialogOpen,
 		winMessage,
 	} = useGame();
-	const { client } = useWebSocket();
+	const { playerId } = useWebSocket();
 	
 
 	const handleColumnClick = (x: number) => {
@@ -55,10 +55,10 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 		}
 	};
 
-	// Déterminer si le joueur peut jouer (turn-based + pas de win/full/loading)
+	// Déterminer si le joueur peut jouer (turn-based + pas de win/draw/loading)
 	// Note: La vérification complète reste faite dans playMove côté provider
 	const isLoading = gameState.loading;
-	const canPlay = !gameState.isWin && !gameState.isFull && !isLoading && client?.playerId === gameState.currentPlayer;
+	const canPlay = !gameState.isWin && !gameState.isDraw && !isLoading && playerId === gameState.currentPlayer;
 
 	return (
 		<Box>
@@ -214,7 +214,7 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 				<DialogTitle sx={{ textAlign: "center", fontSize: "1.5rem" }}>{winMessage}</DialogTitle>
 				<DialogContent>
 					<Typography textAlign="center" color="text.secondary">
-						{gameState.isFull ? "Le plateau est plein !" : "La partie est terminée."}
+						{gameState.isDraw ? "Le plateau est plein !" : "La partie est terminée."}
 					</Typography>
 				</DialogContent>
 				<DialogActions sx={{ justifyContent: "center", pb: 2 }}>

@@ -4,8 +4,13 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { AuthProvider } from "./AuthContext";
 import { WebSocketProvider } from "./WebSocketProvider";
-import { GameProvider } from "./GameContext";
+import { useGameWebSocket } from "@/store/useGameStore";
 import { theme } from "@/theme";
+
+function GameWebSocketListener({ children }: { children: React.ReactNode }) {
+	useGameWebSocket();
+	return <>{children}</>;
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
 	return (
@@ -13,9 +18,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 			<CssBaseline />
 			<AuthProvider>
 				<WebSocketProvider>
-					<GameProvider>
+					<GameWebSocketListener>
 						{children}
-					</GameProvider>
+					</GameWebSocketListener>
 				</WebSocketProvider>
 			</AuthProvider>
 		</ThemeProvider>

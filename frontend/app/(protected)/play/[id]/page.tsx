@@ -6,12 +6,12 @@ import { Box, CircularProgress, Alert } from "@mui/material";
 import P4GameBoard from "@/components/P4GameBoard";
 import PlayerIndicator from "@/components/PlayerIndicator";
 import { useWebSocket } from "@/components/WebSocketProvider";
-import { useGame } from "@/components/GameContext";
+import { useGame } from "@/store/useGameStore";
 
 export default function PlayPage() {
 	const params = useParams();
 	const roomId = (params?.id as string) || "1";
-	const { client, isConnected } = useWebSocket();
+	const { socket, isConnected } = useWebSocket();
 	const { joinRoom, gameState } = useGame();
 	const lastRoomIdRef = useRef<string | null>(null);
 
@@ -22,7 +22,7 @@ export default function PlayPage() {
 	const [activePlayerIndex, setActivePlayerIndex] = useState(0);
 
 	useEffect(() => {
-		if (!roomId || !client || !isConnected) return;
+		if (!roomId || !socket || !isConnected) return;
 		
 		// Si on est déjà dans cette room et que le jeu n'est pas en chargement, ne rien faire
 		if (lastRoomIdRef.current === roomId || (gameState.currentRoomId === roomId && !gameState.loading)) {
@@ -32,7 +32,7 @@ export default function PlayPage() {
 		lastRoomIdRef.current = roomId;
 		joinRoom(roomId);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [roomId, client, isConnected, gameState.currentRoomId, gameState.loading]);
+	}, [roomId, socket, isConnected, gameState.currentRoomId, gameState.loading]);
 
 	const handlePlayerStateChange = useCallback((playerNumber: number, active: boolean) => {
 		if (active) {
@@ -40,11 +40,11 @@ export default function PlayPage() {
 		}
 	}, []);
 
-	if (!client) {
+	if (!socket) {
 		return (
 			<Box display="flex" flexDirection="column" alignItems="center" gap={2} py={4}>
 				<CircularProgress />
-				<Alert severity="info">Initialisation du client...</Alert>
+				<Alert severity="info">Initialisation de la connexion...</Alert>
 			</Box>
 		);
 	}
