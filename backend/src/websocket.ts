@@ -140,7 +140,7 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 			}
 			
 			try {
-				player.room.send({ type: "message", data: { clientId: player.uuid, message: text } });
+				player.room.send({ type: "message", data: { clientId: player.uuid, displayName: player.displayName, message: text } });
 				callback?.({ success: true });
 			} catch (error) {
 				const errorMsg = error instanceof Error ? error.message : "Erreur lors de l'envoi du message";

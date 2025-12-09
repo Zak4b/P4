@@ -33,6 +33,7 @@ export interface JoinResponse {
 
 export interface MessageEvent {
 	clientId: string;
+	displayName?: string;
 	message: string;
 }
 
