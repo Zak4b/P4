@@ -6,6 +6,11 @@ import "../custom.css";
 export const metadata: Metadata = {
   title: "P4 Game",
   description: "Puissance 4 Online Game",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

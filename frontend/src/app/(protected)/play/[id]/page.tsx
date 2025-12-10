@@ -12,13 +12,9 @@ export default function PlayPage() {
 	const params = useParams();
 	const roomId = (params?.id as string) || "1";
 	const { socket, isConnected } = useWebSocket();
-	const { joinRoom, gameState } = useGame();
+	const { joinRoom, gameState, players } = useGame();
 	const lastRoomIdRef = useRef<string | null>(null);
 
-	const [players, setPlayers] = useState([
-		{ id: 1, name: "Joueur #1" },
-		{ id: 2, name: "Joueur #2" },
-	]);
 	const [activePlayerIndex, setActivePlayerIndex] = useState(0);
 
 	useEffect(() => {

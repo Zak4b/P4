@@ -10,6 +10,7 @@ export const useGame = () => {
 	const animatingTokens = useGameStore((state) => state.animatingTokens);
 	const winDialogOpen = useGameStore((state) => state.winDialogOpen);
 	const winMessage = useGameStore((state) => state.winMessage);
+	const players = useGameStore((state) => state.players);
 	const initializeBoard = useGameStore((state) => state.initializeBoard);
 	const handlePlay = useGameStore((state) => state.handlePlay);
 	const handleSync = useGameStore((state) => state.handleSync);
@@ -20,6 +21,7 @@ export const useGame = () => {
 	const setWinDialogOpen = useGameStore((state) => state.setWinDialogOpen);
 	const setWinMessage = useGameStore((state) => state.setWinMessage);
 	const handleWin = useGameStore((state) => state.handleWin);
+	const setPlayers = useGameStore((state) => state.setPlayers);
 	const currentRoomIdRef = useRef<string | null>(null);
 
 	// Synchroniser la ref avec l'état
@@ -118,6 +120,8 @@ export const useGame = () => {
 		setAnimatingTokens,
 		setWinDialogOpen,
 		setWinMessage,
+		players,
+		setPlayers,
 	};
 };
 

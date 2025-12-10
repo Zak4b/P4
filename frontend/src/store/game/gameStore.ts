@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { PlayEvent, SyncEvent } from "@/lib/socketTypes";
-import { GameStore, Board } from "./types";
+import { GameStore, Board, Player } from "./types";
 import { createEmptyBoard, getPlayerColor } from "./utils";
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -17,6 +17,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
 	animatingTokens: new Set<string>(),
 	winDialogOpen: false,
 	winMessage: "",
+	players: [
+		{ localId: 1, name: null },
+		{ localId: 2, name: null },
+	],
 
 	initializeBoard: () => {
 		set((state) => ({
@@ -122,7 +126,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		get().initializeBoard();
 	},
 
-	handleJoin: (roomId: string, playerId: number | null) => {
+	handleJoin: (roomId: string, _playerId: number | null) => {
+		// Mark parameter as intentionally unused for now
+		void _playerId;
 		set((state) => ({
 			gameState: {
 				...state.gameState,
@@ -156,6 +162,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
 	setWinMessage: (message) => {
 		set((state) => ({
 			winMessage: typeof message === "function" ? message(state.winMessage) : message,
+		}));
+	},
+
+	setPlayers: (players: Player[] | ((prev: Player[]) => Player[])) => {
+		set((state) => ({
+			players: typeof players === "function" ? players(state.players) : players,
 		}));
 	},
 }));
