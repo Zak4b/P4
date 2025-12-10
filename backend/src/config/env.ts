@@ -13,7 +13,4 @@ export const env = {
 		port: process.env.PORT ? Number(process.env.PORT) : 3000,
 		ip: process.env.IP || "localhost",
 	},
-	frontend: {
-		url: process.env.FRONTEND_URL || "http://localhost:5173",
-	},
 };
