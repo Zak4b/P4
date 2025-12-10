@@ -93,14 +93,15 @@ export const useGame = () => {
 	);
 
 	const restart = useCallback(
-		(forced: boolean = false) => {
+		() => {
 			if (socket && isConnected) {
-				socket.emit("restart", { forced });
+				socket.emit("restart");
 			}
-			handleRestart();
+			// Ne pas modifier l'état local ici
+			// Le serveur va envoyer un sync qui mettra à jour tous les clients
 			setWinDialogOpen(false);
 		},
-		[socket, isConnected, handleRestart, setWinDialogOpen]
+		[socket, isConnected, setWinDialogOpen]
 	);
 
 	return {

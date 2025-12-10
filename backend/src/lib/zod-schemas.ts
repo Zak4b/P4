@@ -17,15 +17,6 @@ export const playMoveSchema = z.object({
 	x: z.number().int().min(0).max(6),
 });
 
-// Schema pour redémarrer une partie
-export const restartGameSchema = z.object({
-	roomId: z
-		.string()
-		.regex(/^[\w0-9]+$/)
-		.min(1),
-	forced: z.boolean().optional(),
-});
-
 // Schema pour obtenir l'état d'une partie
 export const getGameStateSchema = z.object({
 	roomId: z

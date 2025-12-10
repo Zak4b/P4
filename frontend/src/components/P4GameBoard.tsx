@@ -35,7 +35,7 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 	};
 
 	const handleRestart = () => {
-		restart(true);
+		restart();
 		if (setActivePlayer) {
 			setActivePlayer(1, true);
 		}

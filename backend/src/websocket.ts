@@ -70,14 +70,16 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 			// TODO error
 		}
 	});
-	socket.on("restart", async ({ forced = false }: { forced?: boolean }) => {
+	socket.on("restart", async () => {
 		if (player.room === null || player.localId === null) {
 			return;
 		}
-		if (forced || player.room.game.isEnded) {
+		if (player.room.game.isEnded) {
 			player.room.game.reset();
-			player.room.send({ type: "restart" });
-			player.room.send({ type: "sync", data: getSyncData(player) });
+			// Envoyer un sync individuel à chaque joueur avec son propre playerId
+			player.room.playerList.forEach((p) => {
+				p.send({ type: "sync", data: getSyncData(p) });
+			});
 		} else {
 			// Vote restart
 		}
@@ -92,17 +94,19 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 			// TODO: Implement swap functionality with proper data storage
 			const other = player.room.playerList.find((p) => p.uuid != player.uuid);
 			if (other) {
-				// Simple swap implementation
-				const tempId = player.localId;
-				player.localId = other.localId;
-				other.localId = tempId;
-				const reg = player.room.registeredPlayerList;
-				reg.forEach((e) => {
-					e.playerId = e.playerId == 1 ? 2 : 1;
-				});
+			// Simple swap implementation
+			const tempId = player.localId;
+			player.localId = other.localId;
+			other.localId = tempId;
+			const reg = player.room.registeredPlayerList;
+			reg.forEach((e) => {
+				e.playerId = e.playerId == 1 ? 2 : 1;
+			});
 
-				socket.emit("restart", { forced: true });
-			}
+			player.room.playerList.forEach((p) => {
+				p.send({ type: "sync", data: getSyncData(p) });
+			});
+		}
 		},
 		spect: async (roomId: string) => {
 			const room = manager.get(roomId);
@@ -110,7 +114,6 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 				player.send({ type: "info", data: "Spectator mode not yet implemented" });
 			}
 		},
-		restart: async () => socket.emit("restart"),
 		debug: async () => {
 			// Debug command - output removed
 		},
