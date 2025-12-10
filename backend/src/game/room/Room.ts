@@ -2,6 +2,8 @@ import { Game } from "./Game.class.js";
 import { Player } from "./Player.js";
 import { ServerMessage } from "./types.js";
 import { TypedEventEmitter } from "./TypedEventEmitter.js";
+import { P4 } from "../P4.js";
+import GameService from "../../services/game.js";
 
 export type RoomEvent = "join" | "leave" | "empty" | "timeout" | "end";
 type RoomEventMap = {
@@ -60,10 +62,18 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 			} catch (error) {}
 		});
 		this.game = new game() as InstanceType<T>;
-		//this.game.on("end", () => {
-		//	this.lock_clean();
-		//	this.emit("end");
-		//});
+		this.game.on("end", ({ winner, duration }) => {
+			const G = this.game as P4; //TODO generic
+			GameService.finalizeFromRoom(this.registeredPlayerList, winner, duration, G.board);
+			if (winner === 0) {
+				this.send({ type: "game-draw" });
+			} else {
+				const player = this.registeredPlayerList.find((p) => p.playerId === winner)!;
+				this.send({ type: "game-win", data: { uuid: player.uuid, playerid: winner } });
+			}
+			//this.lock_clean();
+			//this.emit("end");
+		});
 	}
 	private updateTimeStamp = () => (this.lastActionTimestamp = Date.now());
 	public lock = () => (this.locked = true);

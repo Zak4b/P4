@@ -2,7 +2,7 @@ import { prisma } from "../lib/prisma.js";
 import { GameWinner, Prisma } from "@prisma/client";
 import { updatePlayerElos } from "../lib/elo.js";
 
-const save = async (id1: string, id2: string, result: GameWinner, board: any) => {
+const save = async (id1: string, id2: string, result: GameWinner, duration: number, board: any) => {
 	if (id1 && id2) {
 		await prisma.game.create({
 			data: {
@@ -10,7 +10,7 @@ const save = async (id1: string, id2: string, result: GameWinner, board: any) =>
 				player2Id: id2,
 				winner: result,
 				moves: board, 
-				duration: 0, 
+				duration: duration, 
 			},
 		});
 	} else {
@@ -21,6 +21,7 @@ const save = async (id1: string, id2: string, result: GameWinner, board: any) =>
 const finalizeFromRoom = async (
 	registeredPlayers: Array<{ uuid: string; playerId: number }>,
 	win: number,
+	duration: number,
 	board: any
 ) => {
 	const p1 = registeredPlayers.find((p) => p.playerId === 1);
@@ -36,7 +37,7 @@ const finalizeFromRoom = async (
 		winner = GameWinner.PLAYER2;
 	}
 
-	await save(p1.uuid, p2.uuid, winner, board);
+	await save(p1.uuid, p2.uuid, winner, duration, board);
 	try {
 		await updatePlayerElos(p1.uuid, p2.uuid, winner);
 	} catch (error) {
@@ -80,10 +81,10 @@ const history = async (limit?: number) => {
 	const games = await prisma.game.findMany({
 		include: {
 			player1: {
-				select: { login: true },
+				select: { login: true, eloRating: true },
 			},
 			player2: {
-				select: { login: true },
+				select: { login: true, eloRating: true },
 			},
 		},
 		orderBy: { createdAt: "desc" },
@@ -95,11 +96,13 @@ const history = async (limit?: number) => {
 			id: game.id,
 			player1: {
 				id: game.player1Id,
-				login: game.player1?.login ?? game.player1Id,
+				login: game.player1.login,
+				eloRating: game.player1.eloRating,
 			},
 			player2: {
 				id: game.player2Id,
-				login: game.player2?.login ?? game.player2Id,
+				login: game.player2.login,
+				eloRating: game.player2.eloRating,
 			},
 			winner: game.winner,
 			board: game.moves,

@@ -1,7 +1,7 @@
 import { TypedEventEmitter } from "./TypedEventEmitter.js";
 
 type BaseEventMap = {
-	end: { winner: number | undefined };
+	end: { winner: number, duration: number };
 };
 
 export abstract class Game<TEventMap extends BaseEventMap = BaseEventMap> {

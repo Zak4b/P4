@@ -29,7 +29,7 @@ import {
 	appBarStyles,
 	layoutStyles,
 } from "@/lib/styles";
-import { getAvatarUrl } from "@/lib/api";
+import UserAvatar from "../UserAvatar";
 
 interface NavButtonProps {
 	href: string;
@@ -74,16 +74,6 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 	const handleLogout = async () => {
 		await logout();
 		setAnchorEl(null);
-	};
-
-const getInitials = (login?: string | null) => {
-	if (!login) return "";
-	return login
-			.split(" ")
-			.map((n) => n[0])
-			.join("")
-			.toUpperCase()
-			.slice(0, 2);
 	};
 
 	return (
@@ -132,12 +122,11 @@ const getInitials = (login?: string | null) => {
 
 						{user && (
 					<>
-							<Avatar
+							<UserAvatar
+								login={user.login}
+								size={50}
 								onClick={handleAvatarClick}
-								src={getAvatarUrl(user.login)}
 								sx={{
-									width: 50,
-									height: 50,
 									ml: 2,
 									border: "2px solid rgba(255, 255, 255, 0.5)",
 									"&:hover": {
@@ -155,14 +144,11 @@ const getInitials = (login?: string | null) => {
 						>
 							<Box sx={{ px: 2, py: 1.5 }}>
 								<Box sx={layoutStyles.flexCenter}>
-									<Avatar
-										src={getAvatarUrl(user.login)}
-										sx={[
-											{ bgcolor: "primary.main", width: 40, height: 40 },
-										]}
-									>
-										{getInitials(user.login)}
-									</Avatar>
+									<UserAvatar
+										login={user.login}
+										size={40}
+										sx={{ bgcolor: "primary.main" }}
+									/>
 									<Box sx={{ ml: 1.5 }}>
 										<Typography variant="body2" fontWeight={600}>
 											{user.login}

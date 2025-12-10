@@ -5,19 +5,20 @@ export class Timer extends EventEmitter {
 	private _elapsed = 0;
 	private readonly limit: number;
 
-	constructor(limit: number) {
+	constructor(limit: number = 0) {
 		super();
 		this.limit = limit;
 	}
 
 	public get elapsed(): number {
-		return this.elapsed;
+		return this._elapsed;
 	}
 	public get remaining(): number {
 		return this.limit - this.elapsed;
 	}
 
 	public reset() {
+		this.stop();
 		this._elapsed = 0;
 	}
 
@@ -25,14 +26,14 @@ export class Timer extends EventEmitter {
 		if (this.intervalId) return;
 		this.intervalId = setInterval(() => {
 			this._elapsed++;
-			if (this._elapsed >= this.limit) {
+			if (this.limit !== 0 && this._elapsed >= this.limit) {
 				this.stop();
 				this.emit("end");
 			}
 		}, 1000);
 	}
 
-	private stop() {
+	public stop() {
 		if (this.intervalId) {
 			clearInterval(this.intervalId);
 			this.intervalId = undefined;

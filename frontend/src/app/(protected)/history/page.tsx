@@ -8,13 +8,6 @@ import {
 	CircularProgress,
 	Alert,
 	Paper,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
-	Chip,
 	Stack,
 	Container,
 } from "@mui/material";
@@ -25,15 +18,14 @@ import {
 	typographyStyles,
 	paperStyles,
 	buttonStyles,
-	tableStyles,
-	chipStyles,
 } from "@/lib/styles";
+import HistoryCard from "@/components/HistoryCard";
 
 type Winner = "PLAYER1" | "PLAYER2" | "DRAW";
 interface GameHistory {
 	id: string;
-	player1: { id: string; login: string };
-	player2: { id: string; login: string };
+	player1: { id: string; login: string; eloRating?: number };
+	player2: { id: string; login: string; eloRating?: number };
 	winner: Winner;
 	board: number[][];
 	time: number;
@@ -60,27 +52,6 @@ export default function HistoryPage() {
 		return () => clearTimeout(t);
 	}, []);
 
-	const formatDate = (dateStr: string | number) => {
-		return new Date(dateStr).toLocaleString(undefined, {
-			year: "numeric",
-			month: "numeric",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-		});
-	};
-
-	const formatDuration = (seconds: number) => {
-		if (seconds < 60) {
-			return `${seconds}s`;
-		}
-		const minutes = Math.floor(seconds / 60);
-		const remainingSeconds = seconds % 60;
-		if (remainingSeconds === 0) {
-			return `${minutes}min`;
-		}
-		return `${minutes}min ${remainingSeconds}s`;
-	};
 
 	if (isLoading) {
 		return (
@@ -133,101 +104,20 @@ export default function HistoryPage() {
 					</Typography>
 				</Paper>
 			) : (
-				<TableContainer 
-					component={Paper} 
-					elevation={3}
-					sx={{
-						borderRadius: 2,
-						overflow: "hidden",
-					}}
-				>
-					<Table sx={{ minWidth: 650 }}>
-						<TableHead>
-							<TableRow sx={tableStyles.gradientHeader}>
-								<TableCell sx={tableStyles.headerCell}>
-									Joueurs
-								</TableCell>
-								<TableCell sx={tableStyles.headerCell}>
-									Résultat
-								</TableCell>
-								<TableCell sx={tableStyles.headerCell}>
-									Durée
-								</TableCell>
-								<TableCell sx={tableStyles.headerCell}>
-									Date
-								</TableCell>
-							</TableRow>
-						</TableHead>
-						<TableBody>
-							{history.map((game) => {
-								const player1Won = game.winner === "PLAYER1";
-								const player2Won = game.winner === "PLAYER2";
-								const isDraw = game.winner === "DRAW";
-								return (
-								<TableRow
-									key={game.id}
-									sx={tableStyles.bodyRow}
-								>
-									<TableCell sx={tableStyles.bodyCell}>
-										<Stack direction="row" spacing={1.5} alignItems="center">
-											<Chip
-												label={game.player1.login}
-												color={player1Won ? "success" : player2Won ? "error" : "default"}
-												size="medium"
-												sx={chipStyles.standard}
-											/>
-											<Typography variant="body2" color="text.secondary" sx={{ mx: 0.5 }}>
-												vs
-											</Typography>
-											<Chip
-												label={game.player2.login}
-												color={player2Won ? "success" : player1Won ? "error" : "default"}
-												size="medium"
-												sx={chipStyles.standard}
-											/>
-										</Stack>
-									</TableCell>
-									<TableCell sx={tableStyles.bodyCell}>
-										{isDraw ? (
-											<Chip
-												label="Match nul"
-												color="default"
-												size="small"
-												sx={chipStyles.small}
-											/>
-										) : (
-											<Chip
-												label={player1Won ? game.player1.login : game.player2.login}
-												color="success"
-												size="small"
-												sx={chipStyles.small}
-											/>
-										)}
-									</TableCell>
-									<TableCell sx={tableStyles.bodyCell}>
-										<Typography 
-											variant="body2" 
-											sx={{ 
-												fontWeight: 600,
-												color: "#6366f1",
-												fontSize: "0.9rem",
-											}}
-										>
-											{formatDuration(game.duration)}
-										</Typography>
-									</TableCell>
-									<TableCell sx={tableStyles.bodyCell}>
-										<Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.875rem" }}>
-											{formatDate(game.time)}
-										</Typography>
-									</TableCell>
-								</TableRow>
-							)})}
-						</TableBody>
-					</Table>
-				</TableContainer>
+				<Stack spacing={2}>
+					{history.map((game) => (
+						<HistoryCard
+							key={game.id}
+							id={game.id}
+							player1={game.player1}
+							player2={game.player2}
+							winner={game.winner}
+							time={game.time}
+							duration={game.duration}
+						/>
+					))}
+				</Stack>
 			)}
 		</Container>
 	);
 }
-

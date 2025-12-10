@@ -26,7 +26,7 @@ import {
 	Remove as DrawIcon,
 } from "@mui/icons-material";
 import { useAuth } from "@/components/AuthContext";
-import { apiClient, getAvatarUrl } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import {
 	typographyStyles,
 	paperStyles,
@@ -34,6 +34,7 @@ import {
 	layoutStyles,
 	dividerStyles,
 } from "@/lib/styles";
+import UserAvatar from "@/components/UserAvatar";
 
 type Winner = "PLAYER1" | "PLAYER2" | "DRAW";
 interface GameHistory {
@@ -116,15 +117,6 @@ export default function AccountPage() {
 		};
 	};
 
-	const getInitials = (login?: string | null) => {
-		if (!login) return "";
-		return login
-			.split(" ")
-			.map((n) => n[0])
-			.join("")
-			.toUpperCase()
-			.slice(0, 2);
-	};
 
 	if (isLoading) {
 		return (
@@ -165,12 +157,10 @@ export default function AccountPage() {
 						sx={[paperStyles.gradientPaper, { p: 3, height: "100%" }]}
 					>
 						<Stack spacing={3} alignItems="center">
-							<Avatar
-								src={getAvatarUrl(user.login)}
-								sx={{ ...(avatarStyles.large as any), ...(avatarStyles.gradientAvatar as any), bgcolor: "primary.main" }}
-							>
-								{getInitials(user.login)}
-							</Avatar>
+							<UserAvatar
+								login={user.login}
+								sx={{ ...(avatarStyles.large), ...(avatarStyles.gradientAvatar) }}
+							/>
 							<Box sx={{ width: "100%" }}>
 								<Stack spacing={2}>
 									<Box sx={layoutStyles.flexCenter}>

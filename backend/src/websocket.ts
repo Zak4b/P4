@@ -1,5 +1,4 @@
 import { Socket } from "socket.io";
-import GameService from "./services/game.js";
 import { P4 } from "./game/P4.js";
 import { Player, RoomManager } from "./game/room/index.js";
 import { getUserFromRequest } from "./lib/auth-utils.js";
@@ -66,12 +65,6 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 			await player.room.send({ type: "play", data: { playerId: player.localId, x, y, nextPlayerId: player.room.game.cPlayer } });
 			if (!game.isEnded) {
 				return;
-			}
-			GameService.finalizeFromRoom(player.room.registeredPlayerList, game.winner ?? 0, game.board);
-			if (game.winner === 0) {
-				player.room.send({ type: "game-draw" });
-			} else {
-				player.room.send({ type: "game-win", data: { uuid: player.uuid, playerid: player.localId } });
 			}
 		} catch (error) {
 			// TODO error

@@ -1,10 +1,11 @@
 import { Game } from "./room/Game.class.js";
 import { TypedEventEmitter } from "./room/TypedEventEmitter.js";
+import { Timer } from "./room/Timer.js";
 
 type Move = { x: number; y: number; };
 
 type P4EventMap = {
-	end: { winner: number | undefined };
+	end: { winner: number, duration: number };
 	play: Move & { nextPlayerId: number };
 	reset: undefined;
 };
@@ -21,6 +22,7 @@ type State = {
 export class P4 extends Game<P4EventMap> {
 	private running: boolean = false;
 	private ended: boolean = false;
+	private timer: Timer;
 
 	private _boad: number[][] = [];
 	private currentPlayer: 1 | 2 = 1;
@@ -50,30 +52,43 @@ export class P4 extends Game<P4EventMap> {
 		return this.winnerIndex;
 	}
 
+	get elapsedTime(): number {
+		return this.timer.elapsed;
+	}
+
 	public start(): void {
 		this.running = true;
+		this.timer.start();
 	}
 
 	public	stop(): void {
 		this.running = false;
+		this.timer.stop();
 	}
 	public end(): void {
-		this.running = false;
+		if (this.ended) {
+			return;
+		}
 		this.ended = true;
+		this.running = false;
+		this.timer.stop();
 		if (this.winnerIndex === undefined) {
 			this.winnerIndex = 0;
-			this.emit("end", { winner: undefined });
 		}
+		this.emit("end", { winner: this.winnerIndex, duration: this.timer.elapsed });
 	}
 
 	private endWithWinner(winner: number): void {
+		if (this.ended) {
+			return;
+		}
 		this.winnerIndex = winner;
-		this.emit("end", { winner });
 		this.end();
 	}
 
 	constructor() {
 		super();
+		this.timer = new Timer();
 		this.reset();
 	}
 	
@@ -85,6 +100,7 @@ export class P4 extends Game<P4EventMap> {
 		this.lastMove = undefined;
 		this.winnerIndex = undefined;
 		this._playCount = 0;
+		this.timer.reset();
 		this.start(); // temp
 		this.emit("reset");
 	}
