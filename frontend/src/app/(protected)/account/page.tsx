@@ -26,7 +26,7 @@ import {
 	Remove as DrawIcon,
 } from "@mui/icons-material";
 import { useAuth } from "@/components/AuthContext";
-import { apiClient } from "@/lib/api";
+import { apiClient, getAvatarUrl } from "@/lib/api";
 import {
 	typographyStyles,
 	paperStyles,
@@ -166,6 +166,7 @@ export default function AccountPage() {
 					>
 						<Stack spacing={3} alignItems="center">
 							<Avatar
+								src={getAvatarUrl(user.login)}
 								sx={{ ...(avatarStyles.large as any), ...(avatarStyles.gradientAvatar as any), bgcolor: "primary.main" }}
 							>
 								{getInitials(user.login)}

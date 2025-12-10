@@ -2,8 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import rooms from "../services/rooms.js";
 import user from "../services/user.js";
 import game from "../services/game.js";
-import auth from "../services/auth.js";
-import { toAuthRequest } from "../lib/auth-utils.js";
+import { generateAvatar } from "../lib/avatar.js";
 
 export async function apiRoutes(fastify: FastifyInstance) {
 	fastify.get("/rooms", async (request: FastifyRequest, reply: FastifyReply) => {
@@ -37,6 +36,18 @@ export async function apiRoutes(fastify: FastifyInstance) {
 		try {
 			const scores = await game.playerScore();
 			reply.send(scores);
+		} catch (error) {
+			reply.status(500).send({ error: "Internal server error" });
+		}
+	});
+
+	// Route pour générer un avatar SVG
+	fastify.get("/avatar/:seed", async (request: FastifyRequest<{ Params: { seed: string } }>, reply: FastifyReply) => {
+		try {
+			const { seed } = request.params;
+
+			const svg = generateAvatar(seed, "micah");
+			reply.type("image/svg+xml").send(svg);
 		} catch (error) {
 			reply.status(500).send({ error: "Internal server error" });
 		}

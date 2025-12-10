@@ -2,6 +2,10 @@
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 const API_BASE = `${BACKEND_URL}/P4`;
 
+export const getAvatarUrl = (login: string): string => {
+	return `${API_BASE}/api/avatar/${encodeURIComponent(login)}`;
+};
+
 export interface User {
 	id: string;
 	login: string;

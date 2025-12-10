@@ -29,6 +29,7 @@ import {
 	appBarStyles,
 	layoutStyles,
 } from "@/lib/styles";
+import { getAvatarUrl } from "@/lib/api";
 
 interface NavButtonProps {
 	href: string;
@@ -43,12 +44,10 @@ function NavButton({ href, icon, children, pathname }: NavButtonProps) {
 		<Link href={href} style={{ textDecoration: "none", color: "inherit" }}>
 			<Button
 				color="inherit"
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				startIcon={icon as any}
-				sx={isActive ? { ...(appBarStyles.navButton as any), bgcolor: "rgba(255, 255, 255, 0.2)" } : appBarStyles.navButton}
+				startIcon={icon}
+				sx={isActive ? { ...(appBarStyles.navButton), bgcolor: "rgba(255, 255, 255, 0.2)" } : appBarStyles.navButton}
 			>
-				{/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-				{children as any}
+				{children}
 			</Button>
 		</Link>
 	);
@@ -109,7 +108,7 @@ const getInitials = (login?: string | null) => {
 					🎮 P4 Game
 				</Typography>
 
-				<Box sx={{ ...(layoutStyles.flexCenter as any), flexGrow: 1 }}>
+				<Box sx={{ ...(layoutStyles.flexCenter), flexGrow: 1 }}>
 					<NavButton href="/play" icon={<PlayIcon />} pathname={pathname || ""}>
 						Play
 					</NavButton>
@@ -126,75 +125,38 @@ const getInitials = (login?: string | null) => {
 					color="inherit"
 					startIcon={<RoomIcon />}
 					onClick={onRoomsClick}
-					sx={{ ...(appBarStyles.navButtonActive as any), mr: 2 }}
+					sx={{ ...appBarStyles.navButtonActive, mr: 2 }}
 				>
 					Rooms
 				</Button>
 
 						{user && (
 					<>
-						<IconButton
-							onClick={handleAvatarClick}
-							size="small"
-							sx={{
-								ml: 2,
-								border: "2px solid rgba(255, 255, 255, 0.5)",
-								"&:hover": {
-									borderColor: "white",
-								},
-							}}
-						>
 							<Avatar
+								onClick={handleAvatarClick}
+								src={getAvatarUrl(user.login)}
 								sx={{
-									width: 40,
-									height: 40,
-									bgcolor: "rgba(255, 255, 255, 0.3)",
-									color: "white",
-									fontWeight: 700,
-									fontSize: "1rem",
+									width: 50,
+									height: 50,
+									ml: 2,
+									border: "2px solid rgba(255, 255, 255, 0.5)",
+									"&:hover": {
+										borderColor: "white",
+									},
 								}}
-							>
-								{getInitials(user.login)}
-							</Avatar>
-						</IconButton>
+							/>
 						<Menu
 							anchorEl={anchorEl}
 							open={open}
 							onClose={handleMenuClose}
 							onClick={handleMenuClose}
-							PaperProps={{
-								elevation: 3,
-								sx: {
-									overflow: "visible",
-									filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-									mt: 1.5,
-									minWidth: 200,
-									"& .MuiAvatar-root": {
-										width: 32,
-										height: 32,
-										ml: -0.5,
-										mr: 1,
-									},
-									"&:before": {
-										content: '""',
-										display: "block",
-										position: "absolute",
-										top: 0,
-										right: 14,
-										width: 10,
-										height: 10,
-										bgcolor: "background.paper",
-										transform: "translateY(-50%) rotate(45deg)",
-										zIndex: 0,
-									},
-								},
-							}}
 							transformOrigin={{ horizontal: "right", vertical: "top" }}
 							anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
 						>
 							<Box sx={{ px: 2, py: 1.5 }}>
 								<Box sx={layoutStyles.flexCenter}>
 									<Avatar
+										src={getAvatarUrl(user.login)}
 										sx={[
 											{ bgcolor: "primary.main", width: 40, height: 40 },
 										]}

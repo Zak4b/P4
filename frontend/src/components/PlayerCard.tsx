@@ -4,6 +4,7 @@ import React from "react";
 import { Box, Avatar, Typography, Chip } from "@mui/material";
 import { Person as PersonIcon } from "@mui/icons-material";
 import { Player } from "@/store/game/types";
+import { getAvatarUrl } from "@/lib/api";
 
 interface PlayerCardProps {
 	player: Player;
@@ -35,6 +36,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 			}}
 		>
 			<Avatar
+				src={player.name ? getAvatarUrl(player.name) : undefined}
 				sx={{
 					width: 48,
 					height: 48,
