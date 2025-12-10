@@ -16,6 +16,7 @@ model User {
   login     String   @unique @db.VarChar(40)
   email     String   @unique @db.VarChar(255)
   password  String
+  eloRating Int      @default(1000)
   gamesAsP1 Game[]   @relation("Player1")
   gamesAsP2 Game[]   @relation("Player2")
   createdAt DateTime @default(now())

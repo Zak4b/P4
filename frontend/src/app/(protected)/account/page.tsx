@@ -261,14 +261,28 @@ export default function AccountPage() {
 									</Grid>
 									<Grid size={{xs: 12}}>
 										<Divider sx={dividerStyles.standard} />
-										<Box textAlign="center">
-											<Typography variant="h5" fontWeight={700} sx={typographyStyles.gradientHeading}>
-												{stats.winRate}%
-											</Typography>
-											<Typography variant="body2" color="text.secondary">
-												Taux de victoire
-											</Typography>
-										</Box>
+										<Grid container spacing={2}>
+											<Grid size={{xs: 6}}>
+												<Box textAlign="center">
+													<Typography variant="h5" fontWeight={700} sx={typographyStyles.gradientHeading}>
+														{user.eloRating ?? 1000}
+													</Typography>
+													<Typography variant="body2" color="text.secondary">
+														Score ELO
+													</Typography>
+												</Box>
+											</Grid>
+											<Grid size={{xs: 6}}>
+												<Box textAlign="center">
+													<Typography variant="h5" fontWeight={700} sx={typographyStyles.gradientHeading}>
+														{stats.winRate}%
+													</Typography>
+													<Typography variant="body2" color="text.secondary">
+														Taux de victoire
+													</Typography>
+												</Box>
+											</Grid>
+										</Grid>
 									</Grid>
 								</Grid>
 							) : (

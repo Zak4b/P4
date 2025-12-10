@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import { GameWinner, Prisma } from "@prisma/client";
+import { updatePlayerElos } from "../lib/elo.js";
 
 const save = async (id1: string, id2: string, result: GameWinner, board: any) => {
 	if (id1 && id2) {
@@ -36,6 +37,11 @@ const finalizeFromRoom = async (
 	}
 
 	await save(p1.uuid, p2.uuid, winner, board);
+	try {
+		await updatePlayerElos(p1.uuid, p2.uuid, winner);
+	} catch (error) {
+		console.error("Erreur lors de la mise à jour des scores ELO:", error);
+	}
 };
 
 const playerScore = async () => {

@@ -10,6 +10,7 @@ export interface User {
 	id: string;
 	login: string;
 	email: string;
+	eloRating?: number;
 }
 
 interface LoginResponse {

@@ -21,3 +21,4 @@ export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
 
 
 
+

@@ -113,16 +113,33 @@ export async function loginRoutes(fastify: FastifyInstance) {
 			const loggedIn = checkIsLogged(authRequest);
 			const userPayload = auth.getUserFromRequest(authRequest);
 
-			reply.send({
-				isLoggedIn: loggedIn,
-				user: userPayload
-					? {
-							id: userPayload.userId,
-							login: userPayload.login,
-							email: userPayload.email,
-					  }
-					: null,
-			});
+			if (userPayload) {
+				// Récupérer les données complètes de l'utilisateur depuis la base de données
+				const userService = (await import("../services/user.js")).default;
+				const userData = await userService.getById(userPayload.userId);
+
+				reply.send({
+					isLoggedIn: loggedIn,
+					user: userData
+						? {
+								id: userData.id,
+								login: userData.login,
+								email: userData.email,
+								eloRating: userData.eloRating ?? 1000,
+						  }
+						: {
+								id: userPayload.userId,
+								login: userPayload.login,
+								email: userPayload.email,
+								eloRating: 1000,
+						  },
+				});
+			} else {
+				reply.send({
+					isLoggedIn: loggedIn,
+					user: null,
+				});
+			}
 		} catch (error) {
 			fastify.log.error(error);
 			reply.status(500).send({ error: "Internal server error" });
