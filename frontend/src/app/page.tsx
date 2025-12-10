@@ -27,6 +27,7 @@ export default function HomePage() {
 				display: "flex",
 				flexDirection: "column",
 				justifyContent: "center",
+				minHeight: "100vh",
 				position: "relative",
 				overflow: "hidden",
 			}}
@@ -59,7 +60,7 @@ export default function HomePage() {
 				}}
 			/>
 
-			<Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
+			<Container maxWidth="lg" sx={{ position: "relative", zIndex: 1, py: 8 }}>
 				<Grid container spacing={6} alignItems="center">
 					<Grid size={{ xs: 12, md: 6 }}>
 						<Stack spacing={4}>
@@ -105,7 +106,7 @@ export default function HomePage() {
 							<Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
 								<Button
 									component={Link}
-									href="/play/1"
+									href="/play"
 									variant="contained"
 									size="large"
 									startIcon={<PlayIcon />}
@@ -300,3 +301,4 @@ export default function HomePage() {
 		</Box>
 	);
 }
+
