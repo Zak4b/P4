@@ -10,11 +10,6 @@ import {
 	Paper,
 	Grid,
 	Button,
-	List,
-	ListItem,
-	ListItemIcon,
-	ListItemText,
-	Divider,
 	Stack,
 	TextField,
 	InputAdornment,
@@ -22,10 +17,10 @@ import {
 import {
 	PlayArrow,
 	EmojiEvents,
-	CheckCircleOutline,
 	Search,
 } from "@mui/icons-material";
 import { colors } from "@/lib/styles";
+import RuleList from "@/components/Game/Rules/RuleList";
 
 export default function PlayIndexPage() {
 	const router = useRouter();
@@ -152,29 +147,7 @@ export default function PlayIndexPage() {
 								How to Play
 							</Typography>
 							<Paper variant="outlined" sx={{ borderRadius: 4, overflow: 'hidden' }}>
-								<List sx={{ py: 0 }}>
-									<ListItem sx={{ py: 2 }}>
-										<ListItemIcon>
-											<CheckCircleOutline color="success" />
-										</ListItemIcon>
-										<ListItemText
-											primary="The Objective"
-											secondary="Connect 4 of your checkers in a row (horizontal, vertical, or diagonal) before your opponent."
-											primaryTypographyProps={{ fontWeight: 'bold' }}
-										/>
-									</ListItem>
-									<Divider component="li" />
-									<ListItem sx={{ py: 2 }}>
-										<ListItemIcon>
-											<CheckCircleOutline color="success" />
-										</ListItemIcon>
-										<ListItemText
-											primary="Taking Turns"
-											secondary="Players take turns dropping one checker into any of the seven columns."
-											primaryTypographyProps={{ fontWeight: 'bold' }}
-										/>
-									</ListItem>
-								</List>
+									<RuleList />
 							</Paper>
 						</Box>
 					</Stack>
