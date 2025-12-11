@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	Box,
 	Typography,
@@ -22,7 +22,7 @@ import {
 	Remove as DrawIcon,
 } from "@mui/icons-material";
 import { useAuth } from "@/components/AuthContext";
-import { apiClient } from "@/lib/api";
+import { apiClient, UserStats } from "@/lib/api";
 import {
 	typographyStyles,
 	paperStyles,
@@ -32,28 +32,12 @@ import {
 } from "@/lib/styles";
 import UserAvatar from "@/components/UserAvatar";
 
-type Winner = "PLAYER1" | "PLAYER2" | "DRAW";
-interface GameHistory {
-	id: string;
-	player1: { id: string; login: string };
-	player2: { id: string; login: string };
-	winner: Winner;
-	board: unknown;
-	time: number;
-}
-
-interface UserStats {
-	totalGames: number;
-	wins: number;
-	losses: number;
-	draws: number;
-	winRate: number;
-}
-
 export default function ProfilePage() {
 	const { user } = useAuth();
-	const [history, setHistory] = useState<GameHistory[]>([]);
 	const [stats, setStats] = useState<UserStats | null>(null);
+	const winrate = useMemo(() => {
+		return stats ? Math.round((stats.wins / stats.totalGames) * 100) : 0;
+	}, [stats]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState("");
 
@@ -64,14 +48,10 @@ export default function ProfilePage() {
 			setIsLoading(true);
 			setError("");
 			try {
-				const gameHistory = await apiClient.getHistory();
-				setHistory(gameHistory);
-				// Calculer les statistiques
-				const userStats = calculateStats(gameHistory, user.id);
-				setStats(userStats);
+				const stats = await apiClient.getUserStats(user.id);
+				setStats(stats);
 			} catch (err) {
-				setError("Failed to load account data");
-				console.error(err);
+				setError("Failed to load account data: " + err);
 			} finally {
 				setIsLoading(false);
 			}
@@ -79,39 +59,6 @@ export default function ProfilePage() {
 
 		loadData();
 	}, [user]);
-
-	const calculateStats = (games: GameHistory[], userId: string): UserStats => {
-		let wins = 0;
-		let losses = 0;
-		let draws = 0;
-
-		games.forEach((game) => {
-			const isPlayer1 = game.player1.id === userId;
-			const isPlayer2 = game.player2.id === userId;
-
-			if (isPlayer1 || isPlayer2) {
-				if (game.winner === "DRAW") {
-					draws++;
-				} else if ((isPlayer1 && game.winner === "PLAYER1") || (isPlayer2 && game.winner === "PLAYER2")) {
-					wins++;
-				} else {
-					losses++;
-				}
-			}
-		});
-
-		const totalGames = wins + losses + draws;
-		const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
-
-		return {
-			totalGames,
-			wins,
-			losses,
-			draws,
-			winRate,
-		};
-	};
-
 
 	if (isLoading) {
 		return (
@@ -260,7 +207,7 @@ export default function ProfilePage() {
 											<Grid size={{xs: 6}}>
 												<Box textAlign="center">
 													<Typography variant="h5" fontWeight={700} sx={typographyStyles.gradientHeading}>
-														{stats.winRate}%
+														{winrate}%
 													</Typography>
 													<Typography variant="body2" color="text.secondary">
 														Taux de victoire

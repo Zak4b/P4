@@ -41,6 +41,13 @@ export interface Room {
 	status: "waiting" | "playing" | "finished";
 }
 
+export interface UserStats {
+	totalGames: number;
+	wins: number;
+	losses: number;
+	draws: number;
+}
+
 class ApiClient {
 	private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
 		const url = `${API_BASE}${endpoint}`;
@@ -106,6 +113,10 @@ class ApiClient {
 
 	async getHistory(): Promise<any[]> {
 		return this.request<any[]>("/match");
+	}
+
+	async getUserStats(id: string): Promise<UserStats> {
+		return this.request<UserStats>(`/user/${encodeURIComponent(id)}/stats`);
 	}
 
 }

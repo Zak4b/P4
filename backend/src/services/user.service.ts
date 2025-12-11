@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { hashPassword, comparePassword } from "../lib/password.js";
 
@@ -21,12 +22,48 @@ export namespace UserService {
 	};
 
 	export const getStats = async (id: string) => {
-		return await prisma.user.findUnique({
+		const user = await prisma.user.findUnique({
 			where: { id },
 			select: {
+				id: true,
 				eloRating: true,
 			},
 		});
+		if (!user) {
+			return null;
+		}
+
+		const [stats] = await prisma.$queryRaw<Array<{
+			totalGames: bigint;
+			wins: bigint;
+			losses: bigint;
+			draws: bigint;
+		}>>(Prisma.sql`
+			SELECT 
+				COUNT(*) as totalGames,
+				SUM(CASE 
+					WHEN (player1Id = ${user.id} AND winner = 'PLAYER1') OR 
+						 (player2Id = ${user.id} AND winner = 'PLAYER2') 
+					THEN 1 ELSE 0 END) as wins,
+				SUM(CASE 
+					WHEN (player1Id = ${user.id} AND winner = 'PLAYER2') OR 
+						 (player2Id = ${user.id} AND winner = 'PLAYER1') 
+					THEN 1 ELSE 0 END) as losses,
+				SUM(CASE 
+					WHEN winner = 'DRAW' AND (player1Id = ${user.id} OR player2Id = ${user.id})
+					THEN 1 ELSE 0 END) as draws
+			FROM Game
+			WHERE player1Id = ${user.id} OR player2Id = ${user.id}
+		`);
+
+		const result = stats;
+
+		return {
+			totalGames: Number(result.totalGames),
+			wins: Number(result.wins),
+			losses: Number(result.losses),
+			draws: Number(result.draws),
+		};
 	};
 	
 	export const create = async (login: string, email: string, passwordPlain: string) => {
