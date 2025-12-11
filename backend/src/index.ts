@@ -6,7 +6,7 @@ import { env } from "./config/env.js";
 import { registerPlugins } from "./config/plugins.js";
 import { setupSocketIO } from "./config/socket.js";
 import { setupErrorHandlers } from "./config/error-handlers.js";
-import { registerRoutes } from "./routes/routes.js";
+import { routes } from "./routes/routes.js";
 
 const fastify = Fastify({
 	logger: {
@@ -18,7 +18,7 @@ await registerPlugins(fastify);
 
 setupSocketIO(fastify);
 
-await registerRoutes(fastify);
+await fastify.register(routes, { prefix: "/P4" });
 
 setupErrorHandlers(fastify);
 

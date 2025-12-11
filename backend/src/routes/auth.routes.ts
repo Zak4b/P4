@@ -1,10 +1,9 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import auth from "../services/auth.js";
+import auth from "../services/auth.service.js";
 import { z } from "zod";
 import { registerSchema, loginSchema } from "../lib/zod-schemas.js";
-import { isLogged as checkIsLogged, toAuthRequest } from "../lib/auth-utils.js";
 
-export async function loginRoutes(fastify: FastifyInstance) {
+export async function authRoutes(fastify: FastifyInstance) {
 	// Validation helper
 	const validateBody = (schema: z.ZodSchema) => {
 		return async (request: FastifyRequest<{ Body: any }>, reply: FastifyReply) => {
@@ -60,7 +59,7 @@ export async function loginRoutes(fastify: FastifyInstance) {
 
 	// Connexion
 	fastify.post(
-		"/",
+		"/login",
 		{
 			preValidation: validateBody(loginSchema),
 		},
@@ -96,50 +95,13 @@ export async function loginRoutes(fastify: FastifyInstance) {
 		}
 	);
 
-	// Connexion simple (rétrocompatibilité) - SUPPRIMÉ
-	// La route /simple a été supprimée car les utilisateurs invités ne sont plus supportés.
-
 	// Statut de connexion
 	fastify.get("/status", async (request: FastifyRequest, reply: FastifyReply) => {
 		try {
-			const authRequest = toAuthRequest(request);
-
-			const expressLikeRes = {
-				status: (code: number) => ({
-					json: (data: any) => reply.status(code).send(data),
-				}),
-			} as any;
-
-			const loggedIn = checkIsLogged(authRequest);
-			const userPayload = auth.getUserFromRequest(authRequest);
-
-			if (userPayload) {
-				// Récupérer les données complètes de l'utilisateur depuis la base de données
-				const userService = (await import("../services/user.js")).default;
-				const userData = await userService.getById(userPayload.userId);
-
-				reply.send({
-					isLoggedIn: loggedIn,
-					user: userData
-						? {
-								id: userData.id,
-								login: userData.login,
-								email: userData.email,
-								eloRating: userData.eloRating ?? 1000,
-						  }
-						: {
-								id: userPayload.userId,
-								login: userPayload.login,
-								email: userPayload.email,
-								eloRating: 1000,
-						  },
-				});
-			} else {
-				reply.send({
-					isLoggedIn: loggedIn,
-					user: null,
-				});
-			}
+			reply.send({
+				isLoggedIn: request.user ? true : false,
+				user: request.user ?? null,
+			});
 		} catch (error) {
 			fastify.log.error(error);
 			reply.status(500).send({ error: "Internal server error" });

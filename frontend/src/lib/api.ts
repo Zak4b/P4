@@ -3,7 +3,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:300
 const API_BASE = `${BACKEND_URL}/P4`;
 
 export const getAvatarUrl = (login: string): string => {
-	return `${API_BASE}/api/avatar/${encodeURIComponent(login)}`;
+	return `${API_BASE}/user/${encodeURIComponent(login)}/avatar`;
 };
 
 export interface User {
@@ -30,12 +30,6 @@ interface RegisterResponse {
 interface LoginStatus {
 	isLoggedIn: boolean;
 	user: User | null;
-}
-
-interface ApiResponse<T> {
-	success: boolean;
-	data?: T;
-	error?: string;
 }
 
 export interface Room {
@@ -71,27 +65,27 @@ class ApiClient {
 
 	// Auth endpoints
 	async register(login: string, email: string, password: string): Promise<RegisterResponse> {
-		return this.request<RegisterResponse>("/login/register", {
+		return this.request<RegisterResponse>("/auth/register", {
 			method: "POST",
 			body: JSON.stringify({ login, email, password }),
 		});
 	}
 
 	async login(email: string, password: string): Promise<LoginResponse> {
-		return this.request<LoginResponse>("/login", {
+		return this.request<LoginResponse>("/auth/login", {
 			method: "POST",
 			body: JSON.stringify({ email, password }),
 		});
 	}
 
 	async logout(): Promise<LoginResponse> {
-		return this.request<LoginResponse>("/login/logout", {
+		return this.request<LoginResponse>("/auth/logout", {
 			method: "POST",
 		});
 	}
 
 	async getLoginStatus(): Promise<LoginStatus> {
-		return this.request<LoginStatus>("/login/status");
+		return this.request<LoginStatus>("/auth/status");
 	}
 
 	// Game API endpoints
@@ -107,16 +101,13 @@ class ApiClient {
 	}
 
 	async getUsers(): Promise<any[]> {
-		return this.request<any[]>("/api/users");
+		return this.request<any[]>("/user");
 	}
 
 	async getHistory(): Promise<any[]> {
-		return this.request<any[]>("/api/history");
+		return this.request<any[]>("/match");
 	}
 
-	async getScore(): Promise<any[]> {
-		return this.request<any[]>("/api/score");
-	}
 }
 
 export const apiClient = new ApiClient();

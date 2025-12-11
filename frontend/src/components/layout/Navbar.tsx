@@ -129,6 +129,7 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 									border: "2px solid rgba(255, 255, 255, 0.5)",
 									"&:hover": {
 										borderColor: "white",
+										cursor: "pointer",
 									},
 								}}
 							/>

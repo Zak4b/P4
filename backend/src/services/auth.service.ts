@@ -1,4 +1,4 @@
-import user from "./user.js";
+import {UserService} from "./user.service.js";
 import { generateToken, verifyToken, JWTPayload } from "../lib/jwt.js";
 
 // Type pour les requêtes Fastify
@@ -70,19 +70,13 @@ const getUserFromRequest = (req: RequestLike): JWTPayload | null => {
 // S'inscrire
 const register = async (login: string, email: string, password: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
 	// Vérifier si l'email existe déjà
-	const existingUser = await user.findByEmail(email);
+	const existingUser = await UserService.getByEmail(email);
 	if (existingUser) {
 		throw new Error("Email already exists");
 	}
 
 	// Créer l'utilisateur
-	const userId = await user.create(login, email, password);
-	const userData = await user.getById(userId);
-
-	if (!userData) {
-		throw new Error("Failed to create user");
-	}
-
+	const userData = await UserService.create(login, email, password);
 	// Générer le token JWT
 	const token = generateToken({
 		userId: userData.id,
@@ -103,7 +97,7 @@ const register = async (login: string, email: string, password: string): Promise
 // Se connecter
 const login = async (email: string, password: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
 	// Vérifier les identifiants
-	const userData = await user.verifyCredentials(email, password);
+	const userData = await UserService.verifyCredentials(email, password);
 	if (!userData) {
 		throw new Error("Invalid email or password");
 	}

@@ -3,7 +3,7 @@ import { Player } from "./Player.js";
 import { ServerMessage } from "./types.js";
 import { TypedEventEmitter } from "./TypedEventEmitter.js";
 import { P4 } from "../P4.js";
-import GameService from "../../services/game.js";
+import { GameService } from "../../services/game.service.js";
 
 export type RoomEvent = "join" | "leave" | "empty" | "timeout" | "end";
 type RoomEventMap = {

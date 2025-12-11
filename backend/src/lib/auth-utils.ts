@@ -1,5 +1,5 @@
 import { FastifyRequest } from "fastify";
-import auth from "../services/auth.js";
+import auth from "../services/auth.service.js";
 
 // Construit un objet minimal compatible avec auth.* à partir d'une requête Fastify
 export const toAuthRequest = (req: FastifyRequest | any) => ({

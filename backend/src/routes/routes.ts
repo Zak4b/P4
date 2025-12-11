@@ -1,17 +1,17 @@
 import { FastifyInstance } from "fastify";
-import { loginRoutes } from "./login.js";
-import { apiRoutes } from "./api.js";
+import { authRoutes } from "./auth.routes.js";
 import { auth } from "../middleware/auth.js";
+import { userRoutes } from "./user.routes.js";
+import { matchRoutes } from "./match.routes.js";
 
-export async function registerRoutes(fastify: FastifyInstance) {
-	// Public login routes (no auth required)
-	await fastify.register(loginRoutes, { prefix: "/P4/login" });
+export async function routes(fastify: FastifyInstance) {
+	await fastify.register(authRoutes, { prefix: "/auth" });
 
 	// Protected API routes
 	await fastify.register(async function (fastify) {
-		// Ajouter le hook auth pour toutes les routes dans ce registre
 		fastify.addHook("onRequest", auth);
 
-		await fastify.register(apiRoutes, { prefix: "/P4/api" });
+		await fastify.register(userRoutes, { prefix: "/user" });
+		await fastify.register(matchRoutes, { prefix: "/match" });
 	});
 }
