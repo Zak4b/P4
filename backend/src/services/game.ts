@@ -91,7 +91,7 @@ const history = async (limit?: number) => {
 		take: limit,
 	});
 
-	return games.map((game) => {
+	return games.map((game: typeof games[0]) => {
 		return {
 			id: game.id,
 			player1: {

@@ -9,10 +9,8 @@ import {
 	Typography,
 	Button,
 	Box,
-	IconButton,
 	Menu,
 	MenuItem,
-	Avatar,
 	Divider,
 	ListItemIcon,
 } from "@mui/material";
@@ -160,7 +158,7 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 								</Box>
 							</Box>
 							<Divider />
-							<MenuItem component={Link} href="/account">
+							<MenuItem component={Link} href="/profile">
 								<ListItemIcon>
 									<AccountIcon fontSize="small" />
 								</ListItemIcon>

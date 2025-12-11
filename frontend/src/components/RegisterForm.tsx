@@ -11,7 +11,6 @@ import {
 	Alert,
 	Box,
 	CircularProgress,
-	FormHelperText,
 } from "@mui/material";
 import { PersonAdd as PersonAddIcon } from "@mui/icons-material";
 import { useAuth } from "./AuthContext";
@@ -22,6 +21,8 @@ import {
 	buttonStyles,
 	spacing,
 } from "@/lib/styles";
+import PasswordInput from "./PasswordInput";
+import { passwordRules } from "@/lib/passwordRules";
 
 interface RegisterFormProps {
 	onRegister?: () => void;
@@ -106,35 +107,29 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 							variant="outlined"
 							sx={spacing.mb2}
 						/>
-						<TextField
-							fullWidth
-							label="Password"
-									type="password"
-									value={password}
-									onChange={(e) => setPassword(e.target.value)}
-									required
-									disabled={isLoading}
-									autoComplete="new-password"
-							inputProps={{ minLength: 8 }}
-							margin="normal"
-							variant="outlined"
-							sx={{ mb: 1 }}
-							helperText="Minimum 8 characters"
-						/>
-						<TextField
-							fullWidth
-							label="Confirm Password"
-									type="password"
-									value={confirmPassword}
-									onChange={(e) => setConfirmPassword(e.target.value)}
-									required
-									disabled={isLoading}
-									autoComplete="new-password"
-							inputProps={{ minLength: 8 }}
-							margin="normal"
-							variant="outlined"
-							sx={spacing.mb3}
-								/>
+					<PasswordInput
+						label="Password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						required
+						disabled={isLoading}
+						autoComplete="new-password"
+						fullWidth
+						margin="normal"
+						variant="outlined"
+						validations={passwordRules}
+					/>
+					<PasswordInput
+						label="Confirm Password"
+						value={confirmPassword}
+						onChange={(e) => setConfirmPassword(e.target.value)}
+						required
+						disabled={isLoading}
+						autoComplete="new-password"
+						fullWidth
+						margin="normal"
+						variant="outlined"
+					/>
 						<Button
 							type="submit"
 							variant="contained"

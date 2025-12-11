@@ -19,7 +19,7 @@ import {
 	paperStyles,
 	buttonStyles,
 } from "@/lib/styles";
-import HistoryCard from "@/components/HistoryCard";
+import HistoryRow from "@/components/History/HistoryRow";
 
 type Winner = "PLAYER1" | "PLAYER2" | "DRAW";
 interface GameHistory {
@@ -106,7 +106,7 @@ export default function HistoryPage() {
 			) : (
 				<Stack spacing={2}>
 					{history.map((game) => (
-						<HistoryCard
+						<HistoryRow
 							key={game.id}
 							id={game.id}
 							player1={game.player1}

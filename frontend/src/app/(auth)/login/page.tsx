@@ -11,10 +11,10 @@ export default function LoginPage() {
 
 	useEffect(() => {
 		if (isAuthenticated) {
-			router.replace("/");
+			router.replace("/play");
 		}
 	}, [isAuthenticated, router]);
 
-	return <LoginForm onLogin={() => router.replace("/")} />;
+	return <LoginForm onLogin={() => router.replace("/play")} />;
 }
 

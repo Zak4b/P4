@@ -15,6 +15,6 @@ export default function RegisterPage() {
 		}
 	}, [isAuthenticated, router]);
 
-	return <RegisterForm onRegister={() => router.replace("/")} />;
+	return <RegisterForm onRegister={() => router.replace("/login")} />;
 }
 

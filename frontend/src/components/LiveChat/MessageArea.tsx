@@ -9,21 +9,13 @@ import {
 	Typography,
 	Stack,
 	Alert,
-	Chip,
 } from "@mui/material";
 import { Send as SendIcon, Info as InfoIcon } from "@mui/icons-material";
 import { colors } from "@/lib/styles";
+import { Message } from "./types";
 
 interface MessageAreaProps {
 	roomId: string;
-}
-
-interface Message {
-	id: string;
-	type: "info" | "message" | "vote";
-	content: string;
-	author?: string;
-	timestamp: Date;
 }
 
 const MessageArea: React.FC<MessageAreaProps> = ({ roomId }) => {

@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Box, CircularProgress, Alert } from "@mui/material";
-import P4GameBoard from "@/components/P4GameBoard";
-import PlayerIndicator from "@/components/PlayerIndicator";
+import P4GameBoard from "@/components/Game/P4GameBoard";
+import PlayerIndicator from "@/components/Game/PlayerIndicator";
 import { useWebSocket } from "@/components/WebSocketProvider";
 import { useGame } from "@/store/useGameStore";
 

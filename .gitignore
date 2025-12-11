@@ -3,7 +3,6 @@ node_modules
 src/WebSocketServerP4.js
 notes.txt
 users.db
-package-lock.json
 dist
 
 # Ignore node_modules in subrepos  

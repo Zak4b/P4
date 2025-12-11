@@ -8,11 +8,7 @@ import {
 	CircularProgress,
 	Alert,
 	Grid,
-	Card,
-	CardContent,
-	Avatar,
 	Stack,
-	Chip,
 	Divider,
 } from "@mui/material";
 import {
@@ -42,7 +38,7 @@ interface GameHistory {
 	player1: { id: string; login: string };
 	player2: { id: string; login: string };
 	winner: Winner;
-	board: any;
+	board: unknown;
 	time: number;
 }
 
@@ -54,7 +50,7 @@ interface UserStats {
 	winRate: number;
 }
 
-export default function AccountPage() {
+export default function ProfilePage() {
 	const { user } = useAuth();
 	const [history, setHistory] = useState<GameHistory[]>([]);
 	const [stats, setStats] = useState<UserStats | null>(null);
@@ -190,14 +186,14 @@ export default function AccountPage() {
 
 				{/* Statistiques */}
 				<Grid size={{ xs: 12, md: 6 }}>
-					<Card
+					<Paper
 						elevation={3}
 						sx={[
 							paperStyles.gradientCard,
 							{ height: "100%" },
 						]}
 					>
-						<CardContent>
+						<Stack spacing={3} alignItems="center">
 							<Typography variant="h6" fontWeight={600} gutterBottom sx={layoutStyles.flexCenter}>
 								<TrophyIcon color="primary" />
 								Statistiques de jeu
@@ -258,7 +254,7 @@ export default function AccountPage() {
 														{user.eloRating ?? 1000}
 													</Typography>
 													<Typography variant="body2" color="text.secondary">
-														Score ELO
+														ELO
 													</Typography>
 												</Box>
 											</Grid>
@@ -278,8 +274,8 @@ export default function AccountPage() {
 							) : (
 								<Typography color="text.secondary">Aucune statistique disponible</Typography>
 							)}
-						</CardContent>
-					</Card>
+						</Stack>
+					</Paper>
 				</Grid>
 			</Grid>
 		</Box>

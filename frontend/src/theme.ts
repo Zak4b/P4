@@ -1,5 +1,21 @@
 import { createTheme } from '@mui/material/styles';
 
+declare module '@mui/material/styles' {
+	interface Palette {
+		gold: Palette['primary'];
+	}
+
+	interface PaletteOptions {
+		gold?: PaletteOptions['primary'];
+	}
+}
+
+declare module '@mui/material/SvgIcon' {
+	interface SvgIconPropsColorOverrides {
+		gold: true;
+	}
+}
+
 export const theme = createTheme({
 	palette: {
 		mode: 'light',
@@ -34,6 +50,12 @@ export const theme = createTheme({
 			main: '#3b82f6', // Bleu vif
 			light: '#60a5fa',
 			dark: '#2563eb',
+		},
+		gold: {
+			main: '#ffd700', // Or
+			light: '#ffed4e',
+			dark: '#ccac00',
+			contrastText: '#000000',
 		},
 		background: {
 			default: '#f1f5f9',

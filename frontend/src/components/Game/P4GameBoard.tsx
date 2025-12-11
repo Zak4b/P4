@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { Box, Paper, CircularProgress, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import { useGame } from "@/store/useGameStore";
-import { useWebSocket } from "./WebSocketProvider";
+import { useWebSocket } from "../WebSocketProvider";
 import { colors, gradients } from "@/lib/styles";
 
 interface P4GameBoardProps {

@@ -57,11 +57,6 @@ export const useGameWebSocket = () => {
 			handleDraw();
 		};
 
-		const restartHandler = () => {
-			handleRestart();
-		};
-
-		// Écouter aussi game-win et game-draw (alias du backend)
 		const gameWinHandler = (data: WinEvent) => {
 			handleWinWithUuid(data);
 		};
@@ -77,7 +72,6 @@ export const useGameWebSocket = () => {
 		socket.on("game-win", gameWinHandler);
 		socket.on("draw", drawHandler);
 		socket.on("game-draw", gameDrawHandler);
-		socket.on("restart", restartHandler);
 
 		return () => {
 			// Nettoyer les listeners
@@ -87,7 +81,6 @@ export const useGameWebSocket = () => {
 			socket.off("game-win", gameWinHandler);
 			socket.off("draw", drawHandler);
 			socket.off("game-draw", gameDrawHandler);
-			socket.off("restart", restartHandler);
 		};
 	}, [socket, isConnected, handlePlay, handleSync, handleWinWithUuid, handleDraw, handleRestart, handleJoin, uuid, setRoomId, setPlayerId]);
 };

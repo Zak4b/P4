@@ -129,7 +129,7 @@ export default function PlayIndexPage() {
 							sx={{ p: 3, bgcolor: "primary.50", borderRadius: 4 }}
 						>
 							<Stack direction="row" spacing={2} alignItems="flex-start">
-								<EmojiEvents color="primary" fontSize="large" />
+								<EmojiEvents color="gold" fontSize="large" />
 								<Box>
 									<Typography variant="h6" fontWeight="bold" gutterBottom>
 										Daily Challenge

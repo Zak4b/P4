@@ -21,6 +21,7 @@ import {
 	buttonStyles,
 	spacing,
 } from "@/lib/styles";
+import PasswordInput from "./PasswordInput";
 
 interface LoginFormProps {
 	onLogin?: () => void;
@@ -76,20 +77,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 							variant="outlined"
 							sx={spacing.mb2}
 						/>
-						<TextField
-							fullWidth
-							label="Password"
-									type="password"
-									value={password}
-									onChange={(e) => setPassword(e.target.value)}
-									required
-									disabled={isLoading}
-									autoComplete="current-password"
-							inputProps={{ minLength: 8 }}
-							margin="normal"
-							variant="outlined"
-							sx={spacing.mb3}
-								/>
+					<PasswordInput
+						label="Password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						required
+						disabled={isLoading}
+						autoComplete="current-password"
+						fullWidth
+						margin="normal"
+						variant="outlined"
+					/>
 						<Button
 							type="submit"
 							variant="contained"

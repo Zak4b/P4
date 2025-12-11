@@ -1,24 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import {
-	Box,
-	Typography,
-	Paper,
-	TextField,
-	Button,
-	Stack,
-	Divider,
-	Container,
-	IconButton,
-	InputAdornment,
-} from "@mui/material";
+import { Box, Typography, Paper, TextField, Button, Stack, Divider, Container } from "@mui/material";
 import {
 	Settings as SettingsIcon,
 	Email as EmailIcon,
 	Lock as LockIcon,
-	Visibility,
-	VisibilityOff,
 	Save as SaveIcon,
 } from "@mui/icons-material";
 import { useAuth } from "@/components/AuthContext";
@@ -29,14 +16,14 @@ import {
 	buttonStyles,
 	textFieldStyles,
 } from "@/lib/styles";
+import PasswordInput from "@/components/PasswordInput";
+import { passwordRules } from "@/lib/passwordRules";
 
 export default function SettingsPage() {
 	const { user } = useAuth();
 	const [email, setEmail] = useState(user?.email || "");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
-	const [showPassword, setShowPassword] = useState(false);
-	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [emailError, setEmailError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
 
@@ -54,13 +41,6 @@ export default function SettingsPage() {
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 		setPassword(value);
-		if (value && value.length < 6) {
-			setPasswordError("Le mot de passe doit contenir au moins 6 caractères");
-		} else if (value && confirmPassword && value !== confirmPassword) {
-			setPasswordError("Les mots de passe ne correspondent pas");
-		} else {
-			setPasswordError("");
-		}
 	};
 
 	const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,51 +119,22 @@ export default function SettingsPage() {
 							</Typography>
 						</Box>
 						<Divider />
-						<TextField
-							fullWidth
+						<PasswordInput
 							label="Nouveau mot de passe"
-							type={showPassword ? "text" : "password"}
 							value={password}
 							onChange={handlePasswordChange}
 							error={!!passwordError && !!password}
-							helperText={passwordError && password ? passwordError : "Minimum 6 caractères"}
-							variant="outlined"
-							InputProps={{
-								endAdornment: (
-									<InputAdornment position="end">
-										<IconButton
-											onClick={() => setShowPassword(!showPassword)}
-											edge="end"
-										>
-											{showPassword ? <VisibilityOff /> : <Visibility />}
-										</IconButton>
-									</InputAdornment>
-								),
-							}}
-							sx={textFieldStyles.standard}
-						/>
-						<TextField
+							autoComplete="new-password"
 							fullWidth
+							validations={passwordRules}
+						/>
+						<PasswordInput
 							label="Confirmer le mot de passe"
-							type={showConfirmPassword ? "text" : "password"}
 							value={confirmPassword}
 							onChange={handleConfirmPasswordChange}
 							error={!!passwordError && !!confirmPassword}
-							helperText={passwordError && confirmPassword ? passwordError : ""}
-							variant="outlined"
-							InputProps={{
-								endAdornment: (
-									<InputAdornment position="end">
-										<IconButton
-											onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-											edge="end"
-										>
-											{showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-										</IconButton>
-									</InputAdornment>
-								),
-							}}
-							sx={textFieldStyles.standard}
+							autoComplete="new-password"
+							fullWidth
 						/>
 						<Box sx={layoutStyles.flexEnd}>
 							<Button

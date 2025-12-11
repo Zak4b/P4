@@ -127,7 +127,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 	},
 
 	handleJoin: (roomId: string, _playerId: number | null) => {
-		// Mark parameter as intentionally unused for now
+		// TODO playerid ?
 		void _playerId;
 		set((state) => ({
 			gameState: {
