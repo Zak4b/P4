@@ -1,0 +1,135 @@
+import user from "./user.js";
+import { generateToken, verifyToken, JWTPayload } from "../lib/jwt.js";
+
+// Type pour les requêtes Fastify
+type RequestLike = {
+	cookies: { [key: string]: any };
+	headers: { [key: string]: string | undefined; authorization?: string };
+};
+
+type ResponseLike = {
+	status: (code: number) => { json: (data: any) => any };
+};
+
+const cookieName: string = "token";
+
+// Obtenir le token depuis les cookies ou le header Authorization
+const getToken = (req: RequestLike): string | null => {
+	// Essayer d'abord depuis les cookies
+	const cookieToken = req.cookies[cookieName];
+	if (cookieToken) {
+		const token = typeof cookieToken === "string" ? cookieToken : cookieToken.token || null;
+		if (token) {
+			return token;
+		}
+	}
+
+	// Sinon, essayer depuis le header Authorization
+	const authHeader = req.headers.authorization;
+	if (authHeader && authHeader.startsWith("Bearer ")) {
+		return authHeader.substring(7);
+	}
+
+	return null;
+};
+
+// Vérifier si l'utilisateur est authentifié
+const isLogged = (req: RequestLike): boolean => {
+	try {
+		const token = getToken(req);
+		if (!token) {
+			return false;
+		}
+
+		const payload = verifyToken(token);
+		if (!payload || !payload.userId) {
+			return false;
+		}
+
+		// Attacher les infos utilisateur à la requête
+		(req as any).user = payload;
+		return true;
+	} catch (error) {
+		return false;
+	}
+};
+
+// Obtenir l'utilisateur depuis le token
+const getUserFromRequest = (req: RequestLike): JWTPayload | null => {
+	try {
+		const token = getToken(req);
+		if (!token) {
+			return null;
+		}
+		return verifyToken(token);
+	} catch (error) {
+		return null;
+	}
+};
+
+// S'inscrire
+const register = async (login: string, email: string, password: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
+	// Vérifier si l'email existe déjà
+	const existingUser = await user.findByEmail(email);
+	if (existingUser) {
+		throw new Error("Email already exists");
+	}
+
+	// Créer l'utilisateur
+	const userId = await user.create(login, email, password);
+	const userData = await user.getById(userId);
+
+	if (!userData) {
+		throw new Error("Failed to create user");
+	}
+
+	// Générer le token JWT
+	const token = generateToken({
+		userId: userData.id,
+		email: userData.email,
+		login: userData.login,
+	});
+
+	return {
+		token,
+		user: {
+			id: userData.id,
+			login: userData.login,
+			email: userData.email,
+		},
+	};
+};
+
+// Se connecter
+const login = async (email: string, password: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
+	// Vérifier les identifiants
+	const userData = await user.verifyCredentials(email, password);
+	if (!userData) {
+		throw new Error("Invalid email or password");
+	}
+
+	// Générer le token JWT
+	const token = generateToken({
+		userId: userData.id,
+		email: userData.email,
+		login: userData.login,
+	});
+
+	return {
+		token,
+		user: {
+			id: userData.id,
+			login: userData.login,
+			email: userData.email,
+		},
+	};
+};
+
+export default {
+	login,
+	register,
+	isLogged,
+	getUserFromRequest,
+	cookieName,
+	getToken,
+};
