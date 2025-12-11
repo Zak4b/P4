@@ -66,7 +66,6 @@ export default function ProfilePage() {
 			try {
 				const gameHistory = await apiClient.getHistory();
 				setHistory(gameHistory);
-
 				// Calculer les statistiques
 				const userStats = calculateStats(gameHistory, user.id);
 				setStats(userStats);

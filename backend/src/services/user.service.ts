@@ -19,6 +19,15 @@ export namespace UserService {
 			where: { email },
 		});
 	};
+
+	export const getStats = async (id: string) => {
+		return await prisma.user.findUnique({
+			where: { id },
+			select: {
+				eloRating: true,
+			},
+		});
+	};
 	
 	export const create = async (login: string, email: string, passwordPlain: string) => {
 		const password = await hashPassword(passwordPlain);

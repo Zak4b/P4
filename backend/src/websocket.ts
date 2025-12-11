@@ -27,7 +27,7 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 		if (!user) {
 			throw new Error("Authentication required");
 		}
-		const player = new Player<typeof P4>(socket, user.userId, user.login);
+		const player = new Player<typeof P4>(socket, user.id, user.login);
 		player.send({ type: "registered", data: player.uuid });
 
 	socket.on("join", async (roomId: string, callback?: (response: JoinResponse) => void) => {

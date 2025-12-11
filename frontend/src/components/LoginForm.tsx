@@ -46,7 +46,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 			onLogin?.();
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Login failed");
-		} finally {
 			setIsLoading(false);
 		}
 	};

@@ -61,20 +61,24 @@ export namespace GameService {
 				winner: true,
 				createdAt: true,
 				duration: true,
+				player1Id: true,
+				player2Id: true,
 				player1: { select: { login: true } },
 				player2: { select: { login: true } },
 			},
 			orderBy: { createdAt: "desc" },
-			take: limit ?? 10,
+			take: limit,
 		});
 
-		return games.map((game: typeof games[0]) => {
+		return games.map((game) => {
 			return {
 				id: game.id,
 				player1: {
+					id: game.player1Id,
 					login: game.player1.login,
 				},
 				player2: {
+					id: game.player2Id,
 					login: game.player2.login,
 				},
 				winner: game.winner,

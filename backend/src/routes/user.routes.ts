@@ -26,6 +26,16 @@ export async function userRoutes(fastify: FastifyInstance) {
 		}
 	});
 
+	fastify.get("/:id/stats", async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+		try {
+			const { id } = request.params;
+			const stats = await UserService.getStats(id);
+			reply.send(stats);
+		} catch (error) {
+			reply.status(500).send({ error: "Internal server error" });
+		}
+	});
+
 	fastify.get("/:id/avatar", async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
 		try {
 			const { id } = request.params;

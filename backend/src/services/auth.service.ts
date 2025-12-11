@@ -42,7 +42,7 @@ const isLogged = (req: RequestLike): boolean => {
 		}
 
 		const payload = verifyToken(token);
-		if (!payload || !payload.userId) {
+		if (!payload || !payload.id) {
 			return false;
 		}
 
@@ -79,7 +79,7 @@ const register = async (login: string, email: string, password: string): Promise
 	const userData = await UserService.create(login, email, password);
 	// Générer le token JWT
 	const token = generateToken({
-		userId: userData.id,
+		id: userData.id,
 		email: userData.email,
 		login: userData.login,
 	});
@@ -104,7 +104,7 @@ const login = async (email: string, password: string): Promise<{ token: string; 
 
 	// Générer le token JWT
 	const token = generateToken({
-		userId: userData.id,
+		id: userData.id,
 		email: userData.email,
 		login: userData.login,
 	});
