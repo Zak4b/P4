@@ -119,6 +119,10 @@ class ApiClient {
 		return this.request<UserStats>(`/user/${encodeURIComponent(id)}/stats`);
 	}
 
+	async getLeaderboard(): Promise<Array<{ id: string; login: string; eloRating: number }>> {
+		return this.request<Array<{ id: string; login: string; eloRating: number }>>("/user/leaderboard");
+	}
+
 }
 
 export const apiClient = new ApiClient();

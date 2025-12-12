@@ -46,5 +46,14 @@ export async function userRoutes(fastify: FastifyInstance) {
 			reply.status(500).send({ error: "Internal server error" });
 		}
 	});
+
+	fastify.get("/leaderboard", async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			const leaderboard = await UserService.getLeaderboard(10);
+			reply.send(leaderboard);
+		} catch (error) {
+			reply.status(500).send({ error: "Internal server error" });
+		}
+	});
 }
 

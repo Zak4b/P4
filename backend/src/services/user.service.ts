@@ -95,6 +95,20 @@ export namespace UserService {
 			},
 		});
 	};
+
+	export const getLeaderboard = async (limit: number = 10) => {
+		return await prisma.user.findMany({
+			select: {
+				id: true,
+				login: true,
+				eloRating: true,
+			},
+			orderBy: {
+				eloRating: "desc",
+			},
+			take: limit,
+		});
+	};
 	
 	export const update = async (id: string, data: any) => {
 		return await prisma.user.update({

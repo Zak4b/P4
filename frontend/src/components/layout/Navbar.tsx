@@ -21,6 +21,7 @@ import {
 	Logout as LogoutIcon,
 	AccountCircle as AccountIcon,
 	Settings as SettingsIcon,
+	EmojiEvents as TrophyIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../AuthContext";
 import {
@@ -106,6 +107,13 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 						pathname={pathname || ""}
 					>
 						History
+					</NavButton>
+					<NavButton
+						href="/leaderboard"
+						icon={<TrophyIcon />}
+						pathname={pathname || ""}
+					>
+						Leaderboard
 					</NavButton>
 				</Box>
 
