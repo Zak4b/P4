@@ -17,14 +17,8 @@ import {
 	typographyStyles,
 	paperStyles,
 } from "@/lib/styles";
-import UserAvatar from "@/components/UserAvatar";
 import Podium from "./components/Podium";
-
-interface LeaderboardPlayer {
-	id: string;
-	login: string;
-	eloRating: number;
-}
+import LeaderboardEntry, { LeaderboardPlayer } from "./components/LeaderboardEntry";
 
 export default function LeaderboardPage() {
 	const [players, setPlayers] = useState<LeaderboardPlayer[]>([]);
@@ -74,10 +68,7 @@ export default function LeaderboardPage() {
 				Classement
 			</Typography>
 
-			{/* Podium */}
-			<Box sx={{ mb: 6 }}>
-				<Podium topThree={topThree} />
-			</Box>
+			<Podium topThree={topThree} />
 			{rest.length > 0 && (
 				<Paper
 					elevation={3}
@@ -85,53 +76,14 @@ export default function LeaderboardPage() {
 				>
 					<Stack spacing={2}>
 						{rest.map((player, index) => (
-							<Paper
+							<LeaderboardEntry
 								key={player.id}
-								elevation={1}
-								sx={{
-									p: 2,
-									display: "flex",
-									alignItems: "center",
-									gap: 2,
-									background: "rgba(255, 255, 255, 0.7)",
-									"&:hover": {
-										background: "rgba(255, 255, 255, 0.9)",
-										transition: "background-color 0.2s ease-in-out",
-									},
-								}}
-							>
-								<Box sx={{ minWidth: 40, textAlign: "center" }}>
-									<Typography variant="h6" fontWeight={700} color="text.secondary">
-										#{index + 4}
-									</Typography>
-								</Box>
-								<UserAvatar
-									login={player.login}
-									sx={{ width: 50, height: 50 }}
-								/>
-								<Box sx={{ flexGrow: 1 }}>
-									<Typography variant="body1" fontWeight={600}>
-										{player.login}
-									</Typography>
-								</Box>
-								<Box sx={{ textAlign: "right" }}>
-									<Typography variant="h6" fontWeight={700} color="primary">
-										{player.eloRating}
-									</Typography>
-									<Typography variant="caption" color="text.secondary">
-										ELO
-									</Typography>
-								</Box>
-							</Paper>
+								player={player}
+								rank={index + 4}
+							/>
 						))}
 					</Stack>
 				</Paper>
-			)}
-
-			{players.length === 0 && (
-				<Alert severity="info">
-					Aucun joueur dans le classement pour le moment.
-				</Alert>
 			)}
 		</Box>
 	);
