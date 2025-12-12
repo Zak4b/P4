@@ -24,21 +24,29 @@ export class RoomManager<T extends new () => Game> {
 		return this._list.get(roomId);
 	}
 
-	public getOrCreate(roomId: string): Room<T> {
+	public getOrCreate(roomId: string): Room<T> { //TODO delete
 		if (!this._list.has(roomId)) {
-			this._list.set(roomId, this.newRoom());
+			const newRoom = this._newRoom({ id: roomId });
+			return newRoom;
 		}
 		return this.get(roomId) as Room<T>;
 	}
 
-	private newRoom({ timeout }: { timeout?: number } = {}): Room<T> {
+	public newRoom({ name, timeout }: { name?: string, timeout?: number } = {}): Room<T> {
+		return this._newRoom({ name, timeout });
+	}
+
+	private _newRoom({ id, name, timeout }: { id?: string, name?: string, timeout?: number } = {}): Room<T> {
+		id ??= uuidv4();
 		const room = new Room({
-			id: uuidv4(),
+			id,
+			name: name ?? id,
 			playerLimit: this.playerLimit,
 			game: this.gameClass,
 		});
 		const roomTimeout = !timeout || timeout <= 0 ? RoomManager.defaultTimeoutDelay : timeout;
 		this.setupRoomEvents(room, roomTimeout);
+		this._list.set(id, room);
 		return room;
 	}
 

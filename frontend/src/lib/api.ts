@@ -97,13 +97,13 @@ class ApiClient {
 
 	// Game API endpoints
 	async getRooms(): Promise<Room[]> {
-		return this.request<Room[]>("/api/rooms");
+		return this.request<Room[]>("/room");
 	}
 
-	async joinRoom(roomId: string): Promise<{ success: boolean; roomId: string; message?: string }> {
-		return this.request<{ success: boolean; roomId: string; message?: string }>("/game/join", {
+	async newRoom(name: string): Promise<{ success: boolean; roomId?: string; message?: string }> {
+		return this.request<{ success: boolean; roomId?: string, message?: string }>("/room", {
 			method: "POST",
-			body: JSON.stringify({ roomId }),
+			body: JSON.stringify({ name }),
 		});
 	}
 

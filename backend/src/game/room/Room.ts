@@ -16,6 +16,7 @@ type RoomEventMap = {
 
 export interface RoomProps<T extends new () => Game> {
 	id: string;
+	name?: string;
 	playerLimit?: number;
 	game: T;
 	players?: string[];
@@ -27,6 +28,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 	private locked: boolean;
 	private isEnded: boolean = false;
 	readonly id: string;
+	readonly name: string;
 
 	get timeStamp(): number {
 		return this.lastActionTimestamp;
@@ -51,9 +53,10 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 		online: Map<string, Player<T>>;
 	} = { registered: new Map(), online: new Map() };
 
-	constructor({ id, playerLimit, game, players, locked }: RoomProps<T>) {
+	constructor({ id, name, playerLimit, game, players, locked }: RoomProps<T>) {
 		super();
 		this.id = id;
+		this.name = name ?? id;
 		this.locked = locked ?? false;
 		this.playerLimit = playerLimit ?? 2;
 		players?.map((p) => {
