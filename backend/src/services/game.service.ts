@@ -24,42 +24,34 @@ export namespace GameService {
 	}
 	
 	async function save(id1: string, id2: string, result: GameWinner, duration: number, board: any) {
-		if (id1 && id2) {
-			await prisma.game.create({
-				data: {
-					player1Id: id1,
-					player2Id: id2,
-					winner: result,
-					moves: board, 
-					duration: duration, 
-				},
-			});
+		if (id1 && id2) { // TODO check for empty room / missing players
+			const { elo1, elo2 } = await getPlayersElos(id1, id2);
+
+			const {1: newElo1, 2: newElo2, delta1, delta2} = calculateNewElo(elo1, elo2, result);
+	
+			await prisma.$transaction([
+				prisma.game.create({
+					data: {
+						player1Id: id1,
+						player2Id: id2,
+						winner: result,
+						moves: board, 
+						duration: duration, 
+					},
+				}),
+				prisma.user.update({
+					where: { id: id1 },
+					data: { eloRating: newElo1 },
+				}),
+				prisma.user.update({
+					where: { id: id2 },
+					data: { eloRating: newElo2 },
+				}),
+			]);
 		} else {
 			throw new Error("Players not found");
 		}
 	};
-
-	async function updatePlayerElos(
-		player1Id: string,
-		player2Id: string,
-		winner: GameWinner
-	): Promise<[number, number]> {
-		const { elo1, elo2 } = await getPlayersElos(player1Id, player2Id);
-
-		const [newElo1, newElo2] = calculateNewElo(elo1, elo2, winner);
-
-		await prisma.$transaction([
-			prisma.user.update({
-				where: { id: player1Id },
-				data: { eloRating: newElo1 },
-			}),
-			prisma.user.update({
-				where: { id: player2Id },
-				data: { eloRating: newElo2 },
-			}),
-		]);
-		return [newElo1, newElo2];
-	}
 
 	export async function finalizeFromRoom(
 		registeredPlayers: Array<{ uuid: string; playerId: number }>,
@@ -81,11 +73,6 @@ export namespace GameService {
 		}
 
 		await save(p1.uuid, p2.uuid, winner, duration, board);
-		try {
-			await updatePlayerElos(p1.uuid, p2.uuid, winner);
-		} catch (error) {
-			console.error("Erreur lors de la mise à jour des scores ELO:", error);
-		}
 	};
 
 	export async function history({playerId, limit}: {playerId?: string, limit?: number}) {
