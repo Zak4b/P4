@@ -8,6 +8,7 @@ import {
 	CircularProgress,
 	Alert,
 	Stack,
+	Container,
 } from "@mui/material";
 import {
 	EmojiEvents as TrophyIcon,
@@ -16,6 +17,7 @@ import { apiClient } from "@/lib/api";
 import {
 	typographyStyles,
 	paperStyles,
+	layoutStyles,
 } from "@/lib/styles";
 import Podium from "./components/Podium";
 import LeaderboardEntry, { LeaderboardPlayer } from "./components/LeaderboardEntry";
@@ -62,6 +64,7 @@ export default function LeaderboardPage() {
 	const rest = players.slice(3);
 
 	return (
+		<Container maxWidth="lg" sx={layoutStyles.container}>
 		<Box>
 			<Typography variant="h4" fontWeight={700} sx={typographyStyles.gradientTitle}>
 				<TrophyIcon />
@@ -86,6 +89,7 @@ export default function LeaderboardPage() {
 				</Paper>
 			)}
 		</Box>
+		</Container>
 	);
 }
 
