@@ -34,8 +34,8 @@ export async function authRoutes(fastify: FastifyInstance) {
 				reply.setCookie(auth.cookieName, result.token, {
 					signed: false, // Non signé car le JWT est déjà signé
 					httpOnly: true,
-					secure: process.env.NODE_ENV === "production",
-					sameSite: "lax",
+					secure: false, //process.env.NODE_ENV === "production",
+					sameSite: "none",
 					path: "/",
 					maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
 				});
@@ -72,8 +72,8 @@ export async function authRoutes(fastify: FastifyInstance) {
 				reply.setCookie(auth.cookieName, result.token, {
 					signed: false,
 					httpOnly: true,
-					secure: process.env.NODE_ENV === "production",
-					sameSite: "lax",
+					secure: false, //process.env.NODE_ENV === "production",
+					sameSite: "none",
 					path: "/",
 					maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
 				});
