@@ -1,9 +1,29 @@
 import { prisma } from "../lib/prisma.js";
 import { GameWinner, Prisma } from "@prisma/client";
-import { updatePlayerElos } from "../lib/elo.js";
+import { calculateNewElo } from "../lib/elo.js";
 
 export namespace GameService {
-	export async function save(id1: string, id2: string, result: GameWinner, duration: number, board: any) {
+
+	async function getPlayersElos(
+		player1Id: string,
+		player2Id: string
+	): Promise<{ elo1: number; elo2: number }> {
+		const users = await prisma.user.findMany({
+			where: { id: { in: [player1Id, player2Id] } },
+			select: { id: true, eloRating: true },
+		});
+
+		const player1 = users.find((user) => user.id === player1Id);
+		const player2 = users.find((user) => user.id === player2Id);
+
+		if (!player1 || !player2) {
+			throw new Error("Both players must exist to update ELO ratings");
+		}
+
+		return { elo1: player1.eloRating, elo2: player2.eloRating };
+	}
+	
+	async function save(id1: string, id2: string, result: GameWinner, duration: number, board: any) {
 		if (id1 && id2) {
 			await prisma.game.create({
 				data: {
@@ -18,6 +38,28 @@ export namespace GameService {
 			throw new Error("Players not found");
 		}
 	};
+
+	async function updatePlayerElos(
+		player1Id: string,
+		player2Id: string,
+		winner: GameWinner
+	): Promise<[number, number]> {
+		const { elo1, elo2 } = await getPlayersElos(player1Id, player2Id);
+
+		const [newElo1, newElo2] = calculateNewElo(elo1, elo2, winner);
+
+		await prisma.$transaction([
+			prisma.user.update({
+				where: { id: player1Id },
+				data: { eloRating: newElo1 },
+			}),
+			prisma.user.update({
+				where: { id: player2Id },
+				data: { eloRating: newElo2 },
+			}),
+		]);
+		return [newElo1, newElo2];
+	}
 
 	export async function finalizeFromRoom(
 		registeredPlayers: Array<{ uuid: string; playerId: number }>,

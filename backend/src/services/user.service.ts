@@ -56,13 +56,12 @@ export namespace UserService {
 			WHERE player1Id = ${user.id} OR player2Id = ${user.id}
 		`);
 
-		const result = stats;
-
 		return {
-			totalGames: Number(result.totalGames),
-			wins: Number(result.wins),
-			losses: Number(result.losses),
-			draws: Number(result.draws),
+			eloRating: user.eloRating,
+			totalGames: Number(stats.totalGames),
+			wins: Number(stats.wins),
+			losses: Number(stats.losses),
+			draws: Number(stats.draws),
 		};
 	};
 	

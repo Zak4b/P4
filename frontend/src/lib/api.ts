@@ -10,7 +10,6 @@ export interface User {
 	id: string;
 	login: string;
 	email: string;
-	eloRating?: number;
 }
 
 interface LoginResponse {
@@ -42,6 +41,7 @@ export interface Room {
 }
 
 export interface UserStats {
+	eloRating: number;
 	totalGames: number;
 	wins: number;
 	losses: number;

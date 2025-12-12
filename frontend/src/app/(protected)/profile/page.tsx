@@ -197,7 +197,7 @@ export default function ProfilePage() {
 											<Grid size={{xs: 6}}>
 												<Box textAlign="center">
 													<Typography variant="h5" fontWeight={700} sx={typographyStyles.gradientHeading}>
-														{user.eloRating ?? 1000}
+														{stats.eloRating}
 													</Typography>
 													<Typography variant="body2" color="text.secondary">
 														ELO

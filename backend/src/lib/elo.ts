@@ -1,4 +1,3 @@
-import { prisma } from "./prisma.js";
 import { GameWinner } from "@prisma/client";
 
 const K_FACTOR = 32;
@@ -32,17 +31,6 @@ function calculateNewRating(
 ): number {
 	const ratingChange = kFactor * (actualScore - expectedScore);
 	return Math.round(currentRating + ratingChange);
-}
-
-export async function getPlayerElo(playerId: string): Promise<number> {
-	const user = await prisma.user.findUnique({
-		where: { id: playerId },
-		select: { eloRating: true },
-	});
-	if (!user) {
-		throw new Error(`User with id ${playerId} not found`);
-	}
-	return user.eloRating;
 }
 
 /**
@@ -85,28 +73,5 @@ export function calculateNewElo(
 	const newPlayer1Elo = calculateNewRating(player1Elo, player1ActualScore, player1ExpectedScore);
 	const newPlayer2Elo = calculateNewRating(player2Elo, player2ActualScore, player2ExpectedScore);
 
-	return [newPlayer1Elo, newPlayer2Elo];
-}
-
-export async function updatePlayerElos(
-	player1Id: string,
-	player2Id: string,
-	winner: GameWinner
-): Promise<[number, number]> {
-	const player1Elo = await getPlayerElo(player1Id);
-	const player2Elo = await getPlayerElo(player2Id);
-
-	const [newPlayer1Elo, newPlayer2Elo] = calculateNewElo(player1Elo, player2Elo, winner);
-
-	await prisma.$transaction([
-		prisma.user.update({
-			where: { id: player1Id },
-			data: { eloRating: newPlayer1Elo },
-		}),
-		prisma.user.update({
-			where: { id: player2Id },
-			data: { eloRating: newPlayer2Elo },
-		}),
-	]);
 	return [newPlayer1Elo, newPlayer2Elo];
 }
