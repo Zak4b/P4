@@ -18,7 +18,7 @@ await registerPlugins(fastify);
 
 setupSocketIO(fastify);
 
-await fastify.register(routes, { prefix: "/P4" });
+await fastify.register(routes, { prefix: "/api" });
 
 setupErrorHandlers(fastify);
 

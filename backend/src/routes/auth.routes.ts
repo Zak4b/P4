@@ -3,6 +3,8 @@ import auth from "../services/auth.service.js";
 import { z } from "zod";
 import { registerSchema, loginSchema } from "../lib/zod-schemas.js";
 
+const SECURE = process.env.NODE_ENV === "production"
+
 export async function authRoutes(fastify: FastifyInstance) {
 	// Validation helper
 	const validateBody = (schema: z.ZodSchema) => {
@@ -72,8 +74,8 @@ export async function authRoutes(fastify: FastifyInstance) {
 				reply.setCookie(auth.cookieName, result.token, {
 					signed: false,
 					httpOnly: true,
-					secure: false, //process.env.NODE_ENV === "production",
-					sameSite: "none",
+					secure: SECURE,
+					sameSite: "lax",
 					path: "/",
 					maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
 				});
@@ -119,7 +121,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 		async (request: FastifyRequest, reply: FastifyReply) => {
 			reply.clearCookie(auth.cookieName, {
 				httpOnly: true,
-				secure: process.env.NODE_ENV === "production",
+				secure: SECURE,
 				sameSite: "lax",
 				path: "/",
 			});
