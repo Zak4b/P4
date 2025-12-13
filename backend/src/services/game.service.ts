@@ -34,6 +34,8 @@ export namespace GameService {
 					data: {
 						player1Id: id1,
 						player2Id: id2,
+						eloDelta1: delta1,
+						eloDelta2: delta2,
 						winner: result,
 						moves: board, 
 						duration: duration, 

@@ -35,6 +35,8 @@ model Game {
   player1Id String     @db.Char(36)
   player2Id String     @db.Char(36)
   winner    GameWinner
+	eloDelta1 Int
+	eloDelta2 Int
   moves     Json
   duration  Int
   player1   User       @relation("Player1", fields: [player1Id], references: [id])
