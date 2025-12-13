@@ -23,7 +23,7 @@ export namespace GameService {
 		return { elo1: player1.eloRating, elo2: player2.eloRating };
 	}
 	
-	async function save(id1: string, id2: string, result: GameWinner, duration: number, board: any) {
+	async function save(id1: string, id2: string, result: GameWinner, duration: number, board: Prisma.JsonValue) {
 		if (id1 && id2) { // TODO check for empty room / missing players
 			const { elo1, elo2 } = await getPlayersElos(id1, id2);
 
@@ -59,7 +59,7 @@ export namespace GameService {
 		registeredPlayers: Array<{ uuid: string; playerId: number }>,
 		win: number,
 		duration: number,
-		board: any
+		board: Prisma.JsonValue
 	) {
 		const p1 = registeredPlayers.find((p) => p.playerId === 1);
 		const p2 = registeredPlayers.find((p) => p.playerId === 2);

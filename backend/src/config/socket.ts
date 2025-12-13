@@ -26,7 +26,7 @@ export function setupSocketIO(fastify: FastifyInstance): Server {
 			cookies,
 			headers: socket.handshake.headers,
 		});
-		websocketConnection(socket, req);
+		await websocketConnection(socket, req);
 	});
 
 	// Gérer les erreurs de connexion Socket.IO

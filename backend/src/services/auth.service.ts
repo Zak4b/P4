@@ -3,12 +3,8 @@ import { generateToken, verifyToken, JWTPayload } from "../lib/jwt.js";
 
 // Type pour les requêtes Fastify
 type RequestLike = {
-	cookies: { [key: string]: any };
+	cookies: Record<string, string>;
 	headers: { [key: string]: string | undefined; authorization?: string };
-};
-
-type ResponseLike = {
-	status: (code: number) => { json: (data: any) => any };
 };
 
 const cookieName: string = "token";
@@ -16,12 +12,9 @@ const cookieName: string = "token";
 // Obtenir le token depuis les cookies ou le header Authorization
 const getToken = (req: RequestLike): string | null => {
 	// Essayer d'abord depuis les cookies
-	const cookieToken = req.cookies[cookieName];
-	if (cookieToken) {
-		const token = typeof cookieToken === "string" ? cookieToken : cookieToken.token || null;
-		if (token) {
+	const token = req.cookies[cookieName];
+	if (token) {
 			return token;
-		}
 	}
 
 	// Sinon, essayer depuis le header Authorization
@@ -29,7 +22,6 @@ const getToken = (req: RequestLike): string | null => {
 	if (authHeader && authHeader.startsWith("Bearer ")) {
 		return authHeader.substring(7);
 	}
-
 	return null;
 };
 
@@ -45,11 +37,8 @@ const isLogged = (req: RequestLike): boolean => {
 		if (!payload || !payload.id) {
 			return false;
 		}
-
-		// Attacher les infos utilisateur à la requête
-		(req as any).user = payload;
 		return true;
-	} catch (error) {
+	} catch {
 		return false;
 	}
 };
@@ -62,7 +51,7 @@ const getUserFromRequest = (req: RequestLike): JWTPayload | null => {
 			return null;
 		}
 		return verifyToken(token);
-	} catch (error) {
+	} catch {
 		return null;
 	}
 };

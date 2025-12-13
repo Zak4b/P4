@@ -1,35 +1,23 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import auth from "../services/auth.service.js";
-import { z } from "zod";
 import { registerSchema, loginSchema } from "../lib/zod-schemas.js";
+import { HttpError } from "../lib/HttpError.js";
 
-const SECURE = false; //process.env.NODE_ENV === "production"
+const COOKIE_OPTS = {
+	signed: false,
+	httpOnly: true,
+	secure: process.env.NODE_ENV === "production",
+	sameSite: "lax",
+	path: "/",
+} as const;
 
-export async function authRoutes(fastify: FastifyInstance) {
-	// Validation helper
-	const validateBody = (schema: z.ZodSchema) => {
-		return async (request: FastifyRequest<{ Body: any }>, reply: FastifyReply) => {
-			try {
-				schema.parse(request.body);
-			} catch (error) {
-				if (error instanceof z.ZodError) {
-					reply.status(400).send({ error: "Invalid request data", details: error.issues });
-				} else {
-					reply.status(400).send({ error: "Validation error" });
-				}
-			}
-		};
-	};
+const COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
+export function authRoutes(fastify: FastifyInstance) {
 	// Inscription
-	fastify.post(
-		"/register",
-		{
-			preValidation: validateBody(registerSchema),
-		},
-		async (request: FastifyRequest<{ Body: { login: string; email: string; password: string } }>, reply: FastifyReply) => {
+	fastify.post("/register", async (request: FastifyRequest, reply: FastifyReply) => {
 			try {
-				const { login, email, password } = request.body;
+				const { login, email, password } = registerSchema.parse(request.body);
 
 				const result = await auth.register(login, email, password);
 
@@ -39,77 +27,51 @@ export async function authRoutes(fastify: FastifyInstance) {
 					user: result.user,
 				});
 			} catch (error) {
-				if (error instanceof Error) {
-					if (error.message === "Email already exists") {
-						reply.status(409).send({ error: error.message });
-						return;
-					}
+				if (error instanceof Error && error.message === "Email already exists") {
+					throw HttpError.conflict(error.message);
 				}
-				reply.status(500).send({ error: "Internal server error" });
+				throw error;
 			}
 		}
 	);
 
 	// Connexion
-	fastify.post(
-		"/login",
-		{
-			preValidation: validateBody(loginSchema),
-		},
-		async (request: FastifyRequest<{ Body: { email: string; password: string } }>, reply: FastifyReply) => {
-			try {
-				const { email, password } = request.body;
+	fastify.post("/login",async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			const { email, password } = loginSchema.parse(request.body);
 
-				const result = await auth.login(email, password);
+			const result = await auth.login(email, password);
 
-				reply.setCookie(auth.cookieName, result.token, {
-					signed: false,
-					httpOnly: true,
-					secure: SECURE,
-					sameSite: "lax",
-					path: "/",
-					maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
-				});
+			reply.setCookie(auth.cookieName, result.token, {
+				...COOKIE_OPTS,
+				maxAge: COOKIE_MAX_AGE,
+			});
 
-				reply.status(200).send({
-					success: true,
-					message: "Login successful",
-					user: result.user,
-				});
-			} catch (error) {
-				if (error instanceof Error) {
-					if (error.message === "Invalid email or password") {
-						reply.status(401).send({ error: error.message });
-						return;
-					}
+			reply.status(200).send({
+				success: true,
+				message: "Login successful",
+			});
+		} catch (error) {
+			if (error instanceof Error) {
+				if (error.message === "Invalid email or password") {
+					throw HttpError.unauthorized(error.message);
 				}
-				reply.status(500).send({ error: "Internal server error" });
 			}
+			throw error;
 		}
-	);
+	});
 
 	// Statut de connexion
 	fastify.get("/status", async (request: FastifyRequest, reply: FastifyReply) => {
-		try {
-			reply.send({
-				isLoggedIn: request.user ? true : false,
-				user: request.user ?? null,
-			});
-		} catch (error) {
-			fastify.log.error(error);
-			reply.status(500).send({ error: "Internal server error" });
-		}
+		reply.send({
+			isLoggedIn: request.user ? true : false,
+			user: request.user ?? null,
+		});
 	});
 
 	// Déconnexion
 	fastify.post("/logout", async (request: FastifyRequest, reply: FastifyReply) => {
-			reply.clearCookie(auth.cookieName, {
-				httpOnly: true,
-				secure: SECURE,
-				sameSite: "lax",
-				path: "/",
-			});
-			reply.send({ success: true, message: "Logout successful" });
-		}
-	);
+		reply.clearCookie(auth.cookieName, COOKIE_OPTS);
+		reply.send({ success: true, message: "Logout successful" });
+	});
 }

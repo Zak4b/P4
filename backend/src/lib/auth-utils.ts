@@ -45,10 +45,3 @@ export const getUserFromRequest = (req: FastifyRequest | any) => {
 	return auth.getUserFromRequest(request);
 };
 
-/**
- * Vérifier si l'utilisateur est authentifié
- */
-export const isLogged = (req: FastifyRequest | any): boolean => {
-	const request = toAuthRequest(req);
-	return auth.isLogged(request);
-};

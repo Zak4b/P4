@@ -30,7 +30,7 @@ export namespace RoomService {
 		return formatRoom(room);
 	};
 
-  export const listAll = (uuid?: string): RoomResponse[] => { //TODO uuid filtrer
+  export const listAll = (_uuid?: string): RoomResponse[] => { //TODO uuid filtrer
 		const rooms = Array.from(manager.list.values()).map((room) => formatRoom(room));
 		return rooms;
 	};

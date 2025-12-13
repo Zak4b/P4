@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { HttpError } from "../lib/HttpError.js";
 
 export function setupErrorHandlers(fastify: FastifyInstance): void {
 	fastify.setNotFoundHandler(async (request, reply) => {
@@ -7,9 +8,20 @@ export function setupErrorHandlers(fastify: FastifyInstance): void {
 	});
 
 	fastify.setErrorHandler(async (error: Error & { statusCode?: number }, request, reply) => {
-		fastify.log.error(error);
-		reply.status(error.statusCode || 500).send({
-			error: error.message || "Internal server error",
+		if (error instanceof HttpError) {
+			fastify.log.error({ statusCode: error.statusCode, message: error.message }, "HttpError");
+			return reply.status(error.statusCode).send({
+				error: error.message,
+			});
+		}
+
+		const statusCode = error.statusCode || 500;
+		const message = error.message || "Internal server error";
+		
+		fastify.log.error({ statusCode, message, stack: error.stack }, "Error");
+		
+		return reply.status(statusCode).send({
+			error: message,
 		});
 	});
 }

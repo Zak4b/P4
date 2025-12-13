@@ -105,12 +105,12 @@ export namespace UserService {
 			},
 			orderBy: {
 				eloRating: "desc",
-			},
+			}, 
 			take: limit,
 		});
 	};
 	
-	export const update = async (id: string, data: any) => {
+	export const update = async (id: string, data: Prisma.UserUpdateInput) => {
 		return await prisma.user.update({
 			where: { id },
 			data,
