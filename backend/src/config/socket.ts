@@ -12,7 +12,7 @@ export function setupSocketIO(fastify: FastifyInstance): Server {
 	const httpServer = fastify.server;
 	const io = new Server(httpServer, {
 		cors: getSocketIOCorsOptions(),
-		path: "/socket.io",
+		path: "/api/socket.io",
 	});
 
 	// Socket.IO connection handler

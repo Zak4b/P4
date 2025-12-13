@@ -58,7 +58,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 		try {
 			// Socket.IO se connecte automatiquement
 			const newSocket = io(WS_URL, {
-				path: "/socket.io",
+				path: "/api/socket.io",
 				transports: ["websocket", "polling"], // Permettre polling puis upgrade vers websocket
 				reconnection: false, // On gère la reconnexion manuellement
 				autoConnect: true,

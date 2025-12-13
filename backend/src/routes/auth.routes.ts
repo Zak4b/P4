@@ -3,7 +3,7 @@ import auth from "../services/auth.service.js";
 import { z } from "zod";
 import { registerSchema, loginSchema } from "../lib/zod-schemas.js";
 
-const SECURE = process.env.NODE_ENV === "production"
+const SECURE = false; //process.env.NODE_ENV === "production"
 
 export async function authRoutes(fastify: FastifyInstance) {
 	// Validation helper
@@ -32,15 +32,6 @@ export async function authRoutes(fastify: FastifyInstance) {
 				const { login, email, password } = request.body;
 
 				const result = await auth.register(login, email, password);
-
-				reply.setCookie(auth.cookieName, result.token, {
-					signed: false, // Non signé car le JWT est déjà signé
-					httpOnly: true,
-					secure: false, //process.env.NODE_ENV === "production",
-					sameSite: "none",
-					path: "/",
-					maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
-				});
 
 				reply.status(201).send({
 					success: true,
@@ -111,14 +102,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 	});
 
 	// Déconnexion
-	fastify.post(
-		"/logout",
-		{
-			schema: {
-				body: {}, // Schema vide pour permettre un body vide
-			},
-		},
-		async (request: FastifyRequest, reply: FastifyReply) => {
+	fastify.post("/logout", async (request: FastifyRequest, reply: FastifyReply) => {
 			reply.clearCookie(auth.cookieName, {
 				httpOnly: true,
 				secure: SECURE,
