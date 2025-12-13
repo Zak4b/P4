@@ -80,27 +80,31 @@ const PodiumPlace = (
 					},
 				]}
 			>
-				<Box sx={{ position: "absolute", top: 8, right: 8 }}>
-					{config.icon}
-				</Box>
-				<Box sx={{ mb: 2 }}>
-					<Typography variant={config.rankVariant} fontWeight={700} color="text.secondary">
-						#{position}
-					</Typography>
-				</Box>
-				<UserAvatar
-					login={player?.login ?? "Unknown"}
-					sx={{ width: config.avatarSize, height: config.avatarSize, mx: "auto", mb: 2 }}
-				/>
-				<Typography variant={config.nameVariant} fontWeight={600} sx={{ mb: 1 }}>
-					{player?.login ?? "Unknown"}
-				</Typography>
-				<Typography variant={config.eloVariant} fontWeight={700} color="primary">
-					{player?.eloRating ?? "Unknown"}
-				</Typography>
-				<Typography variant={position === 1 ? "body1" : "body2"} color="text.secondary" fontWeight={position === 1 ? 600 : 400}>
-					ELO
-				</Typography>				
+				{player ? (
+					<>
+						<Box sx={{ position: "absolute", top: 8, right: 8 }}>
+							{config.icon}
+						</Box>
+						<Box sx={{ mb: 2 }}>
+							<Typography variant={config.rankVariant} fontWeight={700} color="text.secondary">
+								#{position}
+							</Typography>
+						</Box>
+						<UserAvatar
+							login={player?.login ?? "Unknown"}
+							sx={{ width: config.avatarSize, height: config.avatarSize, mx: "auto", mb: 2 }}
+						/>
+						<Typography variant={config.nameVariant} fontWeight={600} sx={{ mb: 1 }}>
+							{player?.login ?? "Unknown"}
+						</Typography>
+						<Typography variant={config.eloVariant} fontWeight={700} color="primary">
+							{player?.eloRating ?? "Unknown"}
+						</Typography>
+						<Typography variant={position === 1 ? "body1" : "body2"} color="text.secondary" fontWeight={position === 1 ? 600 : 400}>
+							ELO
+						</Typography>		
+					</>
+				) : null}
 			</Paper>
 		</Grid>
 	);
