@@ -36,7 +36,7 @@ export default function ProfilePage() {
 	const { user } = useAuth();
 	const [stats, setStats] = useState<UserStats | null>(null);
 	const winrate = useMemo(() => {
-		return stats ? Math.round((stats.wins / stats.totalGames) * 100) : 0;
+		return (stats && stats.totalGames > 0) ? Math.round((stats.wins / stats.totalGames) * 100) : 0;
 	}, [stats]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState("");
