@@ -33,6 +33,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 	const { isAuthenticated, isAuthReady } = useAuth();
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [isConnected, setIsConnected] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const [uuid, setUuid] = useState<string | null>(null);
 	const [roomId, setRoomIdState] = useState<string | null>(null);
 	const [playerId, setPlayerIdState] = useState<number | null>(null);
@@ -92,23 +93,29 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 				setRoomIdState(null);
 				setPlayerIdState(null);
 
-				// Tentative de reconnexion si l'utilisateur est toujours authentifié
-				if (isAuthenticated && reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
-					reconnectAttempts.current++;
-					const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000); // Backoff exponentiel, max 30s
-
-					reconnectTimeoutRef.current = setTimeout(() => {
-						connect();
-					}, delay);
+				if (!isAuthenticated) {
+					setError("User not authenticated");
+					return;
 				}
+
+				if (reconnectAttempts.current >= MAX_RECONNECT_ATTEMPTS) {
+					setError("Server is not responding");
+					return;
+				}
+				reconnectAttempts.current++;
+				const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000); // Backoff exponentiel, max 30s
+
+				reconnectTimeoutRef.current = setTimeout(() => {
+					connect();
+				}, delay);
 			});
 
 			newSocket.on("connect_error", (error) => {
-				console.error("Socket.IO connection error:", error);
+				setError("Error while connecting to the server: " + error.message);
 				setIsConnected(false);
 			});
-		} catch (error) {
-			console.error("Failed to create Socket.IO connection:", error);
+		} catch {
+			setError("Error")
 			setIsConnected(false);
 		}
 	};

@@ -56,8 +56,6 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 		}
 	};
 
-	// Déterminer si le joueur peut jouer (turn-based + pas de win/draw/loading)
-	// Note: La vérification complète reste faite dans playMove côté provider
 	const isLoading = gameState.loading;
 	const canPlay = !gameState.isWin && !gameState.isDraw && !isLoading && playerId === gameState.currentPlayer;
 

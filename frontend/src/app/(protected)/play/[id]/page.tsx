@@ -36,15 +36,6 @@ export default function PlayPage() {
 		}
 	}, []);
 
-	if (!socket) {
-		return (
-			<Box display="flex" flexDirection="column" alignItems="center" gap={2} py={4}>
-				<CircularProgress />
-				<Alert severity="info">Initialisation de la connexion...</Alert>
-			</Box>
-		);
-	}
-
 	if (!isConnected) {
 		return (
 			<Box display="flex" flexDirection="column" alignItems="center" gap={2} py={4}>
