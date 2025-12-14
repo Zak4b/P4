@@ -3,32 +3,27 @@
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import {
-	AppBar,
-	Toolbar,
-	Typography,
-	Button,
-	Box,
-	Menu,
-	MenuItem,
-	Divider,
-	ListItemIcon,
-} from "@mui/material";
-import {
-	PlayArrow as PlayIcon,
-	History as HistoryIcon,
-	MeetingRoom as RoomIcon,
-	Logout as LogoutIcon,
-	AccountCircle as AccountIcon,
-	Settings as SettingsIcon,
-	EmojiEvents as TrophyIcon,
-} from "@mui/icons-material";
-import { useAuth } from "../AuthContext";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Divider from "@mui/material/Divider";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import IconButton from "@mui/material/IconButton";
+import { useTheme, useMediaQuery } from "@mui/material";
+import PlayIcon from "@mui/icons-material/PlayArrow";
+import HistoryIcon from "@mui/icons-material/History";
+import RoomIcon from "@mui/icons-material/MeetingRoom";
+import TrophyIcon from "@mui/icons-material/EmojiEvents";
+import MenuIcon from "@mui/icons-material/Menu";
 import {
 	appBarStyles,
 	layoutStyles,
 } from "@/lib/styles";
-import UserAvatar from "../UserAvatar";
+import UserMenu from "./UserMenu";
 
 interface NavButtonProps {
 	href: string;
@@ -37,14 +32,32 @@ interface NavButtonProps {
 	pathname: string;
 }
 
+const navOptions = [
+	{
+		href: "/play",
+		icon: <PlayIcon />,
+		label: "Play",
+	},
+	{
+		href: "/history",
+		icon: <HistoryIcon />,
+		label: "History",
+	},
+	{
+		href: "/leaderboard",
+		icon: <TrophyIcon />,
+		label: "Leaderboard",
+	},
+];
+
 function NavButton({ href, icon, children, pathname }: NavButtonProps) {
 	const isActive = pathname === href;
 	return (
-		<Link href={href} style={{ textDecoration: "none", color: "inherit" }}>
+		<Link href={href} style={{ textDecoration: "none" }}>
 			<Button
 				color="inherit"
 				startIcon={icon}
-				sx={isActive ? { ...(appBarStyles.navButton), bgcolor: "rgba(255, 255, 255, 0.2)" } : appBarStyles.navButton}
+				sx={isActive ? appBarStyles.navButtonActive : appBarStyles.navButton}
 			>
 				{children}
 			</Button>
@@ -57,22 +70,18 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
-	const { logout, user } = useAuth();
 	const pathname = usePathname();
-	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-	const open = Boolean(anchorEl);
+	const theme = useTheme();
+	const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+	const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(null);
+	const mobileMenuOpen = Boolean(mobileMenuAnchor);
 
-	const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
-		setAnchorEl(event.currentTarget);
+	const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+		setMobileMenuAnchor(event.currentTarget);
 	};
 
-	const handleMenuClose = () => {
-		setAnchorEl(null);
-	};
-
-	const handleLogout = async () => {
-		await logout();
-		setAnchorEl(null);
+	const handleMobileMenuClose = () => {
+		setMobileMenuAnchor(null);
 	};
 
 	return (
@@ -80,115 +89,97 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 			position="fixed"
 			sx={appBarStyles.gradientAppBar}
 		>
-			<Toolbar>
+			<Toolbar sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
+				{isMobile && (
+					<IconButton
+						color="inherit"
+						edge="start"
+						onClick={handleMobileMenuOpen}
+						sx={{ mr: 1 }}
+					>
+						<MenuIcon />
+					</IconButton>
+				)}
+
 				<Typography
 					variant="h6"
 					component={Link}
 					href="/"
 					sx={{
-						flexGrow: 0,
-						mr: 4,
+						flexGrow: { xs: 1, md: 0 },
+						mr: { xs: 1, md: 4 },
 						fontWeight: 700,
 						cursor: "pointer",
 						color: "inherit",
 						textDecoration: "none",
+						fontSize: { xs: "1rem", sm: "1.25rem" },
 					}}
 				>
 					🎮 P4 Game
 				</Typography>
 
-				<Box sx={{ ...(layoutStyles.flexCenter), flexGrow: 1 }}>
-					<NavButton href="/play" icon={<PlayIcon />} pathname={pathname || ""}>
-						Play
-					</NavButton>
-					<NavButton
-						href="/history"
-						icon={<HistoryIcon />}
-						pathname={pathname || ""}
-					>
-						History
-					</NavButton>
-					<NavButton
-						href="/leaderboard"
-						icon={<TrophyIcon />}
-						pathname={pathname || ""}
-					>
-						Leaderboard
-					</NavButton>
+				{/* Desktop Navigation */}
+				<Box
+					sx={{
+						...(layoutStyles.flexCenter),
+						flexGrow: 1,
+						display: { xs: "none", md: "flex" },
+					}}
+				>
+					{navOptions.map((option) => (
+						<NavButton key={option.href} href={option.href} icon={option.icon} pathname={pathname || ""}>
+							{option.label}
+						</NavButton>
+					))}
 				</Box>
 
+				{/* Desktop Rooms Button */}
 				<Button
 					color="inherit"
 					startIcon={<RoomIcon />}
 					onClick={onRoomsClick}
-					sx={{ ...appBarStyles.navButtonActive, mr: 2 }}
+					sx={{
+						...appBarStyles.navButtonActive,
+						mr: { xs: 0, md: 2 },
+						display: { xs: "none", md: "flex" },
+					}}
 				>
 					Rooms
 				</Button>
 
-						{user && (
-					<>
-							<UserAvatar
-								login={user.login}
-								size={50}
-								onClick={handleAvatarClick}
-								sx={{
-									ml: 2,
-									border: "2px solid rgba(255, 255, 255, 0.5)",
-									"&:hover": {
-										borderColor: "white",
-										cursor: "pointer",
-									},
-								}}
-							/>
-						<Menu
-							anchorEl={anchorEl}
-							open={open}
-							onClose={handleMenuClose}
-							onClick={handleMenuClose}
-							transformOrigin={{ horizontal: "right", vertical: "top" }}
-							anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+				<UserMenu isMobile={isMobile} />
+
+				{/* Mobile Menu */}
+				<Menu
+					anchorEl={mobileMenuAnchor}
+					open={mobileMenuOpen}
+					onClose={handleMobileMenuClose}
+					transformOrigin={{ horizontal: "left", vertical: "top" }}
+					anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
+					sx={{ display: { md: "none" } }}
+				>
+					{navOptions.map((option) => (
+						<MenuItem
+							key={option.href}
+							component={Link}
+							href={option.href}
+							onClick={handleMobileMenuClose}
+							selected={pathname === option.href}
 						>
-							<Box sx={{ px: 2, py: 1.5 }}>
-								<Box sx={layoutStyles.flexCenter}>
-									<UserAvatar
-										login={user.login}
-										size={40}
-										sx={{ bgcolor: "primary.main" }}
-									/>
-									<Box sx={{ ml: 1.5 }}>
-										<Typography variant="body2" fontWeight={600}>
-											{user.login}
-										</Typography>
-										<Typography variant="caption" color="text.secondary">
-											{user.email}
-										</Typography>
-									</Box>
-								</Box>
-							</Box>
-							<Divider />
-							<MenuItem component={Link} href="/profile">
-								<ListItemIcon>
-									<AccountIcon fontSize="small" />
-								</ListItemIcon>
-								Mon compte
-							</MenuItem>
-							<MenuItem component={Link} href="/settings">
-								<ListItemIcon>
-									<SettingsIcon fontSize="small" />
-								</ListItemIcon>
-								Paramètres
-							</MenuItem>
-							<Divider />
-							<MenuItem onClick={handleLogout}>
-								<ListItemIcon>
-									<LogoutIcon fontSize="small" />
-								</ListItemIcon>
-								Logout
-							</MenuItem>
-						</Menu>
-					</>
-				)}
+							<ListItemIcon>
+								{option.icon}
+							</ListItemIcon>
+							{option.label}
+						</MenuItem>
+					))}
+					<Divider />
+					<MenuItem onClick={() => { onRoomsClick(); handleMobileMenuClose(); }}>
+						<ListItemIcon>
+							<RoomIcon fontSize="small" />
+						</ListItemIcon>
+						Rooms
+					</MenuItem>
+				</Menu>
 			</Toolbar>
 		</AppBar>
 	);
