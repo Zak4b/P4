@@ -50,6 +50,7 @@ export function authRoutes(fastify: FastifyInstance) {
 			reply.status(200).send({
 				success: true,
 				message: "Login successful",
+				user: result.user,
 			});
 		} catch (error) {
 			if (error instanceof Error) {
