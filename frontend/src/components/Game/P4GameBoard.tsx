@@ -13,9 +13,10 @@ interface P4GameBoardProps {
 
 type TokenColor = "empty" | "player1" | "player2";
 
-const CELL_SIZE = 80;
 const BOARD_COLS = 7;
 const BOARD_ROWS = 6;
+/* Rapport 7:6 pour conserver les proportions (7 colonnes, 6 rangées) */
+const GRID_ASPECT_RATIO = BOARD_COLS / BOARD_ROWS;
 
 const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 	const {
@@ -60,15 +61,14 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 	const canPlay = !gameState.isWin && !gameState.isDraw && !isLoading && playerId === gameState.currentPlayer;
 
 	return (
-		<Box>
+		<Box sx={{ width: "100%", maxWidth: "min(560px, 95vw)", mx: "auto" }}>
 			<Paper
 				elevation={4}
 				sx={{
-					p: 2,
+					p: { xs: 1, lg: 2 },
 					background: gradients.background,
 					borderRadius: 3,
-					maxWidth: BOARD_COLS * CELL_SIZE + 32,
-					mx: "auto",
+					width: "100%",
 					position: "relative",
 				}}
 			>
@@ -76,50 +76,17 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 					sx={{
 						display: "grid",
 						gridTemplateColumns: `repeat(${BOARD_COLS}, 1fr)`,
-						gap: 1,
+						gridTemplateRows: `repeat(${BOARD_ROWS}, 1fr)`,
+						gap: { xs: 0.5, lg: 1 },
 						background: "#9c9c9c",
-						p: 1,
+						p: { xs: 0.5, lg: 1 },
 						borderRadius: 2,
 						position: "relative",
+						aspectRatio: GRID_ASPECT_RATIO,
+						width: "100%",
+						minHeight: 0,
 					}}
 				>
-					{/* Colonnes cliquables */}
-					{Array(BOARD_COLS)
-						.fill(0)
-						.map((_, x) => (
-							<Box
-								key={`col-header-${x}`}
-								onClick={(e) => {
-									e.stopPropagation();
-									handleColumnClick(x);
-								}}
-								sx={{
-									gridColumn: x + 1,
-									gridRow: 1,
-									height: CELL_SIZE / 2,
-									cursor: canPlay ? "pointer" : "default",
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "center",
-									borderRadius: 1,
-									transition: "background 0.2s",
-									position: "relative",
-									zIndex: 10, // Au-dessus des cellules
-									"&:hover": canPlay
-										? {
-												background: "rgba(99, 102, 241, 0.1)",
-										  }
-										: {},
-								}}
-							>
-								{canPlay && (
-									<Typography variant="caption" color="primary" fontWeight={600}>
-										↓
-									</Typography>
-								)}
-							</Box>
-						))}
-
 					{/* Grille du jeu */}
 					{Array(BOARD_ROWS)
 						.fill(0)
@@ -147,7 +114,7 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 											}}
 											sx={{
 												gridColumn: col + 1,
-												gridRow: row + 2, // Row 2+ car la première row est pour les headers
+												gridRow: row + 1,
 												aspectRatio: 1,
 												position: "relative",
 												display: "flex",
