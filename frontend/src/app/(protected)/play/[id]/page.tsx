@@ -46,12 +46,28 @@ export default function PlayPage() {
 	}
 
 	return (
-		<Box display="flex" gap={3} alignItems="flex-start" flexWrap="wrap">
-			<Box flex="0 0 260px">
-				<PlayerIndicator players={players} activePlayerIndex={activePlayerIndex} />
-			</Box>
-			<Box flex="1 1 auto" minWidth="360px">
+		<Box
+			display="flex"
+			flexDirection={{ xs: "column", lg: "row" }}
+			gap={{ xs: 2, lg: 3 }}
+			alignItems={{ xs: "stretch", lg: "flex-start" }}
+			width="100%"
+		>
+			{/* Grille en premier jusqu'à lg, à droite sur lg+ */}
+			<Box order={{ xs: 1, lg: 2 }} flex={{ lg: "1 1 auto" }} minWidth={0}>
 				<P4GameBoard roomId={roomId} setActivePlayer={handlePlayerStateChange} />
+			</Box>
+			{/* Indicateur joueur sous la grille jusqu'à lg, à gauche sur lg+ — même largeur que la grille en colonne */}
+			<Box
+				order={{ xs: 2, lg: 1 }}
+				flex={{ lg: "0 0 260px" }}
+				width={{ xs: "100%", lg: "auto" }}
+				sx={{
+					maxWidth: { xs: "min(560px, 95vw)", lg: "none" },
+					mx: { xs: "auto", lg: 0 },
+				}}
+			>
+				<PlayerIndicator players={players} activePlayerIndex={activePlayerIndex} />
 			</Box>
 		</Box>
 	);

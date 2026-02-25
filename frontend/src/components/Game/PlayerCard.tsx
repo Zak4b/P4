@@ -27,33 +27,40 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 			sx={{
 				display: "flex",
 				alignItems: "center",
-				gap: 1.5,
-				p: 1.5,
+				gap: { xs: 1, lg: 1.5 },
+				p: { xs: 1, lg: 1.5 },
 				borderRadius: 2,
 				bgcolor: bgColor,
 				border: `${borderWidth}px solid ${borderColor}`,
 				boxShadow: isActive ? `0 0 16px rgba(${isPlayer1 ? "239, 68, 68" : "245, 158, 11"}, 0.35)` : "none",
+				flex: { xs: "1 1 0", lg: "none" },
+				minWidth: 0,
 			}}
 		>
 			<Avatar
 				src={player.name ? getAvatarUrl(player.name) : undefined}
 				sx={{
-					width: 48,
-					height: 48,
+					width: { xs: 36, lg: 48 },
+					height: { xs: 36, lg: 48 },
+					minWidth: { xs: 36, lg: 48 },
 					bgcolor: isPlayer1 ? "error.main" : "warning.main",
 					border: isActive ? "3px solid white" : "2px solid rgba(255,255,255,0.35)",
 					boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.35)" : "none",
 				}}
 			>
-				<PersonIcon />
+				<PersonIcon sx={{ fontSize: { xs: 20, lg: 28 } }} />
 			</Avatar>
-			<Box sx={{ flex: 1 }}>
+			<Box sx={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
 				<Typography
 					variant="subtitle1"
 					sx={{
 						color: waitingForName ? "rgba(255,255,255,0.7)" : "white",
 						fontWeight: isActive ? 700 : 600,
 						lineHeight: 1.1,
+						fontSize: { xs: "0.875rem", lg: "1rem" },
+						overflow: "hidden",
+						textOverflow: "ellipsis",
+						whiteSpace: "nowrap",
 						...(waitingForName && {
 							"@keyframes pulse": {
 								"0%": { opacity: 0.6 },
@@ -75,7 +82,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 						bgcolor: isPlayer1 ? "error.dark" : "warning.dark",
 						color: "white",
 						fontWeight: 700,
-						height: 22,
+						height: { xs: 20, lg: 22 },
+						fontSize: { xs: "0.7rem", lg: "0.8125rem" },
 					}}
 				/>
 			)}
