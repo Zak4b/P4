@@ -31,6 +31,16 @@ export interface JoinResponse {
 	error?: string;
 }
 
+export interface PlayersEvent {
+	localId: number;
+	name: string;
+}
+
+export interface PlayerJoinedEvent {
+	localId: number;
+	name: string;
+}
+
 export interface MessageEvent {
 	clientId: string;
 	displayName?: string;

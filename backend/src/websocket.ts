@@ -42,8 +42,25 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 				roomId: player.room!.id,
 				playerId: player.localId ?? undefined,
 			});
-			
+
+			// Envoyer la liste des joueurs connectés au nouveau joueur
+			const playersData = player.room!.playerList.map((p) => ({
+				localId: p.localId!,
+				name: p.displayName,
+			}));
+			player.send({ type: "players", data: playersData });
+
 			player.send({ type: "sync", data: getSyncData(player) });
+
+			// Notifier les autres joueurs de la nouvelle connexion
+			player.room!.playerList.forEach((p) => {
+				if (p.uuid !== player.uuid) {
+					p.send({
+						type: "player-joined",
+						data: { localId: player.localId!, name: player.displayName },
+					});
+				}
+			});
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : "Failed to join room";
 			const errorResponse: JoinResponse = {

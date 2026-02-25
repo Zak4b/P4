@@ -7,6 +7,8 @@ export const useGameWebSocket = () => {
 	const { socket, isConnected, uuid, setRoomId, setPlayerId } = useWebSocket();
 	const handlePlay = useGameStore((state) => state.handlePlay);
 	const handleSync = useGameStore((state) => state.handleSync);
+	const handlePlayers = useGameStore((state) => state.handlePlayers);
+	const handlePlayerJoined = useGameStore((state) => state.handlePlayerJoined);
 	const handleDraw = useGameStore((state) => state.handleDraw);
 	const handleRestart = useGameStore((state) => state.handleRestart);
 	const handleJoin = useGameStore((state) => state.handleJoin);
@@ -65,8 +67,18 @@ export const useGameWebSocket = () => {
 			handleDraw();
 		};
 
+		const playersHandler = (data: { localId: number; name: string }[]) => {
+			handlePlayers(data);
+		};
+
+		const playerJoinedHandler = (data: { localId: number; name: string }) => {
+			handlePlayerJoined(data);
+		};
+
 		// Enregistrer les listeners
 		socket.on("sync", syncHandler);
+		socket.on("players", playersHandler);
+		socket.on("player-joined", playerJoinedHandler);
 		socket.on("play", playHandler);
 		socket.on("win", winHandler);
 		socket.on("game-win", gameWinHandler);
@@ -76,12 +88,14 @@ export const useGameWebSocket = () => {
 		return () => {
 			// Nettoyer les listeners
 			socket.off("sync", syncHandler);
+			socket.off("players", playersHandler);
+			socket.off("player-joined", playerJoinedHandler);
 			socket.off("play", playHandler);
 			socket.off("win", winHandler);
 			socket.off("game-win", gameWinHandler);
 			socket.off("draw", drawHandler);
 			socket.off("game-draw", gameDrawHandler);
 		};
-	}, [socket, isConnected, handlePlay, handleSync, handleWinWithUuid, handleDraw, handleRestart, handleJoin, uuid, setRoomId, setPlayerId]);
+	}, [socket, isConnected, handlePlay, handleSync, handlePlayers, handlePlayerJoined, handleWinWithUuid, handleDraw, handleRestart, handleJoin, uuid, setRoomId, setPlayerId]);
 };
 
