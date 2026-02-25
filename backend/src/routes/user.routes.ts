@@ -1,6 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import {UserService} from "../services/user.service.js";
-import { generateAvatar } from "../lib/avatar.js";
 import { HttpError } from "../lib/HttpError.js";
 
 export function userRoutes(fastify: FastifyInstance) {
@@ -25,12 +24,6 @@ export function userRoutes(fastify: FastifyInstance) {
 			throw HttpError.notFound("User not found");
 		}
 		reply.send(stats);
-	});
-
-	fastify.get("/:id/avatar", async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-		const { id } = request.params;
-		const svg = generateAvatar(id, "micah");
-		reply.type("image/svg+xml").send(svg);
 	});
 
 	fastify.get("/leaderboard", async (request: FastifyRequest, reply: FastifyReply) => {
