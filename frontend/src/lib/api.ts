@@ -45,6 +45,10 @@ export interface Room {
 
 export interface UserStats {
 	eloRating: number;
+	xp: number;
+	level: number;
+	xpInCurrentLevel: number;
+	xpRequiredForNextLevel: number;
 	totalGames: number;
 	wins: number;
 	losses: number;
@@ -122,8 +126,8 @@ class ApiClient {
 		return this.request<UserStats>(`/user/${encodeURIComponent(id)}/stats`);
 	}
 
-	async getLeaderboard(): Promise<Array<{ id: string; login: string; eloRating: number }>> {
-		return this.request<Array<{ id: string; login: string; eloRating: number }>>("/user/leaderboard");
+	async getLeaderboard(): Promise<Array<{ id: string; login: string; eloRating: number; xp: number; level: number }>> {
+		return this.request<Array<{ id: string; login: string; eloRating: number; xp: number; level: number }>>("/user/leaderboard");
 	}
 
 }

@@ -12,6 +12,8 @@ interface LeaderboardPlayer {
 	id: string;
 	login: string;
 	eloRating: number;
+	xp?: number;
+	level?: number;
 }
 
 interface LeaderboardEntryProps {
@@ -45,8 +47,8 @@ export default function LeaderboardEntry({
 				border: border,
 				opacity: player ? 1 : 0.5,
 				"&:hover": {
-					background: background === "rgba(255, 255, 255, 0.7)" 
-						? "rgba(255, 255, 255, 0.9)" 
+					background: background === "rgba(255, 255, 255, 0.7)"
+						? "rgba(255, 255, 255, 0.9)"
 						: background,
 					transition: background === "rgba(255, 255, 255, 0.7)"
 						? "background-color 0.2s ease-in-out"

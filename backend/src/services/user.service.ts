@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { hashPassword, comparePassword } from "../lib/password.js";
+import { getLevelFromXp } from "../lib/xp.js";
 
 export namespace UserService {
 	export const getById = async (id: string) => {
@@ -27,11 +28,14 @@ export namespace UserService {
 			select: {
 				id: true,
 				eloRating: true,
+				xp: true,
 			},
 		});
 		if (!user) {
 			return null;
 		}
+
+		const levelInfo = getLevelFromXp(user.xp);
 
 		const [stats] = await prisma.$queryRaw<Array<{
 			totalGames: bigint;
@@ -58,6 +62,10 @@ export namespace UserService {
 
 		return {
 			eloRating: user.eloRating,
+			xp: user.xp,
+			level: levelInfo.level,
+			xpInCurrentLevel: levelInfo.xpInCurrentLevel,
+			xpRequiredForNextLevel: levelInfo.xpRequiredForNextLevel,
 			totalGames: Number(stats.totalGames),
 			wins: Number(stats.wins),
 			losses: Number(stats.losses),
@@ -97,17 +105,22 @@ export namespace UserService {
 	};
 
 	export const getLeaderboard = async (limit: number = 10) => {
-		return await prisma.user.findMany({
+		const users = await prisma.user.findMany({
 			select: {
 				id: true,
 				login: true,
 				eloRating: true,
+				xp: true,
 			},
 			orderBy: {
 				eloRating: "desc",
-			}, 
+			},
 			take: limit,
 		});
+		return users.map((u) => ({
+			...u,
+			level: getLevelFromXp(u.xp).level,
+		}));
 	};
 	
 	export const update = async (id: string, data: Prisma.UserUpdateInput) => {

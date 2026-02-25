@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import { GameWinner, Prisma } from "@prisma/client";
 import { calculateNewElo } from "../lib/elo.js";
+import { calculateXpGain } from "../lib/xp.js";
 
 export namespace GameService {
 
@@ -22,10 +23,18 @@ export namespace GameService {
 
 		return { elo1: player1.eloRating, elo2: player2.eloRating };
 	}
+
+	function getXpGains(result: GameWinner): { xp1: number; xp2: number } {
+		return {
+			xp1: calculateXpGain(result, true),
+			xp2: calculateXpGain(result, false),
+		};
+	}
 	
 	async function save(id1: string, id2: string, result: GameWinner, duration: number, board: Prisma.InputJsonValue) {
 		if (id1 && id2) { // TODO check for empty room / missing players
 			const { elo1, elo2 } = await getPlayersElos(id1, id2);
+			const { xp1, xp2 } = getXpGains(result);
 
 			const {1: newElo1, 2: newElo2, delta1, delta2} = calculateNewElo(elo1, elo2, result);
 	
@@ -43,11 +52,11 @@ export namespace GameService {
 				}),
 				prisma.user.update({
 					where: { id: id1 },
-					data: { eloRating: newElo1 },
+					data: { eloRating: newElo1, xp: { increment: xp1 } },
 				}),
 				prisma.user.update({
 					where: { id: id2 },
-					data: { eloRating: newElo2 },
+					data: { eloRating: newElo2, xp: { increment: xp2 } },
 				}),
 			]);
 		} else {

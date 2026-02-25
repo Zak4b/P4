@@ -213,6 +213,40 @@ export default function ProfilePage() {
 									</Grid>
 									<Grid size={{ xs: 12 }}>
 										<Divider sx={dividerStyles.standard} />
+										<Box sx={{ mb: 2 }}>
+											<Box sx={[layoutStyles.flexCenter, { gap: 1, mb: 1 }]}>
+												<Typography variant="subtitle1" fontWeight={600}>
+													Niveau {stats.level}
+												</Typography>
+											</Box>
+											<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+												<Box
+													sx={{
+														flex: 1,
+														height: 8,
+														bgcolor: "action.hover",
+														borderRadius: 1,
+														overflow: "hidden",
+													}}
+												>
+													<Box
+														sx={{
+															height: "100%",
+															width: `${stats.xpRequiredForNextLevel > 0 ? (stats.xpInCurrentLevel / stats.xpRequiredForNextLevel) * 100 : 100}%`,
+															bgcolor: "primary.main",
+															borderRadius: 1,
+															transition: "width 0.3s ease",
+														}}
+													/>
+												</Box>
+												<Typography variant="caption" color="text.secondary" sx={{ minWidth: 80 }}>
+													{stats.xpInCurrentLevel} / {stats.xpRequiredForNextLevel} XP
+												</Typography>
+											</Box>
+											<Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+												{stats.xp} XP total
+											</Typography>
+										</Box>
 										<Grid container spacing={2}>
 											<Grid size={{ xs: 6 }}>
 												<Box textAlign="center">
