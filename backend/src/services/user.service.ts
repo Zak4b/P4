@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { hashPassword, comparePassword } from "../lib/password.js";
 import { getLevelFromXp } from "../lib/xp.js";
+import crypto from "node:crypto";
 
 export namespace UserService {
 	export const getById = async (id: string) => {
@@ -88,11 +89,39 @@ export namespace UserService {
 	export const verifyCredentials = async (email: string, passwordPlain: string) => {
 		const user = await getByEmail(email);
 		if (!user) return null;
-	
+
 		const isValid = await comparePassword(passwordPlain, user.password);
 		if (!isValid) return null;
-	
+
 		return user;
+	};
+
+	/** Trouver ou créer un utilisateur à partir du profil Google */
+	export const findOrCreateByGoogle = async (googleId: string, email: string, displayName: string) => {
+		let user = await prisma.user.findUnique({ where: { googleId } });
+		if (user) return user;
+
+		user = await getByEmail(email);
+		if (user) {
+			return await prisma.user.update({
+				where: { id: user.id },
+				data: { googleId },
+			});
+		}
+
+		const baseLogin = (displayName || email.split("@")[0] || "user").replace(/\s+/g, "_").slice(0, 35);
+		let login = baseLogin;
+		let suffix = 0;
+		while (await getByLogin(login)) {
+			login = `${baseLogin}_${++suffix}`.slice(0, 40);
+		}
+
+		const randomPassword = crypto.randomBytes(32).toString("hex");
+		const password = await hashPassword(randomPassword);
+
+		return await prisma.user.create({
+			data: { login, email, password, googleId },
+		});
 	};
 	
 	export const listAll = async () => {

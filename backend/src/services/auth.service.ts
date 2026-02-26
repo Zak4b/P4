@@ -1,4 +1,4 @@
-import {UserService} from "./user.service.js";
+import { UserService } from "./user.service.js";
 import { generateToken, verifyToken, JWTPayload } from "../lib/jwt.js";
 
 // Type pour les requêtes Fastify
@@ -14,7 +14,7 @@ const getToken = (req: RequestLike): string | null => {
 	// Essayer d'abord depuis les cookies
 	const token = req.cookies[cookieName];
 	if (token) {
-			return token;
+		return token;
 	}
 
 	// Sinon, essayer depuis le header Authorization
@@ -83,7 +83,20 @@ const register = async (login: string, email: string, password: string): Promise
 	};
 };
 
-// Se connecter
+const loginWithGoogle = async (googleId: string, email: string, displayName: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
+	const userData = await UserService.findOrCreateByGoogle(googleId, email, displayName);
+	const token = generateToken({
+		id: userData.id,
+		email: userData.email,
+		login: userData.login,
+	});
+	return {
+		token,
+		user: { id: userData.id, login: userData.login, email: userData.email },
+	};
+};
+
+// Se connecter (email/password)
 const login = async (email: string, password: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
 	// Vérifier les identifiants
 	const userData = await UserService.verifyCredentials(email, password);
@@ -110,6 +123,7 @@ const login = async (email: string, password: string): Promise<{ token: string; 
 
 export default {
 	login,
+	loginWithGoogle,
 	register,
 	isLogged,
 	getUserFromRequest,

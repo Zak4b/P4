@@ -15,6 +15,7 @@ model User {
   login     String   @unique @db.VarChar(40)
   email     String   @unique @db.VarChar(255)
   password  String
+  googleId  String?  @unique @db.VarChar(255)
   eloRating Int      @default(400)
   xp        Int      @default(0)
   gamesAsP1 Game[]   @relation("Player1")

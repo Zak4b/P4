@@ -4,6 +4,7 @@ dotenv.config();
 import Fastify from "fastify";
 import { env } from "./config/env.js";
 import { registerPlugins } from "./config/plugins.js";
+import { registerOAuth2 } from "./config/oauth2.js";
 import { setupSocketIO } from "./config/socket.js";
 import { setupErrorHandlers } from "./config/error-handlers.js";
 import { routes } from "./routes/routes.js";
@@ -15,6 +16,7 @@ const fastify = Fastify({
 });
 
 await registerPlugins(fastify);
+await registerOAuth2(fastify);
 
 setupSocketIO(fastify);
 

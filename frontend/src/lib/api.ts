@@ -102,6 +102,11 @@ class ApiClient {
 		return this.request<LoginStatus>("/auth/status");
 	}
 
+	/** URL pour initier la connexion Google (redirection) */
+	getGoogleLoginUrl(): string {
+		return `${API_BASE}/auth/google`;
+	}
+
 	// Game API endpoints
 	async getRooms(): Promise<Room[]> {
 		return this.request<Room[]>("/room");
