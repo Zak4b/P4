@@ -213,13 +213,11 @@ export default function ProfilePage() {
 									</Grid>
 									<Grid size={{ xs: 12 }}>
 										<Divider sx={dividerStyles.standard} />
-										<Box sx={{ mb: 2 }}>
-											<Box sx={[layoutStyles.flexCenter, { gap: 1, mb: 1 }]}>
-												<Typography variant="subtitle1" fontWeight={600}>
-													Niveau {stats.level}
-												</Typography>
-											</Box>
-											<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+										<Box sx={{ mb: 2, px: 6, display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+											<Typography variant="subtitle1" fontWeight={600}>
+												Niveau {stats.level}
+											</Typography>
+											<Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1, minWidth: 150 }}>
 												<Box
 													sx={{
 														flex: 1,
@@ -239,13 +237,10 @@ export default function ProfilePage() {
 														}}
 													/>
 												</Box>
-												<Typography variant="caption" color="text.secondary" sx={{ minWidth: 80 }}>
-													{stats.xpInCurrentLevel} / {stats.xpRequiredForNextLevel} XP
+												<Typography variant="caption" color="text.secondary" sx={{ minWidth: 70 }}>
+													{stats.xpInCurrentLevel}/{stats.xpRequiredForNextLevel}
 												</Typography>
 											</Box>
-											<Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
-												{stats.xp} XP total
-											</Typography>
 										</Box>
 										<Grid container spacing={2}>
 											<Grid size={{ xs: 6 }}>
