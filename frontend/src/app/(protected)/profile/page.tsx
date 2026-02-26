@@ -159,7 +159,7 @@ export default function ProfilePage() {
 							{ height: "100%" },
 						]}
 					>
-						<Stack spacing={3} alignItems="center">
+						<Stack spacing={3} alignItems="center" sx={{ py: 2 }}>
 							<Typography variant="h6" fontWeight={600} gutterBottom sx={layoutStyles.flexCenter}>
 								<TrophyIcon color="primary" />
 								Statistiques de jeu
