@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 
 const NotificationsButton: React.FC = () => {
-	const [notificationCount] = useState(100);
+	const [notificationCount] = useState(0);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
 
