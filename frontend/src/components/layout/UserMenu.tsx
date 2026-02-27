@@ -15,34 +15,41 @@ import PeopleIcon from "@mui/icons-material/People";
 import { layoutStyles } from "@/lib/styles";
 import UserAvatar from "../UserAvatar";
 import { useAuth } from "../AuthContext";
+import { useModalPortal } from "@/lib/hooks/useModalPortal";
 
 interface UserMenuProps {
 	isMobile: boolean;
 }
 
-const menuOptions = [
-	{
-		href: "/profile",
-		icon: <AccountIcon fontSize="small" />,
-		label: "Mon compte",
-	},
-	{
-		href: "/friends",
-		icon: <PeopleIcon fontSize="small" />,
-		label: "Amis",
-	},
-	{
-		href: "/settings",
-		icon: <SettingsIcon fontSize="small" />,
-		label: "Paramètres",
-	},
-];
+type MenuOption = {
+	icon: React.ReactNode;
+	label: string;
+} & (
+		| { type: "link"; href: string }
+		| { type: "action"; onClick: () => void }
+	);
 
 const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 	const { logout, user } = useAuth();
-
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
+
+	const friendsModal = useModalPortal({
+		title: "Amis",
+		content: "Liste",
+		size: "sm",
+	});
+
+	const menuOptions: MenuOption[] = [
+		{ type: "link", href: "/profile", icon: <AccountIcon fontSize="small" />, label: "Mon compte" },
+		{
+			type: "action",
+			onClick: friendsModal.open,
+			icon: <PeopleIcon fontSize="small" />,
+			label: "Amis",
+		},
+		{ type: "link", href: "/settings", icon: <SettingsIcon fontSize="small" />, label: "Paramètres" },
+	];
 
 	const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
 		setAnchorEl(event.currentTarget);
@@ -98,14 +105,19 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 					</Box>
 				</Box>
 				<Divider />
-				{menuOptions.map((option) => (
-					<MenuItem key={option.href} component={Link} href={option.href}>
-						<ListItemIcon>
-							{option.icon}
-						</ListItemIcon>
-						{option.label}
-					</MenuItem>
-				))}
+				{menuOptions.map((option) =>
+					option.type === "link" ? (
+						<MenuItem key={option.href} component={Link} href={option.href}>
+							<ListItemIcon>{option.icon}</ListItemIcon>
+							{option.label}
+						</MenuItem>
+					) : (
+						<MenuItem key={option.label} onClick={option.onClick}>
+							<ListItemIcon>{option.icon}</ListItemIcon>
+							{option.label}
+						</MenuItem>
+					)
+				)}
 				<Divider />
 				<MenuItem onClick={handleLogout}>
 					<ListItemIcon>
@@ -114,6 +126,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 					Déconnexion
 				</MenuItem>
 			</Menu>
+			{friendsModal.modal}
 		</>
 	);
 };
