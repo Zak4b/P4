@@ -214,36 +214,45 @@ export default function ProfilePage() {
 									</Grid>
 									<Grid size={{ xs: 12 }}>
 										<Divider sx={dividerStyles.standard} />
-										<Box sx={{ mb: 2, px: 6, display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-											<Typography variant="subtitle1" fontWeight={600}>
+										<Box
+											sx={{
+												mb: 2,
+												px: 6,
+												display: "flex",
+												alignItems: "center",
+												gap: 2,
+											}}
+										>
+											<Typography variant="subtitle1" fontWeight={600} sx={{ width: 90, flexShrink: 0 }}>
 												Niveau {stats.level}
 											</Typography>
-											<Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1, minWidth: 150 }}>
+											<Box
+												sx={{
+													flex: 1,
+													minWidth: 0,
+													height: 8,
+													borderRadius: 1,
+													overflow: "hidden",
+													border: "1px solid",
+													borderColor: "primary.main",
+												}}
+											>
 												<Box
 													sx={{
-														flex: 1,
-														height: 8,
-														bgcolor: "action.hover",
+														height: "100%",
+														width: `${stats.xpRequiredForNextLevel > 0 ? (stats.xpInCurrentLevel / stats.xpRequiredForNextLevel) * 100 : 100}%`,
+														background: "linear-gradient(90deg, #6366f1 0%, #ec4899 100%)",
 														borderRadius: 1,
-														overflow: "hidden",
-														border: "1px solid",
-														borderColor: "primary.main",
 													}}
-												>
-													<Box
-														sx={{
-															height: "100%",
-															width: `${stats.xpRequiredForNextLevel > 0 ? (stats.xpInCurrentLevel / stats.xpRequiredForNextLevel) * 100 : 100}%`,
-															background: "linear-gradient(90deg, #6366f1 0%, #ec4899 100%)",
-															borderRadius: 1,
-															transition: "width 0.3s ease",
-														}}
-													/>
-												</Box>
-												<Typography variant="caption" color="text.secondary" sx={{ minWidth: 70 }}>
-													{stats.xpInCurrentLevel}/{stats.xpRequiredForNextLevel}
-												</Typography>
+												/>
 											</Box>
+											<Typography
+												variant="caption"
+												color="text.secondary"
+												sx={{ width: 70, flexShrink: 0, ml: "auto", textAlign: "right" }}
+											>
+												{stats.xpInCurrentLevel}/{stats.xpRequiredForNextLevel}
+											</Typography>
 										</Box>
 										<Grid container spacing={2}>
 											<Grid size={{ xs: 6 }}>
