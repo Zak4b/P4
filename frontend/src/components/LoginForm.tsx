@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import {
 	Card,
 	CardContent,
@@ -30,7 +30,7 @@ interface LoginFormProps {
 	onLogin?: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
+function LoginFormContent({ onLogin }: LoginFormProps) {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
@@ -146,6 +146,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 				</CardContent>
 			</Card>
 		</Box>
+	);
+}
+
+const LoginForm: React.FC<LoginFormProps> = (props) => {
+	return (
+		<Suspense
+			fallback={
+				<Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+					<CircularProgress />
+				</Box>
+			}
+		>
+			<LoginFormContent {...props} />
+		</Suspense>
 	);
 };
 
