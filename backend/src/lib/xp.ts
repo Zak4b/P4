@@ -1,8 +1,8 @@
 import { GameWinner } from "@prisma/client";
 
-export const XP_PARTIE_JOUEE = 10;
-export const XP_VICTOIRE = 40;
-export const XP_MATCH_NUL = 15;
+export const XP_PARTIE_JOUEE = 100;
+export const XP_VICTOIRE = 400;
+export const XP_MATCH_NUL = 150;
 
 export function calculateXpGain(winner: GameWinner, isPlayer1: boolean): number {
 	let xp = XP_PARTIE_JOUEE;

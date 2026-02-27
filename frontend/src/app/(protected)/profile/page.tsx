@@ -226,13 +226,15 @@ export default function ProfilePage() {
 														bgcolor: "action.hover",
 														borderRadius: 1,
 														overflow: "hidden",
+														border: "1px solid",
+														borderColor: "primary.main",
 													}}
 												>
 													<Box
 														sx={{
 															height: "100%",
 															width: `${stats.xpRequiredForNextLevel > 0 ? (stats.xpInCurrentLevel / stats.xpRequiredForNextLevel) * 100 : 100}%`,
-															bgcolor: "primary.main",
+															background: "linear-gradient(90deg, #6366f1 0%, #ec4899 100%)",
 															borderRadius: 1,
 															transition: "width 0.3s ease",
 														}}
