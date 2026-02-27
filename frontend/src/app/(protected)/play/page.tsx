@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
 	Container,
@@ -21,9 +20,11 @@ import {
 } from "@mui/icons-material";
 import { colors } from "@/lib/styles";
 import RuleList from "@/components/Game/Rules/RuleList";
+import { useMatching } from "@/hooks/useMatching";
 
 export default function PlayIndexPage() {
 	const router = useRouter();
+	const { modal, startMatchmaking, isConnected } = useMatching();
 	const [joinRoomId, setJoinRoomId] = useState("");
 
 	const handleJoinSpecificRoom = (e: React.FormEvent) => {
@@ -55,8 +56,7 @@ export default function PlayIndexPage() {
 
 						<Stack spacing={2}>
 							<Button
-								component={Link}
-								href="/play/1"
+								onClick={startMatchmaking}
 								variant="contained"
 								size="large"
 								startIcon={<PlayArrow />}
@@ -70,9 +70,9 @@ export default function PlayIndexPage() {
 									boxShadow: "0 8px 16px -4px rgba(99, 102, 241, 0.4)",
 								}}
 							>
-								Quick Match (Room 1)
+								Quick Match
 							</Button>
-							
+
 							<Paper
 								component="form"
 								onSubmit={handleJoinSpecificRoom}
@@ -107,8 +107,8 @@ export default function PlayIndexPage() {
 									disabled={!joinRoomId.trim()}
 									variant="contained"
 									color="secondary"
-									sx={{ 
-										borderRadius: 2.5, 
+									sx={{
+										borderRadius: 2.5,
 										px: 3,
 										textTransform: "none",
 										fontWeight: "bold"
@@ -147,12 +147,13 @@ export default function PlayIndexPage() {
 								How to Play
 							</Typography>
 							<Paper variant="outlined" sx={{ borderRadius: 4, overflow: 'hidden' }}>
-									<RuleList />
+								<RuleList />
 							</Paper>
 						</Box>
 					</Stack>
 				</Grid>
 			</Grid>
+			{modal}
 		</Container>
 	);
 }

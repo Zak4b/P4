@@ -3,13 +3,22 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import Modal from "@/components/Modal";
 
+export interface UseModalPortalContext {
+	close: () => void;
+}
+
+export type UseModalPortalContent =
+	| React.ReactNode
+	| ((ctx: UseModalPortalContext) => React.ReactNode);
+
 export interface UseModalPortalOptions {
 	title?: string;
-	content: React.ReactNode;
+	content: UseModalPortalContent;
 	size?: "xs" | "sm" | "md" | "lg" | "xl";
 	scrollable?: boolean;
 	onClose?: () => void;
 	confirm?: () => void | Promise<void>;
+	closable?: boolean;
 }
 
 export interface UseModalPortalReturn {
@@ -17,6 +26,19 @@ export interface UseModalPortalReturn {
 	modal: React.ReactNode;
 	open: () => void;
 	close: () => void;
+}
+
+function ContentRenderer({
+	content,
+	onClose,
+}: {
+	content: UseModalPortalContent;
+	onClose: () => void;
+}) {
+	if (typeof content === "function") {
+		return <>{content({ close: onClose })}</>;
+	}
+	return <>{content}</>;
 }
 
 export function useModalPortal(options: UseModalPortalOptions): UseModalPortalReturn {
@@ -45,10 +67,11 @@ export function useModalPortal(options: UseModalPortalOptions): UseModalPortalRe
 				open={isOpen}
 				onClose={close}
 				title={options.title}
-				content={options.content}
+				content={<ContentRenderer content={options.content} onClose={close} />}
 				size={options.size}
 				scrollable={options.scrollable}
 				onConfirm={options.confirm}
+				closable={options.closable}
 			/>
 		),
 		[
@@ -59,6 +82,7 @@ export function useModalPortal(options: UseModalPortalOptions): UseModalPortalRe
 			options.size,
 			options.scrollable,
 			options.confirm,
+			options.closable,
 		]
 	);
 

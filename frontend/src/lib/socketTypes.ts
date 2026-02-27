@@ -31,6 +31,11 @@ export interface JoinResponse {
 	error?: string;
 }
 
+export interface MatchedEvent {
+	roomId: string;
+	playerId: number;
+}
+
 export interface PlayersEvent {
 	localId: number;
 	name: string;

@@ -1,9 +1,11 @@
 import { useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useWebSocket } from "@/components/WebSocketProvider";
-import { SyncEvent, PlayEvent, WinEvent } from "@/lib/socketTypes";
+import { SyncEvent, PlayEvent, WinEvent, MatchedEvent } from "@/lib/socketTypes";
 import { useGameStore } from "../gameStore";
 
 export const useGameWebSocket = () => {
+	const router = useRouter();
 	const { socket, isConnected, uuid, setRoomId, setPlayerId } = useWebSocket();
 	const handlePlay = useGameStore((state) => state.handlePlay);
 	const handleSync = useGameStore((state) => state.handleSync);
@@ -22,7 +24,7 @@ export const useGameWebSocket = () => {
 			const message = isWinner ? "🎉 Vous avez gagné !" : "😢 Vous avez perdu !";
 			handleWin(message, data.playerid);
 		},
-		[uuid, handleWin]
+		[uuid, handleWin],
 	);
 
 	// Écouter les événements Socket.IO directement
@@ -75,8 +77,16 @@ export const useGameWebSocket = () => {
 			handlePlayerJoined(data);
 		};
 
+		const matchedHandler = (data: MatchedEvent) => {
+			setRoomId(data.roomId);
+			setPlayerId(data.playerId);
+			handleJoin(data.roomId, data.playerId);
+			router.push(`/play/${data.roomId}`);
+		};
+
 		// Enregistrer les listeners
 		socket.on("sync", syncHandler);
+		socket.on("matched", matchedHandler);
 		socket.on("players", playersHandler);
 		socket.on("player-joined", playerJoinedHandler);
 		socket.on("play", playHandler);
@@ -88,6 +98,7 @@ export const useGameWebSocket = () => {
 		return () => {
 			// Nettoyer les listeners
 			socket.off("sync", syncHandler);
+			socket.off("matched", matchedHandler);
 			socket.off("players", playersHandler);
 			socket.off("player-joined", playerJoinedHandler);
 			socket.off("play", playHandler);
@@ -96,6 +107,20 @@ export const useGameWebSocket = () => {
 			socket.off("draw", drawHandler);
 			socket.off("game-draw", gameDrawHandler);
 		};
-	}, [socket, isConnected, handlePlay, handleSync, handlePlayers, handlePlayerJoined, handleWinWithUuid, handleDraw, handleRestart, handleJoin, uuid, setRoomId, setPlayerId]);
+	}, [
+		socket,
+		isConnected,
+		handlePlay,
+		handleSync,
+		handlePlayers,
+		handlePlayerJoined,
+		handleWinWithUuid,
+		handleDraw,
+		handleRestart,
+		handleJoin,
+		uuid,
+		setRoomId,
+		setPlayerId,
+		router,
+	]);
 };
-

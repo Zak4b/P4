@@ -22,6 +22,7 @@ export interface ModalProps {
 	size?: "xs" | "sm" | "md" | "lg" | "xl";
 	scrollable?: boolean;
 	onConfirm?: () => void | Promise<void>;
+	closable?: boolean;
 }
 
 export default function Modal({
@@ -32,6 +33,7 @@ export default function Modal({
 	size = "md",
 	scrollable = false,
 	onConfirm,
+	closable = true,
 }: ModalProps) {
 	const [isConfirming, setIsConfirming] = useState(false);
 
@@ -61,25 +63,28 @@ export default function Modal({
 	return createPortal(
 		<Dialog
 			open={open}
-			onClose={onClose}
+			onClose={() => { if (closable) onClose(); }}
+			disableEscapeKeyDown={!closable}
 			maxWidth={maxWidth}
 			fullWidth
 			scroll={scrollable ? "paper" : "body"}
 		>
 			<DialogTitle>
 				{title}
-				<IconButton
-					aria-label="close"
-					onClick={onClose}
-					sx={{
-						position: "absolute",
-						right: 8,
-						top: 8,
-						color: (theme) => theme.palette.grey[500],
-					}}
-				>
-					<CloseIcon />
-				</IconButton>
+				{closable && (
+					<IconButton
+						aria-label="close"
+						onClick={onClose}
+						sx={{
+							position: "absolute",
+							right: 8,
+							top: 8,
+							color: (theme) => theme.palette.grey[500],
+						}}
+					>
+						<CloseIcon />
+					</IconButton>
+				)}
 			</DialogTitle>
 			<Divider />
 			<DialogContent
@@ -88,7 +93,7 @@ export default function Modal({
 			>
 				{content}
 			</DialogContent>
-			{onConfirm ? (
+			{(onConfirm) ? (
 				<>
 					<Divider />
 					<DialogActions>
