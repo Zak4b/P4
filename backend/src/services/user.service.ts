@@ -16,7 +16,7 @@ export namespace UserService {
 			where: { login },
 		});
 	};
-		
+
 	export const getByEmail = async (email: string) => {
 		return await prisma.user.findUnique({
 			where: { email },
@@ -38,12 +38,14 @@ export namespace UserService {
 
 		const levelInfo = getLevelFromXp(user.xp);
 
-		const [stats] = await prisma.$queryRaw<Array<{
-			totalGames: bigint;
-			wins: bigint;
-			losses: bigint;
-			draws: bigint;
-		}>>(Prisma.sql`
+		const [stats] = await prisma.$queryRaw<
+			Array<{
+				totalGames: bigint;
+				wins: bigint;
+				losses: bigint;
+				draws: bigint;
+			}>
+		>(Prisma.sql`
 			SELECT 
 				COUNT(*) as totalGames,
 				SUM(CASE 
@@ -73,7 +75,7 @@ export namespace UserService {
 			draws: Number(stats.draws),
 		};
 	};
-	
+
 	export const create = async (login: string, email: string, passwordPlain: string) => {
 		const password = await hashPassword(passwordPlain);
 		const user = await prisma.user.create({
@@ -85,7 +87,7 @@ export namespace UserService {
 		});
 		return user;
 	};
-	
+
 	export const verifyCredentials = async (email: string, passwordPlain: string) => {
 		const user = await getByEmail(email);
 		if (!user) return null;
@@ -123,7 +125,7 @@ export namespace UserService {
 			data: { login, email, password, googleId },
 		});
 	};
-	
+
 	export const listAll = async () => {
 		return await prisma.user.findMany({
 			select: {
@@ -141,6 +143,9 @@ export namespace UserService {
 				eloRating: true,
 				xp: true,
 			},
+			where: {
+				xp: { gt: 0 },
+			},
 			orderBy: {
 				eloRating: "desc",
 			},
@@ -151,7 +156,7 @@ export namespace UserService {
 			level: getLevelFromXp(u.xp).level,
 		}));
 	};
-	
+
 	export const update = async (id: string, data: Prisma.UserUpdateInput) => {
 		return await prisma.user.update({
 			where: { id },
