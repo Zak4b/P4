@@ -15,6 +15,7 @@ import {
 	DialogContent,
 	DialogActions,
 	Button,
+	Container,
 } from "@mui/material";
 import {
 	Person as PersonIcon,
@@ -92,7 +93,7 @@ export default function ProfilePage() {
 	}
 
 	return (
-		<Box>
+		<Container maxWidth="lg" sx={layoutStyles.container}>
 			<Typography variant="h4" fontWeight={700} sx={typographyStyles.gradientTitle}>
 				<PersonIcon />
 				Mon compte
@@ -293,6 +294,6 @@ export default function ProfilePage() {
 					</Button>
 				</DialogActions>
 			</Dialog>
-		</Box>
+		</Container>
 	);
 }
