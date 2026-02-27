@@ -64,7 +64,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 				size={isMobile ? 40 : 50}
 				onClick={handleAvatarClick}
 				sx={{
-					ml: { xs: 1, md: 2 },
+					ml: 1,
 					border: "2px solid rgba(255, 255, 255, 0.5)",
 					"&:hover": {
 						borderColor: "white",

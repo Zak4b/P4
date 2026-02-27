@@ -24,6 +24,7 @@ import {
 	layoutStyles,
 } from "@/lib/styles";
 import UserMenu from "./UserMenu";
+import NotificationsButton from "./NotificationsButton";
 
 interface NavButtonProps {
 	href: string;
@@ -147,6 +148,7 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 					Rooms
 				</Button>
 
+				<NotificationsButton />
 				<UserMenu isMobile={isMobile} />
 
 				{/* Mobile Menu */}
