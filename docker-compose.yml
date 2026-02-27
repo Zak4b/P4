@@ -13,17 +13,19 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
       PORT: 3000
       IP: 0.0.0.0
+      FRONTEND_URL: https://asene.myddns.me:9000
+      BACKEND_URL: https://asene.myddns.me:9000
     expose:
       - 80
     networks:
       - traefik-net
       - db-net
     labels:
-        - "traefik.enable=true"
-        - "traefik.docker.network=traefik-net"
-        - "traefik.http.routers.p4-back-router.rule=Host(`asene.myddns.me`) && PathPrefix(`/api`)"
-        - "traefik.http.routers.p4-back-router.entrypoints=port9000"
-        - "traefik.http.services.p4-back-service.loadbalancer.server.port=3000"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
+      - "traefik.http.routers.p4-back-router.rule=Host(`asene.myddns.me`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.p4-back-router.entrypoints=port9000"
+      - "traefik.http.services.p4-back-service.loadbalancer.server.port=3000"
 
   # Frontend Next.js
   frontend:
@@ -58,4 +60,3 @@ networks:
 volumes:
   mysql-data:
     driver: local
-
