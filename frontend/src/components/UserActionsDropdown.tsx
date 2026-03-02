@@ -114,7 +114,7 @@ export default function UserActionsDropdown({
 		setIsInviting(true);
 		try {
 			const roomName =
-				`Partie avec ${targetUser.login}`.replace(/[^a-zA-Z0-9_]/g, "_").slice(0, 30) ||
+				`Partie avec ${targetUser.login}`.replace(/[^a-zA-Z0-9_]/g, "_").slice(0, 20) ||
 				`room_${Date.now()}`;
 			const response = await apiClient.newRoom(roomName);
 			if (response.success && response.roomId) {
