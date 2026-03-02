@@ -14,6 +14,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import PeopleIcon from "@mui/icons-material/People";
 import { layoutStyles } from "@/lib/styles";
 import UserAvatar from "../UserAvatar";
+import FriendList from "../FriendList";
 import { useAuth } from "../AuthContext";
 import { useModalPortal } from "@/lib/hooks/useModalPortal";
 
@@ -36,8 +37,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 
 	const friendsModal = useModalPortal({
 		title: "Amis",
-		content: "Liste",
-		size: "sm",
+		content: ({ close }) => <FriendList onCloseModal={close} />,
+		size: "md",
+		scrollable: true,
 	});
 
 	const menuOptions: MenuOption[] = [

@@ -4,6 +4,8 @@ import { hashPassword, comparePassword } from "../lib/password.js";
 import { getLevelFromXp } from "../lib/xp.js";
 import crypto from "node:crypto";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export namespace UserService {
 	export const getById = async (id: string) => {
 		return await prisma.user.findUnique({
@@ -15,6 +17,14 @@ export namespace UserService {
 		return await prisma.user.findUnique({
 			where: { login },
 		});
+	};
+
+	/** Trouve un utilisateur par id (UUID) ou par login */
+	export const getByIdOrLogin = async (identifier: string) => {
+		if (UUID_REGEX.test(identifier)) {
+			return await getById(identifier);
+		}
+		return await getByLogin(identifier);
 	};
 
 	export const getByEmail = async (email: string) => {
@@ -73,6 +83,23 @@ export namespace UserService {
 			wins: Number(stats.wins),
 			losses: Number(stats.losses),
 			draws: Number(stats.draws),
+		};
+	};
+
+	/** Profil public d'un joueur (id ou login) - sans données sensibles */
+	export const getProfile = async (identifier: string) => {
+		const user = await getByIdOrLogin(identifier);
+		if (!user) return null;
+
+		const stats = await getStats(user.id);
+		if (!stats) return null;
+
+		return {
+			id: user.id,
+			login: user.login,
+			eloRating: user.eloRating,
+			xp: user.xp,
+			...stats,
 		};
 	};
 

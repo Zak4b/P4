@@ -55,6 +55,11 @@ export interface UserStats {
 	draws: number;
 }
 
+export interface UserProfile extends UserStats {
+	id: string;
+	login: string;
+}
+
 class ApiClient {
 	private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
 		const url = `${API_BASE}${endpoint}`;
@@ -129,6 +134,39 @@ class ApiClient {
 
 	async getUserStats(id: string): Promise<UserStats> {
 		return this.request<UserStats>(`/user/${encodeURIComponent(id)}/stats`);
+	}
+
+	/** Profil complet d'un joueur (id ou login) */
+	async getProfile(identifier: string): Promise<UserProfile> {
+		return this.request<UserProfile>(`/user/profile/${encodeURIComponent(identifier)}`);
+	}
+
+	/** Liste des amis */
+	async getFriends(): Promise<Array<{ id: string; login: string; eloRating: number }>> {
+		return this.request<Array<{ id: string; login: string; eloRating: number }>>("/friend");
+	}
+
+	/** Statut amical avec un joueur */
+	async getFriendStatus(identifier: string): Promise<{ status: "none" | "pending" | "friends" }> {
+		return this.request<{ status: "none" | "pending" | "friends" }>(
+			`/friend/status/${encodeURIComponent(identifier)}`
+		);
+	}
+
+	/** Envoyer une demande d'ami */
+	async sendFriendRequest(identifier: string): Promise<{ success: boolean; status: "none" | "pending" | "friends" }> {
+		return this.request<{ success: boolean; status: "none" | "pending" | "friends" }>(
+			`/friend/request/${encodeURIComponent(identifier)}`,
+			{ method: "POST" }
+		);
+	}
+
+	/** Retirer un ami */
+	async removeFriendRequest(identifier: string): Promise<{ success: boolean }> {
+		return this.request<{ success: boolean }>(
+			`/friend/request/${encodeURIComponent(identifier)}`,
+			{ method: "DELETE" }
+		);
 	}
 
 	async getLeaderboard(): Promise<Array<{ id: string; login: string; eloRating: number; xp: number; level: number }>> {

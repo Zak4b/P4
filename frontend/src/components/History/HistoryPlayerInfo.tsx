@@ -1,5 +1,6 @@
 import { Box, Typography, Stack } from "@mui/material";
 import UserAvatar from "../UserAvatar";
+import UserActionsDropdown from "../UserActionsDropdown";
 
 interface PlayerInfoProps {
 	player: { id: string; login: string; eloRating?: number };
@@ -23,13 +24,28 @@ export default function PlayerInfo({ player, isWinner, isLoser, isDraw, alignRig
 				...(alignRight ? {} : { flex: 1 }),
 			}}
 		>
-			<UserAvatar
-				login={player.login}
-				size={60}
-				sx={{
-					border: `3px solid ${borderColor}`,
+			<UserActionsDropdown
+				targetUser={{ id: player.id, login: player.login }}
+				anchorOrigin={{
+					horizontal: alignRight ? "right" : "left",
+					vertical: "bottom",
 				}}
-			/>
+				transformOrigin={{
+					horizontal: alignRight ? "right" : "left",
+					vertical: "top",
+				}}
+			>
+				<UserAvatar
+					login={player.login}
+					size={60}
+					sx={{
+						border: `3px solid ${borderColor}`,
+						cursor: "pointer",
+						transition: "opacity 0.2s",
+						"&:hover": { opacity: 0.85 },
+					}}
+				/>
+			</UserActionsDropdown>
 			<Box sx={{ textAlign: alignRight ? "right" : "left" }}>
 				<Typography 
 					variant="body2" 

@@ -11,19 +11,39 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid()) @db.Char(36)
-  login     String   @unique @db.VarChar(40)
-  email     String   @unique @db.VarChar(255)
-  password  String
-  googleId  String?  @unique @db.VarChar(255)
-  eloRating Int      @default(400)
-  xp        Int      @default(0)
-  gamesAsP1 Game[]   @relation("Player1")
-  gamesAsP2 Game[]   @relation("Player2")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String          @id @default(uuid()) @db.Char(36)
+  login            String          @unique @db.VarChar(40)
+  email            String          @unique @db.VarChar(255)
+  password         String
+  googleId         String?         @unique @db.VarChar(255)
+  eloRating        Int             @default(400)
+  xp               Int             @default(0)
+  gamesAsP1        Game[]          @relation("Player1")
+  gamesAsP2        Game[]          @relation("Player2")
+  friendRequestsSent    FriendRequest[] @relation("FriendRequestFrom")
+  friendRequestsReceived FriendRequest[] @relation("FriendRequestTo")
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   @@index([email])
+}
+
+enum FriendStatus {
+  PENDING
+  ACCEPTED
+}
+
+model FriendRequest {
+  id         String       @id @default(uuid()) @db.Char(36)
+  fromUserId String       @db.Char(36)
+  toUserId   String       @db.Char(36)
+  status     FriendStatus @default(PENDING)
+  fromUser   User         @relation("FriendRequestFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     User         @relation("FriendRequestTo", fields: [toUserId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
+
+  @@unique([fromUserId, toUserId])
+  @@index([toUserId])
 }
 
 enum GameWinner {
