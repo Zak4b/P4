@@ -25,8 +25,8 @@ function formatRoom(room: Room<typeof P4>) {
 }
 
 export namespace RoomService {
-  export const create = (name?: string): RoomResponse => {
-		const room = manager.newRoom({ name });
+	export const create = (name?: string, players?: string[]): RoomResponse => {
+		const room = manager.newRoom({ name, players });
 		return formatRoom(room);
 	};
 

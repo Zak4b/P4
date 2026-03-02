@@ -28,6 +28,8 @@ export interface TargetUser {
 interface UserActionsDropdownProps {
 	children: React.ReactNode;
 	targetUser: TargetUser;
+	/** UUID de l'utilisateur connecté (pour filtrer la salle d'invitation) */
+	currentUserId?: string;
 	/** Affiche le bouton Retirer (quand l'utilisateur est ami) */
 	showRemove?: boolean;
 	/** Appelé avant navigation (ex: fermer un modal parent) */
@@ -43,6 +45,7 @@ interface UserActionsDropdownProps {
 export default function UserActionsDropdown({
 	children,
 	targetUser,
+	currentUserId,
 	showRemove = false,
 	onCloseParent,
 	onRemove,
@@ -116,7 +119,9 @@ export default function UserActionsDropdown({
 			const roomName =
 				`Partie avec ${targetUser.login}`.replace(/[^a-zA-Z0-9_]/g, "_").slice(0, 20) ||
 				`room_${Date.now()}`;
-			const response = await apiClient.newRoom(roomName);
+			const players =
+				currentUserId && targetUser.id ? [currentUserId, targetUser.id] : undefined;
+			const response = await apiClient.newRoom(roomName, players);
 			if (response.success && response.roomId) {
 				onCloseParent?.();
 				router.push(`/play/${response.roomId}`);

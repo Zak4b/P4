@@ -39,17 +39,27 @@ export class RoomManager<T extends new () => Game> {
 		return this.get(roomId) as Room<T>;
 	}
 
-	public newRoom({ name, timeout }: { name?: string; timeout?: number } = {}): Room<T> {
-		return this._newRoom({ name, timeout });
+	public newRoom({
+		name,
+		timeout,
+		players,
+	}: { name?: string; timeout?: number; players?: string[] } = {}): Room<T> {
+		return this._newRoom({ name, timeout, players });
 	}
 
-	private _newRoom({ id, name, timeout }: { id?: string; name?: string; timeout?: number } = {}): Room<T> {
+	private _newRoom({
+		id,
+		name,
+		timeout,
+		players,
+	}: { id?: string; name?: string; timeout?: number; players?: string[] } = {}): Room<T> {
 		id ??= uuidv4();
 		const room = new Room({
 			id,
 			name: name ?? id,
 			playerLimit: this.playerLimit,
 			game: this.gameClass,
+			players,
 		});
 		const roomTimeout = !timeout || timeout <= 0 ? RoomManager.defaultTimeoutDelay : timeout;
 		this.setupRoomEvents(room, roomTimeout);

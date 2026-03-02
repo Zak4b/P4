@@ -11,10 +11,14 @@ export function roomRoutes(fastify: FastifyInstance) {
 	});
 
 	fastify.post("/", async (request: FastifyRequest, reply: FastifyReply) => {
-		const {name} = z.object({ name: z.string().max(20).optional() }).parse(request.body);
-		//const userId = request.user?.id; // TODO add user id to room
-		const room = RoomService.create(name);
-		reply.send({success: true, roomId: room.id});
+		const { name, players } = z
+			.object({
+				name: z.string().max(20).optional(),
+				players: z.array(z.string().uuid()).optional(),
+			})
+			.parse(request.body);
+		const room = RoomService.create(name, players);
+		reply.send({ success: true, roomId: room.id });
 	});
 
 	fastify.get("/:id", async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {

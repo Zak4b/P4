@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "@/components/AuthContext";
 import {
 	Box,
 	Grid,
@@ -26,6 +27,7 @@ interface FriendListProps {
 }
 
 export default function FriendList({ onCloseModal }: FriendListProps) {
+	const { user } = useAuth();
 	const [friends, setFriends] = useState<Friend[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState("");
@@ -77,6 +79,7 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 				<Grid size={{ xs: 6 }} key={friend.id}>
 					<UserActionsDropdown
 						targetUser={{ id: friend.id, login: friend.login }}
+						currentUserId={user?.id}
 						showRemove
 						onCloseParent={onCloseModal}
 						onRemove={async () => {
