@@ -81,6 +81,7 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 						targetUser={{ id: friend.id, login: friend.login }}
 						currentUserId={user?.id}
 						showRemove
+						fullWidth
 						onCloseParent={onCloseModal}
 						onRemove={async () => {
 							await apiClient.removeFriendRequest(friend.login);

@@ -40,6 +40,8 @@ interface UserActionsDropdownProps {
 	onRemoveSuccess?: () => void;
 	anchorOrigin?: { horizontal: "left" | "right"; vertical: "top" | "bottom" };
 	transformOrigin?: { horizontal: "left" | "right"; vertical: "top" | "bottom" };
+	/** Étend le trigger sur toute la largeur disponible */
+	fullWidth?: boolean;
 }
 
 export default function UserActionsDropdown({
@@ -47,6 +49,7 @@ export default function UserActionsDropdown({
 	targetUser,
 	currentUserId,
 	showRemove = false,
+	fullWidth = false,
 	onCloseParent,
 	onRemove,
 	onRemoveSuccess,
@@ -141,7 +144,15 @@ export default function UserActionsDropdown({
 
 	return (
 		<>
-			<Box component="span" onClick={handleTriggerClick} sx={{ cursor: "pointer", display: "inline-block" }}>
+			<Box
+				component="span"
+				onClick={handleTriggerClick}
+				sx={{
+					cursor: "pointer",
+					display: fullWidth ? "block" : "inline-block",
+					width: fullWidth ? "100%" : undefined,
+				}}
+			>
 				{children}
 			</Box>
 			<Menu
