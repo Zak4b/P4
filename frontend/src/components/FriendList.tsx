@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import UserAvatar from "./UserAvatar";
 import UserActionsDropdown from "./UserActionsDropdown";
+import FriendRequestsDrawer from "./FriendRequestsDrawer";
 import { apiClient } from "@/lib/api";
 import { colors } from "@/lib/styles";
 
@@ -22,6 +23,11 @@ interface Friend {
 	eloRating: number;
 }
 
+interface FriendRequest {
+	id: string;
+	fromUser: { id: string; login: string; eloRating: number };
+}
+
 interface FriendListProps {
 	onCloseModal?: () => void;
 }
@@ -29,24 +35,29 @@ interface FriendListProps {
 export default function FriendList({ onCloseModal }: FriendListProps) {
 	const { user } = useAuth();
 	const [friends, setFriends] = useState<Friend[]>([]);
+	const [requests, setRequests] = useState<FriendRequest[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState("");
 
-	useEffect(() => {
-		const loadFriends = async () => {
-			setIsLoading(true);
-			setError("");
-			try {
-				const data = await apiClient.getFriends();
-				setFriends(data);
-			} catch {
-				setError("Impossible de charger la liste d'amis");
-			} finally {
-				setIsLoading(false);
-			}
-		};
+	const loadData = async () => {
+		setIsLoading(true);
+		setError("");
+		try {
+			const [friendsData, requestsData] = await Promise.all([
+				apiClient.getFriends(),
+				apiClient.getFriendRequests(),
+			]);
+			setFriends(friendsData);
+			setRequests(requestsData);
+		} catch {
+			setError("Impossible de charger la liste");
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-		loadFriends();
+	useEffect(() => {
+		loadData();
 	}, []);
 
 	if (isLoading) {
@@ -65,16 +76,28 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 		);
 	}
 
-	if (friends.length === 0) {
-		return (
-			<Typography color="text.secondary" sx={{ py: 3, textAlign: "center" }}>
-				Aucun ami pour le moment
-			</Typography>
-		);
-	}
-
 	return (
-		<Grid container spacing={1.5} sx={{ py: 1 }}>
+		<Stack spacing={2} sx={{ py: 1 }}>
+			<FriendRequestsDrawer
+				requests={requests}
+				onCloseModal={onCloseModal}
+				onAccept={async (req) => {
+					await apiClient.acceptFriendRequest(req.fromUser.login);
+					setFriends((prev) => [...prev, req.fromUser]);
+					setRequests((prev) => prev.filter((r) => r.id !== req.id));
+				}}
+				onReject={async (req) => {
+					await apiClient.rejectFriendRequest(req.fromUser.login);
+					setRequests((prev) => prev.filter((r) => r.id !== req.id));
+				}}
+			/>
+
+			{friends.length === 0 ? (
+				<Typography color="text.secondary" sx={{ py: 3, textAlign: "center" }}>
+					Aucun ami pour le moment
+				</Typography>
+			) : (
+		<Grid container spacing={1.5}>
 			{friends.map((friend) => (
 				<Grid size={{ xs: 6 }} key={friend.id}>
 					<UserActionsDropdown
@@ -128,5 +151,7 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 				</Grid>
 			))}
 		</Grid>
+			)}
+		</Stack>
 	);
 }

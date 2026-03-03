@@ -19,6 +19,57 @@ export function friendRoutes(fastify: FastifyInstance) {
 		reply.send(friends);
 	});
 
+	/** Demandes d'ami en attente */
+	fastify.get("/requests", async (request: FastifyRequest, reply: FastifyReply) => {
+		const currentUser = request.user;
+		if (!currentUser) throw HttpError.unauthorized("Authentication required");
+
+		const requests = await FriendService.getPendingRequests(currentUser.id);
+		reply.send(requests);
+	});
+
+	/** Accepter une demande d'ami */
+	fastify.post(
+		"/requests/:identifier/accept",
+		async (
+			request: FastifyRequest<{ Params: { identifier: string } }>,
+			reply: FastifyReply
+		) => {
+			const currentUser = request.user;
+			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+
+			const { identifier } = request.params;
+			const fromUser = await UserService.getByIdOrLogin(identifier);
+			if (!fromUser) throw HttpError.notFound("User not found");
+
+			const result = await FriendService.acceptRequest(currentUser.id, fromUser.id);
+			if (!result.success) throw HttpError.notFound("Request not found");
+
+			reply.send({ success: true });
+		}
+	);
+
+	/** Refuser une demande d'ami */
+	fastify.post(
+		"/requests/:identifier/reject",
+		async (
+			request: FastifyRequest<{ Params: { identifier: string } }>,
+			reply: FastifyReply
+		) => {
+			const currentUser = request.user;
+			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+
+			const { identifier } = request.params;
+			const fromUser = await UserService.getByIdOrLogin(identifier);
+			if (!fromUser) throw HttpError.notFound("User not found");
+
+			const result = await FriendService.rejectRequest(currentUser.id, fromUser.id);
+			if (!result.success) throw HttpError.notFound("Request not found");
+
+			reply.send({ success: true });
+		}
+	);
+
 	/** Statut de la relation avec un joueur (id ou login) */
 	fastify.get(
 		"/status/:identifier",

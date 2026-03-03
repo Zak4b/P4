@@ -108,6 +108,71 @@ export namespace FriendService {
 		return { success: false };
 	};
 
+	/** Demandes en attente reçues par l'utilisateur */
+	export const getPendingRequests = async (userId: string) => {
+		const requests = await prisma.friendRequest.findMany({
+			where: {
+				toUserId: userId,
+				status: "PENDING",
+			},
+			include: {
+				fromUser: {
+					select: { id: true, login: true, eloRating: true },
+				},
+			},
+			orderBy: { createdAt: "desc" },
+		});
+		return requests.map((r) => ({
+			id: r.id,
+			fromUser: r.fromUser,
+		}));
+	};
+
+	/** Accepter une demande d'ami */
+	export const acceptRequest = async (
+		currentUserId: string,
+		fromUserId: string
+	): Promise<{ success: boolean }> => {
+		const request = await prisma.friendRequest.findUnique({
+			where: {
+				fromUserId_toUserId: {
+					fromUserId,
+					toUserId: currentUserId,
+				},
+			},
+		});
+		if (!request || request.status !== "PENDING") {
+			return { success: false };
+		}
+		await prisma.friendRequest.update({
+			where: { id: request.id },
+			data: { status: "ACCEPTED" },
+		});
+		return { success: true };
+	};
+
+	/** Refuser/annuler une demande d'ami */
+	export const rejectRequest = async (
+		currentUserId: string,
+		fromUserId: string
+	): Promise<{ success: boolean }> => {
+		const request = await prisma.friendRequest.findUnique({
+			where: {
+				fromUserId_toUserId: {
+					fromUserId,
+					toUserId: currentUserId,
+				},
+			},
+		});
+		if (!request || request.status !== "PENDING") {
+			return { success: false };
+		}
+		await prisma.friendRequest.delete({
+			where: { id: request.id },
+		});
+		return { success: true };
+	};
+
 	/** Liste des amis (utilisateurs avec relation ACCEPTED) */
 	export const getFriends = async (userId: string) => {
 		const accepted = await prisma.friendRequest.findMany({

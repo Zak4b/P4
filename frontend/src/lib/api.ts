@@ -149,6 +149,27 @@ class ApiClient {
 		return this.request<Array<{ id: string; login: string; eloRating: number }>>("/friend");
 	}
 
+	/** Demandes d'ami en attente */
+	async getFriendRequests(): Promise<
+		Array<{ id: string; fromUser: { id: string; login: string; eloRating: number } }>
+	> {
+		return this.request("/friend/requests");
+	}
+
+	/** Accepter une demande d'ami */
+	async acceptFriendRequest(identifier: string): Promise<{ success: boolean }> {
+		return this.request(`/friend/requests/${encodeURIComponent(identifier)}/accept`, {
+			method: "POST",
+		});
+	}
+
+	/** Refuser une demande d'ami */
+	async rejectFriendRequest(identifier: string): Promise<{ success: boolean }> {
+		return this.request(`/friend/requests/${encodeURIComponent(identifier)}/reject`, {
+			method: "POST",
+		});
+	}
+
 	/** Statut amical avec un joueur */
 	async getFriendStatus(identifier: string): Promise<{ status: "none" | "pending" | "friends" }> {
 		return this.request<{ status: "none" | "pending" | "friends" }>(
