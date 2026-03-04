@@ -30,29 +30,11 @@ export class RoomManager<T extends new () => Game> {
 		return this._list.get(roomId);
 	}
 
-	public getOrCreate(roomId: string): Room<T> {
-		//TODO delete
-		if (!this._list.has(roomId)) {
-			const newRoom = this._newRoom({ id: roomId });
-			return newRoom;
-		}
-		return this.get(roomId) as Room<T>;
-	}
-
-	public newRoom({
-		name,
-		timeout,
-		players,
-	}: { name?: string; timeout?: number; players?: string[] } = {}): Room<T> {
+	public newRoom({ name, timeout, players }: { name?: string; timeout?: number; players?: string[] } = {}): Room<T> {
 		return this._newRoom({ name, timeout, players });
 	}
 
-	private _newRoom({
-		id,
-		name,
-		timeout,
-		players,
-	}: { id?: string; name?: string; timeout?: number; players?: string[] } = {}): Room<T> {
+	private _newRoom({ id, name, timeout, players }: { id?: string; name?: string; timeout?: number; players?: string[] } = {}): Room<T> {
 		id ??= uuidv4();
 		const room = new Room({
 			id,
@@ -102,7 +84,7 @@ export class RoomManager<T extends new () => Game> {
 	}
 
 	public join(roomId: string, player: Player<T>): void {
-		const room = this.getOrCreate(roomId);
+		const room = this.get(roomId);
 
 		if (!room) {
 			const msg = `GameRoom "${roomId}" not found`;
