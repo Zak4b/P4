@@ -19,17 +19,8 @@ const BOARD_ROWS = 6;
 const GRID_ASPECT_RATIO = BOARD_COLS / BOARD_ROWS;
 
 const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
-	const {
-		gameState,
-		animatingTokens,
-		playMove,
-		restart,
-		winDialogOpen,
-		setWinDialogOpen,
-		winMessage,
-	} = useGame();
+	const { gameState, animatingTokens, playMove, restart, winDialogOpen, setWinDialogOpen, winMessage } = useGame();
 	const { playerId } = useWebSocket();
-	
 
 	const handleColumnClick = (x: number) => {
 		playMove(x);
@@ -61,7 +52,13 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 	const canPlay = !gameState.isWin && !gameState.isDraw && !isLoading && playerId === gameState.currentPlayer;
 
 	return (
-		<Box sx={{ width: "100%", maxWidth: "min(560px, 95vw)", mx: "auto" }}>
+		<Box
+			sx={{
+				width: "100%",
+				maxWidth: `calc(75vh * ${GRID_ASPECT_RATIO})`,
+				mx: "auto",
+			}}
+		>
 			<Paper
 				elevation={4}
 				sx={{
@@ -84,6 +81,7 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 						position: "relative",
 						aspectRatio: GRID_ASPECT_RATIO,
 						width: "100%",
+						maxHeight: "100%",
 						minHeight: 0,
 					}}
 				>
@@ -149,7 +147,7 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 											/>
 										</Box>
 									);
-								})
+								}),
 						)}
 				</Box>
 

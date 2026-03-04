@@ -27,13 +27,13 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 			sx={{
 				display: "flex",
 				alignItems: "center",
-				gap: { xs: 1, lg: 1.5 },
-				p: { xs: 1, lg: 1.5 },
+				gap: 1,
+				p: 1,
 				borderRadius: 2,
 				bgcolor: bgColor,
 				border: `${borderWidth}px solid ${borderColor}`,
 				boxShadow: isActive ? `0 0 16px rgba(${isPlayer1 ? "239, 68, 68" : "245, 158, 11"}, 0.35)` : "none",
-				flex: { xs: "1 1 0", lg: "none" },
+				flex: "1 1 0",
 				minWidth: 0,
 			}}
 		>

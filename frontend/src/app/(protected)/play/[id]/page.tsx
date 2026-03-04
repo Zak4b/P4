@@ -19,12 +19,12 @@ export default function PlayPage() {
 
 	useEffect(() => {
 		if (!roomId || !socket || !isConnected) return;
-		
+
 		// Si on est déjà dans cette room et que le jeu n'est pas en chargement, ne rien faire
 		if (lastRoomIdRef.current === roomId || (gameState.currentRoomId === roomId && !gameState.loading)) {
 			return;
 		}
-		
+
 		lastRoomIdRef.current = roomId;
 		joinRoom(roomId);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -46,25 +46,13 @@ export default function PlayPage() {
 	}
 
 	return (
-		<Box
-			display="flex"
-			flexDirection={{ xs: "column", lg: "row" }}
-			gap={{ xs: 2, lg: 3 }}
-			alignItems={{ xs: "stretch", lg: "flex-start" }}
-			width="100%"
-		>
-			{/* Grille en premier jusqu'à lg, à droite sur lg+ */}
-			<Box order={{ xs: 1, lg: 2 }} flex={{ lg: "1 1 auto" }} minWidth={0}>
-				<P4GameBoard roomId={roomId} setActivePlayer={handlePlayerStateChange} />
-			</Box>
-			{/* Indicateur joueur sous la grille jusqu'à lg, à gauche sur lg+ — même largeur que la grille en colonne */}
+		<Box display="flex" flexDirection="column" gap={2} alignItems="stretch" width="100%" flexGrow={1}>
+			<P4GameBoard roomId={roomId} setActivePlayer={handlePlayerStateChange} />
 			<Box
-				order={{ xs: 2, lg: 1 }}
-				flex={{ lg: "0 0 260px" }}
-				width={{ xs: "100%", lg: "auto" }}
+				width={"100%"}
 				sx={{
-					maxWidth: { xs: "min(560px, 95vw)", lg: "none" },
-					mx: { xs: "auto", lg: 0 },
+					maxWidth: `calc(75vh * 7 / 6)`,
+					mx: "auto",
 				}}
 			>
 				<PlayerIndicator players={players} activePlayerIndex={activePlayerIndex} />
@@ -72,4 +60,3 @@ export default function PlayPage() {
 		</Box>
 	);
 }
-
