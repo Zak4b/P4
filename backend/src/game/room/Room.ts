@@ -131,6 +131,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 		this.players.online.set(player.uuid, player);
 		player.room = this;
 		this.updateTimeStamp();
+		this.emit("join", { id: pid });
 	}
 
 	remove(player: Player<T>) {
