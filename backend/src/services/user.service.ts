@@ -97,8 +97,6 @@ export namespace UserService {
 		return {
 			id: user.id,
 			login: user.login,
-			eloRating: user.eloRating,
-			xp: user.xp,
 			...stats,
 		};
 	};
