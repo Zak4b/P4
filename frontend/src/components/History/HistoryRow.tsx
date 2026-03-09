@@ -1,29 +1,7 @@
 import { Box, Typography, Paper } from "@mui/material";
 import { paperStyles } from "@/lib/styles";
 import PlayerInfo from "./HistoryPlayerInfo";
-
-type Winner = "PLAYER1" | "PLAYER2" | "DRAW";
-
-interface HistoryCardProps {
-	id: string;
-	player1: { id: string; login: string; eloRating?: number };
-	player2: { id: string; login: string; eloRating?: number };
-	winner: Winner;
-	time: number;
-	duration: number;
-}
-
-const formatDate = (dateStr: string | number) => {
-	return new Date(dateStr).toLocaleDateString("fr-FR", {
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-	});
-};
-
-const formatDuration = (seconds: number) => {
-	return seconds;
-};
+import { HistoryRowProps, formatDate, formatDuration } from "./historyRowShared";
 
 export default function HistoryRow({
 	player1,
@@ -31,7 +9,7 @@ export default function HistoryRow({
 	winner,
 	time,
 	duration,
-}: HistoryCardProps) {
+}: HistoryRowProps) {
 	const player1Won = winner === "PLAYER1";
 	const player2Won = winner === "PLAYER2";
 	const isDraw = winner === "DRAW";
@@ -51,7 +29,6 @@ export default function HistoryRow({
 				},
 			]}
 		>
-			{/* Section gauche - Joueur 1 */}
 			<PlayerInfo
 				player={player1}
 				isWinner={player1Won}
@@ -60,7 +37,6 @@ export default function HistoryRow({
 				alignRight={false}
 			/>
 
-			{/* Section centre - Date et Durée */}
 			<Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, flexShrink: 0 }}>
 				<Typography variant="body1" fontWeight={600} color="text.primary">
 					{formatDate(time)}
@@ -70,7 +46,6 @@ export default function HistoryRow({
 				</Typography>
 			</Box>
 
-			{/* Section droite - Joueur 2 */}
 			<Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1 }}>
 				<PlayerInfo
 					player={player2}
