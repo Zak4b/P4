@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	Box,
 	Typography,
@@ -10,6 +10,12 @@ import {
 	Grid,
 	Stack,
 	Divider,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	Button,
+	Container,
 } from "@mui/material";
 import {
 	Person as PersonIcon,
@@ -22,7 +28,7 @@ import {
 	Remove as DrawIcon,
 } from "@mui/icons-material";
 import { useAuth } from "@/components/AuthContext";
-import { apiClient } from "@/lib/api";
+import { apiClient, UserStats } from "@/lib/api";
 import {
 	typographyStyles,
 	paperStyles,
@@ -31,29 +37,15 @@ import {
 	dividerStyles,
 } from "@/lib/styles";
 import UserAvatar from "@/components/UserAvatar";
-
-type Winner = "PLAYER1" | "PLAYER2" | "DRAW";
-interface GameHistory {
-	id: string;
-	player1: { id: string; login: string };
-	player2: { id: string; login: string };
-	winner: Winner;
-	board: unknown;
-	time: number;
-}
-
-interface UserStats {
-	totalGames: number;
-	wins: number;
-	losses: number;
-	draws: number;
-	winRate: number;
-}
+import AvatarEditor from "@/components/AvatarEditor";
 
 export default function ProfilePage() {
 	const { user } = useAuth();
-	const [history, setHistory] = useState<GameHistory[]>([]);
 	const [stats, setStats] = useState<UserStats | null>(null);
+	const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+	const winrate = useMemo(() => {
+		return (stats && stats.totalGames > 0) ? Math.round((stats.wins / stats.totalGames) * 100) : 0;
+	}, [stats]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState("");
 
@@ -64,15 +56,10 @@ export default function ProfilePage() {
 			setIsLoading(true);
 			setError("");
 			try {
-				const gameHistory = await apiClient.getHistory();
-				setHistory(gameHistory);
-
-				// Calculer les statistiques
-				const userStats = calculateStats(gameHistory, user.id);
-				setStats(userStats);
+				const stats = await apiClient.getUserStats(user.id);
+				setStats(stats);
 			} catch (err) {
-				setError("Failed to load account data");
-				console.error(err);
+				setError("Failed to load account data: " + err);
 			} finally {
 				setIsLoading(false);
 			}
@@ -80,39 +67,6 @@ export default function ProfilePage() {
 
 		loadData();
 	}, [user]);
-
-	const calculateStats = (games: GameHistory[], userId: string): UserStats => {
-		let wins = 0;
-		let losses = 0;
-		let draws = 0;
-
-		games.forEach((game) => {
-			const isPlayer1 = game.player1.id === userId;
-			const isPlayer2 = game.player2.id === userId;
-
-			if (isPlayer1 || isPlayer2) {
-				if (game.winner === "DRAW") {
-					draws++;
-				} else if ((isPlayer1 && game.winner === "PLAYER1") || (isPlayer2 && game.winner === "PLAYER2")) {
-					wins++;
-				} else {
-					losses++;
-				}
-			}
-		});
-
-		const totalGames = wins + losses + draws;
-		const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
-
-		return {
-			totalGames,
-			wins,
-			losses,
-			draws,
-			winRate,
-		};
-	};
-
 
 	if (isLoading) {
 		return (
@@ -139,7 +93,7 @@ export default function ProfilePage() {
 	}
 
 	return (
-		<Box>
+		<Container maxWidth="lg" sx={layoutStyles.container}>
 			<Typography variant="h4" fontWeight={700} sx={typographyStyles.gradientTitle}>
 				<PersonIcon />
 				Mon compte
@@ -153,10 +107,23 @@ export default function ProfilePage() {
 						sx={[paperStyles.gradientPaper, { p: 3, height: "100%" }]}
 					>
 						<Stack spacing={3} alignItems="center">
-							<UserAvatar
-								login={user.login}
-								sx={{ ...(avatarStyles.large), ...(avatarStyles.gradientAvatar) }}
-							/>
+							<Box
+								component="button"
+								onClick={() => setAvatarModalOpen(true)}
+								sx={{
+									cursor: "pointer",
+									border: "none",
+									padding: 0,
+									background: "none",
+									"&:hover": { opacity: 0.9 },
+								}}
+								aria-label="Modifier l'avatar"
+							>
+								<UserAvatar
+									login={user.login}
+									sx={{ ...(avatarStyles.large), ...(avatarStyles.gradientAvatar) }}
+								/>
+							</Box>
 							<Box sx={{ width: "100%" }}>
 								<Stack spacing={2}>
 									<Box sx={layoutStyles.flexCenter}>
@@ -193,7 +160,7 @@ export default function ProfilePage() {
 							{ height: "100%" },
 						]}
 					>
-						<Stack spacing={3} alignItems="center">
+						<Stack spacing={3} alignItems="center" sx={{ py: 2 }}>
 							<Typography variant="h6" fontWeight={600} gutterBottom sx={layoutStyles.flexCenter}>
 								<TrophyIcon color="primary" />
 								Statistiques de jeu
@@ -201,7 +168,7 @@ export default function ProfilePage() {
 							<Divider sx={dividerStyles.standard} />
 							{stats ? (
 								<Grid container spacing={3}>
-									<Grid size={{xs: 6, sm: 3}}>
+									<Grid size={{ xs: 6, sm: 3 }}>
 										<Box textAlign="center">
 											<Typography variant="h4" fontWeight={700} color="primary">
 												{stats.totalGames}
@@ -212,7 +179,7 @@ export default function ProfilePage() {
 											</Typography>
 										</Box>
 									</Grid>
-									<Grid size={{xs: 6, sm: 3}}>
+									<Grid size={{ xs: 6, sm: 3 }}>
 										<Box textAlign="center">
 											<Typography variant="h4" fontWeight={700} color="success.main">
 												{stats.wins}
@@ -223,7 +190,7 @@ export default function ProfilePage() {
 											</Typography>
 										</Box>
 									</Grid>
-									<Grid size={{xs: 6, sm: 3}}>
+									<Grid size={{ xs: 6, sm: 3 }}>
 										<Box textAlign="center">
 											<Typography variant="h4" fontWeight={700} color="error.main">
 												{stats.losses}
@@ -234,7 +201,7 @@ export default function ProfilePage() {
 											</Typography>
 										</Box>
 									</Grid>
-									<Grid size={{xs: 6, sm: 3}}>
+									<Grid size={{ xs: 6, sm: 3 }}>
 										<Box textAlign="center">
 											<Typography variant="h4" fontWeight={700} color="text.secondary">
 												{stats.draws}
@@ -245,23 +212,63 @@ export default function ProfilePage() {
 											</Typography>
 										</Box>
 									</Grid>
-									<Grid size={{xs: 12}}>
+									<Grid size={{ xs: 12 }}>
 										<Divider sx={dividerStyles.standard} />
+										<Box
+											sx={{
+												mb: 2,
+												px: 6,
+												display: "flex",
+												alignItems: "center",
+												gap: 2,
+											}}
+										>
+											<Typography variant="subtitle1" fontWeight={600} sx={{ width: 90, flexShrink: 0 }}>
+												Niveau {stats.level}
+											</Typography>
+											<Box
+												sx={{
+													flex: 1,
+													minWidth: 0,
+													height: 8,
+													borderRadius: 1,
+													overflow: "hidden",
+													border: "1px solid",
+													borderColor: "primary.main",
+												}}
+											>
+												<Box
+													sx={{
+														height: "100%",
+														width: `${stats.xpRequiredForNextLevel > 0 ? (stats.xpInCurrentLevel / stats.xpRequiredForNextLevel) * 100 : 100}%`,
+														background: "linear-gradient(90deg, #6366f1 0%, #ec4899 100%)",
+														borderRadius: 1,
+													}}
+												/>
+											</Box>
+											<Typography
+												variant="caption"
+												color="text.secondary"
+												sx={{ width: 70, flexShrink: 0, ml: "auto", textAlign: "right" }}
+											>
+												{stats.xpInCurrentLevel}/{stats.xpRequiredForNextLevel}
+											</Typography>
+										</Box>
 										<Grid container spacing={2}>
-											<Grid size={{xs: 6}}>
+											<Grid size={{ xs: 6 }}>
 												<Box textAlign="center">
 													<Typography variant="h5" fontWeight={700} sx={typographyStyles.gradientHeading}>
-														{user.eloRating ?? 1000}
+														{stats.eloRating}
 													</Typography>
 													<Typography variant="body2" color="text.secondary">
 														ELO
 													</Typography>
 												</Box>
 											</Grid>
-											<Grid size={{xs: 6}}>
+											<Grid size={{ xs: 6 }}>
 												<Box textAlign="center">
 													<Typography variant="h5" fontWeight={700} sx={typographyStyles.gradientHeading}>
-														{stats.winRate}%
+														{winrate}%
 													</Typography>
 													<Typography variant="body2" color="text.secondary">
 														Taux de victoire
@@ -278,6 +285,26 @@ export default function ProfilePage() {
 					</Paper>
 				</Grid>
 			</Grid>
-		</Box>
+
+			<Dialog
+				open={avatarModalOpen}
+				onClose={() => setAvatarModalOpen(false)}
+				maxWidth="md"
+				fullWidth
+				PaperProps={{
+					sx: { maxHeight: "90vh", overflow: "hidden", display: "flex", flexDirection: "column" },
+				}}
+			>
+				<DialogTitle sx={{ flexShrink: 0 }}>Personnaliser l&apos;avatar</DialogTitle>
+				<DialogContent sx={{ overflow: "hidden", flex: 1, minHeight: 0, display: "flex", p: 0 }}>
+					<AvatarEditor seed={user.login} />
+				</DialogContent>
+				<DialogActions sx={{ flexShrink: 0 }}>
+					<Button onClick={() => setAvatarModalOpen(false)} variant="contained">
+						Fermer
+					</Button>
+				</DialogActions>
+			</Dialog>
+		</Container>
 	);
 }

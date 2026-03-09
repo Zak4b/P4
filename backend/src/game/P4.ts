@@ -1,5 +1,4 @@
 import { Game } from "./room/Game.class.js";
-import { TypedEventEmitter } from "./room/TypedEventEmitter.js";
 import { Timer } from "./room/Timer.js";
 
 type Move = { x: number; y: number; };
@@ -95,7 +94,7 @@ export class P4 extends Game<P4EventMap> {
 	public reset():void {
 		//this.running = false;
 		this.ended = false;
-		this._boad = Array.from({ length: 7 }, () => Array(6).fill(0));
+		this._boad = Array.from({ length: 7 }, () => Array.from({ length: 6 }, () => 0));
 		this.currentPlayer = 1;
 		this.lastMove = undefined;
 		this.winnerIndex = undefined;
@@ -192,7 +191,7 @@ export class P4 extends Game<P4EventMap> {
 	private restoreState(state: State) {
 		// Copier le plateau
 		this._boad = state.board.map(col => [...col]);
-		this.currentPlayer = state.currentPlayer as 1 | 2;
+		this.currentPlayer = state.currentPlayer;
 		this.winnerIndex = state.winnerIndex;
 		this._playCount = state.playCount;
 		this.lastMove = state.lastMove;

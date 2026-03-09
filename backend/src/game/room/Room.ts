@@ -3,7 +3,7 @@ import { Player } from "./Player.js";
 import { ServerMessage } from "./types.js";
 import { TypedEventEmitter } from "./TypedEventEmitter.js";
 import { P4 } from "../P4.js";
-import { GameService } from "../../services/game.service.js";
+import { finalizeGameFromRoom } from "../../services/game.service.js";
 
 export type RoomEvent = "join" | "leave" | "empty" | "timeout" | "end";
 type RoomEventMap = {
@@ -16,10 +16,12 @@ type RoomEventMap = {
 
 export interface RoomProps<T extends new () => Game> {
 	id: string;
+	name?: string;
 	playerLimit?: number;
 	game: T;
-	players?: string[];
 	locked?: boolean;
+	/** Liste des UUID autorisés à rejoindre (vide/undefined = tout le monde) */
+	players?: string[];
 }
 
 export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventMap> {
@@ -27,6 +29,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 	private locked: boolean;
 	private isEnded: boolean = false;
 	readonly id: string;
+	readonly name: string;
 
 	get timeStamp(): number {
 		return this.lastActionTimestamp;
@@ -46,25 +49,24 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 
 	readonly playerLimit: number = 2;
 	readonly game: InstanceType<T>;
+	private readonly allowedPlayerIds: Set<string> | null;
 	private players: {
 		registered: Map<string, number>;
 		online: Map<string, Player<T>>;
 	} = { registered: new Map(), online: new Map() };
 
-	constructor({ id, playerLimit, game, players, locked }: RoomProps<T>) {
+	constructor({ id, name, playerLimit, game, players, locked }: RoomProps<T>) {
 		super();
 		this.id = id;
+		this.name = name ?? id;
 		this.locked = locked ?? false;
 		this.playerLimit = playerLimit ?? 2;
-		players?.map((p) => {
-			try {
-				this.addPlayer(p);
-			} catch (error) {}
-		});
+		this.allowedPlayerIds =
+			players && players.length > 0 ? new Set(players) : null;
 		this.game = new game() as InstanceType<T>;
 		this.game.on("end", ({ winner, duration }) => {
 			const G = this.game as P4; //TODO generic
-			GameService.finalizeFromRoom(this.registeredPlayerList, winner, duration, G.board);
+			finalizeGameFromRoom(this.registeredPlayerList, winner, duration, G.board);
 			if (winner === 0) {
 				this.send({ type: "game-draw" });
 			} else {
@@ -117,6 +119,9 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 	}
 
 	join(player: Player<T>) {
+		if (this.allowedPlayerIds && !this.allowedPlayerIds.has(player.uuid)) {
+			throw new Error("You are not allowed to join this room");
+		}
 		if (this.players.online.has(player.uuid)) {
 			throw new Error("A player with this uuid is already in this room");
 		}
@@ -126,6 +131,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 		this.players.online.set(player.uuid, player);
 		player.room = this;
 		this.updateTimeStamp();
+		this.emit("join", { id: pid });
 	}
 
 	remove(player: Player<T>) {

@@ -22,14 +22,14 @@ const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ players, activePlayer
 		<Paper
 			elevation={4}
 			sx={{
-				mt: 3,
-				p: 2.5,
+				mt: 0,
+				p: 1.5,
 				backgroundColor: colors.dark,
 				borderRadius: 3,
 				overflow: "hidden",
 			}}
 		>
-			<Stack direction="column" spacing={1.5}>
+			<Stack direction="row" spacing={1.5} justifyContent="center">
 				{players.map((player, index) => {
 					const isActive = index === activePlayerIndex;
 					return <PlayerCard key={player.localId} player={player} isActive={isActive} />;
@@ -40,4 +40,3 @@ const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ players, activePlayer
 };
 
 export default PlayerIndicator;
-

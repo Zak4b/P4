@@ -1,40 +1,55 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import {UserService} from "../services/user.service.js";
-import { generateAvatar } from "../lib/avatar.js";
+import { listAllUsers, getUserLeaderboard, getUserProfile, getUserByIdOrLogin, getUserStats } from "../services/user.service.js";
+import { HttpError } from "../lib/HttpError.js";
 
-export async function userRoutes(fastify: FastifyInstance) {
-	fastify.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
-		try {
-			const users = await UserService.listAll();
-			reply.send(users);
-		} catch (error) {
-			reply.status(500).send({ error: "Internal server error" });
-		}
+export function userRoutes(fastify: FastifyInstance) {
+	fastify.get("/", async (_, reply: FastifyReply) => {
+		const users = await listAllUsers();
+		reply.send(users);
 	});
-	
-	fastify.get("/:id", async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-		try {
-			const { id } = request.params;
-			const user = await UserService.getByLogin(id);
-			if (!user) {
-				reply.status(404).send({ error: "User not found" });
-				return;
+
+	// Routes statiques avant les paramétriques pour éviter les conflits
+	fastify.get("/leaderboard", async (_, reply: FastifyReply) => {
+		const leaderboard = await getUserLeaderboard(10);
+		reply.send(leaderboard);
+	});
+
+	// Profil complet d'un joueur (id ou login)
+	fastify.get(
+		"/profile/:identifier",
+		async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
+			const { identifier } = request.params;
+			const profile = await getUserProfile(identifier);
+			if (!profile) {
+				throw HttpError.notFound("User not found");
 			}
-			reply.send(user);
-		} catch (error) {
-			reply.status(500).send({ error: "Internal server error" });
+			reply.send(profile);
 		}
+	);
+
+	// Informations de base (id ou login) - sans mot de passe
+	fastify.get("/:id", async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+		const { id } = request.params;
+		const user = await getUserByIdOrLogin(id);
+		if (!user) {
+			throw HttpError.notFound("User not found");
+		}
+		const { password: _p, ...safeUser } = user;
+		reply.send(safeUser);
 	});
 
-	fastify.get("/:id/avatar", async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-		try {
-			const { id } = request.params;
-
-			const svg = generateAvatar(id, "micah");
-			reply.type("image/svg+xml").send(svg);
-		} catch (error) {
-			reply.status(500).send({ error: "Internal server error" });
+	// Statistiques (id ou login)
+	fastify.get("/:id/stats", async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+		const { id } = request.params;
+		const user = await getUserByIdOrLogin(id);
+		if (!user) {
+			throw HttpError.notFound("User not found");
 		}
+		const stats = await getUserStats(user.id);
+		if (!stats) {
+			throw HttpError.notFound("User not found");
+		}
+		reply.send(stats);
 	});
 }
 

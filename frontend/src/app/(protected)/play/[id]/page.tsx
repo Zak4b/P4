@@ -19,12 +19,12 @@ export default function PlayPage() {
 
 	useEffect(() => {
 		if (!roomId || !socket || !isConnected) return;
-		
+
 		// Si on est déjà dans cette room et que le jeu n'est pas en chargement, ne rien faire
 		if (lastRoomIdRef.current === roomId || (gameState.currentRoomId === roomId && !gameState.loading)) {
 			return;
 		}
-		
+
 		lastRoomIdRef.current = roomId;
 		joinRoom(roomId);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -36,15 +36,6 @@ export default function PlayPage() {
 		}
 	}, []);
 
-	if (!socket) {
-		return (
-			<Box display="flex" flexDirection="column" alignItems="center" gap={2} py={4}>
-				<CircularProgress />
-				<Alert severity="info">Initialisation de la connexion...</Alert>
-			</Box>
-		);
-	}
-
 	if (!isConnected) {
 		return (
 			<Box display="flex" flexDirection="column" alignItems="center" gap={2} py={4}>
@@ -55,14 +46,17 @@ export default function PlayPage() {
 	}
 
 	return (
-		<Box display="flex" gap={3} alignItems="flex-start" flexWrap="wrap">
-			<Box flex="0 0 260px">
+		<Box display="flex" flexDirection="column" gap={2} alignItems="stretch" width="100%" flexGrow={1}>
+			<P4GameBoard roomId={roomId} setActivePlayer={handlePlayerStateChange} />
+			<Box
+				width={"100%"}
+				sx={{
+					maxWidth: `calc(75vh * 7 / 6)`,
+					mx: "auto",
+				}}
+			>
 				<PlayerIndicator players={players} activePlayerIndex={activePlayerIndex} />
-			</Box>
-			<Box flex="1 1 auto" minWidth="360px">
-				<P4GameBoard roomId={roomId} setActivePlayer={handlePlayerStateChange} />
 			</Box>
 		</Box>
 	);
 }
-

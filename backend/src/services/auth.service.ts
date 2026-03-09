@@ -1,14 +1,10 @@
-import {UserService} from "./user.service.js";
+import { getUserByEmail, createUser, findOrCreateUserByGoogle, verifyUserCredentials } from "./user.service.js";
 import { generateToken, verifyToken, JWTPayload } from "../lib/jwt.js";
 
 // Type pour les requêtes Fastify
 type RequestLike = {
-	cookies: { [key: string]: any };
+	cookies: Record<string, string>;
 	headers: { [key: string]: string | undefined; authorization?: string };
-};
-
-type ResponseLike = {
-	status: (code: number) => { json: (data: any) => any };
 };
 
 const cookieName: string = "token";
@@ -16,12 +12,9 @@ const cookieName: string = "token";
 // Obtenir le token depuis les cookies ou le header Authorization
 const getToken = (req: RequestLike): string | null => {
 	// Essayer d'abord depuis les cookies
-	const cookieToken = req.cookies[cookieName];
-	if (cookieToken) {
-		const token = typeof cookieToken === "string" ? cookieToken : cookieToken.token || null;
-		if (token) {
-			return token;
-		}
+	const token = req.cookies[cookieName];
+	if (token) {
+		return token;
 	}
 
 	// Sinon, essayer depuis le header Authorization
@@ -29,7 +22,6 @@ const getToken = (req: RequestLike): string | null => {
 	if (authHeader && authHeader.startsWith("Bearer ")) {
 		return authHeader.substring(7);
 	}
-
 	return null;
 };
 
@@ -42,14 +34,11 @@ const isLogged = (req: RequestLike): boolean => {
 		}
 
 		const payload = verifyToken(token);
-		if (!payload || !payload.userId) {
+		if (!payload || !payload.id) {
 			return false;
 		}
-
-		// Attacher les infos utilisateur à la requête
-		(req as any).user = payload;
 		return true;
-	} catch (error) {
+	} catch {
 		return false;
 	}
 };
@@ -62,7 +51,7 @@ const getUserFromRequest = (req: RequestLike): JWTPayload | null => {
 			return null;
 		}
 		return verifyToken(token);
-	} catch (error) {
+	} catch {
 		return null;
 	}
 };
@@ -70,16 +59,16 @@ const getUserFromRequest = (req: RequestLike): JWTPayload | null => {
 // S'inscrire
 const register = async (login: string, email: string, password: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
 	// Vérifier si l'email existe déjà
-	const existingUser = await UserService.getByEmail(email);
+	const existingUser = await getUserByEmail(email);
 	if (existingUser) {
 		throw new Error("Email already exists");
 	}
 
 	// Créer l'utilisateur
-	const userData = await UserService.create(login, email, password);
+	const userData = await createUser(login, email, password);
 	// Générer le token JWT
 	const token = generateToken({
-		userId: userData.id,
+		id: userData.id,
 		email: userData.email,
 		login: userData.login,
 	});
@@ -94,17 +83,30 @@ const register = async (login: string, email: string, password: string): Promise
 	};
 };
 
-// Se connecter
+const loginWithGoogle = async (googleId: string, email: string, displayName: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
+	const userData = await findOrCreateUserByGoogle(googleId, email, displayName);
+	const token = generateToken({
+		id: userData.id,
+		email: userData.email,
+		login: userData.login,
+	});
+	return {
+		token,
+		user: { id: userData.id, login: userData.login, email: userData.email },
+	};
+};
+
+// Se connecter (email/password)
 const login = async (email: string, password: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
 	// Vérifier les identifiants
-	const userData = await UserService.verifyCredentials(email, password);
+	const userData = await verifyUserCredentials(email, password);
 	if (!userData) {
 		throw new Error("Invalid email or password");
 	}
 
 	// Générer le token JWT
 	const token = generateToken({
-		userId: userData.id,
+		id: userData.id,
 		email: userData.email,
 		login: userData.login,
 	});
@@ -121,6 +123,7 @@ const login = async (email: string, password: string): Promise<{ token: string; 
 
 export default {
 	login,
+	loginWithGoogle,
 	register,
 	isLogged,
 	getUserFromRequest,

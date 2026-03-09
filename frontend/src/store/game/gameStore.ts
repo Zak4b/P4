@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { PlayEvent, SyncEvent } from "@/lib/socketTypes";
+import { PlayEvent, PlayerJoinedEvent, PlayersEvent, SyncEvent } from "@/lib/socketTypes";
 import { GameStore, Board, Player } from "./types";
 import { createEmptyBoard, getPlayerColor } from "./utils";
 
@@ -124,6 +124,34 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
 	handleRestart: () => {
 		get().initializeBoard();
+	},
+
+	handlePlayers: (players: PlayersEvent[]) => {
+		const byId = new Map(players.map((p) => [p.localId, p.name]));
+		set({
+			players: [
+				{ localId: 1, name: byId.get(1) ?? null },
+				{ localId: 2, name: byId.get(2) ?? null },
+			],
+		});
+	},
+
+	handlePlayerJoined: (data: PlayerJoinedEvent) => {
+		set((state) => {
+			const existing = state.players.find((p) => p.localId === data.localId);
+			if (existing) {
+				return {
+					players: state.players.map((p) =>
+						p.localId === data.localId ? { ...p, name: data.name } : p
+					),
+				};
+			}
+			return {
+				players: [...state.players, { localId: data.localId, name: data.name }].sort(
+					(a, b) => a.localId - b.localId
+				),
+			};
+		});
 	},
 
 	handleJoin: (roomId: string, _playerId: number | null) => {

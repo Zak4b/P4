@@ -42,7 +42,7 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 				return;
 			}
 
-			const response = await apiClient.joinRoom(roomId);
+			const response = await apiClient.newRoom(roomId);
 
 			if (response.success) {
 				setName("");

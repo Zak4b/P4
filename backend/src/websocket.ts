@@ -3,8 +3,6 @@ import { P4 } from "./game/P4.js";
 import { Player, RoomManager } from "./game/room/index.js";
 import { getUserFromRequest } from "./lib/auth-utils.js";
 
-export const manager = new RoomManager(2, P4);
-
 type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
 type JoinResponse = { success: boolean; roomId?: string; playerId?: number; error?: string };
 
@@ -21,14 +19,43 @@ function getSyncData(player: Player<typeof P4>): syncObject {
 	return syncData;
 }
 
+export function notifyPlayerJoinedRoom(player: Player<typeof P4>): void {
+	const playersData = player.room!.playerList.map((p) => ({
+		localId: p.localId!,
+		name: p.displayName,
+	}));
+	player.send({ type: "players", data: playersData });
+	player.send({ type: "sync", data: getSyncData(player) });
+	player.room!.playerList.forEach((p) => {
+		if (p.uuid !== player.uuid) {
+			p.send({
+				type: "player-joined",
+				data: { localId: player.localId!, name: player.displayName },
+			});
+		}
+	});
+}
+
+export const manager = new RoomManager(2, P4, notifyPlayerJoinedRoom);
+
 export const websocketConnection = async (socket: Socket, req: any) => {
 	try {
 		const user = getUserFromRequest(req);
 		if (!user) {
 			throw new Error("Authentication required");
 		}
-		const player = new Player<typeof P4>(socket, user.userId, user.login);
+		const player = new Player<typeof P4>(socket, user.id, user.login);
 		player.send({ type: "registered", data: player.uuid });
+
+	socket.on("matchmaking-join", () => {
+		console.log("[matchmaking] socket event: matchmaking-join", { uuid: player.uuid, displayName: player.displayName });
+		manager.joinMatchmaking(player);
+	});
+
+	socket.on("matchmaking-leave", () => {
+		console.log("[matchmaking] socket event: matchmaking-leave", { uuid: player.uuid, displayName: player.displayName });
+		manager.leaveMatchmaking(player);
+	});
 
 	socket.on("join", async (roomId: string, callback?: (response: JoinResponse) => void) => {
 		try {
@@ -42,8 +69,6 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 				roomId: player.room!.id,
 				playerId: player.localId ?? undefined,
 			});
-			
-			player.send({ type: "sync", data: getSyncData(player) });
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : "Failed to join room";
 			const errorResponse: JoinResponse = {
