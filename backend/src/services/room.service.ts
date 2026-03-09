@@ -24,22 +24,20 @@ function formatRoom(room: Room<typeof P4>) {
 	};
 }
 
-export namespace RoomService {
-	export const create = (name?: string, players?: string[]): RoomResponse => {
-		const room = manager.newRoom({ name, players });
-		return formatRoom(room);
-	};
+export const createRoom = (name?: string, players?: string[]): RoomResponse => {
+	const room = manager.newRoom({ name, players });
+	return formatRoom(room);
+};
 
-  export const listAll = (_uuid?: string): RoomResponse[] => { //TODO uuid filtrer
-		const rooms = Array.from(manager.list.values()).map((room) => formatRoom(room));
-		return rooms;
-	};
+export const listAllRooms = (_uuid?: string): RoomResponse[] => { //TODO uuid filtrer
+	const rooms = Array.from(manager.list.values()).map((room) => formatRoom(room));
+	return rooms;
+};
 
-	export const get = (id: string): RoomResponse | undefined => {
-		const room = manager.get(id);
-		if (!room) {
-			return undefined;
-		}
-		return formatRoom(room);
-	};
-}
+export const getRoomById = (id: string): RoomResponse | undefined => {
+	const room = manager.get(id);
+	if (!room) {
+		return undefined;
+	}
+	return formatRoom(room);
+};

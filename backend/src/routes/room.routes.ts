@@ -1,12 +1,12 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { RoomService } from "../services/room.service.js";
+import { createRoom, listAllRooms, getRoomById } from "../services/room.service.js";
 import { z } from "zod";
 import { HttpError } from "../lib/HttpError.js";
 
 export function roomRoutes(fastify: FastifyInstance) {
 
 	fastify.get("/", async (_, reply: FastifyReply) => {
-		const rooms = RoomService.listAll();
+		const rooms = listAllRooms();
 		reply.send(rooms);
 	});
 
@@ -17,13 +17,13 @@ export function roomRoutes(fastify: FastifyInstance) {
 				players: z.array(z.string().uuid()).optional(),
 			})
 			.parse(request.body);
-		const room = RoomService.create(name, players);
+		const room = createRoom(name, players);
 		reply.send({ success: true, roomId: room.id });
 	});
 
 	fastify.get("/:id", async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
 		const { id } = request.params;
-		const room = RoomService.get(id);
+		const room = getRoomById(id);
 		if (!room) {
 			throw HttpError.notFound("Room not found");
 		}

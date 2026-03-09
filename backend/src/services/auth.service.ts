@@ -1,4 +1,4 @@
-import { UserService } from "./user.service.js";
+import { getUserByEmail, createUser, findOrCreateUserByGoogle, verifyUserCredentials } from "./user.service.js";
 import { generateToken, verifyToken, JWTPayload } from "../lib/jwt.js";
 
 // Type pour les requêtes Fastify
@@ -59,13 +59,13 @@ const getUserFromRequest = (req: RequestLike): JWTPayload | null => {
 // S'inscrire
 const register = async (login: string, email: string, password: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
 	// Vérifier si l'email existe déjà
-	const existingUser = await UserService.getByEmail(email);
+	const existingUser = await getUserByEmail(email);
 	if (existingUser) {
 		throw new Error("Email already exists");
 	}
 
 	// Créer l'utilisateur
-	const userData = await UserService.create(login, email, password);
+	const userData = await createUser(login, email, password);
 	// Générer le token JWT
 	const token = generateToken({
 		id: userData.id,
@@ -84,7 +84,7 @@ const register = async (login: string, email: string, password: string): Promise
 };
 
 const loginWithGoogle = async (googleId: string, email: string, displayName: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
-	const userData = await UserService.findOrCreateByGoogle(googleId, email, displayName);
+	const userData = await findOrCreateUserByGoogle(googleId, email, displayName);
 	const token = generateToken({
 		id: userData.id,
 		email: userData.email,
@@ -99,7 +99,7 @@ const loginWithGoogle = async (googleId: string, email: string, displayName: str
 // Se connecter (email/password)
 const login = async (email: string, password: string): Promise<{ token: string; user: { id: string; login: string; email: string } }> => {
 	// Vérifier les identifiants
-	const userData = await UserService.verifyCredentials(email, password);
+	const userData = await verifyUserCredentials(email, password);
 	if (!userData) {
 		throw new Error("Invalid email or password");
 	}

@@ -2,9 +2,8 @@ import { prisma } from "../lib/prisma.js";
 
 export type FriendRelationStatus = "none" | "pending" | "friends";
 
-export namespace FriendService {
-	/** Statut de la relation entre currentUserId et targetUserId */
-	export const getRelationStatus = async (
+/** Statut de la relation entre currentUserId et targetUserId */
+export const getFriendRelationStatus = async (
 		currentUserId: string,
 		targetUserId: string
 	): Promise<FriendRelationStatus> => {
@@ -39,8 +38,8 @@ export namespace FriendService {
 		return "none";
 	};
 
-	/** Envoyer une demande d'ami */
-	export const sendRequest = async (
+/** Envoyer une demande d'ami */
+export const sendFriendRequest = async (
 		fromUserId: string,
 		toUserId: string
 	): Promise<{ success: boolean; status: FriendRelationStatus }> => {
@@ -48,7 +47,7 @@ export namespace FriendService {
 			return { success: false, status: "none" };
 		}
 
-		const existing = await getRelationStatus(fromUserId, toUserId);
+		const existing = await getFriendRelationStatus(fromUserId, toUserId);
 		if (existing !== "none") {
 			return { success: false, status: existing };
 		}
@@ -64,8 +63,8 @@ export namespace FriendService {
 		return { success: true, status: "pending" };
 	};
 
-	/** Retirer un ami (supprimer la relation) */
-	export const removeFriend = async (
+/** Retirer un ami (supprimer la relation) */
+export const removeFriend = async (
 		currentUserId: string,
 		targetUserId: string
 	): Promise<{ success: boolean }> => {
@@ -108,28 +107,28 @@ export namespace FriendService {
 		return { success: false };
 	};
 
-	/** Demandes en attente reçues par l'utilisateur */
-	export const getPendingRequests = async (userId: string) => {
-		const requests = await prisma.friendRequest.findMany({
-			where: {
-				toUserId: userId,
-				status: "PENDING",
+/** Demandes en attente reçues par l'utilisateur */
+export const getFriendPendingRequests = async (userId: string) => {
+	const requests = await prisma.friendRequest.findMany({
+		where: {
+			toUserId: userId,
+			status: "PENDING",
+		},
+		include: {
+			fromUser: {
+				select: { id: true, login: true, eloRating: true },
 			},
-			include: {
-				fromUser: {
-					select: { id: true, login: true, eloRating: true },
-				},
-			},
-			orderBy: { createdAt: "desc" },
-		});
-		return requests.map((r) => ({
-			id: r.id,
-			fromUser: r.fromUser,
-		}));
-	};
+		},
+		orderBy: { createdAt: "desc" },
+	});
+	return requests.map((r) => ({
+		id: r.id,
+		fromUser: r.fromUser,
+	}));
+};
 
-	/** Accepter une demande d'ami */
-	export const acceptRequest = async (
+/** Accepter une demande d'ami */
+export const acceptFriendRequest = async (
 		currentUserId: string,
 		fromUserId: string
 	): Promise<{ success: boolean }> => {
@@ -151,8 +150,8 @@ export namespace FriendService {
 		return { success: true };
 	};
 
-	/** Refuser/annuler une demande d'ami */
-	export const rejectRequest = async (
+/** Refuser/annuler une demande d'ami */
+export const rejectFriendRequest = async (
 		currentUserId: string,
 		fromUserId: string
 	): Promise<{ success: boolean }> => {
@@ -173,26 +172,25 @@ export namespace FriendService {
 		return { success: true };
 	};
 
-	/** Liste des amis (utilisateurs avec relation ACCEPTED) */
-	export const getFriends = async (userId: string) => {
-		const accepted = await prisma.friendRequest.findMany({
-			where: {
-				status: "ACCEPTED",
-				OR: [{ fromUserId: userId }, { toUserId: userId }],
+/** Liste des amis (utilisateurs avec relation ACCEPTED) */
+export const getFriendsList = async (userId: string) => {
+	const accepted = await prisma.friendRequest.findMany({
+		where: {
+			status: "ACCEPTED",
+			OR: [{ fromUserId: userId }, { toUserId: userId }],
+		},
+		include: {
+			fromUser: {
+				select: { id: true, login: true, eloRating: true },
 			},
-			include: {
-				fromUser: {
-					select: { id: true, login: true, eloRating: true },
-				},
-				toUser: {
-					select: { id: true, login: true, eloRating: true },
-				},
+			toUser: {
+				select: { id: true, login: true, eloRating: true },
 			},
-		});
+		},
+	});
 
-		return accepted.map((fr) => {
-			const friend = fr.fromUserId === userId ? fr.toUser : fr.fromUser;
-			return { id: friend.id, login: friend.login, eloRating: friend.eloRating };
-		});
-	};
-}
+	return accepted.map((fr) => {
+		const friend = fr.fromUserId === userId ? fr.toUser : fr.fromUser;
+		return { id: friend.id, login: friend.login, eloRating: friend.eloRating };
+	});
+};

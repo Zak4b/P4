@@ -3,7 +3,7 @@ import { Player } from "./Player.js";
 import { ServerMessage } from "./types.js";
 import { TypedEventEmitter } from "./TypedEventEmitter.js";
 import { P4 } from "../P4.js";
-import { GameService } from "../../services/game.service.js";
+import { finalizeGameFromRoom } from "../../services/game.service.js";
 
 export type RoomEvent = "join" | "leave" | "empty" | "timeout" | "end";
 type RoomEventMap = {
@@ -66,7 +66,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 		this.game = new game() as InstanceType<T>;
 		this.game.on("end", ({ winner, duration }) => {
 			const G = this.game as P4; //TODO generic
-			GameService.finalizeFromRoom(this.registeredPlayerList, winner, duration, G.board);
+			finalizeGameFromRoom(this.registeredPlayerList, winner, duration, G.board);
 			if (winner === 0) {
 				this.send({ type: "game-draw" });
 			} else {

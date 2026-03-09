@@ -1,16 +1,16 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { UserService } from "../services/user.service.js";
+import { listAllUsers, getUserLeaderboard, getUserProfile, getUserByIdOrLogin, getUserStats } from "../services/user.service.js";
 import { HttpError } from "../lib/HttpError.js";
 
 export function userRoutes(fastify: FastifyInstance) {
 	fastify.get("/", async (_, reply: FastifyReply) => {
-		const users = await UserService.listAll();
+		const users = await listAllUsers();
 		reply.send(users);
 	});
 
 	// Routes statiques avant les paramétriques pour éviter les conflits
 	fastify.get("/leaderboard", async (_, reply: FastifyReply) => {
-		const leaderboard = await UserService.getLeaderboard(10);
+		const leaderboard = await getUserLeaderboard(10);
 		reply.send(leaderboard);
 	});
 
@@ -19,7 +19,7 @@ export function userRoutes(fastify: FastifyInstance) {
 		"/profile/:identifier",
 		async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
 			const { identifier } = request.params;
-			const profile = await UserService.getProfile(identifier);
+			const profile = await getUserProfile(identifier);
 			if (!profile) {
 				throw HttpError.notFound("User not found");
 			}
@@ -30,7 +30,7 @@ export function userRoutes(fastify: FastifyInstance) {
 	// Informations de base (id ou login) - sans mot de passe
 	fastify.get("/:id", async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
 		const { id } = request.params;
-		const user = await UserService.getByIdOrLogin(id);
+		const user = await getUserByIdOrLogin(id);
 		if (!user) {
 			throw HttpError.notFound("User not found");
 		}
@@ -41,11 +41,11 @@ export function userRoutes(fastify: FastifyInstance) {
 	// Statistiques (id ou login)
 	fastify.get("/:id/stats", async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
 		const { id } = request.params;
-		const user = await UserService.getByIdOrLogin(id);
+		const user = await getUserByIdOrLogin(id);
 		if (!user) {
 			throw HttpError.notFound("User not found");
 		}
-		const stats = await UserService.getStats(user.id);
+		const stats = await getUserStats(user.id);
 		if (!stats) {
 			throw HttpError.notFound("User not found");
 		}
