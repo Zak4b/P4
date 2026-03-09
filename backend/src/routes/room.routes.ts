@@ -24,7 +24,11 @@ export function roomRoutes(fastify: FastifyInstance) {
 		reply.send({ success: true, roomId: room.id });
 	});
 
-	fastify.post("/ai", async (_request: FastifyRequest, reply: FastifyReply) => {
+	fastify.post("/ai", async (request: FastifyRequest, reply: FastifyReply) => {
+		const { difficulty } = z
+			.object({ difficulty: z.enum(["easy", "medium", "hard", "impossible"]).optional() })
+			.parse(request.body);
+
 		const room = manager.newRoom({});
 
 		// Generate a short-lived JWT for the AI bot to authenticate via WS
@@ -39,7 +43,7 @@ export function roomRoutes(fastify: FastifyInstance) {
 			const res = await fetch(`${env.aiService.url}/join`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ roomId: room.id, token }),
+				body: JSON.stringify({ roomId: room.id, token, difficulty }),
 			});
 			if (!res.ok) {
 				fastify.log.warn(`AI service responded with ${res.status}`);

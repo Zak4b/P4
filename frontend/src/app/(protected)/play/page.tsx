@@ -13,6 +13,9 @@ import {
 	TextField,
 	InputAdornment,
 	CircularProgress,
+	Dialog,
+	DialogTitle,
+	DialogContent,
 } from "@mui/material";
 import {
 	PlayArrow,
@@ -25,16 +28,27 @@ import RuleList from "@/components/Game/Rules/RuleList";
 import { useMatching } from "@/hooks/useMatching";
 import { apiClient } from "@/lib/api";
 
+type Difficulty = "easy" | "medium" | "hard" | "impossible";
+
+const DIFFICULTIES: { value: Difficulty; label: string; description: string; color: string }[] = [
+	{ value: "easy",       label: "Facile",      description: "Joue approximativement, fait des erreurs",      color: "#4caf50" },
+	{ value: "medium",     label: "Normal",       description: "Joue bien mais reste humainement battable",     color: "#ff9800" },
+	{ value: "hard",       label: "Difficile",    description: "Joue très bien, rare de la battre",             color: "#f44336" },
+	{ value: "impossible", label: "Impossible",   description: "Jeu optimal — aucune pitié",                    color: "#9c27b0" },
+];
+
 export default function PlayIndexPage() {
 	const router = useRouter();
 	const { modal, startMatchmaking, isConnected } = useMatching();
 	const [joinRoomId, setJoinRoomId] = useState("");
 	const [aiLoading, setAiLoading] = useState(false);
+	const [difficultyOpen, setDifficultyOpen] = useState(false);
 
-	const handlePlayVsAI = async () => {
+	const handlePlayVsAI = async (difficulty: Difficulty) => {
+		setDifficultyOpen(false);
 		setAiLoading(true);
 		try {
-			const { roomId } = await apiClient.newAIRoom();
+			const { roomId } = await apiClient.newAIRoom(difficulty);
 			if (roomId) router.push(`/play/${roomId}`);
 		} catch {
 			// ignore
@@ -90,7 +104,7 @@ export default function PlayIndexPage() {
 							</Button>
 
 							<Button
-								onClick={handlePlayVsAI}
+								onClick={() => setDifficultyOpen(true)}
 								disabled={aiLoading}
 								variant="outlined"
 								size="large"
@@ -193,6 +207,37 @@ export default function PlayIndexPage() {
 				</Grid>
 			</Grid>
 			{modal}
+
+			<Dialog open={difficultyOpen} onClose={() => setDifficultyOpen(false)} maxWidth="xs" fullWidth>
+				<DialogTitle sx={{ fontWeight: "bold", pb: 1 }}>Choisir la difficulté</DialogTitle>
+				<DialogContent>
+					<Stack spacing={1.5} sx={{ pt: 1 }}>
+						{DIFFICULTIES.map(({ value, label, description, color }) => (
+							<Button
+								key={value}
+								onClick={() => handlePlayVsAI(value)}
+								variant="outlined"
+								fullWidth
+								sx={{
+									py: 1.5,
+									borderRadius: 2,
+									textTransform: "none",
+									borderColor: color,
+									color: color,
+									justifyContent: "flex-start",
+									gap: 2,
+									"&:hover": { backgroundColor: `${color}12`, borderColor: color },
+								}}
+							>
+								<Box sx={{ textAlign: "left" }}>
+									<Typography fontWeight="bold" fontSize="1rem">{label}</Typography>
+									<Typography variant="caption" color="text.secondary">{description}</Typography>
+								</Box>
+							</Button>
+						))}
+					</Stack>
+				</DialogContent>
+			</Dialog>
 		</Container>
 	);
 }
