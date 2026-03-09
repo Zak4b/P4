@@ -1,6 +1,7 @@
 import http from "http";
 import dotenv from "dotenv";
 import { AIClient } from "./client.js";
+import { DIFFICULTY_PRESETS, DEFAULT_DIFFICULTY } from "./difficulty.js";
 
 dotenv.config();
 
@@ -111,15 +112,8 @@ const server = http.createServer((req, res) => {
 					res.end(JSON.stringify({ error: "roomId and token are required" }));
 					return;
 				}
-				type DifficultyConfig = { depth: number; temperature: number };
-				const difficultyMap: Record<string, DifficultyConfig> = {
-					easy:       { depth: 2, temperature: 80 },
-					medium:     { depth: 4, temperature: 25 },
-					hard:       { depth: 6, temperature: 8  },
-					impossible: { depth: 7, temperature: 0  },
-				};
-				const { depth, temperature } = difficultyMap[difficulty ?? ""] ?? difficultyMap.hard;
-				new AIClient(BACKEND_WS_URL, roomId, token, depth, temperature);
+				const config = DIFFICULTY_PRESETS[difficulty ?? ""] ?? DIFFICULTY_PRESETS[DEFAULT_DIFFICULTY];
+				new AIClient(BACKEND_WS_URL, roomId, token, config);
 				res.writeHead(200, { "Content-Type": "application/json" });
 				res.end(JSON.stringify({ success: true }));
 			} catch {

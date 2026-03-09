@@ -1,5 +1,6 @@
 import { io, Socket } from "socket.io-client";
-import { getBestMove, type Board } from "./minimax.js";
+import { type Board } from "./minimax.js";
+import { getMove, type DifficultyConfig, DIFFICULTY_PRESETS, DEFAULT_DIFFICULTY } from "./difficulty.js";
 
 type SyncData = { playerId: number | null; cPlayer: number; board?: Board; last?: { x: number; y: number } };
 type PlayData = { playerId: number; x: number; y: number; nextPlayerId: number };
@@ -9,14 +10,12 @@ export class AIClient {
 	private board: Board = Array.from({ length: 7 }, () => Array(6).fill(0));
 	private myPlayerId: number | null = null;
 	private roomId: string;
-	private depth: number;
-	private temperature: number;
+	private config: DifficultyConfig;
 	private gameOver: boolean = false;
 
-	constructor(backendWsUrl: string, roomId: string, token: string, depth: number = 6, temperature: number = 0) {
+	constructor(backendWsUrl: string, roomId: string, token: string, config: DifficultyConfig = DIFFICULTY_PRESETS[DEFAULT_DIFFICULTY]) {
 		this.roomId = roomId;
-		this.depth = depth;
-		this.temperature = temperature;
+		this.config = config;
 
 		this.socket = io(backendWsUrl, {
 			path: "/api/socket.io",
@@ -88,12 +87,12 @@ export class AIClient {
 	}
 
 	private scheduleMove(): void {
-		setTimeout(() => this.playBestMove(), 400);
+		setTimeout(() => this.playBestMove(), this.config.moveDelay);
 	}
 
 	private playBestMove(): void {
 		if (this.myPlayerId === null || this.gameOver) return;
-		const col = getBestMove(this.board, this.myPlayerId as 1 | 2, this.depth, this.temperature);
+		const col = getMove(this.board, this.myPlayerId as 1 | 2, this.config);
 		console.log(`[AI] Playing column ${col}`);
 		this.socket.emit("play", col);
 	}
