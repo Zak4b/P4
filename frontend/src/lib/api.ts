@@ -127,6 +127,12 @@ class ApiClient {
 		});
 	}
 
+	async newAIRoom(): Promise<{ success: boolean; roomId?: string }> {
+		return this.request<{ success: boolean; roomId?: string }>("/room/ai", {
+			method: "POST",
+		});
+	}
+
 	async getUsers(): Promise<any[]> {
 		return this.request<any[]>("/user");
 	}

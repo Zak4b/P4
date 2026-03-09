@@ -6,8 +6,16 @@ FROM base AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
-RUN npm ci
+COPY package.json ./
+RUN npm install
+
+# ── Dev stage (used by docker-compose.dev.yml) ───────────────────────────────
+FROM deps AS dev
+WORKDIR /app
+# Source code is mounted as a volume at runtime — copy only for image fallback
+COPY . .
+EXPOSE 3000
+CMD ["npm", "run", "dev"]
 
 # Builder stage
 FROM base AS builder
@@ -46,4 +54,3 @@ EXPOSE 3000
 
 # Start the backend
 CMD ["npm", "run", "start"]
-

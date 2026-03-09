@@ -28,6 +28,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 	private lastActionTimestamp: number = -1;
 	private locked: boolean;
 	private isEnded: boolean = false;
+	private botIds: Set<string> = new Set();
 	readonly id: string;
 	readonly name: string;
 
@@ -88,6 +89,15 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 		this.removeAllListeners();
 	}
 
+	/**
+	 * Pre-registers a bot at a fixed playerId without counting against playerLimit.
+	 * Used by AIRoom to reserve a slot for the inline AI bot.
+	 */
+	public registerBot(uuid: string, playerId: number): void {
+		this.botIds.add(uuid);
+		this.players.registered.set(uuid, playerId);
+	}
+
 	private addPlayer(uuid: string): number;
 	private addPlayer(player: Player<T>): number;
 	private addPlayer(arg: Player<T> | string): number {
@@ -104,8 +114,13 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 			const found_player = this.players.registered.get(player.uuid);
 			if (found_player !== undefined) {
 				return found_player;
-			} else if (this.players.registered.size >= this.playerLimit) {
-				throw new Error("No more players can be added to this room");
+			} else {
+				// Only count human (non-bot) players against the limit
+				const humanCount = Array.from(this.players.registered.keys())
+					.filter(id => !this.botIds.has(id)).length;
+				if (humanCount >= this.playerLimit) {
+					throw new Error("No more players can be added to this room");
+				}
 			}
 			const used: number[] = Array.from(this.players.registered.values());
 			const availableIds: number[] = [1, 2].filter((id) => !used.includes(id));

@@ -6,7 +6,7 @@ import { useGameStore } from "../gameStore";
 
 export const useGameWebSocket = () => {
 	const router = useRouter();
-	const { socket, isConnected, uuid, setRoomId, setPlayerId } = useWebSocket();
+	const { socket, isConnected, uuid, playerId, setRoomId, setPlayerId } = useWebSocket();
 	const handlePlay = useGameStore((state) => state.handlePlay);
 	const handleSync = useGameStore((state) => state.handleSync);
 	const handlePlayers = useGameStore((state) => state.handlePlayers);
@@ -19,12 +19,11 @@ export const useGameWebSocket = () => {
 	// Fonction pour gérer handleWin avec accès à l'UUID
 	const handleWinWithUuid = useCallback(
 		(data: WinEvent) => {
-			if (!uuid) return;
-			const isWinner = uuid === data.uuid;
+			const isWinner = playerId === data.playerid;
 			const message = isWinner ? "🎉 Vous avez gagné !" : "😢 Vous avez perdu !";
 			handleWin(message, data.playerid);
 		},
-		[uuid, handleWin],
+		[playerId, handleWin],
 	);
 
 	// Écouter les événements Socket.IO directement
@@ -118,7 +117,6 @@ export const useGameWebSocket = () => {
 		handleDraw,
 		handleRestart,
 		handleJoin,
-		uuid,
 		setRoomId,
 		setPlayerId,
 		router,

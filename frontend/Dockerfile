@@ -6,8 +6,20 @@ FROM base AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
-RUN npm ci
+COPY package.json ./
+RUN npm install
+
+# ── Dev stage (used by docker-compose.dev.yml) ───────────────────────────────
+FROM deps AS dev
+WORKDIR /app
+# Source code is mounted as a volume at runtime — copy only for image fallback
+COPY . .
+ENV PORT=3001
+ENV HOSTNAME=0.0.0.0
+# Polling is needed for file-change detection inside Docker on macOS
+ENV WATCHPACK_POLLING=true
+EXPOSE 3001
+CMD ["npm", "run", "dev"]
 
 # Builder stage
 FROM base AS builder
@@ -53,4 +65,3 @@ ENV HOSTNAME="0.0.0.0"
 
 # Start the frontend
 CMD ["node", "server.js"]
-

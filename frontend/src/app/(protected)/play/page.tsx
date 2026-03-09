@@ -12,20 +12,36 @@ import {
 	Stack,
 	TextField,
 	InputAdornment,
+	CircularProgress,
 } from "@mui/material";
 import {
 	PlayArrow,
 	EmojiEvents,
 	Search,
+	SmartToy,
 } from "@mui/icons-material";
 import { colors } from "@/lib/styles";
 import RuleList from "@/components/Game/Rules/RuleList";
 import { useMatching } from "@/hooks/useMatching";
+import { apiClient } from "@/lib/api";
 
 export default function PlayIndexPage() {
 	const router = useRouter();
 	const { modal, startMatchmaking, isConnected } = useMatching();
 	const [joinRoomId, setJoinRoomId] = useState("");
+	const [aiLoading, setAiLoading] = useState(false);
+
+	const handlePlayVsAI = async () => {
+		setAiLoading(true);
+		try {
+			const { roomId } = await apiClient.newAIRoom();
+			if (roomId) router.push(`/play/${roomId}`);
+		} catch {
+			// ignore
+		} finally {
+			setAiLoading(false);
+		}
+	};
 
 	const handleJoinSpecificRoom = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -71,6 +87,29 @@ export default function PlayIndexPage() {
 								}}
 							>
 								Quick Match
+							</Button>
+
+							<Button
+								onClick={handlePlayVsAI}
+								disabled={aiLoading}
+								variant="outlined"
+								size="large"
+								startIcon={aiLoading ? <CircularProgress size={18} color="inherit" /> : <SmartToy />}
+								sx={{
+									py: 2,
+									fontSize: "1.1rem",
+									borderRadius: 3,
+									textTransform: "none",
+									fontWeight: "bold",
+									borderColor: colors.primary,
+									color: colors.primary,
+									"&:hover": {
+										borderColor: colors.primaryHover,
+										backgroundColor: "rgba(99, 102, 241, 0.06)",
+									},
+								}}
+							>
+								Play vs AI
 							</Button>
 
 							<Paper

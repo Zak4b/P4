@@ -23,4 +23,8 @@ export const env = {
 	backend: {
 		url: process.env.BACKEND_URL || `http://localhost:${process.env.PORT ? Number(process.env.PORT) : 3000}`,
 	},
+	aiService: {
+		url: process.env.AI_SERVICE_URL || "http://p4-ai:4000",
+		botId: process.env.AI_BOT_ID || "ai-bot",
+	},
 };

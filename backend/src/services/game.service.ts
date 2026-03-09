@@ -73,6 +73,11 @@ export async function finalizeGameFromRoom(
 	if (!p1 || !p2 || !p1.uuid || !p2.uuid) {
 		return;
 	}
+	// Skip DB save when one of the players is the AI bot
+	const AI_BOT_UUID = process.env.AI_BOT_ID || "ai-bot";
+	if (p1.uuid === AI_BOT_UUID || p2.uuid === AI_BOT_UUID) {
+		return;
+	}
 
 	let winner: GameWinner = GameWinner.DRAW;
 	if (win === 1) {
