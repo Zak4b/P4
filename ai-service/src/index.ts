@@ -2,6 +2,7 @@ import http from "http";
 import dotenv from "dotenv";
 import { AIClient } from "./client.js";
 import { DIFFICULTY_PRESETS, DEFAULT_DIFFICULTY } from "./difficulty.js";
+import { connect4Engine } from "./games/connect4.js";
 
 dotenv.config();
 
@@ -113,7 +114,7 @@ const server = http.createServer((req, res) => {
 					return;
 				}
 				const config = DIFFICULTY_PRESETS[difficulty ?? ""] ?? DIFFICULTY_PRESETS[DEFAULT_DIFFICULTY];
-				new AIClient(BACKEND_WS_URL, roomId, token, config);
+				new AIClient(BACKEND_WS_URL, roomId, token, config, connect4Engine);
 				res.writeHead(200, { "Content-Type": "application/json" });
 				res.end(JSON.stringify({ success: true }));
 			} catch {

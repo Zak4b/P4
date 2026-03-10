@@ -1,4 +1,5 @@
-import { getBestMove, getBestDrawMove, type Board } from "./minimax.js";
+import { getBestMove, getBestDrawMove, findWinningMove, type Board } from "./minimax.js";
+import type { GameEngine } from "./games/GameEngine.js";
 
 // ── Type de configuration ──────────────────────────────────────────────────────
 
@@ -18,8 +19,9 @@ export type DifficultyConfig = {
 	temperature: number;
 
 	/**
-	 * Jouer la colonne centrale (col 3) comme tout premier coup sur un plateau vide.
-	 * Le centre est statistiquement l'ouverture la plus forte au Puissance 4.
+	 * Jouer le coup central comme tout premier coup sur un plateau vide.
+	 * Pour Puissance 4, le centre est statistiquement l'ouverture la plus forte.
+	 * La notion de "centre" est définie par openingColPriority[0].
 	 */
 	centerFirst: boolean;
 
@@ -36,16 +38,15 @@ export type DifficultyConfig = {
 	openingBookMoves: number;
 
 	/**
-	 * Ordre de priorité des colonnes utilisé par le livre d'ouvertures.
-	 * Par défaut centré : [3, 2, 4, 1, 5, 0, 6].
-	 * Modifier pour ajuster le style d'ouverture (ex. jeu agressif sur les côtés).
+	 * Ordre de priorité des coups utilisé par le livre d'ouvertures.
+	 * Pour Puissance 4 : [3, 2, 4, 1, 5, 0, 6] (centré).
+	 * Adapter selon le jeu et le style d'ouverture souhaité.
 	 */
 	openingColPriority: readonly number[];
 
 	/**
-	 * Bloquer immédiatement une menace de 3-en-ligne de l'adversaire avant
-	 * de lancer le minimax, quelle que soit la profondeur. Utile aux niveaux
-	 * inférieurs pour éviter les défaites "bêtes".
+	 * Bloquer immédiatement un coup gagnant de l'adversaire avant de lancer
+	 * le minimax, quelle que soit la profondeur.
 	 */
 	blockImmediateThreats: boolean;
 
@@ -57,8 +58,6 @@ export type DifficultyConfig = {
 
 	/**
 	 * Mode match nul : l'IA cherche à faire match nul plutôt qu'à gagner.
-	 * Elle cible les positions dont le score minimax est le plus proche de 0 (DRAW),
-	 * en évitant aussi bien les coups gagnants que les coups perdants.
 	 * Quand true, temperature et useOpeningBook sont ignorés.
 	 */
 	drawMode: boolean;
@@ -66,7 +65,7 @@ export type DifficultyConfig = {
 
 // ── Préréglages de difficulté ──────────────────────────────────────────────────
 
-/** Priorité des colonnes centrée en premier — valeur par défaut pour la plupart des préréglages. */
+/** Priorité des colonnes centrée en premier — valeur par défaut pour Puissance 4. */
 const CENTER_PRIORITY = [3, 2, 4, 1, 5, 0, 6] as const;
 
 export const DIFFICULTY_PRESETS: Record<string, DifficultyConfig> = {
@@ -104,8 +103,6 @@ export const DIFFICULTY_PRESETS: Record<string, DifficultyConfig> = {
 
 	/**
 	 * Difficile — recherche profonde, faible aléatoire, livre d'ouvertures sur 2 coups.
-	 * Grâce au scoring WIN+depth, l'IA reconnaît et joue les séquences de victoire
-	 * forcées (double menaces, zugzwang) même avec une légère part d'aléatoire.
 	 */
 	hard: {
 		depth: 6,
@@ -121,8 +118,6 @@ export const DIFFICULTY_PRESETS: Record<string, DifficultyConfig> = {
 
 	/**
 	 * Impossible — profondeur maximale, meilleur coup déterministe, livre d'ouvertures complet.
-	 * Joue toujours le coup optimal et emprunte systématiquement le chemin de victoire
-	 * le plus court (WIN+depth). Imbattable avec un jeu correct.
 	 */
 	impossible: {
 		depth: 7,
@@ -138,10 +133,6 @@ export const DIFFICULTY_PRESETS: Record<string, DifficultyConfig> = {
 
 	/**
 	 * Match nul — l'IA essaie à tout prix de faire match nul.
-	 * Elle utilise getBestDrawMove : parmi les coups non-perdants, elle choisit
-	 * celui dont le score minimax est le plus proche de 0 (DRAW), évitant
-	 * activement les positions gagnantes comme les positions perdantes.
-	 * Ne joue pas le centre en premier ni de livre d'ouvertures (trop agressifs).
 	 */
 	draw: {
 		depth: 6,
@@ -158,97 +149,33 @@ export const DIFFICULTY_PRESETS: Record<string, DifficultyConfig> = {
 
 export const DEFAULT_DIFFICULTY: keyof typeof DIFFICULTY_PRESETS = "hard";
 
-// ── Utilitaires plateau ────────────────────────────────────────────────────────
-
-function isBoardEmpty(board: Board): boolean {
-	return board.every((col) => col.every((c) => c === 0));
-}
-
-function isValidCol(board: Board, col: number): boolean {
-	return board[col][5] === 0;
-}
-
-function countAiPieces(board: Board, aiPlayer: number): number {
-	return board.reduce((sum, col) => sum + col.filter((c) => c === aiPlayer).length, 0);
-}
-
-// ── Détection de menaces ───────────────────────────────────────────────────────
-
-/**
- * Retourne la première colonne où `player` compléterait un 4-en-ligne
- * en jouant immédiatement, ou null si aucune telle colonne n'existe.
- *
- * Utilisé à la fois pour saisir un coup gagnant et pour bloquer la victoire adverse.
- */
-function findWinningMove(board: Board, player: number): number | null {
-	const cols = [0, 1, 2, 3, 4, 5, 6].filter((c) => isValidCol(board, c));
-	for (const col of cols) {
-		const row = board[col].indexOf(0);
-		// Placer temporairement la pièce
-		board[col][row] = player;
-		const wins = checkFourInRow(board, player);
-		board[col][row] = 0;
-		if (wins) return col;
-	}
-	return null;
-}
-
-function checkFourInRow(board: Board, player: number): boolean {
-	// Horizontal
-	for (let r = 0; r < 6; r++) {
-		for (let c = 0; c < 4; c++) {
-			if (board[c][r] === player && board[c+1][r] === player && board[c+2][r] === player && board[c+3][r] === player)
-				return true;
-		}
-	}
-	// Vertical
-	for (let c = 0; c < 7; c++) {
-		for (let r = 0; r < 3; r++) {
-			if (board[c][r] === player && board[c][r+1] === player && board[c][r+2] === player && board[c][r+3] === player)
-				return true;
-		}
-	}
-	// Diagonale /
-	for (let c = 0; c < 4; c++) {
-		for (let r = 0; r < 3; r++) {
-			if (board[c][r] === player && board[c+1][r+1] === player && board[c+2][r+2] === player && board[c+3][r+3] === player)
-				return true;
-		}
-	}
-	// Diagonale \
-	for (let c = 3; c < 7; c++) {
-		for (let r = 0; r < 3; r++) {
-			if (board[c][r] === player && board[c-1][r+1] === player && board[c-2][r+2] === player && board[c-3][r+3] === player)
-				return true;
-		}
-	}
-	return false;
-}
-
 // ── Livre d'ouvertures ─────────────────────────────────────────────────────────
 
 /**
  * Retourne un coup du livre d'ouvertures pour l'IA, ou null si non applicable.
  *
  * Priorité :
- * 1. Centre en premier — sur un plateau vide, jouer toujours la col 3.
- * 2. Livre d'ouvertures — pour les N premiers coups IA, choisir la colonne
- *    valide la plus prioritaire dans `openingColPriority` (ignore les colonnes pleines).
+ * 1. Centre en premier — sur un plateau vide, jouer le premier coup de openingColPriority.
+ * 2. Livre d'ouvertures — pour les N premiers coups IA, choisir le coup valide
+ *    le plus prioritaire dans openingColPriority.
  */
-function openingBookMove(board: Board, aiPlayer: number, config: DifficultyConfig): number | null {
-	// 1. Plateau vide → jouer le centre
-	if (config.centerFirst && isBoardEmpty(board) && isValidCol(board, 3)) {
-		return 3;
+function openingBookMove(board: Board, aiPlayer: number, config: DifficultyConfig, engine: GameEngine): number | null {
+	const validMoves = engine.getValidMoves(board);
+
+	// 1. Plateau vide → jouer le premier coup de la priorité d'ouverture
+	if (config.centerFirst && engine.isBoardEmpty(board)) {
+		const centerMove = config.openingColPriority.find((m) => validMoves.includes(m));
+		if (centerMove !== undefined) return centerMove;
 	}
 
 	// 2. Livre d'ouvertures pour les premiers coups
 	if (!config.useOpeningBook) return null;
 
-	const aiPieces = countAiPieces(board, aiPlayer);
+	const aiPieces = engine.countPieces(board, aiPlayer);
 	if (aiPieces >= config.openingBookMoves) return null;
 
-	for (const col of config.openingColPriority) {
-		if (isValidCol(board, col)) return col;
+	for (const move of config.openingColPriority) {
+		if (validMoves.includes(move)) return move;
 	}
 
 	return null;
@@ -257,45 +184,43 @@ function openingBookMove(board: Board, aiPlayer: number, config: DifficultyConfi
 // ── Point d'entrée principal ───────────────────────────────────────────────────
 
 /**
- * Retourne la meilleure colonne pour l'IA selon le plateau actuel et la config de difficulté.
+ * Retourne le meilleur coup pour l'IA selon le plateau actuel, la config et le moteur de jeu.
  *
  * Mode normal — ordre de décision :
- * 1. Saisir un coup gagnant immédiat (quelle que soit la difficulté).
- * 2. Bloquer la menace gagnante immédiate de l'adversaire (si blockImmediateThreats).
+ * 1. Saisir un coup gagnant immédiat.
+ * 2. Bloquer le coup gagnant immédiat de l'adversaire (si blockImmediateThreats).
  * 3. Appliquer le livre d'ouvertures / stratégie centre en premier.
- * 4. Minimax avec scoring WIN+depth (les victoires forcées les plus proches sont prioritaires).
+ * 4. Minimax avec scoring WIN+depth.
  *
  * Mode match nul (drawMode) — ordre de décision :
- * 1. Bloquer la menace gagnante immédiate de l'adversaire (survie).
- * 2. getBestDrawMove : choisit le coup dont le score est le plus proche de 0 (DRAW),
- *    en évitant activement les positions gagnantes comme perdantes.
+ * 1. Bloquer le coup gagnant immédiat de l'adversaire (survie).
+ * 2. getBestDrawMove : cible le DRAW en évitant les positions gagnantes et perdantes.
  */
-export function getMove(board: Board, aiPlayer: 1 | 2, config: DifficultyConfig): number {
+export function getMove(board: Board, aiPlayer: 1 | 2, config: DifficultyConfig, engine: GameEngine): number {
 	const opp = aiPlayer === 1 ? 2 : 1;
 
 	if (config.drawMode) {
-		// En mode match nul, on survit d'abord, puis on cible le DRAW
 		if (config.blockImmediateThreats) {
-			const blockMove = findWinningMove(board, opp);
+			const blockMove = findWinningMove(board, opp, engine);
 			if (blockMove !== null) return blockMove;
 		}
-		return getBestDrawMove(board, aiPlayer, config.depth);
+		return getBestDrawMove(board, aiPlayer, engine, config.depth);
 	}
 
-	// 1. Gagner immédiatement si possible — toujours saisir cette opportunité
-	const winMove = findWinningMove(board, aiPlayer);
+	// 1. Gagner immédiatement si possible
+	const winMove = findWinningMove(board, aiPlayer, engine);
 	if (winMove !== null) return winMove;
 
 	// 2. Bloquer la victoire immédiate de l'adversaire
 	if (config.blockImmediateThreats) {
-		const blockMove = findWinningMove(board, opp);
+		const blockMove = findWinningMove(board, opp, engine);
 		if (blockMove !== null) return blockMove;
 	}
 
 	// 3. Livre d'ouvertures / centre en premier
-	const bookMove = openingBookMove(board, aiPlayer, config);
+	const bookMove = openingBookMove(board, aiPlayer, config, engine);
 	if (bookMove !== null) return bookMove;
 
-	// 4. Minimax (WIN+depth garantit que les séquences forcées sont toujours préférées)
-	return getBestMove(board, aiPlayer, config.depth, config.temperature);
+	// 4. Minimax
+	return getBestMove(board, aiPlayer, engine, config.depth, config.temperature);
 }

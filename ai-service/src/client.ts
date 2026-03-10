@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { type Board } from "./minimax.js";
+import type { Board, GameEngine } from "./games/GameEngine.js";
 import { getMove, type DifficultyConfig, DIFFICULTY_PRESETS, DEFAULT_DIFFICULTY } from "./difficulty.js";
 
 type SyncData = { playerId: number | null; cPlayer: number; board?: Board; last?: { x: number; y: number } };
@@ -10,16 +10,25 @@ const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
 
 export class AIClient {
 	private socket: Socket;
-	private board: Board = Array.from({ length: 7 }, () => Array(6).fill(0));
+	private board: Board;
+	private engine: GameEngine;
 	private myPlayerId: number | null = null;
 	private roomId: string;
 	private config: DifficultyConfig;
 	private gameOver: boolean = false;
 	private idleTimer: ReturnType<typeof setTimeout> | null = null;
 
-	constructor(backendWsUrl: string, roomId: string, token: string, config: DifficultyConfig = DIFFICULTY_PRESETS[DEFAULT_DIFFICULTY]) {
+	constructor(
+		backendWsUrl: string,
+		roomId: string,
+		token: string,
+		config: DifficultyConfig = DIFFICULTY_PRESETS[DEFAULT_DIFFICULTY],
+		engine: GameEngine
+	) {
 		this.roomId = roomId;
 		this.config = config;
+		this.engine = engine;
+		this.board = engine.createBoard();
 
 		this.socket = io(backendWsUrl, {
 			path: "/api/socket.io",
@@ -55,7 +64,7 @@ export class AIClient {
 				this.myPlayerId = data.playerId;
 			}
 			// If board is absent, the game was just reset — clear our state
-			this.board = data.board ?? Array.from({ length: 7 }, () => Array(6).fill(0));
+			this.board = data.board ?? this.engine.createBoard();
 			this.gameOver = false;
 			if (this.myPlayerId !== null && data.cPlayer === this.myPlayerId) {
 				this.scheduleMove();
@@ -68,7 +77,7 @@ export class AIClient {
 		// A piece was played — update board and play if it's our turn
 		this.socket.on("play", (data: PlayData) => {
 			if (this.gameOver) return;
-			this.board[data.x][data.y] = data.playerId;
+			this.board = this.engine.applyMove(this.board, data.x, data.playerId);
 			if (this.myPlayerId !== null && data.nextPlayerId === this.myPlayerId) {
 				this.clearIdleTimer();
 				this.scheduleMove();
@@ -123,10 +132,9 @@ export class AIClient {
 		// Vérifier qu'il reste des coups valides (protection contre la race condition
 		// où "play" arrive avec nextPlayerId=AI juste avant "game-draw" quand le
 		// plateau est plein — ce cas est courant avec le mode match nul)
-		const hasValidMoves = this.board.some((col) => col[5] === 0);
-		if (!hasValidMoves) return;
+		if (this.engine.getValidMoves(this.board).length === 0) return;
 		try {
-			const col = getMove(this.board, this.myPlayerId as 1 | 2, this.config);
+			const col = getMove(this.board, this.myPlayerId as 1 | 2, this.config, this.engine);
 			console.log(`[AI] Playing column ${col}`);
 			this.socket.emit("play", col);
 		} catch (err) {
