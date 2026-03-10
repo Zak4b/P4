@@ -148,8 +148,10 @@ function minimax(
 
 	if (depth === 0 || terminal) {
 		if (terminal) {
-			if (checkWinner(board, aiPlayer)) return WIN;
-			if (checkWinner(board, humanPlayer)) return LOSS;
+			// WIN + depth : victoire rapide > victoire lointaine (chemin forcé privilégié)
+			// LOSS - depth : défaite retardée > défaite immédiate (survie maximale)
+			if (checkWinner(board, aiPlayer)) return WIN + depth;
+			if (checkWinner(board, humanPlayer)) return LOSS - depth;
 			return DRAW;
 		}
 		return scorePosition(board, aiPlayer);
@@ -178,7 +180,8 @@ function minimax(
 
 /**
  * temperature = 0  → toujours le meilleur coup (Impossible)
- * temperature > 0  → sélection softmax : plus T est grand, plus les coups sont aléatoires
+ * temperature > 0  → sélection softmax : plus T est grand, plus les coups sont aléatoires.
+ * Les scores WIN+depth garantissent que les victoires forcées (les plus proches) sont
  * astronomiquement plus probables même à haute température.
  */
 export function getBestMove(board: Board, aiPlayer: 1 | 2, depth: number = 6, temperature: number = 0): number {
@@ -206,4 +209,78 @@ export function getBestMove(board: Board, aiPlayer: 1 | 2, depth: number = 6, te
 		if (rand <= 0) return scored[i].col;
 	}
 	return scored[scored.length - 1].col;
+}
+
+// ── Minimax dédié au mode match nul ───────────────────────────────────────────
+
+/**
+ * Variante de minimax pour l'IA "match nul".
+ *
+ * Échelle des valeurs terminales (du point de vue de l'IA draw) :
+ *   WIN + depth  → match nul (board plein) : objectif principal, plus tôt = mieux
+ *   LOSS / 2     → victoire de l'IA : non souhaitée (pénalité modérée)
+ *   LOSS - depth → victoire de l'adversaire : pire résultat, retarder au maximum
+ *
+ * Évaluation heuristique (depth = 0, position non terminale) :
+ *   On minimise le déséquilibre : -(|score_IA - score_adversaire|)
+ *   Une position parfaitement équilibrée retourne 0 (idéal pour le match nul).
+ *
+ * L'IA maximise ce score ; l'adversaire le minimise (joue pour gagner normalement).
+ */
+function minimaxDraw(
+	board: Board,
+	depth: number,
+	alpha: number,
+	beta: number,
+	maximizing: boolean,
+	aiPlayer: number
+): number {
+	const humanPlayer = aiPlayer === 1 ? 2 : 1;
+	const validCols = [0, 1, 2, 3, 4, 5, 6].filter((c) => isValidMove(board, c));
+	const terminal = isTerminal(board);
+
+	if (depth === 0 || terminal) {
+		if (terminal) {
+			if (checkWinner(board, humanPlayer)) return LOSS - depth; // défaite : pire résultat
+			if (checkWinner(board, aiPlayer))    return LOSS / 2;     // victoire IA : non souhaitée
+			return WIN + depth;                                        // match nul : objectif !
+		}
+		// Heuristique : position équilibrée (différence minimale) = meilleure pour le match nul
+		return -(Math.abs(scorePosition(board, aiPlayer) - scorePosition(board, humanPlayer)));
+	}
+
+	if (maximizing) {
+		let value = -Infinity;
+		for (const col of validCols) {
+			const newBoard = dropPiece(board, col, aiPlayer);
+			value = Math.max(value, minimaxDraw(newBoard, depth - 1, alpha, beta, false, aiPlayer));
+			alpha = Math.max(alpha, value);
+			if (alpha >= beta) break;
+		}
+		return value;
+	} else {
+		let value = Infinity;
+		for (const col of validCols) {
+			const newBoard = dropPiece(board, col, humanPlayer);
+			value = Math.min(value, minimaxDraw(newBoard, depth - 1, alpha, beta, true, aiPlayer));
+			beta = Math.min(beta, value);
+			if (alpha >= beta) break;
+		}
+		return value;
+	}
+}
+
+/**
+ * Retourne le coup qui maximise les chances de match nul.
+ * Utilise minimaxDraw où DRAW terminal est le score le plus élevé possible.
+ */
+export function getBestDrawMove(board: Board, aiPlayer: 1 | 2, depth: number = 6): number {
+	const validCols = [0, 1, 2, 3, 4, 5, 6].filter((c) => isValidMove(board, c));
+
+	const scored = validCols.map((col) => ({
+		col,
+		score: minimaxDraw(dropPiece(board, col, aiPlayer), depth - 1, -Infinity, Infinity, false, aiPlayer),
+	}));
+
+	return scored.reduce((best, m) => (m.score > best.score ? m : best)).col;
 }

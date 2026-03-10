@@ -127,7 +127,7 @@ class ApiClient {
 		});
 	}
 
-	async newAIRoom(difficulty: "easy" | "medium" | "hard" | "impossible"): Promise<{ success: boolean; roomId?: string }> {
+	async newAIRoom(difficulty: "easy" | "medium" | "hard" | "impossible" | "draw"): Promise<{ success: boolean; roomId?: string }> {
 		return this.request<{ success: boolean; roomId?: string }>("/room/ai", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },

@@ -28,13 +28,14 @@ import RuleList from "@/components/Game/Rules/RuleList";
 import { useMatching } from "@/hooks/useMatching";
 import { apiClient } from "@/lib/api";
 
-type Difficulty = "easy" | "medium" | "hard" | "impossible";
+type Difficulty = "easy" | "medium" | "hard" | "impossible" | "draw";
 
 const DIFFICULTIES: { value: Difficulty; label: string; description: string; color: string }[] = [
-	{ value: "easy",       label: "Facile",      description: "Joue approximativement, fait des erreurs",      color: "#4caf50" },
-	{ value: "medium",     label: "Normal",       description: "Joue bien mais reste humainement battable",     color: "#ff9800" },
-	{ value: "hard",       label: "Difficile",    description: "Joue très bien, rare de la battre",             color: "#f44336" },
-	{ value: "impossible", label: "Impossible",   description: "Jeu optimal — aucune pitié",                    color: "#9c27b0" },
+	{ value: "easy",       label: "Facile",       description: "Joue approximativement, fait des erreurs",      color: "#4caf50" },
+	{ value: "medium",     label: "Normal",        description: "Joue bien mais reste humainement battable",     color: "#ff9800" },
+	{ value: "hard",       label: "Difficile",     description: "Joue très bien, rare de la battre",             color: "#f44336" },
+	{ value: "impossible", label: "Impossible",    description: "Jeu optimal — aucune pitié",                    color: "#9c27b0" },
+	{ value: "draw",       label: "Match nul",     description: "Cherche activement le match nul",               color: "#00bcd4" },
 ];
 
 export default function PlayIndexPage() {

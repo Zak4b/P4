@@ -1,4 +1,4 @@
-import { getBestMove, type Board } from "./minimax.js";
+import { getBestMove, getBestDrawMove, type Board } from "./minimax.js";
 
 // ── Type de configuration ──────────────────────────────────────────────────────
 
@@ -13,6 +13,7 @@ export type DifficultyConfig = {
 	 * Température softmax pour la sélection des coups.
 	 * 0 = toujours le meilleur coup (déterministe), plus élevée = plus aléatoire.
 	 * Plage typique : 0 (impossible) → 80 (facile).
+	 * Ignoré si drawMode est true.
 	 */
 	temperature: number;
 
@@ -53,6 +54,14 @@ export type DifficultyConfig = {
 	 * Purement cosmétique — simule un temps de réflexion.
 	 */
 	moveDelay: number;
+
+	/**
+	 * Mode match nul : l'IA cherche à faire match nul plutôt qu'à gagner.
+	 * Elle cible les positions dont le score minimax est le plus proche de 0 (DRAW),
+	 * en évitant aussi bien les coups gagnants que les coups perdants.
+	 * Quand true, temperature et useOpeningBook sont ignorés.
+	 */
+	drawMode: boolean;
 };
 
 // ── Préréglages de difficulté ──────────────────────────────────────────────────
@@ -66,7 +75,7 @@ export const DIFFICULTY_PRESETS: Record<string, DifficultyConfig> = {
 	 * Fait souvent des erreurs et ignore les menaces.
 	 */
 	easy: {
-		depth: 2,
+		depth: 1,
 		temperature: 80,
 		centerFirst: false,
 		useOpeningBook: false,
@@ -74,6 +83,7 @@ export const DIFFICULTY_PRESETS: Record<string, DifficultyConfig> = {
 		openingColPriority: CENTER_PRIORITY,
 		blockImmediateThreats: false,
 		moveDelay: 400,
+		drawMode: false,
 	},
 
 	/**
@@ -89,11 +99,13 @@ export const DIFFICULTY_PRESETS: Record<string, DifficultyConfig> = {
 		openingColPriority: CENTER_PRIORITY,
 		blockImmediateThreats: true,
 		moveDelay: 400,
+		drawMode: false,
 	},
 
 	/**
 	 * Difficile — recherche profonde, faible aléatoire, livre d'ouvertures sur 2 coups.
-	 * Joue quasi-optimalement après l'ouverture.
+	 * Grâce au scoring WIN+depth, l'IA reconnaît et joue les séquences de victoire
+	 * forcées (double menaces, zugzwang) même avec une légère part d'aléatoire.
 	 */
 	hard: {
 		depth: 6,
@@ -104,11 +116,13 @@ export const DIFFICULTY_PRESETS: Record<string, DifficultyConfig> = {
 		openingColPriority: CENTER_PRIORITY,
 		blockImmediateThreats: true,
 		moveDelay: 400,
+		drawMode: false,
 	},
 
 	/**
 	 * Impossible — profondeur maximale, meilleur coup déterministe, livre d'ouvertures complet.
-	 * Joue toujours le coup optimal. Imbattable avec un jeu correct.
+	 * Joue toujours le coup optimal et emprunte systématiquement le chemin de victoire
+	 * le plus court (WIN+depth). Imbattable avec un jeu correct.
 	 */
 	impossible: {
 		depth: 7,
@@ -119,6 +133,26 @@ export const DIFFICULTY_PRESETS: Record<string, DifficultyConfig> = {
 		openingColPriority: CENTER_PRIORITY,
 		blockImmediateThreats: true,
 		moveDelay: 400,
+		drawMode: false,
+	},
+
+	/**
+	 * Match nul — l'IA essaie à tout prix de faire match nul.
+	 * Elle utilise getBestDrawMove : parmi les coups non-perdants, elle choisit
+	 * celui dont le score minimax est le plus proche de 0 (DRAW), évitant
+	 * activement les positions gagnantes comme les positions perdantes.
+	 * Ne joue pas le centre en premier ni de livre d'ouvertures (trop agressifs).
+	 */
+	draw: {
+		depth: 6,
+		temperature: 0,
+		centerFirst: false,
+		useOpeningBook: false,
+		openingBookMoves: 0,
+		openingColPriority: CENTER_PRIORITY,
+		blockImmediateThreats: true,
+		moveDelay: 400,
+		drawMode: true,
 	},
 };
 
@@ -225,14 +259,28 @@ function openingBookMove(board: Board, aiPlayer: number, config: DifficultyConfi
 /**
  * Retourne la meilleure colonne pour l'IA selon le plateau actuel et la config de difficulté.
  *
- * Ordre de décision :
+ * Mode normal — ordre de décision :
  * 1. Saisir un coup gagnant immédiat (quelle que soit la difficulté).
  * 2. Bloquer la menace gagnante immédiate de l'adversaire (si blockImmediateThreats).
  * 3. Appliquer le livre d'ouvertures / stratégie centre en premier.
- * 4. Recourir au minimax avec la profondeur et température configurées.
+ * 4. Minimax avec scoring WIN+depth (les victoires forcées les plus proches sont prioritaires).
+ *
+ * Mode match nul (drawMode) — ordre de décision :
+ * 1. Bloquer la menace gagnante immédiate de l'adversaire (survie).
+ * 2. getBestDrawMove : choisit le coup dont le score est le plus proche de 0 (DRAW),
+ *    en évitant activement les positions gagnantes comme perdantes.
  */
 export function getMove(board: Board, aiPlayer: 1 | 2, config: DifficultyConfig): number {
 	const opp = aiPlayer === 1 ? 2 : 1;
+
+	if (config.drawMode) {
+		// En mode match nul, on survit d'abord, puis on cible le DRAW
+		if (config.blockImmediateThreats) {
+			const blockMove = findWinningMove(board, opp);
+			if (blockMove !== null) return blockMove;
+		}
+		return getBestDrawMove(board, aiPlayer, config.depth);
+	}
 
 	// 1. Gagner immédiatement si possible — toujours saisir cette opportunité
 	const winMove = findWinningMove(board, aiPlayer);
@@ -248,6 +296,6 @@ export function getMove(board: Board, aiPlayer: 1 | 2, config: DifficultyConfig)
 	const bookMove = openingBookMove(board, aiPlayer, config);
 	if (bookMove !== null) return bookMove;
 
-	// 4. Minimax
+	// 4. Minimax (WIN+depth garantit que les séquences forcées sont toujours préférées)
 	return getBestMove(board, aiPlayer, config.depth, config.temperature);
 }

@@ -26,7 +26,7 @@ export function roomRoutes(fastify: FastifyInstance) {
 
 	fastify.post("/ai", async (request: FastifyRequest, reply: FastifyReply) => {
 		const { difficulty } = z
-			.object({ difficulty: z.enum(["easy", "medium", "hard", "impossible"]).optional() })
+			.object({ difficulty: z.enum(["easy", "medium", "hard", "impossible", "draw"]).optional() })
 			.parse(request.body);
 
 		const room = manager.newRoom({});

@@ -5,6 +5,9 @@ import { getMove, type DifficultyConfig, DIFFICULTY_PRESETS, DEFAULT_DIFFICULTY 
 type SyncData = { playerId: number | null; cPlayer: number; board?: Board; last?: { x: number; y: number } };
 type PlayData = { playerId: number; x: number; y: number; nextPlayerId: number };
 
+// Délai d'inactivité avant que l'IA quitte la partie (5 minutes)
+const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
+
 export class AIClient {
 	private socket: Socket;
 	private board: Board = Array.from({ length: 7 }, () => Array(6).fill(0));
@@ -12,6 +15,7 @@ export class AIClient {
 	private roomId: string;
 	private config: DifficultyConfig;
 	private gameOver: boolean = false;
+	private idleTimer: ReturnType<typeof setTimeout> | null = null;
 
 	constructor(backendWsUrl: string, roomId: string, token: string, config: DifficultyConfig = DIFFICULTY_PRESETS[DEFAULT_DIFFICULTY]) {
 		this.roomId = roomId;
@@ -55,6 +59,9 @@ export class AIClient {
 			this.gameOver = false;
 			if (this.myPlayerId !== null && data.cPlayer === this.myPlayerId) {
 				this.scheduleMove();
+			} else {
+				// C'est le tour du joueur humain — démarrer le minuteur d'inactivité
+				this.resetIdleTimer();
 			}
 		});
 
@@ -63,18 +70,24 @@ export class AIClient {
 			if (this.gameOver) return;
 			this.board[data.x][data.y] = data.playerId;
 			if (this.myPlayerId !== null && data.nextPlayerId === this.myPlayerId) {
+				this.clearIdleTimer();
 				this.scheduleMove();
+			} else {
+				// Tour du joueur humain — (re)démarrer le minuteur d'inactivité
+				this.resetIdleTimer();
 			}
 		});
 
 		this.socket.on("game-win", () => {
 			console.log("[AI] Game ended (win) — staying connected for potential restart");
 			this.gameOver = true;
+			this.clearIdleTimer();
 		});
 
 		this.socket.on("game-draw", () => {
 			console.log("[AI] Game ended (draw) — staying connected for potential restart");
 			this.gameOver = true;
+			this.clearIdleTimer();
 		});
 
 		this.socket.on("connect_error", (err: Error) => {
@@ -86,14 +99,38 @@ export class AIClient {
 		});
 	}
 
+	private resetIdleTimer(): void {
+		this.clearIdleTimer();
+		this.idleTimer = setTimeout(() => {
+			console.log(`[AI] Joueur inactif depuis ${IDLE_TIMEOUT_MS / 60000} minutes — déconnexion`);
+			this.socket.disconnect();
+		}, IDLE_TIMEOUT_MS);
+	}
+
+	private clearIdleTimer(): void {
+		if (this.idleTimer !== null) {
+			clearTimeout(this.idleTimer);
+			this.idleTimer = null;
+		}
+	}
+
 	private scheduleMove(): void {
 		setTimeout(() => this.playBestMove(), this.config.moveDelay);
 	}
 
 	private playBestMove(): void {
 		if (this.myPlayerId === null || this.gameOver) return;
-		const col = getMove(this.board, this.myPlayerId as 1 | 2, this.config);
-		console.log(`[AI] Playing column ${col}`);
-		this.socket.emit("play", col);
+		// Vérifier qu'il reste des coups valides (protection contre la race condition
+		// où "play" arrive avec nextPlayerId=AI juste avant "game-draw" quand le
+		// plateau est plein — ce cas est courant avec le mode match nul)
+		const hasValidMoves = this.board.some((col) => col[5] === 0);
+		if (!hasValidMoves) return;
+		try {
+			const col = getMove(this.board, this.myPlayerId as 1 | 2, this.config);
+			console.log(`[AI] Playing column ${col}`);
+			this.socket.emit("play", col);
+		} catch (err) {
+			console.error("[AI] Erreur lors du calcul du coup :", err);
+		}
 	}
 }

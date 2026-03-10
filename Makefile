@@ -19,7 +19,7 @@ all: build up ## Build les images et démarre les containers dev
 # ─── Help ──────────────────────────────────────────────────────────────────────
 
 help: ## Affiche les commandes disponibles
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+	@grep -Eh '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 	  awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
 
 # ─── Env ───────────────────────────────────────────────────────────────────────
