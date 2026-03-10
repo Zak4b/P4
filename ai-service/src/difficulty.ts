@@ -6,7 +6,7 @@ import type { GameEngine } from "./games/GameEngine.js";
 export type DifficultyConfig = {
 	/**
 	 * Profondeur de recherche minimax — plus élevée = plus fort mais plus lent.
-	 * Plage typique : 2 (facile) → 7 (impossible).
+	 * Plage typique : 1 (facile) → 7 (impossible).
 	 */
 	depth: number;
 
@@ -70,7 +70,7 @@ const CENTER_PRIORITY = [3, 2, 4, 1, 5, 0, 6] as const;
 
 export const DIFFICULTY_PRESETS: Record<string, DifficultyConfig> = {
 	/**
-	 * Facile — recherche peu profonde, forte aléatoire, pas de livre d'ouvertures.
+	 * Facile — recherche peu profonde, très aléatoire, pas de livre d'ouvertures.
 	 * Fait souvent des erreurs et ignore les menaces.
 	 */
 	easy: {
@@ -102,14 +102,14 @@ export const DIFFICULTY_PRESETS: Record<string, DifficultyConfig> = {
 	},
 
 	/**
-	 * Difficile — recherche profonde, faible aléatoire, livre d'ouvertures sur 2 coups.
+	 * Difficile — recherche profonde, faible aléatoire, livre d'ouvertures sur 3 coups.
 	 */
 	hard: {
 		depth: 6,
 		temperature: 4,
 		centerFirst: true,
 		useOpeningBook: true,
-		openingBookMoves: 2,
+		openingBookMoves: 3,
 		openingColPriority: CENTER_PRIORITY,
 		blockImmediateThreats: true,
 		moveDelay: 400,
