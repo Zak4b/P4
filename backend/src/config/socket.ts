@@ -5,35 +5,51 @@ import { websocketConnection } from "../websocket.js";
 import { toAuthRequest } from "../lib/auth-utils.js";
 import { getSocketIOCorsOptions } from "./cors.js";
 
-/**
- * Configure et initialise Socket.IO avec les handlers de connexion
- */
-export function setupSocketIO(fastify: FastifyInstance): Server {
-	const httpServer = fastify.server;
-	const io = new Server(httpServer, {
-		cors: getSocketIOCorsOptions(),
-		path: "/api/socket.io",
-	});
+class SocketServer {
+	private static _instance: SocketServer | null = null;
+	readonly io: Server;
 
-	// Socket.IO connection handler
-	io.on("connection", async (socket) => {
-		fastify.log.info({ address: socket.handshake.address }, "Socket.IO connection attempt");
-		
-		const cookieHeader = socket.handshake.headers.cookie || "";
-		const cookies = cookieHeader ? parseCookie(cookieHeader) : {};
-
-		const req = toAuthRequest({
-			cookies,
-			headers: socket.handshake.headers,
+	private constructor(fastify: FastifyInstance) {
+		this.io = new Server(fastify.server, {
+			cors: getSocketIOCorsOptions(),
+			path: "/api/socket.io",
 		});
-		await websocketConnection(socket, req);
-	});
 
-	// Gérer les erreurs de connexion Socket.IO
-	io.engine.on("connection_error", (err) => {
-		fastify.log.error("Socket.IO connection error:", err);
-	});
+		this.io.on("connection", async (socket) => {
+			fastify.log.info({ address: socket.handshake.address }, "Socket.IO connection attempt");
 
-	return io;
+			const cookieHeader = socket.handshake.headers.cookie || "";
+			const cookies = cookieHeader ? parseCookie(cookieHeader) : {};
+
+			const req = toAuthRequest({
+				cookies,
+				headers: socket.handshake.headers,
+			});
+			await websocketConnection(socket, req);
+		});
+
+		this.io.engine.on("connection_error", (err) => {
+			fastify.log.error("Socket.IO connection error:", err);
+		});
+	}
+
+	static initialize(fastify: FastifyInstance): Server {
+		if (!SocketServer._instance) {
+			SocketServer._instance = new SocketServer(fastify);
+		}
+		return SocketServer._instance.io;
+	}
+
+	static get instance(): SocketServer {
+		if (!SocketServer._instance) {
+			throw new Error("Socket.IO server not initialized");
+		}
+		return SocketServer._instance;
+	}
 }
 
+export function setupSocketIO(fastify: FastifyInstance): Server {
+	return SocketServer.initialize(fastify);
+}
+
+export const getSocketIO = (): Server => SocketServer.instance.io;

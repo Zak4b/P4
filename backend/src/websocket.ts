@@ -2,6 +2,7 @@ import { Socket } from "socket.io";
 import { P4 } from "./game/P4.js";
 import { Player, RoomManager } from "./game/room/index.js";
 import { getUserFromRequest } from "./lib/auth-utils.js";
+import { userRoom } from "./lib/socket-rooms.js";
 
 type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
 type JoinResponse = { success: boolean; roomId?: string; playerId?: number; error?: string };
@@ -45,7 +46,12 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 			throw new Error("Authentication required");
 		}
 		const player = new Player<typeof P4>(socket, user.id, user.login);
+		void socket.join(userRoom(player.uuid));
 		player.send({ type: "registered", data: player.uuid });
+
+	socket.on("leave", () => {
+		manager.leave(player);
+	});
 
 	socket.on("matchmaking-join", () => {
 		console.log("[matchmaking] socket event: matchmaking-join", { uuid: player.uuid, displayName: player.displayName });
@@ -116,22 +122,14 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 			if (!player.room || !player.localId) {
 				return;
 			}
-			// TODO: Implement swap functionality with proper data storage
 			const other = player.room.playerList.find((p) => p.uuid != player.uuid);
-			if (other) {
-			// Simple swap implementation
-			const tempId = player.localId;
-			player.localId = other.localId;
-			other.localId = tempId;
-			const reg = player.room.registeredPlayerList;
-			reg.forEach((e) => {
-				e.playerId = e.playerId == 1 ? 2 : 1;
-			});
-
+			if (!other || other.localId === null) {
+				return;
+			}
+			player.room.swapPlayerSlots(player, other);
 			player.room.playerList.forEach((p) => {
 				p.send({ type: "sync", data: getSyncData(p) });
 			});
-		}
 		},
 		spect: async (roomId: string) => {
 			const room = manager.get(roomId);

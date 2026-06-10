@@ -2,13 +2,14 @@ import { Game } from "./Game.class.js";
 import { Room } from "./Room.js";
 import { Player } from "./Player.js";
 import { v4 as uuidv4 } from "uuid";
+import { getSocketIO } from "../../config/socket.js";
 import { ServerMessage } from "./types.js";
+import { userRoom } from "../../lib/socket-rooms.js";
 
 export type OnPlayerJoinRoom<T extends new () => Game> = (player: Player<T>) => void;
 
 export class RoomManager<T extends new () => Game> {
 	private _list: Map<string, Room<T>> = new Map();
-	private players = new Map<string, Player<T>>();
 	private matchmakingQueue: Player<T>[] = [];
 	private matchmakingHandlers = new Map<string, () => void>();
 
@@ -99,22 +100,13 @@ export class RoomManager<T extends new () => Game> {
 		player.room?.remove(player);
 	}
 
-	public register(player: Player<T>) {
-		this.players.set(player.uuid, player);
-		player.socket.on("close", () => this.players.delete(player.uuid));
+	public sendToUser(uuid: string, message: ServerMessage): void {
+		getSocketIO().to(userRoom(uuid)).emit(message.type, message.data);
 	}
 
-	public async send(playerId: string, msg: ServerMessage) {
-		const player = this.players.get(playerId);
-		if (player) player.send(msg);
+	public broadcast(message: ServerMessage): void {
+		getSocketIO().emit(message.type, message.data);
 	}
-
-	public async broadcast(msg: ServerMessage) {
-		this.players.forEach((player) => {
-			player.send(msg);
-		});
-	}
-
 	// --- Matchmaking ---
 
 	public joinMatchmaking(player: Player<T>): void {

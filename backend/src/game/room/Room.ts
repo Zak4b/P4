@@ -4,6 +4,8 @@ import { ServerMessage } from "./types.js";
 import { TypedEventEmitter } from "./TypedEventEmitter.js";
 import { P4 } from "../P4.js";
 import { finalizeGameFromRoom } from "../../services/game.service.js";
+import { gameRoom } from "../../lib/socket-rooms.js";
+import { getSocketIO } from "../../config/socket.js";
 
 export type RoomEvent = "join" | "leave" | "empty" | "timeout" | "end";
 type RoomEventMap = {
@@ -61,17 +63,16 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 		this.name = name ?? id;
 		this.locked = locked ?? false;
 		this.playerLimit = playerLimit ?? 2;
-		this.allowedPlayerIds =
-			players && players.length > 0 ? new Set(players) : null;
+		this.allowedPlayerIds = players && players.length > 0 ? new Set(players) : null;
 		this.game = new game() as InstanceType<T>;
 		this.game.on("end", ({ winner, duration }) => {
 			const G = this.game as P4; //TODO generic
-			finalizeGameFromRoom(this.registeredPlayerList, winner, duration, G.board);
+			void finalizeGameFromRoom(this.registeredPlayerList, winner, duration, G.board);
 			if (winner === 0) {
-				this.send({ type: "game-draw" });
+				void this.send({ type: "game-draw" });
 			} else {
 				const player = this.registeredPlayerList.find((p) => p.playerId === winner)!;
-				this.send({ type: "game-win", data: { uuid: player.uuid, playerid: winner } });
+				void this.send({ type: "game-win", data: { uuid: player.uuid, playerid: winner } });
 			}
 			//this.lock_clean();
 			//this.emit("end");
@@ -85,6 +86,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 		this.players.online.forEach((player) => {
 			this.remove(player);
 		});
+		void getSocketIO().in(gameRoom(this.id)).socketsLeave(gameRoom(this.id));
 		this.removeAllListeners();
 	}
 
@@ -130,6 +132,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 		player.localId = pid;
 		this.players.online.set(player.uuid, player);
 		player.room = this;
+		void player.socket.join(gameRoom(this.id));
 		this.updateTimeStamp();
 		this.emit("join", { id: pid });
 	}
@@ -137,9 +140,23 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 	remove(player: Player<T>) {
 		this.updateTimeStamp();
 		this.players.online.delete(player.uuid);
+		void player.socket.leave(gameRoom(this.id));
+		player.clearRoom();
 		if (this.players.online.size == 0) {
 			this.emit("empty");
 		}
+	}
+
+	swapPlayerSlots(a: Player<T>, b: Player<T>): void {
+		const idA = this.players.registered.get(a.uuid);
+		const idB = this.players.registered.get(b.uuid);
+		if (idA === undefined || idB === undefined) {
+			return;
+		}
+		this.players.registered.set(a.uuid, idB);
+		this.players.registered.set(b.uuid, idA);
+		a.localId = idB;
+		b.localId = idA;
 	}
 
 	public start() {
@@ -161,8 +178,6 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 	}
 
 	public async send(msg: ServerMessage) {
-		this.players.online.forEach((player) => {
-			player.send(msg);
-		});
+		getSocketIO().to(gameRoom(this.id)).emit(msg.type, msg.data);
 	}
 }

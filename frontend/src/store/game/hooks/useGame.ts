@@ -102,6 +102,20 @@ export const useGame = () => {
 		[socket, isConnected, setWinDialogOpen]
 	);
 
+	const leaveRoom = useCallback(() => {
+		if (!socket || !isConnected) return;
+
+		socket.emit("leave");
+		currentRoomIdRef.current = null;
+		setLoading(false);
+		useGameStore.setState((state) => ({
+			gameState: {
+				...state.gameState,
+				currentRoomId: null,
+			},
+		}));
+	}, [socket, isConnected, setLoading]);
+
 	return {
 		gameState,
 		animatingTokens,
@@ -114,6 +128,7 @@ export const useGame = () => {
 		handleDraw,
 		handleRestart,
 		joinRoom,
+		leaveRoom,
 		playMove,
 		restart,
 		setAnimatingTokens,
