@@ -7,9 +7,9 @@ import {
 	getFriendRelationStatus,
 	sendFriendRequest,
 	removeFriend,
-} from "../services/friend.service.js";
-import { getUserByIdOrLogin } from "../services/user.service.js";
-import { HttpError } from "../lib/HttpError.js";
+} from "./friend.service.js";
+import { getUserByIdOrLogin } from "../user/user.service.js";
+import { HttpError } from "../../lib/HttpError.js";
 
 declare module "fastify" {
 	interface FastifyRequest {

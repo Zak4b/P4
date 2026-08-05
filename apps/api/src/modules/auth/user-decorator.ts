@@ -1,6 +1,6 @@
 import { FastifyRequest } from "fastify";
 import { toAuthRequest } from "./auth-utils.js";
-import auth from "../services/auth.service.js";
+import auth from "./auth.service.js";
 
 
 // eslint-disable-next-line @typescript-eslint/require-await

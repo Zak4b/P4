@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { listAllUsers, getUserLeaderboard, getUserProfile, getUserByIdOrLogin, getUserStats } from "../services/user.service.js";
-import { HttpError } from "../lib/HttpError.js";
+import { listAllUsers, getUserLeaderboard, getUserProfile, getUserByIdOrLogin, getUserStats } from "./user.service.js";
+import { HttpError } from "../../lib/HttpError.js";
 
 export function userRoutes(fastify: FastifyInstance) {
 	fastify.get("/", async (_, reply: FastifyReply) => {

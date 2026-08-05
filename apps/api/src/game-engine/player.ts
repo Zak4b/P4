@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
-import { Game } from "./Game.class.js";
-import { Room } from "./Room.js";
+import { Game } from "./game.js";
+import { Room } from "./room.js";
 import { ServerMessage } from "./types.js";
 
 export class Player<T extends new () => Game> {

@@ -1,11 +1,11 @@
-import { Game } from "./Game.class.js";
-import { Player } from "./Player.js";
+import { Game } from "./game.js";
+import { Player } from "./player.js";
 import { ServerMessage } from "./types.js";
-import { TypedEventEmitter } from "./TypedEventEmitter.js";
-import { P4 } from "../P4.js";
-import { finalizeGameFromRoom } from "../../services/game.service.js";
-import { gameRoom } from "../../lib/socket-rooms.js";
-import { getSocketIO } from "../../config/socket.js";
+import { TypedEventEmitter } from "./typed-event-emitter.js";
+import { P4 } from "./p4.js";
+import { finalizeGameFromRoom } from "../modules/match/game-history.service.js";
+import { gameRoom } from "../realtime/socket-rooms.js";
+import { getSocketIO } from "../config/socket.js";
 
 export type RoomEvent = "join" | "leave" | "empty" | "timeout" | "end";
 type RoomEventMap = {

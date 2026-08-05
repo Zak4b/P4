@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { createRoom, listAllRooms, getRoomById } from "../services/room.service.js";
+import { createRoom, listAllRooms, getRoomById } from "./room.service.js";
 import { z } from "zod";
-import { HttpError } from "../lib/HttpError.js";
+import { HttpError } from "../../lib/HttpError.js";
 
 export function roomRoutes(fastify: FastifyInstance) {
 

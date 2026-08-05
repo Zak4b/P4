@@ -1,8 +1,8 @@
 import { Socket } from "socket.io";
-import { P4 } from "./game/P4.js";
-import { Player, RoomManager } from "./game/room/index.js";
-import { getUserFromRequest } from "./lib/auth-utils.js";
-import { userRoom } from "./lib/socket-rooms.js";
+import { P4 } from "../game-engine/p4.js";
+import { Player, RoomManager } from "../game-engine/index.js";
+import { getUserFromRequest } from "../modules/auth/auth-utils.js";
+import { userRoom } from "./socket-rooms.js";
 
 type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
 type JoinResponse = { success: boolean; roomId?: string; playerId?: number; error?: string };

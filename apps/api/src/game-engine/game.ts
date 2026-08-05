@@ -1,4 +1,4 @@
-import { TypedEventEmitter } from "./TypedEventEmitter.js";
+import { TypedEventEmitter } from "./typed-event-emitter.js";
 
 type BaseEventMap = {
 	end: { winner: number, duration: number };

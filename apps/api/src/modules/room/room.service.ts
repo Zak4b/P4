@@ -1,6 +1,6 @@
-import { manager } from "../websocket.js";
-import type { Room } from "../game/room/Room.js";
-import type { P4 } from "../game/P4.js";
+import { manager } from "../../realtime/gateway.js";
+import type { Room } from "../../game-engine/room.js";
+import type { P4 } from "../../game-engine/p4.js";
 
 interface RoomResponse {
 	id: string;

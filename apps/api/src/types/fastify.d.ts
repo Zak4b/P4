@@ -1,4 +1,4 @@
-import type { JWTPayload } from "../lib/jwt.js";
+import type { JWTPayload } from "../modules/auth/jwt.js";
 import type { OAuth2Namespace } from "@fastify/oauth2";
 
 declare module "fastify" {

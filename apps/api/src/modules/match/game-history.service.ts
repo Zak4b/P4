@@ -1,7 +1,7 @@
-import { prisma } from "../lib/prisma.js";
+import { prisma } from "../../lib/prisma.js";
 import { GameWinner, Prisma } from "@prisma/client";
-import { calculateNewElo } from "../lib/elo.js";
-import { calculateXpGain } from "../lib/xp.js";
+import { calculateNewElo } from "./elo.js";
+import { calculateXpGain } from "./xp.js";
 
 async function getPlayersElos(
 	player1Id: string,

@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import auth from "../services/auth.service.js";
-import { registerSchema, loginSchema } from "../lib/zod-schemas.js";
-import { HttpError } from "../lib/HttpError.js";
-import { ENV } from "../config/env.js";
+import auth from "./auth.service.js";
+import { registerSchema, loginSchema } from "../../lib/zod-schemas.js";
+import { HttpError } from "../../lib/HttpError.js";
+import { ENV } from "../../config/env.js";
 
 const COOKIE_OPTS = {
 	signed: false,

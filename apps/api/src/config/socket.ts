@@ -1,8 +1,8 @@
 import { Server } from "socket.io";
 import type { FastifyInstance } from "fastify";
 import { parse as parseCookie } from "cookie";
-import { websocketConnection } from "../websocket.js";
-import { toAuthRequest } from "../lib/auth-utils.js";
+import { websocketConnection } from "../realtime/gateway.js";
+import { toAuthRequest } from "../modules/auth/auth-utils.js";
 import { getSocketIOCorsOptions } from "./cors.js";
 
 class SocketServer {

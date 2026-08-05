@@ -1,10 +1,10 @@
 import { FastifyInstance } from "fastify";
-import { authRoutes } from "./auth.routes.js";
+import { authRoutes } from "../modules/auth/auth.routes.js";
 import { auth } from "../middleware/auth.js";
-import { userRoutes } from "./user.routes.js";
-import { matchRoutes } from "./match.routes.js";
-import { roomRoutes } from "./room.routes.js";
-import { friendRoutes } from "./friend.routes.js";
+import { userRoutes } from "../modules/user/user.routes.js";
+import { matchRoutes } from "../modules/match/match.routes.js";
+import { roomRoutes } from "../modules/room/room.routes.js";
+import { friendRoutes } from "../modules/friend/friend.routes.js";
 
 export async function routes(fastify: FastifyInstance) {
 	await fastify.register(authRoutes, { prefix: "/auth" });

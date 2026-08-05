@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
-import { prisma } from "../lib/prisma.js";
-import { hashPassword, comparePassword } from "../lib/password.js";
-import { getLevelFromXp } from "../lib/xp.js";
+import { prisma } from "../../lib/prisma.js";
+import { hashPassword, comparePassword } from "../auth/password.js";
+import { getLevelFromXp } from "../match/xp.js";
 import crypto from "node:crypto";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

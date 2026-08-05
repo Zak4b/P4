@@ -1,5 +1,5 @@
-import { getUserByEmail, createUser, findOrCreateUserByGoogle, verifyUserCredentials } from "./user.service.js";
-import { generateToken, verifyToken, JWTPayload } from "../lib/jwt.js";
+import { getUserByEmail, createUser, findOrCreateUserByGoogle, verifyUserCredentials } from "../user/user.service.js";
+import { generateToken, verifyToken, JWTPayload } from "./jwt.js";
 
 // Type pour les requêtes Fastify
 type RequestLike = {

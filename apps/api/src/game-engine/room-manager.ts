@@ -1,10 +1,10 @@
-import { Game } from "./Game.class.js";
-import { Room } from "./Room.js";
-import { Player } from "./Player.js";
+import { Game } from "./game.js";
+import { Room } from "./room.js";
+import { Player } from "./player.js";
 import { v4 as uuidv4 } from "uuid";
-import { getSocketIO } from "../../config/socket.js";
+import { getSocketIO } from "../config/socket.js";
 import { ServerMessage } from "./types.js";
-import { userRoom } from "../../lib/socket-rooms.js";
+import { userRoom } from "../realtime/socket-rooms.js";
 
 export type OnPlayerJoinRoom<T extends new () => Game> = (player: Player<T>) => void;
 

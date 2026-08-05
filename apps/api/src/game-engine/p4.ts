@@ -1,5 +1,5 @@
-import { Game } from "./room/Game.class.js";
-import { Timer } from "./room/Timer.js";
+import { Game } from "./game.js";
+import { Timer } from "./timer.js";
 
 type Move = { x: number; y: number; };
 
