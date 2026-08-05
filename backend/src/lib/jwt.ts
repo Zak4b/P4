@@ -1,7 +1,5 @@
 import jwt, { type SignOptions } from "jsonwebtoken";
-
-const JWT_SECRET = (process.env.JWT_SECRET || "your-secret-key-change-in-production");
-const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || "7d");
+import { env } from "../config/env.js";
 
 export interface JWTPayload {
 	id: string;
@@ -10,17 +8,16 @@ export interface JWTPayload {
 }
 
 export const generateToken = (payload: JWTPayload): string => {
-	return jwt.sign(payload, JWT_SECRET, {
-		expiresIn: JWT_EXPIRES_IN,
+	return jwt.sign(payload, env.jwt.secret, {
+		expiresIn: env.jwt.expiresIn,
 	} as SignOptions);
 };
 
 export const verifyToken = (token: string): JWTPayload => {
 	try {
-		const cleanToken = token.trim().replace(/\s+/g, '');
-		return jwt.verify(cleanToken, JWT_SECRET) as JWTPayload;
+		const cleanToken = token.trim().replace(/\s+/g, "");
+		return jwt.verify(cleanToken, env.jwt.secret) as JWTPayload;
 	} catch {
 		throw new Error("Invalid or expired token");
 	}
 };
-

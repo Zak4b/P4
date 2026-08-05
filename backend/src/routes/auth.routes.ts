@@ -12,7 +12,7 @@ const COOKIE_OPTS = {
 	path: "/",
 } as const;
 
-const COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 jours
+const COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 jours
 
 const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo";
 
@@ -97,10 +97,11 @@ export function authRoutes(fastify: FastifyInstance) {
 
 			const result = await auth.loginWithGoogle(profile.id, email, profile.name || "");
 
-			reply.setCookie(auth.cookieName, result.token, { ...COOKIE_OPTS, maxAge: COOKIE_MAX_AGE }).redirect(`${env.frontend.url}/play`);
-		} catch (err) {
-			const msg = err instanceof Error ? err.message : "Google authentication failed";
-			reply.redirect(`${env.frontend.url}/login?error=${encodeURIComponent(msg)}`);
+			reply
+				.setCookie(auth.cookieName, result.token, { ...COOKIE_OPTS, maxAge: COOKIE_MAX_AGE })
+				.redirect(`${env.frontend.url}/play`);
+		} catch {
+			reply.redirect(`${env.frontend.url}/login?error=google_auth_failed`);
 		}
 	});
 

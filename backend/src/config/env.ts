@@ -6,7 +6,7 @@ dotenv.config();
 // Exporter la configuration
 export const env = {
 	jwt: {
-		secret: process.env.JWT_SECRET || "your-secret-key-change-in-production",
+		secret: process.env.JWT_SECRET as string,
 		expiresIn: process.env.JWT_EXPIRES_IN || "7d",
 	},
 	server: {
