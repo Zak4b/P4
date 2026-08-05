@@ -1,7 +1,6 @@
-import { Socket } from "socket.io";
 import { P4 } from "../game-engine/p4.js";
 import { Player, RoomManager } from "../game-engine/index.js";
-import { getUserFromRequest } from "../modules/auth/auth-utils.js";
+import type { AuthenticatedSocket } from "./socket-auth.js";
 import { userRoom } from "./socket-rooms.js";
 
 type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
@@ -39,15 +38,17 @@ export function notifyPlayerJoinedRoom(player: Player<typeof P4>): void {
 
 export const manager = new RoomManager(2, P4, notifyPlayerJoinedRoom);
 
-export const websocketConnection = async (socket: Socket, req: any) => {
-	try {
-		const user = getUserFromRequest(req);
-		if (!user) {
-			throw new Error("Authentication required");
-		}
-		const player = new Player<typeof P4>(socket, user.id, user.login);
-		void socket.join(userRoom(player.uuid));
-		player.send({ type: "registered", data: player.uuid });
+export const websocketConnection = (socket: AuthenticatedSocket): void => {
+	// Posé par le middleware d'auth dans config/socket.ts avant que "connection" ne se déclenche
+	const { user } = socket.data;
+	if (!user) {
+		// Défense en profondeur : ne devrait jamais arriver, le middleware garantit l'auth
+		socket.disconnect(true);
+		return;
+	}
+	const player = new Player<typeof P4>(socket, user.id, user.login);
+	void socket.join(userRoom(player.uuid));
+	player.send({ type: "registered", data: player.uuid });
 
 	socket.on("leave", () => {
 		manager.leave(player);
@@ -182,9 +183,4 @@ export const websocketConnection = async (socket: Socket, req: any) => {
 			}
 		}
 	});
-	} catch (error) {
-		socket.emit("error", "Authentication required");
-		socket.disconnect(true);
-		return;
-	}
 };

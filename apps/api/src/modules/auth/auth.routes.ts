@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import auth from "./auth.service.js";
+import { AuthService } from "./auth.service.js";
+import { cookieName } from "./request-auth.js";
 import { registerSchema, loginSchema } from "../../lib/zod-schemas.js";
 import { HttpError } from "../../lib/HttpError.js";
 import { ENV } from "../../config/env.js";
@@ -22,7 +23,7 @@ export function authRoutes(fastify: FastifyInstance) {
 		try {
 			const { login, email, password } = registerSchema.parse(request.body);
 
-			const result = await auth.register(login, email, password);
+			const result = await AuthService.register(login, email, password);
 
 			reply.status(201).send({
 				success: true,
@@ -42,9 +43,9 @@ export function authRoutes(fastify: FastifyInstance) {
 		try {
 			const { email, password } = loginSchema.parse(request.body);
 
-			const result = await auth.login(email, password);
+			const result = await AuthService.login(email, password);
 
-			reply.setCookie(auth.cookieName, result.token, {
+			reply.setCookie(cookieName, result.token, {
 				...COOKIE_OPTS,
 				maxAge: COOKIE_MAX_AGE,
 			});
@@ -95,10 +96,10 @@ export function authRoutes(fastify: FastifyInstance) {
 				return reply.redirect(`${ENV.web.url}/login?error=No+email+from+Google`);
 			}
 
-			const result = await auth.loginWithGoogle(profile.id, email, profile.name || "");
+			const result = await AuthService.loginWithGoogle(profile.id, email, profile.name || "");
 
 			reply
-				.setCookie(auth.cookieName, result.token, { ...COOKIE_OPTS, maxAge: COOKIE_MAX_AGE })
+				.setCookie(cookieName, result.token, { ...COOKIE_OPTS, maxAge: COOKIE_MAX_AGE })
 				.redirect(`${ENV.web.url}/play`);
 		} catch {
 			reply.redirect(`${ENV.web.url}/login?error=google_auth_failed`);
@@ -115,7 +116,7 @@ export function authRoutes(fastify: FastifyInstance) {
 
 	// Déconnexion
 	fastify.post("/logout", async (request: FastifyRequest, reply: FastifyReply) => {
-		reply.clearCookie(auth.cookieName, COOKIE_OPTS);
+		reply.clearCookie(cookieName, COOKIE_OPTS);
 		reply.send({ success: true, message: "Logout successful" });
 	});
 }
