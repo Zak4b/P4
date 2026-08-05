@@ -11,17 +11,18 @@ Puissance 4 en temps réel
 
 ```
 P4/
-├── frontend/          # Application Next.js (React)
-├── backend/           # API Fastify + WebSocket
+├── apps/
+│   ├── web/           # Application Next.js (React)
+│   └── api/           # API Fastify + WebSocket
 └── docs/              # Documentation
 ```
 
-### Frontend (`frontend/`)
+### Web
 
 - **Framework** : Next.js 16 (App Router)
 - **UI** : React, Material UI
 
-### Backend (`backend/`)
+### API
 
 - **Framework** : Fastify
 - **Base de données** : MySQL + Prisma ORM
@@ -47,10 +48,10 @@ cp env.example .env
 ./deploy.sh
 
 # 4. Initialiser la base de données
-docker compose exec backend npx prisma db push
+docker compose exec api npx prisma db push
 ```
 
 **Services** :
 
-- `backend` — API + WebSocket (port 3000)
-- `frontend` — Next.js (port 3001)
+- `api` — API + WebSocket (port 3000)
+- `web` — Next.js (port 3001)
