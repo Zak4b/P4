@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { authRoutes } from "../modules/auth/auth.routes.js";
-import { auth } from "../middleware/auth.js";
+import { auth } from "../modules/auth/auth.middleware.js";
 import { userRoutes } from "../modules/user/user.routes.js";
 import { matchRoutes } from "../modules/match/match.routes.js";
 import { roomRoutes } from "../modules/room/room.routes.js";

@@ -2,7 +2,7 @@ import { Game } from "./game.js";
 import { Room } from "./room.js";
 import { Player } from "./player.js";
 import { v4 as uuidv4 } from "uuid";
-import { getSocketIO } from "../config/socket.js";
+import { getSocketIO } from "../bootstrap/plugins/socket-io.plugin.js";
 import { ServerMessage } from "./types.js";
 import { userRoom } from "../realtime/socket-rooms.js";
 

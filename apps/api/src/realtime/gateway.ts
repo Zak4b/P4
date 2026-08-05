@@ -39,7 +39,7 @@ export function notifyPlayerJoinedRoom(player: Player<typeof P4>): void {
 export const manager = new RoomManager(2, P4, notifyPlayerJoinedRoom);
 
 export const websocketConnection = (socket: AuthenticatedSocket): void => {
-	// Posé par le middleware d'auth dans config/socket.ts avant que "connection" ne se déclenche
+	// Posé par le middleware d'auth dans bootstrap/plugins/socket-io.plugin.ts avant que "connection" ne se déclenche
 	const { user } = socket.data;
 	if (!user) {
 		// Défense en profondeur : ne devrait jamais arriver, le middleware garantit l'auth

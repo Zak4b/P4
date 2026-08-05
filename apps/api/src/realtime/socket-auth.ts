@@ -3,7 +3,6 @@ import { parse as parseCookie } from "cookie";
 import { cookieName } from "../modules/auth/request-auth.js";
 import { verifyToken, JWTPayload } from "../modules/auth/jwt.js";
 
-/** Ce que le middleware d'auth attache à chaque socket authentifié (voir config/socket.ts) */
 export interface SocketData {
 	user: JWTPayload;
 }

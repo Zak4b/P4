@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import fastifyOAuth2 from "@fastify/oauth2";
-import { ENV } from "./env.js";
+import { ENV } from "../../config/env.js";
 
 const GOOGLE_AUTH_CONFIG = {
 	authorizeHost: "https://accounts.google.com",

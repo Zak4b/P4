@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
-import { HttpError } from "../lib/HttpError.js";
+import { HttpError } from "../../lib/HttpError.js";
 
-export function setupErrorHandlers(fastify: FastifyInstance): void {
+export function registerErrorHandlers(fastify: FastifyInstance): void {
 	fastify.setNotFoundHandler(async (request, reply) => {
 		fastify.log.error({ url: request.url }, "API endpoint not found");
 		reply.status(404).send({ error: "API endpoint not found" });
@@ -17,9 +17,9 @@ export function setupErrorHandlers(fastify: FastifyInstance): void {
 
 		const statusCode = error.statusCode || 500;
 		const message = error.message || "Internal server error";
-		
+
 		fastify.log.error({ statusCode, message, stack: error.stack }, "Error");
-		
+
 		return reply.status(statusCode).send({
 			error: message,
 		});

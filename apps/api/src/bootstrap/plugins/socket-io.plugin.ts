@@ -1,11 +1,18 @@
-import { Server, type DefaultEventsMap } from "socket.io";
 import type { FastifyInstance } from "fastify";
-import { websocketConnection } from "../realtime/gateway.js";
-import { getUserFromSocket } from "../realtime/socket-auth.js";
-import type { SocketData } from "../realtime/socket-auth.js";
-import { getSocketIOCorsOptions } from "./cors.js";
+import { Server, type DefaultEventsMap } from "socket.io";
+import { websocketConnection } from "../../realtime/gateway.js";
+import { getUserFromSocket } from "../../realtime/socket-auth.js";
+import type { SocketData } from "../../realtime/socket-auth.js";
+import { getSocketIOCorsOptions } from "../../config/cors.js";
 
 type GameServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, SocketData>;
+
+declare module "fastify" {
+	interface FastifyInstance {
+		/** Instance Socket.IO partagée, accessible depuis les routes/plugins via `fastify.io`. */
+		io: GameServer;
+	}
+}
 
 class SocketServer {
 	private static _instance: SocketServer | null = null;
@@ -54,8 +61,10 @@ class SocketServer {
 	}
 }
 
-export function setupSocketIO(fastify: FastifyInstance): GameServer {
-	return SocketServer.initialize(fastify);
+export function registerSocketIO(fastify: FastifyInstance): GameServer {
+	const io = SocketServer.initialize(fastify);
+	fastify.decorate("io", io);
+	return io;
 }
 
 export const getSocketIO = (): GameServer => SocketServer.instance.io;

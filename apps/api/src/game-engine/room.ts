@@ -5,7 +5,7 @@ import { TypedEventEmitter } from "./typed-event-emitter.js";
 import { P4 } from "./p4.js";
 import { finalizeGameFromRoom } from "../modules/match/game-history.service.js";
 import { gameRoom } from "../realtime/socket-rooms.js";
-import { getSocketIO } from "../config/socket.js";
+import { getSocketIO } from "../bootstrap/plugins/socket-io.plugin.js";
 
 export type RoomEvent = "join" | "leave" | "empty" | "timeout" | "end";
 type RoomEventMap = {
