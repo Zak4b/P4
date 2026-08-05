@@ -11,12 +11,6 @@ import {
 import { getUserByIdOrLogin } from "../user/user.service.js";
 import { HttpError } from "../../lib/HttpError.js";
 
-declare module "fastify" {
-	interface FastifyRequest {
-		user?: { id: string; email: string; login: string };
-	}
-}
-
 export function friendRoutes(fastify: FastifyInstance) {
 	/** Liste des amis */
 	fastify.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
