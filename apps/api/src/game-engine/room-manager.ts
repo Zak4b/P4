@@ -1,26 +1,38 @@
 import { Game } from "./game.js";
-import { Room } from "./room.js";
+import { GameEndPayload, Room } from "./room.js";
 import { Player } from "./player.js";
 import { v4 as uuidv4 } from "uuid";
-import { getSocketIO } from "../bootstrap/plugins/socket-io.plugin.js";
-import { ServerMessage } from "./types.js";
-import { userRoom } from "../realtime/socket-rooms.js";
+import { RoomBroadcaster, ServerMessage } from "./types.js";
+import { TypedEventEmitter } from "./typed-event-emitter.js";
 
 export type OnPlayerJoinRoom<T extends new () => Game> = (player: Player<T>) => void;
 
-export class RoomManager<T extends new () => Game> {
+type RoomManagerEventMap<T extends new () => Game> = {
+	/** Une partie vient de se terminer dans une room gérée par ce manager. */
+	"game-end": GameEndPayload & { room: Room<T> };
+};
+
+export class RoomManager<T extends new () => Game> extends TypedEventEmitter<RoomManagerEventMap<T>> {
 	private _list: Map<string, Room<T>> = new Map();
 	private matchmakingQueue: Player<T>[] = [];
 	private matchmakingHandlers = new Map<string, () => void>();
 
 	private playerLimit: number;
+	private readonly broadcaster: RoomBroadcaster;
 	private onPlayerJoinRoom?: OnPlayerJoinRoom<T>;
 	static defaultTimeoutDelay: number = 300000;
 	gameClass: T;
 
-	constructor(playerMaxCount: number, gameClass: T, onPlayerJoinRoom?: OnPlayerJoinRoom<T>) {
+	constructor(
+		playerMaxCount: number,
+		gameClass: T,
+		broadcaster: RoomBroadcaster,
+		onPlayerJoinRoom?: OnPlayerJoinRoom<T>,
+	) {
+		super();
 		this.playerLimit = playerMaxCount;
 		this.gameClass = gameClass;
+		this.broadcaster = broadcaster;
 		this.onPlayerJoinRoom = onPlayerJoinRoom;
 	}
 	get list() {
@@ -35,7 +47,12 @@ export class RoomManager<T extends new () => Game> {
 		return this._newRoom({ name, timeout, players });
 	}
 
-	private _newRoom({ id, name, timeout, players }: { id?: string; name?: string; timeout?: number; players?: string[] } = {}): Room<T> {
+	private _newRoom({
+		id,
+		name,
+		timeout,
+		players,
+	}: { id?: string; name?: string; timeout?: number; players?: string[] } = {}): Room<T> {
 		id ??= uuidv4();
 		const room = new Room({
 			id,
@@ -43,6 +60,7 @@ export class RoomManager<T extends new () => Game> {
 			playerLimit: this.playerLimit,
 			game: this.gameClass,
 			players,
+			broadcaster: this.broadcaster,
 		});
 		const roomTimeout = !timeout || timeout <= 0 ? RoomManager.defaultTimeoutDelay : timeout;
 		this.setupRoomEvents(room, roomTimeout);
@@ -75,6 +93,8 @@ export class RoomManager<T extends new () => Game> {
 		room.on("timeout", () => {
 			this.deleteRoom(room.id);
 		});
+
+		room.on("game-end", (payload) => this.emit("game-end", { room, ...payload }));
 	}
 
 	private deleteRoom(roomId: string): void {
@@ -101,11 +121,11 @@ export class RoomManager<T extends new () => Game> {
 	}
 
 	public sendToUser(uuid: string, message: ServerMessage): void {
-		getSocketIO().to(userRoom(uuid)).emit(message.type, message.data);
+		this.broadcaster.toUser(uuid, message);
 	}
 
 	public broadcast(message: ServerMessage): void {
-		getSocketIO().emit(message.type, message.data);
+		this.broadcaster.broadcast(message);
 	}
 	// --- Matchmaking ---
 
@@ -119,7 +139,11 @@ export class RoomManager<T extends new () => Game> {
 		const handler = () => this.leaveMatchmaking(player);
 		this.matchmakingHandlers.set(player.uuid, handler);
 		player.socket.on("disconnect", handler);
-		console.log("[matchmaking] join", { uuid: player.uuid, displayName: player.displayName, queueSize: this.matchmakingQueue.length });
+		console.log("[matchmaking] join", {
+			uuid: player.uuid,
+			displayName: player.displayName,
+			queueSize: this.matchmakingQueue.length,
+		});
 		this.tryMatch();
 	}
 
@@ -135,14 +159,21 @@ export class RoomManager<T extends new () => Game> {
 			player.socket.off("disconnect", handler);
 			this.matchmakingHandlers.delete(player.uuid);
 		}
-		console.log("[matchmaking] leave", { uuid: player.uuid, displayName: player.displayName, queueSize: this.matchmakingQueue.length });
+		console.log("[matchmaking] leave", {
+			uuid: player.uuid,
+			displayName: player.displayName,
+			queueSize: this.matchmakingQueue.length,
+		});
 	}
 
 	private tryMatch(): void {
 		console.log("[matchmaking] tryMatch", { queueSize: this.matchmakingQueue.length });
 		if (this.matchmakingQueue.length < 2) return;
 		const [p1, p2] = this.matchmakingQueue.splice(0, 2);
-		console.log("[matchmaking] match found", { p1: { uuid: p1.uuid, displayName: p1.displayName }, p2: { uuid: p2.uuid, displayName: p2.displayName } });
+		console.log("[matchmaking] match found", {
+			p1: { uuid: p1.uuid, displayName: p1.displayName },
+			p2: { uuid: p2.uuid, displayName: p2.displayName },
+		});
 		[p1, p2].forEach((p) => {
 			const handler = this.matchmakingHandlers.get(p.uuid);
 			if (handler) {
@@ -158,6 +189,9 @@ export class RoomManager<T extends new () => Game> {
 			p.send({ type: "matched", data: { roomId: room.id, playerId: p.localId } });
 			this.onPlayerJoinRoom?.(p);
 		});
-		console.log("[matchmaking] room created", { roomId: room.id, players: room.playerList.map((p) => ({ uuid: p.uuid, displayName: p.displayName, localId: p.localId })) });
+		console.log("[matchmaking] room created", {
+			roomId: room.id,
+			players: room.playerList.map((p) => ({ uuid: p.uuid, displayName: p.displayName, localId: p.localId })),
+		});
 	}
 }

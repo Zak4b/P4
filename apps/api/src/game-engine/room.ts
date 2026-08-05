@@ -1,19 +1,25 @@
 import { Game } from "./game.js";
 import { Player } from "./player.js";
-import { ServerMessage } from "./types.js";
+import { RoomBroadcaster, ServerMessage } from "./types.js";
 import { TypedEventEmitter } from "./typed-event-emitter.js";
 import { P4 } from "./p4.js";
-import { finalizeGameFromRoom } from "../modules/match/game-history.service.js";
 import { gameRoom } from "../realtime/socket-rooms.js";
-import { getSocketIO } from "../bootstrap/plugins/socket-io.plugin.js";
 
-export type RoomEvent = "join" | "leave" | "empty" | "timeout" | "end";
+export type RoomEvent = "join" | "leave" | "empty" | "timeout" | "end" | "game-end";
+export type GameEndPayload = {
+	winner: number;
+	registeredPlayers: { uuid: string; playerId: number }[];
+	duration: number;
+	board: number[][];
+};
 type RoomEventMap = {
 	join: { id: number };
 	leave: { id: number };
 	empty: undefined;
 	timeout: undefined;
 	end: undefined;
+	/** La partie de la room est terminée (victoire ou nul) ; à charge de l'appelant de persister/notifier. */
+	"game-end": GameEndPayload;
 };
 
 export interface RoomProps<T extends new () => Game> {
@@ -24,6 +30,7 @@ export interface RoomProps<T extends new () => Game> {
 	locked?: boolean;
 	/** Liste des UUID autorisés à rejoindre (vide/undefined = tout le monde) */
 	players?: string[];
+	broadcaster: RoomBroadcaster;
 }
 
 export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventMap> {
@@ -52,28 +59,30 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 	readonly playerLimit: number = 2;
 	readonly game: InstanceType<T>;
 	private readonly allowedPlayerIds: Set<string> | null;
+	private readonly broadcaster: RoomBroadcaster;
 	private players: {
 		registered: Map<string, number>;
 		online: Map<string, Player<T>>;
 	} = { registered: new Map(), online: new Map() };
 
-	constructor({ id, name, playerLimit, game, players, locked }: RoomProps<T>) {
+	constructor({ id, name, playerLimit, game, players, locked, broadcaster }: RoomProps<T>) {
 		super();
 		this.id = id;
 		this.name = name ?? id;
 		this.locked = locked ?? false;
 		this.playerLimit = playerLimit ?? 2;
 		this.allowedPlayerIds = players && players.length > 0 ? new Set(players) : null;
+		this.broadcaster = broadcaster;
 		this.game = new game() as InstanceType<T>;
 		this.game.on("end", ({ winner, duration }) => {
 			const G = this.game as P4; //TODO generic
-			void finalizeGameFromRoom(this.registeredPlayerList, winner, duration, G.board);
-			if (winner === 0) {
-				void this.send({ type: "game-draw" });
-			} else {
-				const player = this.registeredPlayerList.find((p) => p.playerId === winner)!;
-				void this.send({ type: "game-win", data: { uuid: player.uuid, playerid: winner } });
-			}
+
+			this.emit("game-end", {
+				winner,
+				registeredPlayers: this.registeredPlayerList,
+				duration,
+				board: G.board,
+			});
 			//this.lock_clean();
 			//this.emit("end");
 		});
@@ -86,7 +95,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 		this.players.online.forEach((player) => {
 			this.remove(player);
 		});
-		void getSocketIO().in(gameRoom(this.id)).socketsLeave(gameRoom(this.id));
+		this.broadcaster.evictRoom(this.id);
 		this.removeAllListeners();
 	}
 
@@ -178,6 +187,6 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 	}
 
 	public async send(msg: ServerMessage) {
-		getSocketIO().to(gameRoom(this.id)).emit(msg.type, msg.data);
+		this.broadcaster.toRoom(this.id, msg);
 	}
 }

@@ -2,6 +2,8 @@ import { P4 } from "../game-engine/p4.js";
 import { Player, RoomManager } from "../game-engine/index.js";
 import type { AuthenticatedSocket } from "./socket-auth.js";
 import { userRoom } from "./socket-rooms.js";
+import { socketBroadcaster } from "./socket-broadcaster.js";
+import { finalizeGameFromRoom } from "../modules/match/game-history.service.js";
 
 type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
 type JoinResponse = { success: boolean; roomId?: string; playerId?: number; error?: string };
@@ -36,7 +38,21 @@ export function notifyPlayerJoinedRoom(player: Player<typeof P4>): void {
 	});
 }
 
-export const manager = new RoomManager(2, P4, notifyPlayerJoinedRoom);
+export const manager = new RoomManager(2, P4, socketBroadcaster, notifyPlayerJoinedRoom);
+
+// Le moteur de jeu ne connaît ni Prisma ni Socket.IO : c'est ici, dans la couche
+// applicative temps réel, qu'on persiste le résultat et qu'on notifie les joueurs.
+manager.on("game-end", ({ room, winner, registeredPlayers, duration, board }) => {
+	void finalizeGameFromRoom(registeredPlayers, winner, duration, board);
+	if (winner === 0) {
+		void room.send({ type: "game-draw" });
+	} else {
+		const player = registeredPlayers.find((p) => p.playerId === winner);
+		if (player) {
+			void room.send({ type: "game-win", data: { uuid: player.uuid, playerid: winner } });
+		}
+	}
+});
 
 export const websocketConnection = (socket: AuthenticatedSocket): void => {
 	// Posé par le middleware d'auth dans bootstrap/plugins/socket-io.plugin.ts avant que "connection" ne se déclenche
