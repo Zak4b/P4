@@ -7,6 +7,7 @@ const envSchema = z.object({
 	NODE_ENV: z.enum(["development", "production"]).default("production"),
 
 	DB_HOST: z.string(),
+	DB_PORT: z.coerce.number().int().positive().default(3306),
 	DB_DATABASE: z.string(),
 	DB_USER: z.string(),
 	DB_PASSWORD: z.string(),
@@ -35,6 +36,7 @@ export const ENV = {
 	nodeEnv: e.NODE_ENV,
 	db: {
 		host: e.DB_HOST,
+		port: e.DB_PORT,
 		database: e.DB_DATABASE,
 		user: e.DB_USER,
 		password: e.DB_PASSWORD,

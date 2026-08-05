@@ -7,7 +7,8 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      DB_HOST: db-central:3306
+      DB_HOST: db-central
+      DB_PORT: 3306
       DB_DATABASE: ${DB_DATABASE}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}

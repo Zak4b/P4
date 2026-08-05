@@ -1,4 +1,4 @@
-import { GameWinner } from "@prisma/client";
+import { GameWinner } from "../../generated/prisma/client.js";
 
 export const XP_PARTIE_JOUEE = 100;
 export const XP_VICTOIRE = 400;
@@ -51,7 +51,8 @@ export function getLevelFromXp(totalXp: number): {
 	const xpAtNextLevel = getTotalXpForLevel(level + 1);
 	const xpRequiredForNextLevel = xpAtNextLevel - xpAtLevelStart;
 	const xpInCurrentLevel = totalXp - xpAtLevelStart;
-	const progressPercent = xpRequiredForNextLevel > 0 ? Math.min(100, (xpInCurrentLevel / xpRequiredForNextLevel) * 100) : 100;
+	const progressPercent =
+		xpRequiredForNextLevel > 0 ? Math.min(100, (xpInCurrentLevel / xpRequiredForNextLevel) * 100) : 100;
 
 	return {
 		level,

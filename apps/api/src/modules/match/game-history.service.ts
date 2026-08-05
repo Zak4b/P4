@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma.js";
-import { GameWinner, Prisma } from "@prisma/client";
+import { GameWinner, Prisma } from "../../generated/prisma/client.js";
 import { calculateNewElo } from "./elo.js";
 import { calculateXpGain } from "./xp.js";
 

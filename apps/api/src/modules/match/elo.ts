@@ -1,4 +1,4 @@
-import { GameWinner } from "@prisma/client";
+import { GameWinner } from "../../generated/prisma/client.js";
 
 const K_FACTOR = 32;
 
