@@ -5,7 +5,6 @@ import { TypedEventEmitter } from "./typed-event-emitter.js";
 import { P4 } from "./p4.js";
 import { gameRoom } from "../realtime/socket-rooms.js";
 
-export type RoomEvent = "join" | "leave" | "empty" | "timeout" | "end" | "game-end";
 export type GameEndPayload = {
 	winner: number;
 	registeredPlayers: { uuid: string; playerId: number }[];
@@ -182,7 +181,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 			// TODO get winner ID
 			winner = undefined;
 		}
-		this.send({ type: "info", data: { ended: true } });
+		this.send({ type: "info", data: "ended" });
 		this.lock_clean();
 	}
 

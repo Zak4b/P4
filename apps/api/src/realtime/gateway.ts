@@ -133,7 +133,7 @@ export const websocketConnection = (socket: AuthenticatedSocket): void => {
 		}
 	});
 	const commandList: { [key: string]: CallableFunction } = {
-		help: async () => player.send({ type: "info", data: Object.keys(commandList) }),
+		help: async () => player.send({ type: "info", data: Object.keys(commandList).join(", ") }),
 		join: async (roomId: string) => socket.emit("join", roomId),
 		swap: async () => {
 			if (!player.room || !player.localId) {
