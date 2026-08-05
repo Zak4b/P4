@@ -1,26 +1,62 @@
 import dotenv from "dotenv";
+import { z } from "zod";
 
-// Charger les variables d'environnement
 dotenv.config();
 
-// Exporter la configuration
-export const env = {
-	jwt: {
-		secret: process.env.JWT_SECRET as string,
-		expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+const envSchema = z.object({
+	NODE_ENV: z.enum(["development", "production"]).default("production"),
+
+	DB_HOST: z.string(),
+	DB_DATABASE: z.string(),
+	DB_USER: z.string(),
+	DB_PASSWORD: z.string(),
+
+	PORT: z.coerce.number().int().positive().default(3000),
+	HOST: z.string().default("localhost"),
+	JWT_SECRET: z.string().min(1),
+	JWT_EXPIRES_IN: z.string().default("7d"),
+	GOOGLE_CLIENT_ID: z.string().optional(),
+	GOOGLE_CLIENT_SECRET: z.string().optional(),
+	WEB_URL: z.url().default("http://localhost:3001"),
+	API_URL: z.url().default("http://localhost:3000"),
+});
+
+const { data: e, success, error } = envSchema.safeParse(process.env);
+
+if (!success) {
+	console.error("Invalid environment variables:");
+	for (const [field, issues] of Object.entries(error.flatten().fieldErrors)) {
+		console.error(`  ${field}: ${issues?.join(", ")}`);
+	}
+	process.exit(1);
+}
+
+export const ENV = {
+	nodeEnv: e.NODE_ENV,
+	db: {
+		host: e.DB_HOST,
+		database: e.DB_DATABASE,
+		user: e.DB_USER,
+		password: e.DB_PASSWORD,
 	},
 	server: {
-		port: process.env.PORT ? Number(process.env.PORT) : 3000,
-		ip: process.env.IP || "localhost",
+		port: e.PORT,
+		host: e.HOST,
 	},
-	google: {
-		clientId: process.env.GOOGLE_CLIENT_ID || "",
-		clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+	web: {
+		url: e.WEB_URL,
 	},
-	frontend: {
-		url: process.env.FRONTEND_URL || "http://localhost:3001",
+	api: {
+		url: e.API_URL ?? `http://localhost:${e.PORT}`,
+		jwt: {
+			secret: e.JWT_SECRET,
+			expiresIn: e.JWT_EXPIRES_IN,
+		},
+		oauth2: {
+			google: {
+				clientId: e.GOOGLE_CLIENT_ID,
+				clientSecret: e.GOOGLE_CLIENT_SECRET,
+			},
+		},
 	},
-	backend: {
-		url: process.env.BACKEND_URL || `http://localhost:${process.env.PORT ? Number(process.env.PORT) : 3000}`,
-	},
-};
+} as const;

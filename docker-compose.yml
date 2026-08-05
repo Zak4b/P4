@@ -7,13 +7,16 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db-central:3306/${MYSQL_DATABASE}
+      DB_HOST: db-central:3306
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
       PORT: 3000
-      IP: 0.0.0.0
-      FRONTEND_URL: https://asene.myddns.me:9000
-      BACKEND_URL: https://asene.myddns.me:9000
+      HOST: 0.0.0.0
+      WEB_URL: https://asene.myddns.me:9000
+      API_URL: https://asene.myddns.me:9000
     expose:
       - 80
     networks:
@@ -30,19 +33,18 @@ services:
     build:
       context: ./apps/web
       dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_BACKEND_URL: https://asene.myddns.me:9000
-        NEXT_PUBLIC_WS_URL: https://asene.myddns.me:9000
     container_name: p4-frontend
     restart: unless-stopped
     environment:
       NODE_ENV: production
+      NEXT_PUBLIC_BACKEND_URL: https://asene.myddns.me:9000
+      NEXT_PUBLIC_WS_URL: https://asene.myddns.me:9000
     expose:
       - 3001
     networks:
       - traefik-net
     depends_on:
-      - backend
+      - api
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-net"

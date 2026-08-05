@@ -2,12 +2,12 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import auth from "../services/auth.service.js";
 import { registerSchema, loginSchema } from "../lib/zod-schemas.js";
 import { HttpError } from "../lib/HttpError.js";
-import { env } from "../config/env.js";
+import { ENV } from "../config/env.js";
 
 const COOKIE_OPTS = {
 	signed: false,
 	httpOnly: true,
-	secure: process.env.NODE_ENV === "production",
+	secure: ENV.nodeEnv === "production",
 	sameSite: "lax",
 	path: "/",
 } as const;
@@ -75,7 +75,7 @@ export function authRoutes(fastify: FastifyInstance) {
 	fastify.get("/google/callback", async (request: FastifyRequest, reply: FastifyReply) => {
 		const googleOAuth2 = fastify.googleOAuth2;
 		if (!googleOAuth2) {
-			return reply.redirect(`${env.frontend.url}/login?error=Google+login+not+configured`);
+			return reply.redirect(`${ENV.web.url}/login?error=Google+login+not+configured`);
 		}
 
 		try {
@@ -92,16 +92,16 @@ export function authRoutes(fastify: FastifyInstance) {
 
 			const email = profile.email;
 			if (!email) {
-				return reply.redirect(`${env.frontend.url}/login?error=No+email+from+Google`);
+				return reply.redirect(`${ENV.web.url}/login?error=No+email+from+Google`);
 			}
 
 			const result = await auth.loginWithGoogle(profile.id, email, profile.name || "");
 
 			reply
 				.setCookie(auth.cookieName, result.token, { ...COOKIE_OPTS, maxAge: COOKIE_MAX_AGE })
-				.redirect(`${env.frontend.url}/play`);
+				.redirect(`${ENV.web.url}/play`);
 		} catch {
-			reply.redirect(`${env.frontend.url}/login?error=google_auth_failed`);
+			reply.redirect(`${ENV.web.url}/login?error=google_auth_failed`);
 		}
 	});
 

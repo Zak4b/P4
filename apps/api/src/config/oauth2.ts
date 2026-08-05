@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import fastifyOAuth2 from "@fastify/oauth2";
-import { env } from "./env.js";
+import { ENV } from "./env.js";
 
 const GOOGLE_AUTH_CONFIG = {
 	authorizeHost: "https://accounts.google.com",
@@ -10,20 +10,20 @@ const GOOGLE_AUTH_CONFIG = {
 };
 
 export async function registerOAuth2(fastify: FastifyInstance): Promise<void> {
-	if (!env.google.clientId || !env.google.clientSecret) {
+	if (!ENV.api.oauth2.google.clientId || !ENV.api.oauth2.google.clientSecret) {
 		fastify.log.info("Google OAuth2 not configured (missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET)");
 		return;
 	}
 
-	const callbackUri = `${env.backend.url}/api/auth/google/callback`;
+	const callbackUri = `${ENV.api.url}/api/auth/google/callback`;
 
 	await fastify.register(fastifyOAuth2, {
 		name: "googleOAuth2",
 		scope: ["profile", "email"],
 		credentials: {
 			client: {
-				id: env.google.clientId,
-				secret: env.google.clientSecret,
+				id: ENV.api.oauth2.google.clientId,
+				secret: ENV.api.oauth2.google.clientSecret,
 			},
 			auth: GOOGLE_AUTH_CONFIG,
 		},
