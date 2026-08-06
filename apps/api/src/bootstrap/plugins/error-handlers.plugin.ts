@@ -1,27 +1,28 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyError, FastifyInstance } from "fastify";
+import { z, ZodError } from "zod";
 import { HttpError } from "../../lib/HttpError.js";
 
 export function registerErrorHandlers(fastify: FastifyInstance): void {
-	fastify.setNotFoundHandler(async (request, reply) => {
-		fastify.log.error({ url: request.url }, "API endpoint not found");
-		reply.status(404).send({ error: "API endpoint not found" });
+	fastify.setNotFoundHandler((request, reply) => {
+		return reply.status(404).send({ error: "API endpoint not found" });
 	});
 
-	fastify.setErrorHandler(async (error: Error & { statusCode?: number }, request, reply) => {
+	fastify.setErrorHandler((error: FastifyError, request, reply) => {
 		if (error instanceof HttpError) {
-			fastify.log.error({ statusCode: error.statusCode, message: error.message }, "HttpError");
-			return reply.status(error.statusCode).send({
-				error: error.message,
-			});
+			if (error.statusCode >= 500) {
+				request.log.error({ statusCode: error.statusCode, err: error });
+			} else {
+				request.log.warn({ statusCode: error.statusCode, err: error });
+			}
+			return reply.status(error.statusCode).send({ error: error.message });
 		}
 
-		const statusCode = error.statusCode || 500;
-		const message = error.message || "Internal server error";
+		if (error instanceof ZodError) {
+			request.log.warn({ err: error }, "Validation error");
+			return reply.status(400).send({ error: "Validation failed", issues: z.treeifyError(error) });
+		}
 
-		fastify.log.error({ statusCode, message, stack: error.stack }, "Error");
-
-		return reply.status(statusCode).send({
-			error: message,
-		});
+		request.log.error({ err: error }, "Unhandled error");
+		return reply.status(500).send({ error: "Internal server error" });
 	});
 }

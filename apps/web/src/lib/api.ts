@@ -86,8 +86,9 @@ class ApiClient {
 		});
 
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ error: "Network error" }));
-			throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+			// Corps absent ou non JSON (ex. 5xx sans body) : on se rabat sur le statut
+			const body = (await response.json().catch(() => null)) as { error?: string } | null;
+			throw new Error(body?.error || `HTTP error! status: ${response.status}`);
 		}
 
 		return await response.json();

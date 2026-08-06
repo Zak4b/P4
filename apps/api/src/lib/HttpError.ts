@@ -1,13 +1,11 @@
 export class HttpError extends Error {
-	public readonly statusCode: number;
-	public readonly message: string;
-
-	constructor(statusCode: number, message: string) {
+	constructor(
+		readonly statusCode: number,
+		message: string,
+	) {
 		super(message);
-		this.statusCode = statusCode;
-		this.message = message;
 		this.name = "HttpError";
-		
+
 		// Maintient la pile d'appel correcte
 		if (Error.captureStackTrace) {
 			Error.captureStackTrace(this, HttpError);
@@ -42,4 +40,3 @@ export class HttpError extends Error {
 		return new HttpError(503, message);
 	}
 }
-

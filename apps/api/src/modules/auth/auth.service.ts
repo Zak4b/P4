@@ -1,5 +1,6 @@
 import { UserService } from "../user/user.service.js";
 import { generateToken } from "./jwt.js";
+import { HttpError } from "../../lib/HttpError.js";
 
 type AuthResult = { token: string; user: { id: string; login: string; email: string } };
 
@@ -24,7 +25,7 @@ export class AuthService {
 	static async register(login: string, email: string, password: string): Promise<AuthResult> {
 		const existingUser = await UserService.find({ email });
 		if (existingUser) {
-			throw new Error("Email already exists");
+			throw HttpError.conflict("Email already exists");
 		}
 
 		const userData = await UserService.create(login, email, password);
@@ -35,7 +36,7 @@ export class AuthService {
 	static async login(email: string, password: string): Promise<AuthResult> {
 		const userData = await UserService.verifyCredentials(email, password);
 		if (!userData) {
-			throw new Error("Invalid email or password");
+			throw HttpError.unauthorized("Invalid email or password");
 		}
 
 		return AuthService.buildAuthResult(userData);

@@ -2,7 +2,6 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { AuthService } from "./auth.service.js";
 import { cookieName } from "./request-auth.js";
 import { registerSchema, loginSchema } from "../../lib/zod-schemas.js";
-import { HttpError } from "../../lib/HttpError.js";
 import { ENV } from "../../config/env.js";
 
 const COOKIE_OPTS = {
@@ -20,47 +19,33 @@ const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo";
 export function authRoutes(fastify: FastifyInstance) {
 	// Inscription
 	fastify.post("/register", async (request: FastifyRequest, reply: FastifyReply) => {
-		try {
-			const { login, email, password } = registerSchema.parse(request.body);
+		const { login, email, password } = registerSchema.parse(request.body);
 
-			const result = await AuthService.register(login, email, password);
+		const result = await AuthService.register(login, email, password);
 
-			reply.status(201).send({
-				success: true,
-				message: "Registration successful",
-				user: result.user,
-			});
-		} catch (error) {
-			if (error instanceof Error && error.message === "Email already exists") {
-				throw HttpError.conflict(error.message);
-			}
-			throw error;
-		}
+		reply.status(201).send({
+			success: true,
+			message: "Registration successful",
+			user: result.user,
+		});
 	});
 
 	// Connexion (email/password)
 	fastify.post("/login", async (request: FastifyRequest, reply: FastifyReply) => {
-		try {
-			const { email, password } = loginSchema.parse(request.body);
+		const { email, password } = loginSchema.parse(request.body);
 
-			const result = await AuthService.login(email, password);
+		const result = await AuthService.login(email, password);
 
-			reply.setCookie(cookieName, result.token, {
-				...COOKIE_OPTS,
-				maxAge: COOKIE_MAX_AGE,
-			});
+		reply.setCookie(cookieName, result.token, {
+			...COOKIE_OPTS,
+			maxAge: COOKIE_MAX_AGE,
+		});
 
-			reply.status(200).send({
-				success: true,
-				message: "Login successful",
-				user: result.user,
-			});
-		} catch (error) {
-			if (error instanceof Error && error.message === "Invalid email or password") {
-				throw HttpError.unauthorized(error.message);
-			}
-			throw error;
-		}
+		reply.status(200).send({
+			success: true,
+			message: "Login successful",
+			user: result.user,
+		});
 	});
 
 	fastify.get("/google", async (request: FastifyRequest, reply: FastifyReply) => {
