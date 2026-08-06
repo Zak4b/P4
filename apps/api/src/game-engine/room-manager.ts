@@ -1,7 +1,7 @@
 import { Game } from "./game.js";
 import { GameEndPayload, Room } from "./room.js";
 import { Player } from "./player.js";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "node:crypto";
 import { RoomBroadcaster, ServerMessage } from "./types.js";
 import { TypedEventEmitter } from "./typed-event-emitter.js";
 
@@ -53,7 +53,7 @@ export class RoomManager<T extends new () => Game> extends TypedEventEmitter<Roo
 		timeout,
 		players,
 	}: { id?: string; name?: string; timeout?: number; players?: string[] } = {}): Room<T> {
-		id ??= uuidv4();
+		id ??= randomUUID();
 		const room = new Room({
 			id,
 			name: name ?? id,
