@@ -20,6 +20,7 @@ const envSchema = z.object({
 	GOOGLE_CLIENT_SECRET: z.string().optional(),
 	WEB_URL: z.url().default("http://localhost:3001"),
 	API_URL: z.url().default("http://localhost:3000"),
+	SWAGGER_ENABLED: z.stringbool().optional(),
 });
 
 const { data: e, success, error } = envSchema.safeParse(process.env);
@@ -50,6 +51,9 @@ export const ENV = {
 	},
 	api: {
 		url: e.API_URL,
+		docs: {
+			enabled: e.SWAGGER_ENABLED ?? e.NODE_ENV !== "production",
+		},
 		jwt: {
 			secret: e.JWT_SECRET,
 			expiresIn: e.JWT_EXPIRES_IN,
