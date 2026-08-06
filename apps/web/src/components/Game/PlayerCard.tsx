@@ -3,7 +3,7 @@
 import React from "react";
 import { Box, Avatar, Typography, Chip } from "@mui/material";
 import { Person as PersonIcon } from "@mui/icons-material";
-import { Player } from "@/store/game";
+import type { Player } from "@/store/game";
 import { getAvatarDataUrl } from "@/lib/avatar";
 
 interface PlayerCardProps {

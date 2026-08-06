@@ -20,10 +20,28 @@ export class P4 extends Game<P4EventMap> {
 	private winnerIndex: number | undefined = undefined;
 	private _playCount: number = 0;
 
-	readonly pidValues:number[] = [1, 2];
+	override readonly pidValues:number[] = [1, 2];
 
 	get board() {
 		return this._board.map(col => [...col]);
+	}
+
+	/** Colonne du plateau, bornée : les index hors plateau sont une erreur de programmation. */
+	private column(x: number): number[] {
+		const col = this._board[x];
+		if (col === undefined) {
+			throw new Error(`Invalid column ${x}`);
+		}
+		return col;
+	}
+
+	/** Case du plateau, bornée. */
+	private cell(x: number, y: number): number {
+		const value = this.column(x)[y];
+		if (value === undefined) {
+			throw new Error(`Invalid cell ${x},${y}`);
+		}
+		return value;
 	}
 	get cPlayer() {
 		return this.currentPlayer;
@@ -106,7 +124,7 @@ export class P4 extends Game<P4EventMap> {
 			throw new Error("Invalid column");
 		}
 		// `board` clone tout le plateau : ici on lit la colonne directement.
-		const y = this._board[x].indexOf(0);
+		const y = this.column(x).indexOf(0);
 		if (y === -1) {
 			throw new Error("Column is full");
 		}
@@ -115,7 +133,7 @@ export class P4 extends Game<P4EventMap> {
 	}
 
 	private playMove(move: Move): void {
-		this._board[move.x][move.y] = this.currentPlayer;
+		this.column(move.x)[move.y] = this.currentPlayer;
 		this.lastMove = move;
 		this._playCount++;
 		if (this.check(move.x, move.y)) {
@@ -133,7 +151,7 @@ export class P4 extends Game<P4EventMap> {
 	private getCombinations(x: number, y: number): { c: string; r: string; d1: string; d2: string; } {
 		let d1 = "";
 		let d2 = "";
-		const c = this._board[x].map(String).join("");
+		const c = this.column(x).map(String).join("");
 		const r = this._board
 			.map((col) => col[y])
 			.map(String)
@@ -144,7 +162,7 @@ export class P4 extends Game<P4EventMap> {
 		const yz1 = y - z1;
 		const rg1 = Math.min(6 - xz1, 5 - yz1) + 1;
 		for (let i = 0; i < rg1; i++) {
-			d1 += this._board[i + xz1][i + yz1].toString();
+			d1 += this.cell(i + xz1, i + yz1).toString();
 		}
 
 		const z2 = Math.min(6 - x, y);
@@ -152,7 +170,7 @@ export class P4 extends Game<P4EventMap> {
 		const yz2 = y - z2;
 		const rg2 = Math.min(xz2, 5 - yz2) + 1;
 		for (let i = 0; i < rg2; i++) {
-			d2 += this._board[xz2 - i][i + yz2].toString();
+			d2 += this.cell(xz2 - i, i + yz2).toString();
 		}
 		d2 = d2.split("").reverse().join("");
 
@@ -163,7 +181,7 @@ export class P4 extends Game<P4EventMap> {
 		if (this.winnerIndex) {
 			return true;
 		}
-		const playerId = this._board[x][y];
+		const playerId = this.cell(x, y);
 		// Les quatre alignements passant par (x, y), séparés par "|" pour qu'une
 		// série ne puisse pas se poursuivre d'un alignement à l'autre.
 		const combinations = Object.values(this.getCombinations(x, y)).join("|");

@@ -37,7 +37,7 @@ export const roomRoutes: FastifyPluginAsyncZod = async (fastify) => {
 			const room = createRoom(name, players);
 
 			// URL de la ressource créée, déduite du chemin de collection (insensible au préfixe de montage)
-			const collectionPath = request.url.split("?")[0].replace(/\/$/, "");
+			const collectionPath = (request.url.split("?")[0] ?? request.url).replace(/\/$/, "");
 			reply.header("Location", `${collectionPath}/${room.id}`).status(201).send(room);
 		},
 	);

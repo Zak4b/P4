@@ -23,7 +23,7 @@ import {
 	Badge as BadgeIcon,
 } from "@mui/icons-material";
 import { useAuth } from "@/components/AuthContext";
-import { apiClient, UserStats } from "@/lib/api";
+import { apiClient, type UserStats } from "@/lib/api";
 import { typographyStyles, paperStyles, avatarStyles, layoutStyles } from "@/lib/styles";
 import UserAvatar from "@/components/UserAvatar";
 import UserStatsPanel from "@/components/UserStatsPanel";

@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Stack } from "@mui/material";
-import { Message } from "./types";
+import type { Message } from "./types";
 import { MessageItem } from "./MessageItem";
 import { colors } from "@/lib/styles";
 

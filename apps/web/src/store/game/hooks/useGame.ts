@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useWebSocket } from "@/components/WebSocketProvider";
-import { JoinResponse } from "@/lib/socketTypes";
+import type { JoinResponse } from "@/lib/socketTypes";
 import { useGameStore } from "../gameStore";
 import { BOARD_ROWS } from "../constants";
+import { getCell } from "../utils";
 
 export const useGame = () => {
 	const { socket, isConnected, playerId } = useWebSocket();
@@ -71,7 +72,7 @@ export const useGame = () => {
 			}
 
 			// Vérifier si la colonne est pleine
-			const topCell = gameState.board[x][BOARD_ROWS - 1];
+			const topCell = getCell(gameState.board, x, BOARD_ROWS - 1);
 			if (topCell !== "empty") {
 				return;
 			}

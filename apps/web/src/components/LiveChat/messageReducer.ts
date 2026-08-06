@@ -1,4 +1,4 @@
-import { Message, MessageAction } from "./types";
+import type { Message, MessageAction } from "./types";
 
 export const messageReducer = (state: Message[], action: MessageAction): Message[] => {
 	switch (action.type) {

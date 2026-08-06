@@ -1,9 +1,9 @@
 export class HttpError extends Error {
-	constructor(
-		readonly statusCode: number,
-		message: string,
-	) {
+	readonly statusCode: number;
+
+	constructor(statusCode: number, message: string) {
 		super(message);
+		this.statusCode = statusCode;
 		this.name = "HttpError";
 
 		// Maintient la pile d'appel correcte

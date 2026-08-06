@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Drawer, Box, Typography, List, ListItem, Button, CircularProgress, Divider } from "@mui/material";
 import { Refresh as RefreshIcon } from "@mui/icons-material";
-import { apiClient, Room } from "@/lib/api";
+import { apiClient, type Room } from "@/lib/api";
 import RoomBadge from "./RoomBadge";
 import RoomForm from "./RoomForm";
 import { colors } from "@/lib/styles";

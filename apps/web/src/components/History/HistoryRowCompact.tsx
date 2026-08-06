@@ -1,7 +1,7 @@
 import { Box, Typography, Paper } from "@mui/material";
 import { paperStyles } from "@/lib/styles";
 import PlayerInfo from "./HistoryPlayerInfo";
-import { HistoryRowProps, formatDate } from "./historyRowShared";
+import { type HistoryRowProps, formatDate } from "./historyRowShared";
 
 export default function HistoryRowCompact({
 	player1,

@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { Box, Paper, CircularProgress, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
-import { BOARD_COLS, BOARD_ROWS, TokenColor, useGame } from "@/store/game";
+import { BOARD_COLS, BOARD_ROWS, getCell, type TokenColor, useGame } from "@/store/game";
 import { useWebSocket } from "../WebSocketProvider";
 import { colors, gradients } from "@/lib/styles";
 
@@ -90,7 +90,7 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 									const x = col;
 									const y = BOARD_ROWS - 1 - row;
 
-									const displayColor = gameState.board[x][y];
+									const displayColor = getCell(gameState.board, x, y);
 									const tokenKey = `${x}-${y}`;
 									const isAnimating = animatingTokens.has(tokenKey);
 

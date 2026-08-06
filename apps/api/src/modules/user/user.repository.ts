@@ -38,7 +38,8 @@ export class UserRepository {
 			FROM Game
 			WHERE player1Id = ${userId} OR player2Id = ${userId}
 		`);
-		return stats;
+		// L'agrégat renvoie toujours une ligne, mais le typage de $queryRaw ne le sait pas.
+		return stats ?? { totalGames: 0n, wins: 0n, losses: 0n, draws: 0n };
 	}
 
 	static async createRecord(login: string, email: string, password: string, googleId?: string) {

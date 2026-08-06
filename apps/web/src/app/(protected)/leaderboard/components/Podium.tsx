@@ -4,7 +4,7 @@ import { Box, Typography, Paper, Grid, Stack } from "@mui/material";
 import { EmojiEvents as TrophyIcon, MilitaryTech as MedalIcon } from "@mui/icons-material";
 import { paperStyles } from "@/lib/styles";
 import UserAvatar from "@/components/UserAvatar";
-import LeaderboardEntry, { LeaderboardPlayer } from "./LeaderboardEntry";
+import LeaderboardEntry, { type LeaderboardPlayer } from "./LeaderboardEntry";
 
 const configs = {
 	1: {

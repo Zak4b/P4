@@ -1,6 +1,6 @@
 import { Game } from "./game.js";
 import { Player } from "./player.js";
-import { RoomBroadcaster, ServerMessage } from "./types.js";
+import type { RoomBroadcaster, ServerMessage } from "./types.js";
 import { TypedEventEmitter } from "./typed-event-emitter.js";
 import { P4 } from "./p4.js";
 import { gameRoom } from "../realtime/socket-rooms.js";
@@ -116,10 +116,10 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 			}
 			const used: number[] = Array.from(this.players.registered.values());
 			const availableIds: number[] = [1, 2].filter((id) => !used.includes(id));
-			if (availableIds.length === 0) {
+			const playerId = availableIds[0];
+			if (playerId === undefined) {
 				throw new Error("No more players can be added to this room");
 			}
-			const playerId = availableIds[0];
 			this.players.registered.set(player.uuid, playerId);
 			return playerId;
 		}

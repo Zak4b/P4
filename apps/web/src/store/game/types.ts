@@ -1,4 +1,4 @@
-import { SyncEvent, PlayEvent, PlayersEvent, PlayerJoinedEvent } from "@/lib/socketTypes";
+import type { SyncEvent, PlayEvent, PlayersEvent, PlayerJoinedEvent } from "@/lib/socketTypes";
 
 export type TokenColor = "empty" | "player1" | "player2";
 export type Board = TokenColor[][];

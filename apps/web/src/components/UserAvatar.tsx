@@ -1,4 +1,4 @@
-import { Avatar, AvatarProps } from "@mui/material";
+import { Avatar, type AvatarProps } from "@mui/material";
 import { getAvatarDataUrl } from "@/lib/avatar";
 
 interface UserAvatarProps extends Omit<AvatarProps, "src"> {

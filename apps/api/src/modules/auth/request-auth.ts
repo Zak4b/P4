@@ -1,5 +1,5 @@
-import { FastifyRequest } from "fastify";
-import { verifyToken, JWTPayload } from "./jwt.js";
+import type { FastifyRequest } from "fastify";
+import { verifyToken, type JWTPayload } from "./jwt.js";
 
 export const cookieName = "token";
 

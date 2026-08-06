@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, Typography, Paper } from "@mui/material";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import UserAvatar from "@/components/UserAvatar";
 
 interface LeaderboardPlayer {

@@ -1,4 +1,4 @@
-import { FastifyInstance } from "fastify";
+import type { FastifyInstance } from "fastify";
 import { authRoutes } from "../modules/auth/auth.routes.js";
 import { auth } from "../modules/auth/auth.middleware.js";
 import { userRoutes } from "../modules/user/user.routes.js";

@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { PlayEvent, PlayerJoinedEvent, PlayersEvent, SyncEvent } from "@/lib/socketTypes";
-import { GameStore, Board } from "./types";
-import { createEmptyBoard, getPlayerColor } from "./utils";
+import type { PlayEvent, PlayerJoinedEvent, PlayersEvent, SyncEvent } from "@/lib/socketTypes";
+import type { GameStore, Board } from "./types";
+import { createEmptyBoard, getPlayerColor, setCell } from "./utils";
 
 export const useGameStore = create<GameStore>((set, get) => ({
 	gameState: {
@@ -27,7 +27,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
 		set((state) => {
 			const newBoard = state.gameState.board.map((col) => [...col]);
-			newBoard[x][y] = getPlayerColor(playerId);
+			setCell(newBoard, x, y, getPlayerColor(playerId));
 
 			const tokenKey = `${x}-${y}`;
 			const newAnimatingTokens = new Set(state.animatingTokens);
@@ -61,10 +61,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
 		if (board) {
 			for (let x = 0; x < board.length; x++) {
-				for (let y = 0; y < board[x].length; y++) {
-					const playerId = board[x][y];
+				const column = board[x] ?? [];
+				for (let y = 0; y < column.length; y++) {
+					const playerId = column[y];
 					if (playerId) {
-						newBoard[x][y] = getPlayerColor(playerId);
+						setCell(newBoard, x, y, getPlayerColor(playerId));
 					}
 				}
 			}

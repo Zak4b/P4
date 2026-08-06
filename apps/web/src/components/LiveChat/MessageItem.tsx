@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography, Alert, Paper, Button, Stack } from "@mui/material";
 import { Info as InfoIcon } from "@mui/icons-material";
-import { Message } from "./types";
+import type { Message } from "./types";
 import { colors } from "@/lib/styles";
 
 interface MessageItemProps {

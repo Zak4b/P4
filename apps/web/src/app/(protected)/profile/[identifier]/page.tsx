@@ -13,11 +13,11 @@ import {
 	Container,
 } from "@mui/material";
 import { Person as PersonIcon } from "@mui/icons-material";
-import { apiClient, UserProfile } from "@/lib/api";
+import { apiClient, type UserProfile } from "@/lib/api";
 import { typographyStyles, paperStyles, avatarStyles, layoutStyles } from "@/lib/styles";
 import UserAvatar from "@/components/UserAvatar";
 import UserStatsPanel from "@/components/UserStatsPanel";
-import FriendControls, { FriendStatus } from "@/components/FriendControls";
+import FriendControls, { type FriendStatus } from "@/components/FriendControls";
 import { useAuth } from "@/components/AuthContext";
 
 export default function PublicProfilePage() {

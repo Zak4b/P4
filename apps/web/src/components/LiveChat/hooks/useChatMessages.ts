@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import { useWebSocket } from "@/components/WebSocketProvider";
-import { MessageEvent, InfoEvent, VoteEvent } from "@/lib/socketTypes";
-import { Message } from "../types";
+import type { MessageEvent, InfoEvent, VoteEvent } from "@/lib/socketTypes";
+import type { Message } from "../types";
 import { messageReducer } from "../messageReducer";
 
 export const useChatMessages = (roomId: string, isOpen: boolean) => {

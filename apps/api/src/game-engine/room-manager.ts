@@ -1,8 +1,8 @@
 import { Game } from "./game.js";
-import { GameEndPayload, Room } from "./room.js";
+import { Room, type GameEndPayload } from "./room.js";
 import { Player } from "./player.js";
 import { randomUUID } from "node:crypto";
-import { RoomBroadcaster, ServerMessage } from "./types.js";
+import type { RoomBroadcaster, ServerMessage } from "./types.js";
 import { TypedEventEmitter } from "./typed-event-emitter.js";
 
 export type OnPlayerJoinRoom<T extends new () => Game> = (player: Player<T>) => void;
@@ -170,6 +170,7 @@ export class RoomManager<T extends new () => Game> extends TypedEventEmitter<Roo
 		console.log("[matchmaking] tryMatch", { queueSize: this.matchmakingQueue.length });
 		if (this.matchmakingQueue.length < 2) return;
 		const [p1, p2] = this.matchmakingQueue.splice(0, 2);
+		if (!p1 || !p2) return;
 		console.log("[matchmaking] match found", {
 			p1: { uuid: p1.uuid, displayName: p1.displayName },
 			p2: { uuid: p2.uuid, displayName: p2.displayName },

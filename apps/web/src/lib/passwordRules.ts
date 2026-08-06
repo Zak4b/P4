@@ -1,4 +1,4 @@
-import { ValidationRule } from "@/components/PasswordInput";
+import type { ValidationRule } from "@/components/PasswordInput";
 
 export const passwordRules: ValidationRule[] = [
 	[(v: string) => v.length >= 8, "Minimum 8 characters"],

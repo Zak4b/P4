@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { apiClient, User } from "@/lib/api";
+import { createContext, useContext, useState, type ReactNode, useEffect } from "react";
+import { apiClient, type User } from "@/lib/api";
 
 interface AuthContextType {
 	/** `false` tant que la session n'a pas été résolue : à distinguer de « non connecté ». */

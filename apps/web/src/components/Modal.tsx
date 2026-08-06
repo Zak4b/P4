@@ -5,7 +5,7 @@ import {
 	DialogTitle,
 	DialogContent,
 	DialogActions,
-	DialogProps,
+	type DialogProps,
 	IconButton,
 	Divider,
 	Button,

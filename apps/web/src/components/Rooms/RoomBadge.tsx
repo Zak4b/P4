@@ -1,7 +1,7 @@
 "use client";
 
 import { Chip } from "@mui/material";
-import { Room } from "@/lib/api";
+import type { Room } from "@/lib/api";
 
 const GameBadge: React.FC<{ status: Room["status"] }> = ({ status }) => {
 	const getText = (status: Room["status"]) => {

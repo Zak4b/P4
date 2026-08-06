@@ -1,7 +1,7 @@
 import type { DefaultEventsMap, Socket } from "socket.io";
 import { parse as parseCookie } from "cookie";
 import { cookieName } from "../modules/auth/request-auth.js";
-import { verifyToken, JWTPayload } from "../modules/auth/jwt.js";
+import { verifyToken, type JWTPayload } from "../modules/auth/jwt.js";
 
 export interface SocketData {
 	user: JWTPayload;

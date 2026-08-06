@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TextField, InputAdornment, IconButton, TextFieldProps, FormHelperText, Box } from "@mui/material";
+import { TextField, InputAdornment, IconButton, type TextFieldProps, FormHelperText, Box } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 export type ValidationRule = [(value: string) => boolean, string];

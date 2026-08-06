@@ -20,7 +20,7 @@ import {
 	layoutStyles,
 } from "@/lib/styles";
 import Podium from "./components/Podium";
-import LeaderboardEntry, { LeaderboardPlayer } from "./components/LeaderboardEntry";
+import LeaderboardEntry, { type LeaderboardPlayer } from "./components/LeaderboardEntry";
 
 export default function LeaderboardPage() {
 	const [players, setPlayers] = useState<LeaderboardPlayer[]>([]);

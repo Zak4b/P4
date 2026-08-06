@@ -198,8 +198,8 @@ export const websocketConnection = (socket: AuthenticatedSocket): void => {
 			}
 		} else {
 			const match = text.match(/^\/(\w+)(?:\s+(\w+))?/);
-			const command = match ? match[1] : "";
-			const args = match ? match[2] : "";
+			const command = match?.[1] ?? "";
+			const args = match?.[2] ?? "";
 
 			const cb: CallableFunction = commandList[command] ?? unknownHandler;
 			const argsArray: string[] = (args ?? "").split(/\s+/).filter((e: string) => e);

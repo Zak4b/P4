@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useWebSocket } from "@/components/WebSocketProvider";
-import { SyncEvent, WinEvent, MatchedEvent } from "@/lib/socketTypes";
+import type { SyncEvent, WinEvent, MatchedEvent } from "@/lib/socketTypes";
 import { useGameStore } from "../gameStore";
 
 export const useGameWebSocket = () => {
