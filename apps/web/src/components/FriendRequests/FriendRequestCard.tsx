@@ -3,7 +3,7 @@
 import { Stack, Button, CircularProgress, useTheme, useMediaQuery, IconButton } from "@mui/material";
 import { PersonAdd as PersonAddIcon, PersonRemove as PersonRemoveIcon } from "@mui/icons-material";
 import FriendElement from "../FriendElement";
-import type { FriendRequest } from "./friendRequestsTypes";
+import type { FriendRequest } from "@p4/schemas/friend";
 
 interface FriendRequestCardProps {
 	request: FriendRequest;
@@ -33,11 +33,7 @@ export default function FriendRequestCard({
 				title="Accepter"
 				sx={{ p: 1 }}
 			>
-				{loading ? (
-					<CircularProgress size={24} color="inherit" />
-				) : (
-					<PersonAddIcon fontSize="medium" />
-				)}
+				{loading ? <CircularProgress size={24} color="inherit" /> : <PersonAddIcon fontSize="medium" />}
 			</IconButton>
 			<IconButton
 				size="medium"
@@ -59,13 +55,7 @@ export default function FriendRequestCard({
 				disabled={loading}
 				onClick={() => onAccept(request)}
 				sx={{ minWidth: 0, px: 1.5 }}
-				startIcon={
-					loading ? (
-						<CircularProgress size={16} color="inherit" />
-					) : (
-						<PersonAddIcon fontSize="small" />
-					)
-				}
+				startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <PersonAddIcon fontSize="small" />}
 			>
 				Accepter
 			</Button>
@@ -83,13 +73,5 @@ export default function FriendRequestCard({
 		</Stack>
 	);
 
-	return (
-		<FriendElement
-			user={request.fromUser}
-			avatarSize={36}
-			fullWidth
-			onCloseParent={onCloseParent}
-			slot={slot}
-		/>
-	);
+	return <FriendElement user={request.fromUser} avatarSize={36} fullWidth onCloseParent={onCloseParent} slot={slot} />;
 }

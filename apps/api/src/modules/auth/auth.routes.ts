@@ -1,9 +1,17 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { AuthService } from "./auth.service.js";
 import { cookieName } from "./request-auth.js";
-import { authUserSchema, loginSchema, registerSchema, sessionStatusSchema } from "@p4/schemas/auth";
-import { errorResponseSchema, noContentSchema, validationErrorResponseSchema } from "@p4/schemas/http";
+import { loginSchema, registerSchema } from "@p4/schemas/auth";
+import { userSchema } from "@p4/schemas/user";
+import {
+	badRequestSchema,
+	conflictSchema,
+	unauthorizedSchema,
+	serviceUnavailableSchema,
+	noContentSchema,
+} from "@p4/schemas/http";
 import { ENV } from "../../config/env.js";
+import { TAGS } from "../../config/api-tags.js";
 
 const COOKIE_OPTS = {
 	signed: false,
@@ -23,11 +31,15 @@ export const authRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		"/register",
 		{
 			schema: {
+				operationId: "register",
+				tags: [TAGS.auth],
+				summary: "Créer un compte",
+				security: [],
 				body: registerSchema,
 				response: {
-					201: authUserSchema,
-					400: validationErrorResponseSchema,
-					409: errorResponseSchema,
+					201: userSchema,
+					400: badRequestSchema,
+					409: conflictSchema,
 				},
 			},
 		},
@@ -45,11 +57,15 @@ export const authRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		"/login",
 		{
 			schema: {
+				operationId: "login",
+				tags: [TAGS.auth],
+				summary: "Ouvrir une session (email/password)",
+				security: [],
 				body: loginSchema,
 				response: {
-					200: authUserSchema,
-					400: validationErrorResponseSchema,
-					401: errorResponseSchema,
+					200: userSchema,
+					400: badRequestSchema,
+					401: unauthorizedSchema,
 				},
 			},
 		},
@@ -71,8 +87,13 @@ export const authRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		"/google",
 		{
 			schema: {
+				hide: true,
+				operationId: "googleLogin",
+				tags: [TAGS.auth],
+				summary: "Rediriger vers l'autorisation Google",
+				security: [],
 				response: {
-					503: errorResponseSchema,
+					503: serviceUnavailableSchema,
 				},
 			},
 		},
@@ -87,51 +108,52 @@ export const authRoutes: FastifyPluginAsyncZod = async (fastify) => {
 	);
 
 	// Callback Google OAuth
-	fastify.get("/google/callback", async (request, reply) => {
-		const googleOAuth2 = fastify.googleOAuth2;
-		if (!googleOAuth2) {
-			return reply.redirect(`${ENV.web.url}/login?error=Google+login+not+configured`);
-		}
-
-		try {
-			const { token } = await googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(request);
-			const accessToken = token.access_token;
-
-			const userinfoRes = await fetch(GOOGLE_USERINFO_URL, {
-				headers: { Authorization: `Bearer ${accessToken}` },
-			});
-			if (!userinfoRes.ok) {
-				throw new Error("Failed to fetch Google user info");
-			}
-			const profile = (await userinfoRes.json()) as { id: string; email?: string; name?: string };
-
-			const email = profile.email;
-			if (!email) {
-				return reply.redirect(`${ENV.web.url}/login?error=No+email+from+Google`);
-			}
-
-			const result = await AuthService.loginWithGoogle(profile.id, email, profile.name || "");
-
-			reply
-				.setCookie(cookieName, result.token, { ...COOKIE_OPTS, maxAge: COOKIE_MAX_AGE })
-				.redirect(`${ENV.web.url}/play`);
-		} catch {
-			reply.redirect(`${ENV.web.url}/login?error=google_auth_failed`);
-		}
-	});
-
-	// État de la session courante — route publique : « personne » est une réponse valide, pas une erreur
 	fastify.get(
-		"/status",
+		"/google/callback",
 		{
 			schema: {
-				response: {
-					200: sessionStatusSchema,
-				},
+				hide: true,
+				operationId: "googleCallback",
+				tags: [TAGS.auth],
+				summary: "Callback Google OAuth",
+				security: [],
 			},
 		},
 		async (request, reply) => {
-			reply.send({ user: request.user ?? null });
+			const googleOAuth2 = fastify.googleOAuth2;
+			if (!googleOAuth2) {
+				return reply.redirect(`${ENV.web.url}/login?error=Google+login+not+configured`);
+			}
+
+			try {
+				const { token } = await googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(request);
+				const accessToken = token.access_token;
+
+				const userinfoRes = await fetch(GOOGLE_USERINFO_URL, {
+					headers: { Authorization: `Bearer ${accessToken}` },
+				});
+				if (!userinfoRes.ok) {
+					throw new Error("Failed to fetch Google user info");
+				}
+				const profile = (await userinfoRes.json()) as {
+					id: string;
+					email?: string;
+					name?: string;
+				};
+
+				const email = profile.email;
+				if (!email) {
+					return reply.redirect(`${ENV.web.url}/login?error=No+email+from+Google`);
+				}
+
+				const result = await AuthService.loginWithGoogle(profile.id, email, profile.name || "");
+
+				reply
+					.setCookie(cookieName, result.token, { ...COOKIE_OPTS, maxAge: COOKIE_MAX_AGE })
+					.redirect(`${ENV.web.url}/play`);
+			} catch {
+				reply.redirect(`${ENV.web.url}/login?error=google_auth_failed`);
+			}
 		},
 	);
 
@@ -139,6 +161,10 @@ export const authRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		"/logout",
 		{
 			schema: {
+				operationId: "logout",
+				tags: [TAGS.auth],
+				summary: "Fermer la session",
+				security: [],
 				response: {
 					204: noContentSchema,
 				},

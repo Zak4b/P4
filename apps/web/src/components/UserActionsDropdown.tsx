@@ -112,7 +112,7 @@ export default function UserActionsDropdown({
 
 	const handleViewProfile = () => {
 		onCloseParent?.();
-		router.push(`/profile/${encodeURIComponent(targetUser.login)}`);
+		router.push(`/profile/${encodeURIComponent(targetUser.id)}`);
 		handleMenuClose();
 	};
 

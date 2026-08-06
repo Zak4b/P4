@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { RoomPlayerRef, ServerMessageData, SyncData } from "@p4/schemas/realtime";
+import type { GamePlayer, ServerMessageData, SyncData } from "@p4/schemas/realtime";
 import type { GameStore, Board } from "./types";
 import { createEmptyBoard, getPlayerColor, setCell } from "./utils";
 
@@ -18,8 +18,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
 	winDialogOpen: false,
 	winMessage: "",
 	players: [
-		{ localId: 1, name: null },
-		{ localId: 2, name: null },
+		{ localId: 1, id: null, login: null },
+		{ localId: 2, id: null, login: null },
 	],
 
 	handlePlay: (data: ServerMessageData<"play">) => {
@@ -109,28 +109,31 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		});
 	},
 
-	handlePlayers: (players: RoomPlayerRef[]) => {
-		const byId = new Map(players.map((p) => [p.localId, p.name]));
+	handlePlayers: (players: GamePlayer[]) => {
+		const seated = new Map(players.filter((p) => p.localId !== null).map((p) => [p.localId, p]));
 		set({
-			players: [
-				{ localId: 1, name: byId.get(1) ?? null },
-				{ localId: 2, name: byId.get(2) ?? null },
-			],
+			players: [1, 2].map((localId) => {
+				const player = seated.get(localId);
+				return { localId, id: player?.id ?? null, login: player?.login ?? null };
+			}),
 		});
 	},
 
-	handlePlayerJoined: (data: RoomPlayerRef) => {
+	handlePlayerJoined: (data: GamePlayer) => {
+		if (data.localId === null) return;
+		const localId = data.localId;
+
 		set((state) => {
-			const existing = state.players.find((p) => p.localId === data.localId);
+			const existing = state.players.find((p) => p.localId === localId);
 			if (existing) {
 				return {
 					players: state.players.map((p) =>
-						p.localId === data.localId ? { ...p, name: data.name } : p
+						p.localId === localId ? { ...p, id: data.id, login: data.login } : p
 					),
 				};
 			}
 			return {
-				players: [...state.players, { localId: data.localId, name: data.name }].sort(
+				players: [...state.players, { localId, id: data.id, login: data.login }].sort(
 					(a, b) => a.localId - b.localId
 				),
 			};

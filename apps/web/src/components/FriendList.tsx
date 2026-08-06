@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthContext";
 import { Box, Grid, Typography, CircularProgress, Alert, Stack } from "@mui/material";
 import FriendElement from "./FriendElement";
-import { FriendRequestsDrawer, type FriendRequest } from "./FriendRequests";
+import FriendRequestsDrawer from "./FriendRequests/FriendRequestsDrawer";
 import { apiClient } from "@/lib/api";
+import type { FriendRequest } from "@p4/schemas/friend";
 
 interface Friend {
 	id: string;
@@ -64,12 +65,12 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 				requests={requests}
 				onCloseModal={onCloseModal}
 				onAccept={async (req) => {
-					await apiClient.acceptFriendRequest(req.fromUser.login);
+					await apiClient.acceptFriendRequest(req.id);
 					setFriends((prev) => [...prev, req.fromUser]);
 					setRequests((prev) => prev.filter((r) => r.id !== req.id));
 				}}
 				onReject={async (req) => {
-					await apiClient.rejectFriendRequest(req.fromUser.login);
+					await apiClient.deleteFriendRequest(req.id);
 					setRequests((prev) => prev.filter((r) => r.id !== req.id));
 				}}
 			/>
@@ -90,7 +91,7 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 								hoverable
 								onCloseParent={onCloseModal}
 								onRemove={async () => {
-									await apiClient.removeFriendRequest(friend.login);
+									await apiClient.removeFriend(friend.id);
 								}}
 								onRemoveSuccess={() => setFriends((prev) => prev.filter((f) => f.id !== friend.id))}
 							/>

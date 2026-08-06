@@ -38,8 +38,7 @@ const statusConfig = {
 } as const;
 
 interface FriendControlsProps {
-	targetIdentifier: string;
-	targetLogin?: string;
+	targetLogin: string;
 	status: FriendStatus;
 	isLoading?: boolean;
 	onAddFriend: () => Promise<void>;
@@ -48,7 +47,6 @@ interface FriendControlsProps {
 }
 
 export default function FriendControls({
-	targetIdentifier,
 	targetLogin,
 	status,
 	isLoading = false,
@@ -64,7 +62,7 @@ export default function FriendControls({
 		content: ({ close }) => (
 			<Stack spacing={3}>
 				<Typography color="text.secondary">
-					Voulez-vous retirer {targetLogin || targetIdentifier} de votre liste d'amis ?
+					Voulez-vous retirer {targetLogin} de votre liste d'amis ?
 				</Typography>
 				<Stack direction="row" spacing={2} justifyContent="flex-end">
 					<Button variant="outlined" onClick={close} disabled={isRemoving}>

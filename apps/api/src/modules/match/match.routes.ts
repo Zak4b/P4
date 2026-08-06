@@ -2,17 +2,22 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { GameHistoryService } from "./game-history.service.js";
 import { gameHistoryQuerySchema, gameHistorySchema } from "@p4/schemas/match";
-import { validationErrorResponseSchema } from "@p4/schemas/http";
+import { badRequestSchema, unauthorizedSchema } from "@p4/schemas/http";
+import { TAGS } from "../../config/api-tags.js";
 
 export const matchRoutes: FastifyPluginAsyncZod = async (fastify) => {
 	fastify.get(
 		"/",
 		{
 			schema: {
+				operationId: "listMatches",
+				tags: [TAGS.matches],
+				summary: "Historique des parties",
 				querystring: gameHistoryQuerySchema,
 				response: {
 					200: z.array(gameHistorySchema),
-					400: validationErrorResponseSchema,
+					400: badRequestSchema,
+					401: unauthorizedSchema,
 				},
 			},
 		},

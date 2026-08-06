@@ -1,7 +1,13 @@
 import { prisma } from "../../lib/prisma.js";
 import type { FriendStatus } from "../../generated/prisma/enums.js";
 
-const FRIEND_USER_SELECT = { id: true, login: true, eloRating: true } as const;
+const FRIEND_USER_SELECT = { id: true, login: true, eloRating: true, xp: true } as const;
+
+/** Les deux parties d'une demande, pour une représentation lisible dans les deux sens. */
+const REQUEST_PARTIES_INCLUDE = {
+	fromUser: { select: FRIEND_USER_SELECT },
+	toUser: { select: FRIEND_USER_SELECT },
+} as const;
 
 export class FriendRepository {
 	static async findRequestByPair(fromUserId: string, toUserId: string) {
@@ -15,6 +21,14 @@ export class FriendRepository {
 		});
 	}
 
+	/** Accès direct par l'identifiant exposé sur `/friend-requests/{id}`. */
+	static async findRequestById(id: string) {
+		return await prisma.friendRequest.findUnique({
+			where: { id },
+			include: REQUEST_PARTIES_INCLUDE,
+		});
+	}
+
 	static async createRequest(fromUserId: string, toUserId: string) {
 		return await prisma.friendRequest.create({
 			data: {
@@ -22,6 +36,7 @@ export class FriendRepository {
 				toUserId,
 				status: "PENDING",
 			},
+			include: REQUEST_PARTIES_INCLUDE,
 		});
 	}
 
@@ -31,17 +46,26 @@ export class FriendRepository {
 		});
 	}
 
+	/** Demandes en attente reçues par `userId`. */
 	static async findPendingForUser(userId: string) {
 		return await prisma.friendRequest.findMany({
 			where: {
 				toUserId: userId,
 				status: "PENDING",
 			},
-			include: {
-				fromUser: {
-					select: FRIEND_USER_SELECT,
-				},
+			include: REQUEST_PARTIES_INCLUDE,
+			orderBy: { createdAt: "desc" },
+		});
+	}
+
+	/** Demandes en attente envoyées par `userId` — celles qu'il peut annuler. */
+	static async findPendingFromUser(userId: string) {
+		return await prisma.friendRequest.findMany({
+			where: {
+				fromUserId: userId,
+				status: "PENDING",
 			},
+			include: REQUEST_PARTIES_INCLUDE,
 			orderBy: { createdAt: "desc" },
 		});
 	}
@@ -59,14 +83,7 @@ export class FriendRepository {
 				status: "ACCEPTED",
 				OR: [{ fromUserId: userId }, { toUserId: userId }],
 			},
-			include: {
-				fromUser: {
-					select: FRIEND_USER_SELECT,
-				},
-				toUser: {
-					select: FRIEND_USER_SELECT,
-				},
-			},
+			include: REQUEST_PARTIES_INCLUDE,
 		});
 	}
 }

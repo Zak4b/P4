@@ -1,8 +1,7 @@
-import type { AuthUser, SessionStatus } from "@p4/schemas/auth";
-import type { Friend, FriendRequest, Relation } from "@p4/schemas/friend";
+import type { FriendRequest, Relation } from "@p4/schemas/friend";
 import type { GameHistory } from "@p4/schemas/match";
 import type { Room } from "@p4/schemas/room";
-import type { LeaderboardEntry, UserProfile, UserStats } from "@p4/schemas/user";
+import type { Me, User, UserProfile, UserStats } from "@p4/schemas/user";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 const API_BASE = `${BACKEND_URL}/api`;
@@ -44,16 +43,16 @@ class ApiClient {
 	// Auth endpoints
 
 	/** 201 : renvoie l'utilisateur créé. */
-	async register(login: string, email: string, password: string): Promise<AuthUser> {
-		return this.request<AuthUser>("/auth/register", {
+	async register(login: string, email: string, password: string): Promise<User> {
+		return this.request<User>("/auth/register", {
 			method: "POST",
 			body: JSON.stringify({ login, email, password }),
 		});
 	}
 
 	/** 200 : ouvre une session (portée par le cookie) et renvoie l'utilisateur connecté. */
-	async login(email: string, password: string): Promise<AuthUser> {
-		return this.request<AuthUser>("/auth/login", {
+	async login(email: string, password: string): Promise<User> {
+		return this.request<User>("/auth/login", {
 			method: "POST",
 			body: JSON.stringify({ email, password }),
 		});
@@ -66,87 +65,97 @@ class ApiClient {
 		});
 	}
 
-	/** État de la session courante — `user` à `null` si personne n'est connecté. */
-	async getSession(): Promise<SessionStatus> {
-		return this.request<SessionStatus>("/auth/status");
-	}
-
 	/** URL pour initier la connexion Google (redirection) */
 	getGoogleLoginUrl(): string {
 		return `${API_BASE}/auth/google`;
 	}
 
-	// Game API endpoints
-	async getRooms(): Promise<Room[]> {
-		return this.request<Room[]>("/room");
+	async getMe(): Promise<Me> {
+		return this.request<Me>("/me");
 	}
 
-	/** 201 : renvoie la room créée. */
-	async newRoom(name: string, players?: string[]): Promise<Room> {
-		return this.request<Room>("/room", {
+	// Game API endpoints
+	async getRooms(): Promise<Room[]> {
+		return this.request<Room[]>("/rooms");
+	}
+
+	/** 201 : renvoie la room créée. Le créateur vient de la session, seuls ses invités se déclarent. */
+	async newRoom(name: string, invited?: string[]): Promise<Room> {
+		return this.request<Room>("/rooms", {
 			method: "POST",
-			body: JSON.stringify({ name, players }),
+			body: JSON.stringify({ name, invited }),
 		});
 	}
 
 	async getHistory(): Promise<GameHistory[]> {
-		return this.request<GameHistory[]>("/match");
+		return this.request<GameHistory[]>("/matches");
+	}
+
+	async getUser(id: string): Promise<User> {
+		return this.request<User>(`/users/${encodeURIComponent(id)}`);
 	}
 
 	async getUserStats(id: string): Promise<UserStats> {
-		return this.request<UserStats>(`/user/${encodeURIComponent(id)}/stats`);
+		return this.request<UserStats>(`/users/${encodeURIComponent(id)}/stats`);
 	}
 
-	/** Profil complet d'un joueur (id ou login) */
-	async getProfile(identifier: string): Promise<UserProfile> {
-		return this.request<UserProfile>(`/user/profile/${encodeURIComponent(identifier)}`);
+	/** Profil public : le joueur et son bilan, recomposés à partir des deux endpoints. */
+	async getProfile(id: string): Promise<UserProfile> {
+		const [user, stats] = await Promise.all([this.getUser(id), this.getUserStats(id)]);
+		return { ...user, stats };
 	}
 
 	/** Liste des amis */
-	async getFriends(): Promise<Friend[]> {
-		return this.request<Friend[]>("/friend");
+	async getFriends(): Promise<User[]> {
+		return this.request<User[]>("/friends");
 	}
 
-	/** Demandes d'ami en attente */
+	/** Demandes d'ami reçues, en attente */
 	async getFriendRequests(): Promise<FriendRequest[]> {
-		return this.request<FriendRequest[]>("/friend/requests");
+		return this.request<FriendRequest[]>("/friend-requests");
 	}
 
-	/** Accepter une demande d'ami (204) */
-	async acceptFriendRequest(identifier: string): Promise<void> {
-		return this.requestVoid(`/friend/requests/${encodeURIComponent(identifier)}/accept`, {
+	/** Demandes d'ami envoyées, encore en attente — celles que l'on peut annuler */
+	async getSentFriendRequests(): Promise<FriendRequest[]> {
+		return this.request<FriendRequest[]>("/friend-requests?direction=out");
+	}
+
+	/** Accepter une demande reçue (204) */
+	async acceptFriendRequest(requestId: string): Promise<void> {
+		return this.requestVoid(`/friend-requests/${encodeURIComponent(requestId)}/accept`, {
 			method: "POST",
 		});
 	}
 
-	/** Refuser une demande d'ami (204) */
-	async rejectFriendRequest(identifier: string): Promise<void> {
-		return this.requestVoid(`/friend/requests/${encodeURIComponent(identifier)}/reject`, {
-			method: "POST",
-		});
-	}
-
-	/** Statut amical avec un joueur */
-	async getFriendStatus(identifier: string): Promise<Relation> {
-		return this.request<Relation>(`/friend/status/${encodeURIComponent(identifier)}`);
-	}
-
-	/** Envoyer une demande d'ami (201 : renvoie le statut résultant de la relation) */
-	async sendFriendRequest(identifier: string): Promise<Relation> {
-		return this.request<Relation>(`/friend/request/${encodeURIComponent(identifier)}`, {
-			method: "POST",
-		});
-	}
-
-	/** Retirer un ami (204) */
-	async removeFriendRequest(identifier: string): Promise<void> {
-		return this.requestVoid(`/friend/request/${encodeURIComponent(identifier)}`, {
+	/** Refuser une demande reçue, ou annuler une demande envoyée (204) */
+	async deleteFriendRequest(requestId: string): Promise<void> {
+		return this.requestVoid(`/friend-requests/${encodeURIComponent(requestId)}`, {
 			method: "DELETE",
 		});
 	}
 
-	async getLeaderboard(): Promise<LeaderboardEntry[]> {
-		return this.request<LeaderboardEntry[]>("/user/leaderboard");
+	/** Envoyer une demande d'ami (201 : renvoie la demande créée) */
+	async sendFriendRequest(toUserId: string): Promise<FriendRequest> {
+		return this.request<FriendRequest>("/friend-requests", {
+			method: "POST",
+			body: JSON.stringify({ toUserId }),
+		});
+	}
+
+	/** Relation d'amitié avec un joueur */
+	async getFriendStatus(userId: string): Promise<Relation> {
+		return this.request<Relation>(`/users/${encodeURIComponent(userId)}/friendship`);
+	}
+
+	/** Retirer un ami (204) */
+	async removeFriend(userId: string): Promise<void> {
+		return this.requestVoid(`/friends/${encodeURIComponent(userId)}`, {
+			method: "DELETE",
+		});
+	}
+
+	async getLeaderboard(): Promise<User[]> {
+		return this.request<User[]>("/leaderboard");
 	}
 }
 

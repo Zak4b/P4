@@ -24,7 +24,7 @@ import { useAuth } from "@/components/AuthContext";
 export default function PublicProfilePage() {
 	const params = useParams();
 	const { user: currentUser } = useAuth();
-	const identifier = (params?.identifier as string) ?? "";
+	const id = (params?.id as string) ?? "";
 	const [profile, setProfile] = useState<UserProfile | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState("");
@@ -32,7 +32,7 @@ export default function PublicProfilePage() {
 	const [friendStatusLoading, setFriendStatusLoading] = useState(false);
 
 	useEffect(() => {
-		if (!identifier) {
+		if (!id) {
 			setIsLoading(false);
 			setError("Joueur introuvable");
 			return;
@@ -42,8 +42,7 @@ export default function PublicProfilePage() {
 			setIsLoading(true);
 			setError("");
 			try {
-				const data = await apiClient.getProfile(identifier);
-				setProfile(data);
+				setProfile(await apiClient.getProfile(id));
 			} catch {
 				setError("Joueur introuvable");
 			} finally {
@@ -52,7 +51,7 @@ export default function PublicProfilePage() {
 		};
 
 		loadData();
-	}, [identifier]);
+	}, [id]);
 
 	useEffect(() => {
 		if (!profile || !currentUser || profile.id === currentUser.id) return;
@@ -60,7 +59,7 @@ export default function PublicProfilePage() {
 		const loadFriendStatus = async () => {
 			setFriendStatusLoading(true);
 			try {
-				const { status } = await apiClient.getFriendStatus(identifier);
+				const { status } = await apiClient.getFriendStatus(profile.id);
 				setFriendStatus(status);
 			} catch {
 				setFriendStatus("none");
@@ -70,7 +69,7 @@ export default function PublicProfilePage() {
 		};
 
 		loadFriendStatus();
-	}, [profile, currentUser, identifier]);
+	}, [profile, currentUser]);
 
 	const isOwnProfile = currentUser && profile && profile.id === currentUser.id;
 
@@ -115,15 +114,14 @@ export default function PublicProfilePage() {
 									</Box>
 									{!isOwnProfile && currentUser && (
 										<FriendControls
-											targetIdentifier={identifier}
 											targetLogin={profile.login}
 											status={friendStatus}
 											isLoading={friendStatusLoading}
 											onAddFriend={async () => {
-												await apiClient.sendFriendRequest(identifier);
+												await apiClient.sendFriendRequest(profile.id);
 											}}
 											onRemoveFriend={async () => {
-												await apiClient.removeFriendRequest(identifier);
+												await apiClient.removeFriend(profile.id);
 											}}
 											onStatusChange={setFriendStatus}
 										/>
@@ -135,7 +133,7 @@ export default function PublicProfilePage() {
 				</Grid>
 
 				<Grid size={{ xs: 12, md: 6 }}>
-					<UserStatsPanel stats={profile} />
+					<UserStatsPanel profile={profile} />
 				</Grid>
 			</Grid>
 		</Container>

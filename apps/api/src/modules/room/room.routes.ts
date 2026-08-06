@@ -3,15 +3,21 @@ import { z } from "zod";
 import { createRoom, listAllRooms, getRoomById } from "./room.service.js";
 import { HttpError } from "../../lib/HttpError.js";
 import { createRoomSchema, roomIdParamsSchema, roomSchema } from "@p4/schemas/room";
-import { errorResponseSchema, validationErrorResponseSchema } from "@p4/schemas/http";
+import { badRequestSchema, notFoundSchema, unauthorizedSchema } from "@p4/schemas/http";
+import { TAGS } from "../../config/api-tags.js";
 
 export const roomRoutes: FastifyPluginAsyncZod = async (fastify) => {
 	fastify.get(
 		"/",
 		{
+			prefixTrailingSlash: "no-slash",
 			schema: {
+				operationId: "listRooms",
+				tags: [TAGS.rooms],
+				summary: "Lister les salons",
 				response: {
 					200: z.array(roomSchema),
+					401: unauthorizedSchema,
 				},
 			},
 		},
@@ -24,16 +30,27 @@ export const roomRoutes: FastifyPluginAsyncZod = async (fastify) => {
 	fastify.post(
 		"/",
 		{
+			prefixTrailingSlash: "no-slash",
 			schema: {
+				operationId: "createRoom",
+				tags: [TAGS.rooms],
+				summary: "Créer un salon",
+				description:
+					"Crée le salon et y place le créateur. Rejoindre ou quitter un salon existant passe par la connexion temps réel, pas par cette API.",
 				body: createRoomSchema,
 				response: {
 					201: roomSchema,
-					400: validationErrorResponseSchema,
+					400: badRequestSchema,
+					401: unauthorizedSchema,
 				},
 			},
 		},
 		async (request, reply) => {
-			const { name, players } = request.body;
+			const currentUser = request.user;
+			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+
+			const { name, invited } = request.body;
+			const players = [...new Set([currentUser.id, ...(invited ?? [])])];
 			const room = createRoom(name, players);
 
 			// URL de la ressource créée, déduite du chemin de collection (insensible au préfixe de montage)
@@ -46,11 +63,15 @@ export const roomRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		"/:id",
 		{
 			schema: {
+				operationId: "getRoom",
+				tags: [TAGS.rooms],
+				summary: "Récupérer un salon par son id",
 				params: roomIdParamsSchema,
 				response: {
 					200: roomSchema,
-					400: validationErrorResponseSchema,
-					404: errorResponseSchema,
+					400: badRequestSchema,
+					401: unauthorizedSchema,
+					404: notFoundSchema,
 				},
 			},
 		},

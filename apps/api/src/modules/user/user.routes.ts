@@ -1,24 +1,31 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { UserService } from "./user.service.js";
+import { FriendService } from "../friend/friend.service.js";
 import { HttpError } from "../../lib/HttpError.js";
+import { userSchema, userStatsSchema } from "@p4/schemas/user";
+import { relationSchema } from "@p4/schemas/friend";
 import {
-	leaderboardEntrySchema,
-	safeUserSchema,
-	userIdParamsSchema,
-	userProfileSchema,
-	userRankingEntrySchema,
-	userStatsSchema,
-} from "@p4/schemas/user";
-import { errorResponseSchema, identifierParamsSchema, validationErrorResponseSchema } from "@p4/schemas/http";
+	badRequestSchema,
+	notFoundSchema,
+	unauthorizedSchema,
+	userPathIdSchema,
+} from "@p4/schemas/http";
+import { TAGS } from "../../config/api-tags.js";
 
 export const userRoutes: FastifyPluginAsyncZod = async (fastify) => {
 	fastify.get(
 		"/",
 		{
+			// Monté sur `/ressource`, jamais sur `/ressource/` : un seul chemin par ressource.
+			prefixTrailingSlash: "no-slash",
 			schema: {
+				operationId: "listUsers",
+				tags: [TAGS.users],
+				summary: "Lister les joueurs",
 				response: {
-					200: z.array(userRankingEntrySchema),
+					200: z.array(userSchema),
+					401: unauthorizedSchema,
 				},
 			},
 		},
@@ -28,85 +35,53 @@ export const userRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		},
 	);
 
-	// Routes statiques avant les paramétriques pour éviter les conflits
-	fastify.get(
-		"/leaderboard",
-		{
-			schema: {
-				response: {
-					200: z.array(leaderboardEntrySchema),
-				},
-			},
-		},
-		async (_request, reply) => {
-			const leaderboard = await UserService.getLeaderboard(10);
-			reply.send(leaderboard);
-		},
-	);
-
-	// Profil complet d'un joueur (id ou login)
-	fastify.get(
-		"/profile/:identifier",
-		{
-			schema: {
-				params: identifierParamsSchema,
-				response: {
-					200: userProfileSchema,
-					400: validationErrorResponseSchema,
-					404: errorResponseSchema,
-				},
-			},
-		},
-		async (request, reply) => {
-			const { identifier } = request.params;
-			const profile = await UserService.getProfile(identifier);
-			if (!profile) {
-				throw HttpError.notFound("User not found");
-			}
-			reply.send(profile);
-		},
-	);
-
-	// Informations de base (id ou login) - sans mot de passe
+	// Un joueur, par son id
 	fastify.get(
 		"/:id",
 		{
 			schema: {
-				params: userIdParamsSchema,
+				operationId: "getUser",
+				tags: [TAGS.users],
+				summary: "Récupérer un joueur par son id",
+				params: userPathIdSchema,
 				response: {
-					200: safeUserSchema,
-					400: validationErrorResponseSchema,
-					404: errorResponseSchema,
+					200: userSchema,
+					400: badRequestSchema,
+					401: unauthorizedSchema,
+					404: notFoundSchema,
 				},
 			},
 		},
 		async (request, reply) => {
 			const { id } = request.params;
-			const user = await UserService.getByIdOrLogin(id);
+			const user = await UserService.getById(id);
 			if (!user) {
 				throw HttpError.notFound("User not found");
 			}
-			const { password: _p, ...safeUser } = user;
-			reply.send(safeUser);
+			reply.send(user);
 		},
 	);
 
-	// Statistiques (id ou login)
+	// Bilan des parties d'un joueur
 	fastify.get(
 		"/:id/stats",
 		{
 			schema: {
-				params: userIdParamsSchema,
+				operationId: "getUserStats",
+				tags: [TAGS.users],
+				summary: "Statistiques de parties d'un joueur",
+				params: userPathIdSchema,
 				response: {
 					200: userStatsSchema,
-					400: validationErrorResponseSchema,
-					404: errorResponseSchema,
+					400: badRequestSchema,
+					401: unauthorizedSchema,
+					404: notFoundSchema,
 				},
 			},
 		},
 		async (request, reply) => {
 			const { id } = request.params;
-			const user = await UserService.getByIdOrLogin(id);
+			const user = await UserService.getById(id);
 			if (!user) {
 				throw HttpError.notFound("User not found");
 			}
@@ -115,6 +90,39 @@ export const userRoutes: FastifyPluginAsyncZod = async (fastify) => {
 				throw HttpError.notFound("User not found");
 			}
 			reply.send(stats);
+		},
+	);
+
+	/**
+	 * La relation avec ce joueur, vue depuis la session : c'est un attribut du
+	 * joueur consulté, d'où sa place sous `/users/{id}` plutôt que sous `/friends`.
+	 */
+	fastify.get(
+		"/:id/friendship",
+		{
+			schema: {
+				operationId: "getFriendship",
+				tags: [TAGS.users],
+				summary: "Relation d'amitié avec un joueur",
+				params: userPathIdSchema,
+				response: {
+					200: relationSchema,
+					400: badRequestSchema,
+					401: unauthorizedSchema,
+					404: notFoundSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const currentUser = request.user;
+			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+
+			const { id } = request.params;
+			const target = await UserService.getById(id);
+			if (!target) throw HttpError.notFound("User not found");
+
+			const status = await FriendService.getRelationStatus(currentUser.id, target.id);
+			reply.send({ status });
 		},
 	);
 };

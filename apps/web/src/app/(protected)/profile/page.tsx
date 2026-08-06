@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
 	Box,
 	Typography,
@@ -17,44 +17,17 @@ import {
 	Button,
 	Container,
 } from "@mui/material";
-import {
-	Person as PersonIcon,
-	Email as EmailIcon,
-	Badge as BadgeIcon,
-} from "@mui/icons-material";
+import { Person as PersonIcon, Email as EmailIcon, Badge as BadgeIcon } from "@mui/icons-material";
 import { useAuth } from "@/components/AuthContext";
-import { apiClient } from "@/lib/api";
-import type { UserStats } from "@p4/schemas/user";
 import { typographyStyles, paperStyles, avatarStyles, layoutStyles } from "@/lib/styles";
 import UserAvatar from "@/components/UserAvatar";
 import UserStatsPanel from "@/components/UserStatsPanel";
 import AvatarEditor from "@/components/AvatarEditor";
 
 export default function ProfilePage() {
-	const { user } = useAuth();
-	const [stats, setStats] = useState<UserStats | null>(null);
+	const { user, isAuthReady } = useAuth();
 	const [avatarModalOpen, setAvatarModalOpen] = useState(false);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState("");
-
-	useEffect(() => {
-		if (!user) return;
-
-		const loadData = async () => {
-			setIsLoading(true);
-			setError("");
-			try {
-				const stats = await apiClient.getUserStats(user.id);
-				setStats(stats);
-			} catch (err) {
-				setError("Failed to load account data: " + err);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		loadData();
-	}, [user]);
+	const isLoading = !isAuthReady;
 
 	if (isLoading) {
 		return (
@@ -62,10 +35,6 @@ export default function ProfilePage() {
 				<CircularProgress />
 			</Box>
 		);
-	}
-
-	if (error) {
-		return <Alert severity="error">{error}</Alert>;
 	}
 
 	if (!user) {
@@ -96,10 +65,7 @@ export default function ProfilePage() {
 								}}
 								aria-label="Modifier l'avatar"
 							>
-								<UserAvatar
-									login={user.login}
-									sx={{ ...avatarStyles.large, ...avatarStyles.gradientAvatar }}
-								/>
+								<UserAvatar login={user.login} sx={{ ...avatarStyles.large, ...avatarStyles.gradientAvatar }} />
 							</Box>
 							<Box sx={{ width: "100%" }}>
 								<Stack spacing={2}>
@@ -130,7 +96,7 @@ export default function ProfilePage() {
 
 				{/* Statistiques */}
 				<Grid size={{ xs: 12, md: 6 }}>
-					<UserStatsPanel stats={stats} />
+					<UserStatsPanel profile={user} />
 				</Grid>
 			</Grid>
 

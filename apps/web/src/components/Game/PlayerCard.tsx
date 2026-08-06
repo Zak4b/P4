@@ -13,8 +13,8 @@ interface PlayerCardProps {
 
 const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 	const isPlayer1 = player.localId === 1;
-	const waitingForName = player.name === null;
-	const displayName = player.name ?? "En attente";
+	const waitingForName = player.login === null;
+	const displayName = player.login ?? "En attente";
 
 	// Couleurs selon le joueur
 	const primaryColor = isPlayer1 ? "#ef4444" : "#f59e0b";
@@ -38,7 +38,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 			}}
 		>
 			<Avatar
-				src={player.name ? getAvatarDataUrl(player.name) : undefined}
+				src={player.login ? getAvatarDataUrl(player.login) : undefined}
 				sx={{
 					width: { xs: 36, lg: 48 },
 					height: { xs: 36, lg: 48 },

@@ -1,0 +1,30 @@
+{
+	"name": "@p4/leveling",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Calcul de niveau à partir de l'XP, partagé entre l'api et le web",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"lint": "eslint ."
+	},
+	"packageManager": "pnpm@11.20.0",
+	"devDependencies": {
+		"@eslint/js": "catalog:",
+		"eslint": "catalog:",
+		"typescript": "catalog:",
+		"typescript-eslint": "catalog:"
+	}
+}

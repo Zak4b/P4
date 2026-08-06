@@ -1,54 +1,34 @@
 import { z } from "zod";
 
+export const userSchema = z.object({
+	id: z.string().meta({ example: "f47ac10b-58cc-4372-a567-0e02b2c3d479" }),
+	login: z.string().meta({ example: "alice" }),
+	eloRating: z.number().int().meta({ example: 412 }),
+	xp: z.number().int().meta({ example: 1250 }),
+});
+
 export const userStatsSchema = z.object({
-	eloRating: z.number().int(),
-	xp: z.number().int(),
-	level: z.number().int(),
-	xpInCurrentLevel: z.number().int(),
-	xpRequiredForNextLevel: z.number().int(),
-	totalGames: z.number().int(),
-	wins: z.number().int(),
-	losses: z.number().int(),
-	draws: z.number().int(),
+	totalGames: z.number().int().meta({ example: 24 }),
+	wins: z.number().int().meta({ example: 13 }),
+	losses: z.number().int().meta({ example: 9 }),
+	draws: z.number().int().meta({ example: 2 }),
 });
 
-export const userRankingEntrySchema = z.object({
-	login: z.string(),
-	eloRating: z.number().int(),
+export const leaderboardQuerySchema = z.object({
+	limit: z.coerce.number().int().positive().max(100).default(10).meta({ example: 10 }),
 });
 
-export const leaderboardEntrySchema = z.object({
-	id: z.string(),
-	login: z.string(),
-	eloRating: z.number().int(),
-	xp: z.number().int(),
-	level: z.number().int(),
+export const userProfileSchema = userSchema.extend({
+	stats: userStatsSchema,
 });
 
-export const userProfileSchema = userStatsSchema.extend({
-	id: z.string(),
-	login: z.string(),
+/** Seul endroit où l'email circule : le sien, jamais celui d'un autre. */
+export const meSchema = userProfileSchema.extend({
+	email: z.email().meta({ example: "alice@example.com" }),
 });
 
-export const safeUserSchema = z.object({
-	id: z.string(),
-	login: z.string(),
-	email: z.string(),
-	googleId: z.string().nullable(),
-	eloRating: z.number().int(),
-	xp: z.number().int(),
-	createdAt: z.date(),
-	updatedAt: z.date(),
-});
-
-/** `:id` accepte indifféremment un UUID ou un login. */
-export const userIdParamsSchema = z.object({
-	id: z.string().min(1).max(64),
-});
-
+export type User = z.infer<typeof userSchema>;
 export type UserStats = z.infer<typeof userStatsSchema>;
-export type UserRankingEntry = z.infer<typeof userRankingEntrySchema>;
-export type LeaderboardEntry = z.infer<typeof leaderboardEntrySchema>;
+export type LeaderboardQuery = z.infer<typeof leaderboardQuerySchema>;
 export type UserProfile = z.infer<typeof userProfileSchema>;
-export type SafeUser = z.infer<typeof safeUserSchema>;
-export type UserIdParams = z.infer<typeof userIdParamsSchema>;
+export type Me = z.infer<typeof meSchema>;

@@ -1,22 +1,15 @@
 import { Prisma } from "../../generated/prisma/client.js";
 import { UserRepository } from "./user.repository.js";
 import { hashPassword, comparePassword } from "../auth/password.js";
-import { getLevelFromXp } from "../match/xp.js";
 import crypto from "node:crypto";
-
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export class UserService {
 	static async find(where: Prisma.UserWhereUniqueInput) {
 		return await UserRepository.find(where);
 	}
 
-	/** Trouve un utilisateur par id (UUID) ou par login */
-	static async getByIdOrLogin(identifier: string) {
-		if (UUID_REGEX.test(identifier)) {
-			return await UserService.find({ id: identifier });
-		}
-		return await UserService.find({ login: identifier });
+	static async getById(id: string) {
+		return await UserRepository.findPublic(id);
 	}
 
 	static async getStats(id: string) {
@@ -25,16 +18,9 @@ export class UserService {
 			return null;
 		}
 
-		const levelInfo = getLevelFromXp(user.xp);
-
 		const stats = await UserRepository.getGameStatsRaw(user.id);
 
 		return {
-			eloRating: user.eloRating,
-			xp: user.xp,
-			level: levelInfo.level,
-			xpInCurrentLevel: levelInfo.xpInCurrentLevel,
-			xpRequiredForNextLevel: levelInfo.xpRequiredForNextLevel,
 			totalGames: Number(stats.totalGames),
 			wins: Number(stats.wins),
 			losses: Number(stats.losses),
@@ -42,9 +28,8 @@ export class UserService {
 		};
 	}
 
-	/** Profil public d'un joueur (id ou login) - sans données sensibles */
-	static async getProfile(identifier: string) {
-		const user = await UserService.getByIdOrLogin(identifier);
+	static async getMe(id: string) {
+		const user = await UserRepository.find({ id });
 		if (!user) return null;
 
 		const stats = await UserService.getStats(user.id);
@@ -53,7 +38,10 @@ export class UserService {
 		return {
 			id: user.id,
 			login: user.login,
-			...stats,
+			email: user.email,
+			eloRating: user.eloRating,
+			xp: user.xp,
+			stats,
 		};
 	}
 
@@ -101,11 +89,7 @@ export class UserService {
 	}
 
 	static async getLeaderboard(limit: number = 10) {
-		const users = await UserRepository.findLeaderboard(limit);
-		return users.map((u) => ({
-			...u,
-			level: getLevelFromXp(u.xp).level,
-		}));
+		return await UserRepository.findLeaderboard(limit);
 	}
 
 	static async update(id: string, data: Prisma.UserUpdateInput) {

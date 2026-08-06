@@ -2,9 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Box, Collapse, Grid, IconButton, Paper, Stack, Typography } from "@mui/material";
-import { ExpandMore as ExpandMoreIcon, ExpandLess as ExpandLessIcon, PersonAdd as PersonAddIcon } from "@mui/icons-material";
+import {
+	ExpandMore as ExpandMoreIcon,
+	ExpandLess as ExpandLessIcon,
+	PersonAdd as PersonAddIcon,
+} from "@mui/icons-material";
 import FriendRequestCard from "./FriendRequestCard";
-import type { FriendRequest } from "./friendRequestsTypes";
+import type { FriendRequest } from "@p4/schemas/friend";
 
 interface FriendRequestsDrawerProps {
 	requests: FriendRequest[];

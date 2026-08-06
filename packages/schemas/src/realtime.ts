@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { userIdentitySchema } from "./auth.js";
 
 export const roomIdSchema = z
 	.string()
@@ -22,16 +23,15 @@ export const syncDataSchema = z.object({
 	last: z.object({ x: z.number(), y: z.number() }).optional(),
 });
 
-export const roomPlayerRefSchema = z.object({
-	localId: z.number(),
-	name: z.string(),
+export const gamePlayerSchema = userIdentitySchema.extend({
+	localId: z.number().nullable(),
 });
 
 export const serverMessageSchema = z.discriminatedUnion("type", [
 	z.object({ type: z.literal("registered"), data: z.string() }),
-	z.object({ type: z.literal("players"), data: z.array(roomPlayerRefSchema) }),
+	z.object({ type: z.literal("players"), data: z.array(gamePlayerSchema) }),
 	z.object({ type: z.literal("sync"), data: syncDataSchema }),
-	z.object({ type: z.literal("player-joined"), data: roomPlayerRefSchema }),
+	z.object({ type: z.literal("player-joined"), data: gamePlayerSchema }),
 	z.object({ type: z.literal("info"), data: z.string() }),
 	z.object({ type: z.literal("vote"), data: z.object({ text: z.string(), command: z.string() }) }),
 	z.object({
@@ -70,7 +70,7 @@ export type JoinAck = z.infer<typeof joinAckSchema>;
 export type MessageAck = z.infer<typeof messageAckSchema>;
 
 export type SyncData = z.infer<typeof syncDataSchema>;
-export type RoomPlayerRef = z.infer<typeof roomPlayerRefSchema>;
+export type GamePlayer = z.infer<typeof gamePlayerSchema>;
 
 export type ServerMessageData<T extends ServerMessage["type"]> =
 	Extract<ServerMessage, { type: T }> extends { data?: infer D } ? D : never;

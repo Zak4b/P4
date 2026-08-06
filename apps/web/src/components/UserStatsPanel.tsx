@@ -8,7 +8,8 @@ import {
 	TrendingDown as LossIcon,
 	Remove as DrawIcon,
 } from "@mui/icons-material";
-import type { UserStats } from "@p4/schemas/user";
+import type { UserProfile } from "@p4/schemas/user";
+import { getLevelFromXp } from "@p4/leveling";
 import { typographyStyles, paperStyles, layoutStyles, dividerStyles } from "@/lib/styles";
 
 interface StatTileProps {
@@ -34,10 +35,10 @@ function StatTile({ value, label, icon, color }: StatTileProps) {
 	);
 }
 
-export default function UserStatsPanel({ stats }: { stats: UserStats | null }) {
+export default function UserStatsPanel({ profile }: { profile: UserProfile | null }) {
+	const stats = profile?.stats ?? null;
 	const winrate = stats && stats.totalGames > 0 ? Math.round((stats.wins / stats.totalGames) * 100) : 0;
-	const xpProgress =
-		stats && stats.xpRequiredForNextLevel > 0 ? (stats.xpInCurrentLevel / stats.xpRequiredForNextLevel) * 100 : 100;
+	const level = getLevelFromXp(profile?.xp ?? 0);
 
 	return (
 		<Paper elevation={3} sx={[paperStyles.gradientCard, { height: "100%" }]}>
@@ -62,7 +63,7 @@ export default function UserStatsPanel({ stats }: { stats: UserStats | null }) {
 							<Divider sx={dividerStyles.standard} />
 							<Box sx={{ mb: 2, px: 6, display: "flex", alignItems: "center", gap: 2 }}>
 								<Typography variant="subtitle1" fontWeight={600} sx={{ width: 90, flexShrink: 0 }}>
-									Niveau {stats.level}
+									Niveau {level.level}
 								</Typography>
 								<Box
 									sx={{
@@ -78,7 +79,7 @@ export default function UserStatsPanel({ stats }: { stats: UserStats | null }) {
 									<Box
 										sx={{
 											height: "100%",
-											width: `${xpProgress}%`,
+											width: `${level.progressPercent}%`,
 											background: "linear-gradient(90deg, #6366f1 0%, #ec4899 100%)",
 											borderRadius: 1,
 										}}
@@ -89,14 +90,14 @@ export default function UserStatsPanel({ stats }: { stats: UserStats | null }) {
 									color="text.secondary"
 									sx={{ width: 70, flexShrink: 0, ml: "auto", textAlign: "right" }}
 								>
-									{stats.xpInCurrentLevel}/{stats.xpRequiredForNextLevel}
+									{level.xpInCurrentLevel}/{level.xpRequiredForNextLevel}
 								</Typography>
 							</Box>
 							<Grid container spacing={2}>
 								<Grid size={{ xs: 6 }}>
 									<Box textAlign="center">
 										<Typography variant="h5" fontWeight={700} sx={typographyStyles.gradientHeading}>
-											{stats.eloRating}
+											{profile?.eloRating}
 										</Typography>
 										<Typography variant="body2" color="text.secondary">
 											ELO

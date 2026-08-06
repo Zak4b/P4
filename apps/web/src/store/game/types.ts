@@ -1,11 +1,13 @@
-import type { RoomPlayerRef, ServerMessageData, SyncData } from "@p4/schemas/realtime";
+import type { GamePlayer, ServerMessageData, SyncData } from "@p4/schemas/realtime";
 
 export type TokenColor = "empty" | "player1" | "player2";
 export type Board = TokenColor[][];
 
+/** Un siège de la partie. `id`/`login` à `null` tant que personne ne l'occupe. */
 export interface Player {
 	localId: number;
-	name: string | null;
+	id: string | null;
+	login: string | null;
 }
 
 export interface GameState {
@@ -32,8 +34,8 @@ export interface GameStore {
 	handleWin: (message: string, playerid: number) => void;
 	handleDraw: () => void;
 	handleJoin: (roomId: string) => void;
-	handlePlayers: (players: RoomPlayerRef[]) => void;
-	handlePlayerJoined: (data: RoomPlayerRef) => void;
+	handlePlayers: (players: GamePlayer[]) => void;
+	handlePlayerJoined: (data: GamePlayer) => void;
 	setLoading: (loading: boolean) => void;
 	setWinDialogOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
 }

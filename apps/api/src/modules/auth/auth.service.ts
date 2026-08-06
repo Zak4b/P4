@@ -1,11 +1,12 @@
 import { UserService } from "../user/user.service.js";
 import { generateToken } from "./jwt.js";
 import { HttpError } from "../../lib/HttpError.js";
+import type { User } from "@p4/schemas/user";
 
-type AuthResult = { token: string; user: { id: string; login: string; email: string } };
+type AuthResult = { token: string; user: User };
 
 export class AuthService {
-	private static buildAuthResult(userData: { id: string; login: string; email: string }): AuthResult {
+	private static buildAuthResult(userData: User & { email: string }): AuthResult {
 		const token = generateToken({
 			id: userData.id,
 			email: userData.email,
@@ -16,7 +17,8 @@ export class AuthService {
 			user: {
 				id: userData.id,
 				login: userData.login,
-				email: userData.email,
+				eloRating: userData.eloRating,
+				xp: userData.xp,
 			},
 		};
 	}

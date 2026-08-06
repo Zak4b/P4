@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@p4/schemas": "workspace:*",
+    "@p4/leveling": "workspace:*",
     "@dicebear/core": "catalog:",
     "@dicebear/micah": "catalog:",
     "@emotion/react": "catalog:",

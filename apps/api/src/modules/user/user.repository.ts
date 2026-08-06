@@ -1,9 +1,15 @@
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../../lib/prisma.js";
 
+const USER_SELECT = { id: true, login: true, eloRating: true, xp: true } as const;
+
 export class UserRepository {
 	static async find(where: Prisma.UserWhereUniqueInput) {
 		return await prisma.user.findUnique({ where });
+	}
+
+	static async findPublic(id: string) {
+		return await prisma.user.findUnique({ where: { id }, select: USER_SELECT });
 	}
 
 	static async findEloByIds(player1Id: string, player2Id: string) {
@@ -38,7 +44,6 @@ export class UserRepository {
 			FROM Game
 			WHERE player1Id = ${userId} OR player2Id = ${userId}
 		`);
-		// L'agrégat renvoie toujours une ligne, mais le typage de $queryRaw ne le sait pas.
 		return stats ?? { totalGames: 0n, wins: 0n, losses: 0n, draws: 0n };
 	}
 
@@ -57,21 +62,13 @@ export class UserRepository {
 
 	static async findAllRanking() {
 		return await prisma.user.findMany({
-			select: {
-				login: true,
-				eloRating: true,
-			},
+			select: USER_SELECT,
 		});
 	}
 
 	static async findLeaderboard(limit: number) {
 		return await prisma.user.findMany({
-			select: {
-				id: true,
-				login: true,
-				eloRating: true,
-				xp: true,
-			},
+			select: USER_SELECT,
 			where: {
 				xp: { gt: 0 },
 			},

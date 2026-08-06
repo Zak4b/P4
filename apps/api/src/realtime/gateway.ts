@@ -5,7 +5,7 @@ import { userRoom } from "./socket-rooms.js";
 import { socketBroadcaster } from "./socket-broadcaster.js";
 import { GameHistoryService } from "../modules/match/game-history.service.js";
 import { logger } from "../lib/logger.js";
-import type { JoinAck, MessageAck, SyncData } from "@p4/schemas/realtime";
+import type { GamePlayer, JoinAck, MessageAck, SyncData } from "@p4/schemas/realtime";
 
 function getSyncData(player: Player<typeof P4>): SyncData {
 	const game = player.room?.game;
@@ -20,19 +20,17 @@ function getSyncData(player: Player<typeof P4>): SyncData {
 	return syncData;
 }
 
+function toGamePlayer(player: Player<typeof P4>): GamePlayer {
+	return { id: player.uuid, login: player.displayName, localId: player.localId };
+}
+
 export function notifyPlayerJoinedRoom(player: Player<typeof P4>): void {
-	const playersData = player.room!.playerList.map((p) => ({
-		localId: p.localId!,
-		name: p.displayName,
-	}));
+	const playersData = player.room!.playerList.map(toGamePlayer);
 	player.send({ type: "players", data: playersData });
 	player.send({ type: "sync", data: getSyncData(player) });
 	player.room!.playerList.forEach((p) => {
 		if (p.uuid !== player.uuid) {
-			p.send({
-				type: "player-joined",
-				data: { localId: player.localId!, name: player.displayName },
-			});
+			p.send({ type: "player-joined", data: toGamePlayer(player) });
 		}
 	});
 }
