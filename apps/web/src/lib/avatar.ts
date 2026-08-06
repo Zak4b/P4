@@ -1,7 +1,7 @@
 import { createAvatar } from "@dicebear/core";
 import { create, meta, schema } from "@dicebear/micah";
 
-const micahStyle = { create, meta, schema };
+export const micahStyle = { create, meta, schema };
 
 /**
  * Génère une data URL d'avatar Dicebear (style micah) pour utilisation dans <img src>

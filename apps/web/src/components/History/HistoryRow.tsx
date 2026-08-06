@@ -1,7 +1,7 @@
 import { Box, Typography, Paper } from "@mui/material";
 import { paperStyles } from "@/lib/styles";
 import PlayerInfo from "./HistoryPlayerInfo";
-import { HistoryRowProps, formatDate, formatDuration } from "./historyRowShared";
+import { HistoryRowProps, formatDate } from "./historyRowShared";
 
 export default function HistoryRow({
 	player1,
@@ -42,7 +42,7 @@ export default function HistoryRow({
 					{formatDate(time)}
 				</Typography>
 				<Typography variant="body2" color="text.secondary">
-					Durée : {formatDuration(duration)}
+					Durée : {duration} s
 				</Typography>
 			</Box>
 

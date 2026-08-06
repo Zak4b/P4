@@ -1,13 +1,6 @@
-import { getAvatarDataUrl } from "./avatar";
-
 // API client for backend communication
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 const API_BASE = `${BACKEND_URL}/api`;
-
-/** Génère l'URL (data URL) de l'avatar Dicebear côté client */
-export const getAvatarUrl = (login: string): string => {
-	return getAvatarDataUrl(login);
-};
 
 export interface User {
 	id: string;
@@ -58,6 +51,24 @@ export interface UserStats {
 export interface UserProfile extends UserStats {
 	id: string;
 	login: string;
+}
+
+export type Winner = "PLAYER1" | "PLAYER2" | "DRAW";
+
+export interface HistoryPlayer {
+	id: string;
+	login: string;
+	eloRating?: number;
+}
+
+export interface GameHistory {
+	id: string;
+	player1: HistoryPlayer;
+	player2: HistoryPlayer;
+	winner: Winner;
+	board: number[][];
+	time: number;
+	duration: number;
 }
 
 class ApiClient {
@@ -127,12 +138,8 @@ class ApiClient {
 		});
 	}
 
-	async getUsers(): Promise<any[]> {
-		return this.request<any[]>("/user");
-	}
-
-	async getHistory(): Promise<any[]> {
-		return this.request<any[]>("/match");
+	async getHistory(): Promise<GameHistory[]> {
+		return this.request<GameHistory[]>("/match");
 	}
 
 	async getUserStats(id: string): Promise<UserStats> {

@@ -1,4 +1,4 @@
-import { SyncEvent, PlayEvent, WinEvent, PlayersEvent, PlayerJoinedEvent } from "@/lib/socketTypes";
+import { SyncEvent, PlayEvent, PlayersEvent, PlayerJoinedEvent } from "@/lib/socketTypes";
 
 export type TokenColor = "empty" | "player1" | "player2";
 export type Board = TokenColor[][];
@@ -25,21 +25,15 @@ export interface GameStore {
 	winDialogOpen: boolean;
 	winMessage: string;
 	players: Player[];
-	
+
 	// Actions
-	initializeBoard: () => void;
 	handlePlay: (data: PlayEvent) => void;
 	handleSync: (data: SyncEvent) => void;
 	handleWin: (message: string, playerid: number) => void;
 	handleDraw: () => void;
-	handleRestart: () => void;
-	handleJoin: (roomId: string, playerId: number | null) => void;
+	handleJoin: (roomId: string) => void;
 	handlePlayers: (players: PlayersEvent[]) => void;
 	handlePlayerJoined: (data: PlayerJoinedEvent) => void;
 	setLoading: (loading: boolean) => void;
-	setAnimatingTokens: (tokens: Set<string> | ((prev: Set<string>) => Set<string>)) => void;
 	setWinDialogOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
-	setWinMessage: (message: string | ((prev: string) => string)) => void;
-	setPlayers: (players: Player[] | ((prev: Player[]) => Player[])) => void;
 }
-

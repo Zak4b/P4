@@ -9,9 +9,7 @@ import {
 	ToggleButton,
 } from "@mui/material";
 import { createAvatar } from "@dicebear/core";
-import { create, meta, schema } from "@dicebear/micah";
-
-const micahStyle = { create, meta, schema };
+import { micahStyle } from "@/lib/avatar";
 import {
 	avatarSchemaProperties,
 	propertyLabels,
@@ -74,7 +72,7 @@ function buildInitialOptions(): AvatarOptions {
 	const opts: AvatarOptions = { size: PREVIEW_SIZE };
 	for (const [key, prop] of Object.entries(avatarSchemaProperties)) {
 		if (PROBABILITY_KEYS.includes(key) || key === "seed") continue;
-		const def = getDefaultValue(prop as AvatarSchemaProperty, key);
+		const def = getDefaultValue(prop as AvatarSchemaProperty);
 		if (def !== undefined) {
 			opts[key] = Array.isArray(def) ? (def as string[]) : (def as string | number | boolean);
 		}

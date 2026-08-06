@@ -1,100 +1,13 @@
-import { createTheme, Theme } from "@mui/material/styles";
-
 export const colors = {
 	primary: "#6366f1",
 	primaryHover: "#4f46e5",
 	backgroundLight: "#f8fafc",
-	backgroundWhite: "#ffffff",
 	messageBg: "#e5e7eb",
 	dark: "#1e293b",
-	darkSecondary: "#334155",
 	transparentPrimary: "rgba(99, 102, 241, 0.3)",
 	transparentSecondary: "rgba(236, 72, 153, 0.2)",
 	whiteOverlay: "rgba(255, 255, 255, 0.4)",
 } as const;
-
-export const theme: Theme = createTheme({
-	palette: {
-		mode: "light",
-		primary: {
-			main: colors.primary,
-			dark: colors.primaryHover,
-			contrastText: colors.backgroundWhite,
-		},
-		secondary: {
-			main: "#ec4899",
-			light: "#f472b6",
-			dark: "#db2777",
-			contrastText: colors.backgroundWhite,
-		},
-		success: {
-			main: "#10b981",
-			light: "#34d399",
-			dark: "#059669",
-		},
-		warning: {
-			main: "#f59e0b",
-			light: "#fbbf24",
-			dark: "#d97706",
-		},
-		error: {
-			main: "#ef4444",
-			light: "#f87171",
-			dark: "#dc2626",
-		},
-		info: {
-			main: "#3b82f6",
-			light: "#60a5fa",
-			dark: "#2563eb",
-		},
-		background: {
-			default: colors.backgroundLight,
-			paper: colors.backgroundWhite,
-		},
-		text: {
-			primary: colors.dark,
-			secondary: colors.darkSecondary,
-		},
-	},
-	typography: {
-		fontFamily: [
-			"-apple-system",
-			"BlinkMacSystemFont",
-			'"Segoe UI"',
-			"Roboto",
-			'"Helvetica Neue"',
-			"Arial",
-			"sans-serif",
-		].join(","),
-		h1: {
-			fontWeight: 700,
-			color: colors.dark,
-		},
-		h2: {
-			fontWeight: 700,
-			color: colors.dark,
-		},
-		h3: {
-			fontWeight: 600,
-			color: colors.dark,
-		},
-		h4: {
-			fontWeight: 600,
-			color: colors.dark,
-		},
-		h5: {
-			fontWeight: 600,
-			color: colors.dark,
-		},
-		h6: {
-			fontWeight: 600,
-			color: colors.dark,
-		},
-	},
-	shape: {
-		borderRadius: 12,
-	},
-});
 
 // Gradients (only for backgrounds)
 export const gradients = {
@@ -231,35 +144,6 @@ export const appBarStyles = {
 	},
 } as const;
 
-// Table styles
-export const tableStyles = {
-	gradientHeader: {
-		backgroundColor: colors.primary,
-	},
-
-	headerCell: {
-		color: "white",
-		fontWeight: 700,
-		fontSize: "0.95rem",
-		py: 2,
-	},
-
-	bodyRow: {
-		"&:nth-of-type(odd)": {
-			backgroundColor: "#f8fafc",
-		},
-		"&:hover": {
-			backgroundColor: "#e2e8f0",
-			transition: "background-color 0.2s ease-in-out",
-		},
-		transition: "background-color 0.2s ease-in-out",
-	},
-
-	bodyCell: {
-		py: 2,
-	},
-} as const;
-
 // Divider styles
 export const dividerStyles = {
 	standard: {
@@ -270,7 +154,6 @@ export const dividerStyles = {
 // Spacing utilities
 export const spacing = {
 	mb2: { mb: 2 },
-	mb3: { mb: 3 },
 	mt2: { mt: 2 },
 } as const;
 
@@ -285,19 +168,6 @@ export const avatarStyles = {
 		height: 100,
 		fontSize: "2.5rem",
 		fontWeight: 700,
-	},
-} as const;
-
-// Chip styles
-export const chipStyles = {
-	standard: {
-		fontWeight: 600,
-		fontSize: "0.875rem",
-		height: 32,
-	},
-
-	small: {
-		fontWeight: 600,
 	},
 } as const;
 

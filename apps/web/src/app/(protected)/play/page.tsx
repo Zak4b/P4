@@ -24,7 +24,7 @@ import { useMatching } from "@/hooks/useMatching";
 
 export default function PlayIndexPage() {
 	const router = useRouter();
-	const { modal, startMatchmaking, isConnected } = useMatching();
+	const { modal, startMatchmaking } = useMatching();
 	const [joinRoomId, setJoinRoomId] = useState("");
 
 	const handleJoinSpecificRoom = (e: React.FormEvent) => {

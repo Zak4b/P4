@@ -1,10 +1,4 @@
-import { Socket } from "socket.io-client";
-
 // Types pour les événements Socket.IO émis par le serveur
-export interface RegisteredEvent {
-	uuid: string;
-}
-
 export interface SyncEvent {
 	playerId: number | null;
 	cPlayer: number;
@@ -41,10 +35,7 @@ export interface PlayersEvent {
 	name: string;
 }
 
-export interface PlayerJoinedEvent {
-	localId: number;
-	name: string;
-}
+export type PlayerJoinedEvent = PlayersEvent;
 
 export interface MessageEvent {
 	clientId: string;
@@ -60,13 +51,3 @@ export interface VoteEvent {
 	text: string;
 	command: string;
 }
-
-// Types pour les événements Socket.IO écoutés par le serveur
-export interface SocketClient {
-	socket: Socket | null;
-	isConnected: boolean;
-	uuid: string | null;
-	roomId: string | null;
-	playerId: number | null;
-}
-

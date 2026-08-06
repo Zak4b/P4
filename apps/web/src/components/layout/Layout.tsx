@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Container, Box } from "@mui/material";
 import RoomList from "../Rooms/RoomList";
-import GameModal from "../GameModal";
 import LiveChat from "../LiveChat";
 import Navbar from "./Navbar";
 import { colors } from "@/lib/styles";
@@ -47,9 +46,6 @@ export default function Layout({ children }: LayoutProps) {
 
 			{/* Room list Drawer */}
 			<RoomList open={showRooms} onClose={() => setShowRooms(false)} />
-
-			{/* Game Modal */}
-			<GameModal />
 
 			{/* Live Chat - Fixed position */}
 			<LiveChat roomId={roomId} />

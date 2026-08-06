@@ -2,19 +2,14 @@
 
 import React, { useEffect } from "react";
 import { Box, Paper, CircularProgress, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
-import { useGame } from "@/store/useGameStore";
+import { BOARD_COLS, BOARD_ROWS, TokenColor, useGame } from "@/store/game";
 import { useWebSocket } from "../WebSocketProvider";
 import { colors, gradients } from "@/lib/styles";
 
 interface P4GameBoardProps {
-	roomId?: string;
 	setActivePlayer?: (playerNumber: number, active: boolean) => void;
 }
 
-type TokenColor = "empty" | "player1" | "player2";
-
-const BOARD_COLS = 7;
-const BOARD_ROWS = 6;
 /* Rapport 7:6 pour conserver les proportions (7 colonnes, 6 rangées) */
 const GRID_ASPECT_RATIO = BOARD_COLS / BOARD_ROWS;
 

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { PlayEvent, PlayerJoinedEvent, PlayersEvent, SyncEvent } from "@/lib/socketTypes";
-import { GameStore, Board, Player } from "./types";
+import { GameStore, Board } from "./types";
 import { createEmptyBoard, getPlayerColor } from "./utils";
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -22,27 +22,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		{ localId: 2, name: null },
 	],
 
-	initializeBoard: () => {
-		set((state) => ({
-			gameState: {
-				...state.gameState,
-				board: createEmptyBoard(),
-				lastMove: null,
-				winningPlayer: null,
-				isDraw: false,
-				isWin: false,
-			},
-			animatingTokens: new Set(),
-		}));
-	},
-
 	handlePlay: (data: PlayEvent) => {
 		const { playerId, x, y, nextPlayerId } = data;
 
 		set((state) => {
 			const newBoard = state.gameState.board.map((col) => [...col]);
 			newBoard[x][y] = getPlayerColor(playerId);
-			
+
 			const tokenKey = `${x}-${y}`;
 			const newAnimatingTokens = new Set(state.animatingTokens);
 			newAnimatingTokens.add(tokenKey);
@@ -122,10 +108,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		});
 	},
 
-	handleRestart: () => {
-		get().initializeBoard();
-	},
-
 	handlePlayers: (players: PlayersEvent[]) => {
 		const byId = new Map(players.map((p) => [p.localId, p.name]));
 		set({
@@ -154,9 +136,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		});
 	},
 
-	handleJoin: (roomId: string, _playerId: number | null) => {
-		// TODO playerid ?
-		void _playerId;
+	handleJoin: (roomId: string) => {
 		set((state) => ({
 			gameState: {
 				...state.gameState,
@@ -175,28 +155,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		}));
 	},
 
-	setAnimatingTokens: (tokens) => {
-		set((state) => ({
-			animatingTokens: typeof tokens === "function" ? tokens(state.animatingTokens) : tokens,
-		}));
-	},
-
 	setWinDialogOpen: (open) => {
 		set((state) => ({
 			winDialogOpen: typeof open === "function" ? open(state.winDialogOpen) : open,
 		}));
 	},
-
-	setWinMessage: (message) => {
-		set((state) => ({
-			winMessage: typeof message === "function" ? message(state.winMessage) : message,
-		}));
-	},
-
-	setPlayers: (players: Player[] | ((prev: Player[]) => Player[])) => {
-		set((state) => ({
-			players: typeof players === "function" ? players(state.players) : players,
-		}));
-	},
 }));
-

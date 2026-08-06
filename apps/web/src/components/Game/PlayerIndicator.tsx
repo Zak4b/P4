@@ -1,7 +1,7 @@
 import React from "react";
 import { Paper, Stack } from "@mui/material";
 import { colors } from "@/lib/styles";
-import { Player } from "@/store/game/types";
+import { Player } from "@/store/game";
 import PlayerCard from "./PlayerCard";
 
 interface PlayerIndicatorProps {

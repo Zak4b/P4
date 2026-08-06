@@ -4,7 +4,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { AuthProvider } from "./AuthContext";
 import { WebSocketProvider } from "./WebSocketProvider";
-import { useGameWebSocket } from "@/store/useGameStore";
+import { useGameWebSocket } from "@/store/game";
 import { theme } from "@/theme";
 
 function GameWebSocketListener({ children }: { children: React.ReactNode }) {

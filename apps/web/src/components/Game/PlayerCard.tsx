@@ -3,8 +3,8 @@
 import React from "react";
 import { Box, Avatar, Typography, Chip } from "@mui/material";
 import { Person as PersonIcon } from "@mui/icons-material";
-import { Player } from "@/store/game/types";
-import { getAvatarUrl } from "@/lib/api";
+import { Player } from "@/store/game";
+import { getAvatarDataUrl } from "@/lib/avatar";
 
 interface PlayerCardProps {
 	player: Player;
@@ -38,7 +38,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 			}}
 		>
 			<Avatar
-				src={player.name ? getAvatarUrl(player.name) : undefined}
+				src={player.name ? getAvatarDataUrl(player.name) : undefined}
 				sx={{
 					width: { xs: 36, lg: 48 },
 					height: { xs: 36, lg: 48 },

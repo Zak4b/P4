@@ -14,7 +14,7 @@ import {
 	useMediaQuery,
 } from "@mui/material";
 import { Refresh as RefreshIcon, History as HistoryIcon } from "@mui/icons-material";
-import { apiClient } from "@/lib/api";
+import { apiClient, GameHistory } from "@/lib/api";
 import {
 	layoutStyles,
 	typographyStyles,
@@ -24,20 +24,10 @@ import {
 import HistoryRow from "@/components/History/HistoryRow";
 import HistoryRowCompact from "@/components/History/HistoryRowCompact";
 
-type Winner = "PLAYER1" | "PLAYER2" | "DRAW";
-interface GameHistory {
-	id: string;
-	player1: { id: string; login: string; eloRating?: number };
-	player2: { id: string; login: string; eloRating?: number };
-	winner: Winner;
-	board: number[][];
-	time: number;
-	duration: number;
-}
-
 export default function HistoryPage() {
 	const theme = useTheme();
 	const compact = useMediaQuery(theme.breakpoints.down("sm"));
+	const Row = compact ? HistoryRowCompact : HistoryRow;
 	const [history, setHistory] = useState<GameHistory[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState("");
@@ -110,29 +100,17 @@ export default function HistoryPage() {
 				</Paper>
 			) : (
 				<Stack spacing={2}>
-					{history.map((game) =>
-						compact ? (
-							<HistoryRowCompact
-								key={game.id}
-								id={game.id}
-								player1={game.player1}
-								player2={game.player2}
-								winner={game.winner}
-								time={game.time}
-								duration={game.duration}
-							/>
-						) : (
-							<HistoryRow
-								key={game.id}
-								id={game.id}
-								player1={game.player1}
-								player2={game.player2}
-								winner={game.winner}
-								time={game.time}
-								duration={game.duration}
-							/>
-						)
-					)}
+					{history.map((game) => (
+						<Row
+							key={game.id}
+							id={game.id}
+							player1={game.player1}
+							player2={game.player2}
+							winner={game.winner}
+							time={game.time}
+							duration={game.duration}
+						/>
+					))}
 				</Stack>
 			)}
 		</Container>

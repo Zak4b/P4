@@ -1,4 +1,4 @@
-import { Box, Typography, Stack } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import UserAvatar from "../UserAvatar";
 import UserActionsDropdown from "../UserActionsDropdown";
 import { useAuth } from "../AuthContext";
@@ -60,10 +60,6 @@ export default function PlayerInfo({ player, isWinner, isLoser, isDraw, alignRig
 				>
 					{player.login}
 				</Typography>
-				{!compact && (
-					<Stack direction="row" spacing={1} alignItems="center">
-					</Stack>
-				)}
 				{!isDraw && !compact && (
 					<Typography variant="body2" fontWeight={600} color={textColor} sx={{ mt: 0.5 }}>
 						{isWinner ? "Winner" : "Loser"}

@@ -6,7 +6,7 @@ import { Box, CircularProgress, Alert } from "@mui/material";
 import P4GameBoard from "@/components/Game/P4GameBoard";
 import PlayerIndicator from "@/components/Game/PlayerIndicator";
 import { useWebSocket } from "@/components/WebSocketProvider";
-import { useGame } from "@/store/useGameStore";
+import { useGame } from "@/store/game";
 
 export default function PlayPage() {
 	const params = useParams();
@@ -47,7 +47,7 @@ export default function PlayPage() {
 
 	return (
 		<Box display="flex" flexDirection="column" gap={2} alignItems="stretch" width="100%" flexGrow={1}>
-			<P4GameBoard roomId={roomId} setActivePlayer={handlePlayerStateChange} />
+			<P4GameBoard setActivePlayer={handlePlayerStateChange} />
 			<Box
 				width={"100%"}
 				sx={{

@@ -9,6 +9,5 @@ export interface Message {
 
 export type MessageAction =
 	| { type: "add"; payload: Message }
-	| { type: "reset"; payload: Message[] }
-	| { type: "remove"; payload: string };
+	| { type: "reset"; payload: Message[] };
 

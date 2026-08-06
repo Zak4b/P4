@@ -11,17 +11,8 @@ export const useGame = () => {
 	const winDialogOpen = useGameStore((state) => state.winDialogOpen);
 	const winMessage = useGameStore((state) => state.winMessage);
 	const players = useGameStore((state) => state.players);
-	const initializeBoard = useGameStore((state) => state.initializeBoard);
-	const handlePlay = useGameStore((state) => state.handlePlay);
-	const handleSync = useGameStore((state) => state.handleSync);
-	const handleDraw = useGameStore((state) => state.handleDraw);
-	const handleRestart = useGameStore((state) => state.handleRestart);
 	const setLoading = useGameStore((state) => state.setLoading);
-	const setAnimatingTokens = useGameStore((state) => state.setAnimatingTokens);
 	const setWinDialogOpen = useGameStore((state) => state.setWinDialogOpen);
-	const setWinMessage = useGameStore((state) => state.setWinMessage);
-	const handleWin = useGameStore((state) => state.handleWin);
-	const setPlayers = useGameStore((state) => state.setPlayers);
 	const currentRoomIdRef = useRef<string | null>(null);
 
 	// Synchroniser la ref avec l'état
@@ -33,7 +24,7 @@ export const useGame = () => {
 		(roomId: string) => {
 			if (!socket || !isConnected || !roomId) return;
 
-			if (currentRoomIdRef.current === roomId && roomId === currentRoomIdRef.current) {
+			if (currentRoomIdRef.current === roomId) {
 				// S'assurer que loading est à false si on est déjà dans la room et que le jeu est chargé
 				if (gameState.loading && gameState.currentRoomId === roomId) {
 					setLoading(false);
@@ -50,11 +41,9 @@ export const useGame = () => {
 				},
 			}));
 
+			// En cas de succès, loading passera à false à la réception de l'événement "sync"
 			socket.emit("join", roomId, (response: JoinResponse) => {
-				if (response.success && response.roomId && response.playerId !== undefined) {
-					// Le loading sera mis à false lors de la réception de l'événement "sync"
-					// roomId et playerId seront mis à jour via le contexte WebSocket dans useGameWebSocket
-				} else {
+				if (!response.success || !response.roomId || response.playerId === undefined) {
 					setLoading(false);
 					console.error(`Failed to join room ${roomId}:`, response.error);
 				}
@@ -92,50 +81,22 @@ export const useGame = () => {
 		[socket, isConnected, playerId, gameState]
 	);
 
-	const restart = useCallback(
-		() => {
-			if (socket && isConnected) {
-				socket.emit("restart");
-			}
-			setWinDialogOpen(false);
-		},
-		[socket, isConnected, setWinDialogOpen]
-	);
-
-	const leaveRoom = useCallback(() => {
-		if (!socket || !isConnected) return;
-
-		socket.emit("leave");
-		currentRoomIdRef.current = null;
-		setLoading(false);
-		useGameStore.setState((state) => ({
-			gameState: {
-				...state.gameState,
-				currentRoomId: null,
-			},
-		}));
-	}, [socket, isConnected, setLoading]);
+	const restart = useCallback(() => {
+		if (socket && isConnected) {
+			socket.emit("restart");
+		}
+		setWinDialogOpen(false);
+	}, [socket, isConnected, setWinDialogOpen]);
 
 	return {
 		gameState,
 		animatingTokens,
 		winDialogOpen,
 		winMessage,
-		initializeBoard,
-		handlePlay,
-		handleSync,
-		handleWin,
-		handleDraw,
-		handleRestart,
+		players,
 		joinRoom,
-		leaveRoom,
 		playMove,
 		restart,
-		setAnimatingTokens,
 		setWinDialogOpen,
-		setWinMessage,
-		players,
-		setPlayers,
 	};
 };
-

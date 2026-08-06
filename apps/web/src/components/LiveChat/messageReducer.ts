@@ -6,8 +6,6 @@ export const messageReducer = (state: Message[], action: MessageAction): Message
 			return [...state, action.payload];
 		case "reset":
 			return action.payload;
-		case "remove":
-			return state.filter((msg) => msg.id !== action.payload);
 		default:
 			return state;
 	}

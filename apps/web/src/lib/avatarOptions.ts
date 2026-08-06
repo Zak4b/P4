@@ -57,7 +57,7 @@ export function getEnumOptions(prop: AvatarSchemaProperty): string[] | null {
 	return null;
 }
 
-export function getDefaultValue(prop: AvatarSchemaProperty, key: string): unknown {
+export function getDefaultValue(prop: AvatarSchemaProperty): unknown {
 	if ("default" in prop && prop.default !== undefined) return prop.default;
 	if (prop?.type === "boolean") return false;
 	if (prop?.type === "integer") {

@@ -86,7 +86,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 				reconnectAttempts.current = 0;
 			});
 
-			newSocket.on("disconnect", (reason) => {
+			newSocket.on("disconnect", () => {
 				setIsConnected(false);
 				setSocket(null);
 				setUuid(null);

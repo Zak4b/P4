@@ -1,7 +1,7 @@
 import { Box, Typography, Paper } from "@mui/material";
 import { paperStyles } from "@/lib/styles";
 import PlayerInfo from "./HistoryPlayerInfo";
-import { HistoryRowProps, formatDate, formatDuration } from "./historyRowShared";
+import { HistoryRowProps, formatDate } from "./historyRowShared";
 
 export default function HistoryRowCompact({
 	player1,
@@ -33,7 +33,7 @@ export default function HistoryRowCompact({
 					{formatDate(time)}
 				</Typography>
 				<Typography variant="caption" color="text.secondary">
-					{formatDuration(duration)} s
+					{duration} s
 				</Typography>
 			</Box>
 			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
