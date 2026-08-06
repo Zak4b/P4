@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import Fastify from "fastify";
 import { ENV } from "./config/env.js";
 import { logger } from "./lib/logger.js";

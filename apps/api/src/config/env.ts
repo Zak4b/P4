@@ -49,7 +49,7 @@ export const ENV = {
 		url: e.WEB_URL,
 	},
 	api: {
-		url: e.API_URL ?? `http://localhost:${e.PORT}`,
+		url: e.API_URL,
 		jwt: {
 			secret: e.JWT_SECRET,
 			expiresIn: e.JWT_EXPIRES_IN,

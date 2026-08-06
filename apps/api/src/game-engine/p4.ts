@@ -9,21 +9,12 @@ type P4EventMap = {
 	reset: undefined;
 };
 
-type State = {
-	ended: boolean;
-	board: number[][];
-	currentPlayer: 1 | 2;
-	lastMove?: Move;
-	winnerIndex: number | undefined;
-	playCount: number;
-};
-
 export class P4 extends Game<P4EventMap> {
 	private running: boolean = false;
 	private ended: boolean = false;
 	private timer: Timer;
 
-	private _boad: number[][] = [];
+	private _board: number[][] = [];
 	private currentPlayer: 1 | 2 = 1;
 	private lastMove?: Move;
 	private winnerIndex: number | undefined = undefined;
@@ -32,7 +23,7 @@ export class P4 extends Game<P4EventMap> {
 	readonly pidValues:number[] = [1, 2];
 
 	get board() {
-		return this._boad.map(col => [...col]);
+		return this._board.map(col => [...col]);
 	}
 	get cPlayer() {
 		return this.currentPlayer;
@@ -94,7 +85,7 @@ export class P4 extends Game<P4EventMap> {
 	public reset():void {
 		//this.running = false;
 		this.ended = false;
-		this._boad = Array.from({ length: 7 }, () => Array.from({ length: 6 }, () => 0));
+		this._board = Array.from({ length: 7 }, () => Array.from({ length: 6 }, () => 0));
 		this.currentPlayer = 1;
 		this.lastMove = undefined;
 		this.winnerIndex = undefined;
@@ -114,8 +105,8 @@ export class P4 extends Game<P4EventMap> {
 		if (x < 0 || x > 6) {
 			throw new Error("Invalid column");
 		}
-		let y = 0;
-		y = this.board[x].indexOf(0);
+		// `board` clone tout le plateau : ici on lit la colonne directement.
+		const y = this._board[x].indexOf(0);
 		if (y === -1) {
 			throw new Error("Column is full");
 		}
@@ -124,7 +115,7 @@ export class P4 extends Game<P4EventMap> {
 	}
 
 	private playMove(move: Move): void {
-		this._boad[move.x][move.y] = this.currentPlayer;
+		this._board[move.x][move.y] = this.currentPlayer;
 		this.lastMove = move;
 		this._playCount++;
 		if (this.check(move.x, move.y)) {
@@ -142,8 +133,8 @@ export class P4 extends Game<P4EventMap> {
 	private getCombinations(x: number, y: number): { c: string; r: string; d1: string; d2: string; } {
 		let d1 = "";
 		let d2 = "";
-		const c = this._boad[x].map(String).join("");
-		const r = this._boad
+		const c = this._board[x].map(String).join("");
+		const r = this._board
 			.map((col) => col[y])
 			.map(String)
 			.join("");
@@ -153,7 +144,7 @@ export class P4 extends Game<P4EventMap> {
 		const yz1 = y - z1;
 		const rg1 = Math.min(6 - xz1, 5 - yz1) + 1;
 		for (let i = 0; i < rg1; i++) {
-			d1 += this._boad[i + xz1][i + yz1].toString();
+			d1 += this._board[i + xz1][i + yz1].toString();
 		}
 
 		const z2 = Math.min(6 - x, y);
@@ -161,7 +152,7 @@ export class P4 extends Game<P4EventMap> {
 		const yz2 = y - z2;
 		const rg2 = Math.min(xz2, 5 - yz2) + 1;
 		for (let i = 0; i < rg2; i++) {
-			d2 += this._boad[xz2 - i][i + yz2].toString();
+			d2 += this._board[xz2 - i][i + yz2].toString();
 		}
 		d2 = d2.split("").reverse().join("");
 
@@ -170,42 +161,21 @@ export class P4 extends Game<P4EventMap> {
 
 	private check(x: number, y: number): boolean {
 		if (this.winnerIndex) {
-			return !!this.winnerIndex;
-		} else {
-			const playerId = this._boad[x][y];
-			const cb = this.getCombinations(x, y);
-			const cbString = Object.values(cb).join("|");
-			if (!new RegExp(`${playerId}{4,}`).test(cbString)) {
-				return false;
-			} else {
-				this.winnerIndex = playerId;
-			}
 			return true;
 		}
+		const playerId = this._board[x][y];
+		// Les quatre alignements passant par (x, y), séparés par "|" pour qu'une
+		// série ne puisse pas se poursuivre d'un alignement à l'autre.
+		const combinations = Object.values(this.getCombinations(x, y)).join("|");
+		if (!new RegExp(`${playerId}{4,}`).test(combinations)) {
+			return false;
+		}
+		this.winnerIndex = playerId;
+		return true;
 	}
 	
 	private checkDraw(): boolean {
-		return this._boad.every((col) => col[5] !== 0);
+		return this._board.every((col) => col[5] !== 0);
 	}
 	
-	private restoreState(state: State) {
-		// Copier le plateau
-		this._boad = state.board.map(col => [...col]);
-		this.currentPlayer = state.currentPlayer;
-		this.winnerIndex = state.winnerIndex;
-		this._playCount = state.playCount;
-		this.lastMove = state.lastMove;
-	}
-	
-	// Méthode pour obtenir l'état complet
-	getState() {
-		return {
-			board: this._boad.map(col => [...col]),
-			currentPlayer: this.currentPlayer,
-			winnerIndex: this.winnerIndex,
-			ended: this.ended,
-			playCount: this._playCount,
-			lastMove: this.lastMove,
-		};
-	}
 }

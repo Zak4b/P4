@@ -51,10 +51,6 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 		return Array.from(this.players.registered.entries()).map(([uuid, playerId]) => ({ uuid, playerId }));
 	}
 
-	get registeredPlayerList(): Array<{ uuid: string; playerId: number }> {
-		return Array.from(this.players.registered.entries()).map(([uuid, playerId]) => ({ uuid, playerId }));
-	}
-
 	readonly playerLimit: number = 2;
 	readonly game: InstanceType<T>;
 	private readonly allowedPlayerIds: Set<string> | null;
@@ -78,7 +74,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 
 			this.emit("game-end", {
 				winner,
-				registeredPlayers: this.registeredPlayerList,
+				registeredPlayers: this.registeredPlayers,
 				duration,
 				board: G.board,
 			});
