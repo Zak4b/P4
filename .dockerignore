@@ -1,0 +1,25 @@
+# Build context is now the repo root (both images build from here), so this is
+# the single ignore file for the whole monorepo.
+**/node_modules
+**/.next
+**/dist
+**/out
+**/.turbo
+**/tsconfig.tsbuildinfo
+
+.git
+.gitignore
+.claude
+docs
+subresto_app_v2
+
+.env
+.env.*
+!.env.example
+
+**/npm-debug.log
+**/pnpm-debug.log
+.pnpm-store
+.DS_Store
+*.db
+users.db

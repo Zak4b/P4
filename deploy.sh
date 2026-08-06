@@ -33,6 +33,6 @@ check_env
 docker compose up -d
 
 print_success "Application started"
-print_info "⚠️  Init db : docker compose exec api npx prisma db push"
+print_info "⚠️  Init db : pnpm db:push"
 
 

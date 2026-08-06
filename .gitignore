@@ -5,6 +5,9 @@ notes.txt
 users.db
 dist
 
+# Turborepo
+.turbo
+
 # Ignore node_modules in subrepos  
 backend/node_modules
 frontend/node_modules

@@ -1,0 +1,19 @@
+{
+  "name": "p4",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.20.0",
+  "scripts": {
+    "dev": "dotenv -e .env -v NODE_ENV=development -- turbo run dev",
+    "dev:api": "dotenv -e .env -v NODE_ENV=development -- turbo run dev --filter @p4/api",
+    "dev:web": "dotenv -e .env -v NODE_ENV=development -- turbo run dev --filter @p4/web",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "db:push": "dotenv -e .env -- pnpm --filter @p4/api exec prisma db push"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0",
+    "turbo": "^2.10.8"
+  }
+}

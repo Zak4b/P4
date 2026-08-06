@@ -1,21 +1,24 @@
 # Frontend Dockerfile
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
+# corepack is no longer bundled in recent Node majors, so pin pnpm explicitly.
+# Keep this version in sync with "packageManager" in package.json.
+RUN npm install -g pnpm@11.20.0
 
 # Install dependencies only when needed
 FROM base AS deps
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/web/package.json apps/web/
+COPY apps/api/package.json apps/api/
+RUN pnpm install --frozen-lockfile --filter @p4/web
 
 # Builder stage
 FROM base AS builder
 WORKDIR /app
 
-# Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY --from=deps /app ./
+COPY apps/web apps/web
 
 # Set environment variables for build
 ARG NEXT_PUBLIC_BACKEND_URL
@@ -23,8 +26,7 @@ ARG NEXT_PUBLIC_WS_URL
 ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
 ENV NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
 
-# Build the Next.js app
-RUN npm run build
+RUN pnpm --filter @p4/web build
 
 # Production stage
 FROM base AS runner
@@ -37,12 +39,9 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy necessary files from builder
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-
-# Set permissions
-RUN chown -R nextjs:nodejs /app
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
 USER nextjs
 
@@ -52,5 +51,4 @@ ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
 
 # Start the frontend
-CMD ["node", "server.js"]
-
+CMD ["node", "apps/web/server.js"]

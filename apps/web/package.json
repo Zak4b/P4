@@ -1,35 +1,37 @@
 {
-  "name": "frontend-nextjs",
+  "name": "@p4/web",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.20.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint"
   },
   "dependencies": {
-    "@dicebear/core": "^9.4.2",
-    "@dicebear/micah": "^9.3.2",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.6",
-    "@mui/material": "^7.3.6",
-    "next": "^16.2.7",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
-    "socket.io-client": "^4.8.1",
-    "zod": "^4.1.13",
-    "zustand": "^5.0.9"
+    "@dicebear/core": "catalog:",
+    "@dicebear/micah": "catalog:",
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "@mui/icons-material": "catalog:",
+    "@mui/material": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "socket.io-client": "catalog:",
+    "zod": "catalog:",
+    "zustand": "catalog:"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.17",
-    "@types/node": "^20.19.26",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
-    "eslint": "^9.39.1",
-    "eslint-config-next": "16.0.7",
-    "tailwindcss": "^4.1.17",
-    "typescript": "^5.9.3"
+    "@tailwindcss/postcss": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-next": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
   }
 }

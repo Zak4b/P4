@@ -31,7 +31,6 @@ P4/
 ## Prérequis
 
 - Docker et Docker Compose
-- Réseaux `traefik-net` et `db-net` (MySQL externe)
 
 ## Installation
 
@@ -48,10 +47,13 @@ cp env.example .env
 ./deploy.sh
 
 # 4. Initialiser la base de données
-docker compose exec api npx prisma db push
+pnpm install
+pnpm db:push
 ```
 
 **Services** :
 
-- `api` — API + WebSocket (port 3000)
-- `web` — Next.js (port 3001)
+- `api` — API + WebSocket, publié sur `http://localhost:3000`
+- `web` — Next.js, publié sur `http://localhost:3001`
+
+Le déploiement est local et direct : les ports sont exposés sur l'hôte, sans reverse proxy.
