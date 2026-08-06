@@ -4,6 +4,7 @@ import type { AuthenticatedSocket } from "./socket-auth.js";
 import { userRoom } from "./socket-rooms.js";
 import { socketBroadcaster } from "./socket-broadcaster.js";
 import { GameHistoryService } from "../modules/match/game-history.service.js";
+import { logger } from "../lib/logger.js";
 
 type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
 type JoinResponse = { success: boolean; roomId?: string; playerId?: number; error?: string };
@@ -43,7 +44,11 @@ export const manager = new RoomManager(2, P4, socketBroadcaster, notifyPlayerJoi
 // Le moteur de jeu ne connaît ni Prisma ni Socket.IO : c'est ici, dans la couche
 // applicative temps réel, qu'on persiste le résultat et qu'on notifie les joueurs.
 manager.on("game-end", ({ room, winner, registeredPlayers, duration, board }) => {
-	void GameHistoryService.save(registeredPlayers, winner, duration, board);
+	// Une erreur de persistance ne doit jamais faire tomber le process : sans ce
+	// catch, la rejection remonte en unhandledRejection et Node coupe le serveur.
+	GameHistoryService.save(registeredPlayers, winner, duration, board).catch((error: unknown) => {
+		logger.error({ err: error, roomId: room.id }, "Failed to save game history");
+	});
 	if (winner === 0) {
 		void room.send({ type: "game-draw" });
 	} else {
