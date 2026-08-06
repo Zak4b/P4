@@ -91,6 +91,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 	public unlock = () => (this.locked = false);
 	public lock_clean() {
 		this.lock();
+		this.game.stop();
 		this.players.online.forEach((player) => {
 			this.remove(player);
 		});

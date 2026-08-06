@@ -31,6 +31,7 @@ export class Timer extends EventEmitter {
 				this.emit("end");
 			}
 		}, 1000);
+		this.intervalId.unref(); // prevent the timer from keeping the Node.js process alive
 	}
 
 	public stop() {
