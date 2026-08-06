@@ -1,4 +1,4 @@
-import { getUserByEmail, createUser, findOrCreateUserByGoogle, verifyUserCredentials } from "../user/user.service.js";
+import { UserService } from "../user/user.service.js";
 import { generateToken } from "./jwt.js";
 
 type AuthResult = { token: string; user: { id: string; login: string; email: string } };
@@ -22,18 +22,18 @@ export class AuthService {
 
 	/** Inscription */
 	static async register(login: string, email: string, password: string): Promise<AuthResult> {
-		const existingUser = await getUserByEmail(email);
+		const existingUser = await UserService.find({ email });
 		if (existingUser) {
 			throw new Error("Email already exists");
 		}
 
-		const userData = await createUser(login, email, password);
+		const userData = await UserService.create(login, email, password);
 		return AuthService.buildAuthResult(userData);
 	}
 
 	/** Connexion (email/password) */
 	static async login(email: string, password: string): Promise<AuthResult> {
-		const userData = await verifyUserCredentials(email, password);
+		const userData = await UserService.verifyCredentials(email, password);
 		if (!userData) {
 			throw new Error("Invalid email or password");
 		}
@@ -43,7 +43,7 @@ export class AuthService {
 
 	/** Connexion / inscription via Google OAuth */
 	static async loginWithGoogle(googleId: string, email: string, displayName: string): Promise<AuthResult> {
-		const userData = await findOrCreateUserByGoogle(googleId, email, displayName);
+		const userData = await UserService.findOrCreateByGoogle(googleId, email, displayName);
 		return AuthService.buildAuthResult(userData);
 	}
 }

@@ -1,14 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import {
-	getFriendsList,
-	getFriendPendingRequests,
-	acceptFriendRequest,
-	rejectFriendRequest,
-	getFriendRelationStatus,
-	sendFriendRequest,
-	removeFriend,
-} from "./friend.service.js";
-import { getUserByIdOrLogin } from "../user/user.service.js";
+import { FriendService } from "./friend.service.js";
+import { UserService } from "../user/user.service.js";
 import { HttpError } from "../../lib/HttpError.js";
 
 export function friendRoutes(fastify: FastifyInstance) {
@@ -17,7 +9,7 @@ export function friendRoutes(fastify: FastifyInstance) {
 		const currentUser = request.user;
 		if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
-		const friends = await getFriendsList(currentUser.id);
+		const friends = await FriendService.list(currentUser.id);
 		reply.send(friends);
 	});
 
@@ -26,89 +18,104 @@ export function friendRoutes(fastify: FastifyInstance) {
 		const currentUser = request.user;
 		if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
-		const requests = await getFriendPendingRequests(currentUser.id);
+		const requests = await FriendService.getRequests(currentUser.id);
 		reply.send(requests);
 	});
 
 	/** Accepter une demande d'ami */
-	fastify.post("/requests/:identifier/accept", async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
-		const currentUser = request.user;
-		if (!currentUser) throw HttpError.unauthorized("Authentication required");
+	fastify.post(
+		"/requests/:identifier/accept",
+		async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
+			const currentUser = request.user;
+			if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
-		const { identifier } = request.params;
-		const fromUser = await getUserByIdOrLogin(identifier);
-		if (!fromUser) throw HttpError.notFound("User not found");
+			const { identifier } = request.params;
+			const fromUser = await UserService.getByIdOrLogin(identifier);
+			if (!fromUser) throw HttpError.notFound("User not found");
 
-		const result = await acceptFriendRequest(currentUser.id, fromUser.id);
-		if (!result.success) throw HttpError.notFound("Request not found");
+			const result = await FriendService.accept(currentUser.id, fromUser.id);
+			if (!result.success) throw HttpError.notFound("Request not found");
 
-		reply.send({ success: true });
-	});
+			reply.send({ success: true });
+		},
+	);
 
 	/** Refuser une demande d'ami */
-	fastify.post("/requests/:identifier/reject", async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
-		const currentUser = request.user;
-		if (!currentUser) throw HttpError.unauthorized("Authentication required");
+	fastify.post(
+		"/requests/:identifier/reject",
+		async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
+			const currentUser = request.user;
+			if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
-		const { identifier } = request.params;
-		const fromUser = await getUserByIdOrLogin(identifier);
-		if (!fromUser) throw HttpError.notFound("User not found");
+			const { identifier } = request.params;
+			const fromUser = await UserService.getByIdOrLogin(identifier);
+			if (!fromUser) throw HttpError.notFound("User not found");
 
-		const result = await rejectFriendRequest(currentUser.id, fromUser.id);
-		if (!result.success) throw HttpError.notFound("Request not found");
+			const result = await FriendService.reject(currentUser.id, fromUser.id);
+			if (!result.success) throw HttpError.notFound("Request not found");
 
-		reply.send({ success: true });
-	});
+			reply.send({ success: true });
+		},
+	);
 
 	/** Statut de la relation avec un joueur (id ou login) */
-	fastify.get("/status/:identifier", async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
-		const currentUser = request.user;
-		if (!currentUser) throw HttpError.unauthorized("Authentication required");
+	fastify.get(
+		"/status/:identifier",
+		async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
+			const currentUser = request.user;
+			if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
-		const { identifier } = request.params;
-		const target = await getUserByIdOrLogin(identifier);
-		if (!target) throw HttpError.notFound("User not found");
+			const { identifier } = request.params;
+			const target = await UserService.getByIdOrLogin(identifier);
+			if (!target) throw HttpError.notFound("User not found");
 
-		const status = await getFriendRelationStatus(currentUser.id, target.id);
-		reply.send({ status });
-	});
+			const status = await FriendService.getRelationStatus(currentUser.id, target.id);
+			reply.send({ status });
+		},
+	);
 
 	/** Envoyer une demande d'ami */
-	fastify.post("/request/:identifier", async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
-		const currentUser = request.user;
-		if (!currentUser) throw HttpError.unauthorized("Authentication required");
+	fastify.post(
+		"/request/:identifier",
+		async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
+			const currentUser = request.user;
+			if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
-		const { identifier } = request.params;
-		const target = await getUserByIdOrLogin(identifier);
-		if (!target) throw HttpError.notFound("User not found");
+			const { identifier } = request.params;
+			const target = await UserService.getByIdOrLogin(identifier);
+			if (!target) throw HttpError.notFound("User not found");
 
-		const result = await sendFriendRequest(currentUser.id, target.id);
+			const result = await FriendService.sendRequest(currentUser.id, target.id);
 
-		if (!result.success && result.status === "friends") {
-			throw HttpError.conflict("Already friends");
-		}
-		if (!result.success && result.status === "pending") {
-			throw HttpError.conflict("Friend request already pending");
-		}
+			if (!result.success && result.status === "friends") {
+				throw HttpError.conflict("Already friends");
+			}
+			if (!result.success && result.status === "pending") {
+				throw HttpError.conflict("Friend request already pending");
+			}
 
-		reply.send({ success: true, status: result.status });
-	});
+			reply.send({ success: true, status: result.status });
+		},
+	);
 
 	/** Retirer un ami */
-	fastify.delete("/request/:identifier", async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
-		const currentUser = request.user;
-		if (!currentUser) throw HttpError.unauthorized("Authentication required");
+	fastify.delete(
+		"/request/:identifier",
+		async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
+			const currentUser = request.user;
+			if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
-		const { identifier } = request.params;
-		const target = await getUserByIdOrLogin(identifier);
-		if (!target) throw HttpError.notFound("User not found");
+			const { identifier } = request.params;
+			const target = await UserService.getByIdOrLogin(identifier);
+			if (!target) throw HttpError.notFound("User not found");
 
-		const result = await removeFriend(currentUser.id, target.id);
+			const result = await FriendService.remove(currentUser.id, target.id);
 
-		if (!result.success) {
-			throw HttpError.notFound("Friendship not found");
-		}
+			if (!result.success) {
+				throw HttpError.notFound("Friendship not found");
+			}
 
-		reply.send({ success: true });
-	});
+			reply.send({ success: true });
+		},
+	);
 }

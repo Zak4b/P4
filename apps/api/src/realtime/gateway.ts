@@ -3,7 +3,7 @@ import { Player, RoomManager } from "../game-engine/index.js";
 import type { AuthenticatedSocket } from "./socket-auth.js";
 import { userRoom } from "./socket-rooms.js";
 import { socketBroadcaster } from "./socket-broadcaster.js";
-import { finalizeGameFromRoom } from "../modules/match/game-history.service.js";
+import { GameHistoryService } from "../modules/match/game-history.service.js";
 
 type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
 type JoinResponse = { success: boolean; roomId?: string; playerId?: number; error?: string };
@@ -43,7 +43,7 @@ export const manager = new RoomManager(2, P4, socketBroadcaster, notifyPlayerJoi
 // Le moteur de jeu ne connaît ni Prisma ni Socket.IO : c'est ici, dans la couche
 // applicative temps réel, qu'on persiste le résultat et qu'on notifie les joueurs.
 manager.on("game-end", ({ room, winner, registeredPlayers, duration, board }) => {
-	void finalizeGameFromRoom(registeredPlayers, winner, duration, board);
+	void GameHistoryService.save(registeredPlayers, winner, duration, board);
 	if (winner === 0) {
 		void room.send({ type: "game-draw" });
 	} else {
@@ -76,7 +76,10 @@ export const websocketConnection = (socket: AuthenticatedSocket): void => {
 	});
 
 	socket.on("matchmaking-leave", () => {
-		console.log("[matchmaking] socket event: matchmaking-leave", { uuid: player.uuid, displayName: player.displayName });
+		console.log("[matchmaking] socket event: matchmaking-leave", {
+			uuid: player.uuid,
+			displayName: player.displayName,
+		});
 		manager.leaveMatchmaking(player);
 	});
 
@@ -106,11 +109,14 @@ export const websocketConnection = (socket: AuthenticatedSocket): void => {
 
 	socket.on("play", async (x: number) => {
 		if (player.localId === null || player.room === null) return;
-		const {game} = player.room;
+		const { game } = player.room;
 
 		try {
-			const {y} = await game.play(player.localId, x);
-			await player.room.send({ type: "play", data: { playerId: player.localId, x, y, nextPlayerId: player.room.game.cPlayer } });
+			const { y } = await game.play(player.localId, x);
+			await player.room.send({
+				type: "play",
+				data: { playerId: player.localId, x, y, nextPlayerId: player.room.game.cPlayer },
+			});
 			if (!game.isEnded) {
 				return;
 			}
@@ -161,12 +167,12 @@ export const websocketConnection = (socket: AuthenticatedSocket): void => {
 	const unknownHandler = async () => player.send({ type: "info", data: "Commande inconnue" });
 	socket.on("message", async (data: string, callback?: (response: { success: boolean; message?: string }) => void) => {
 		const text = (data ?? "").toString().trim();
-		
+
 		if (text.length === 0) {
 			callback?.({ success: false });
 			return;
 		}
-		
+
 		if (!text.startsWith("/")) {
 			if (!player.room || player.localId === null) {
 				const errorMsg = "Vous devez être dans une partie pour envoyer des messages";
@@ -174,9 +180,12 @@ export const websocketConnection = (socket: AuthenticatedSocket): void => {
 				callback?.({ success: false, message: errorMsg });
 				return;
 			}
-			
+
 			try {
-				player.room.send({ type: "message", data: { clientId: player.uuid, displayName: player.displayName, message: text } });
+				player.room.send({
+					type: "message",
+					data: { clientId: player.uuid, displayName: player.displayName, message: text },
+				});
 				callback?.({ success: true });
 			} catch (error) {
 				const errorMsg = error instanceof Error ? error.message : "Erreur lors de l'envoi du message";
@@ -189,7 +198,7 @@ export const websocketConnection = (socket: AuthenticatedSocket): void => {
 
 			const cb: CallableFunction = commandList[command] ?? unknownHandler;
 			const argsArray: string[] = (args ?? "").split(/\s+/).filter((e: string) => e);
-			
+
 			try {
 				await cb(...argsArray);
 				callback?.({ success: true });
