@@ -1,5 +1,5 @@
 import type { FastifyError, FastifyInstance } from "fastify";
-import { z, ZodError } from "zod";
+import { hasZodFastifySchemaValidationErrors, isResponseSerializationError } from "fastify-type-provider-zod";
 import { HttpError } from "../../lib/HttpError.js";
 
 export function registerErrorHandlers(fastify: FastifyInstance): void {
@@ -17,9 +17,25 @@ export function registerErrorHandlers(fastify: FastifyInstance): void {
 			return reply.status(error.statusCode).send({ error: error.message });
 		}
 
-		if (error instanceof ZodError) {
-			request.log.warn({ err: error }, "Validation error");
-			return reply.status(400).send({ error: "Validation failed", issues: z.treeifyError(error) });
+		// Requête refusée par le schéma Zod de la route (body, querystring, params, headers)
+		if (hasZodFastifySchemaValidationErrors(error)) {
+			request.log.warn({ err: error }, "Request validation error");
+			return reply.status(400).send({
+				error: "Validation failed",
+				issues: error.validation.map((issue) => ({
+					path: issue.instancePath,
+					message: issue.message,
+				})),
+			});
+		}
+
+		// La réponse ne correspond pas au schéma déclaré : bug côté serveur, on ne fuite rien au client
+		if (isResponseSerializationError(error)) {
+			request.log.error(
+				{ err: error, method: error.method, url: error.url, issues: error.cause.issues },
+				"Response serialization error",
+			);
+			return reply.status(500).send({ error: "Internal server error" });
 		}
 
 		request.log.error({ err: error }, "Unhandled error");

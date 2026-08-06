@@ -14,18 +14,6 @@ export const clientMessageSchema = z.discriminatedUnion("type", [
 	z.object({ type: z.literal("restart") }),
 	z.object({ type: z.literal("message"), data: z.object({ text: z.string().min(1) }) }),
 ]);
-// Schema pour l'inscription
-export const registerSchema = z.object({
-	login: z.string().min(1).max(100),
-	email: z.email().transform((email) => email.toLowerCase()),
-	password: z.string().min(8).max(100),
-});
-
-// Schema pour la connexion
-export const loginSchema = z.object({
-	email: z.string(),
-	password: z.string().min(1),
-});
 
 /** Position/état de plateau envoyé au(x) joueur(s) lors d'un "sync" (rejoin, restart, swap...) */
 const syncDataSchema = z.object({

@@ -42,19 +42,15 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 				return;
 			}
 
-			const response = await apiClient.newRoom(roomId);
+			const room = await apiClient.newRoom(roomId);
 
-			if (response.success) {
-				setName("");
-				// Naviguer vers la salle créée
-				router.push(`/play/${response.roomId}`);
-				// Recharger la liste des salles
-				onRoomCreated?.();
-				// Fermer le drawer
-				onSubmit(response.roomId);
-			} else {
-				setError("Impossible de créer la salle");
-			}
+			setName("");
+			// Naviguer vers la salle créée
+			router.push(`/play/${room.id}`);
+			// Recharger la liste des salles
+			onRoomCreated?.();
+			// Fermer le drawer
+			onSubmit(room.id);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Erreur lors de la création de la salle");
 		} finally {

@@ -8,22 +8,8 @@ export interface User {
 	email: string;
 }
 
-interface LoginResponse {
-	success: boolean;
-	message?: string;
-	error?: string;
-	user?: User;
-}
-
-interface RegisterResponse {
-	success: boolean;
-	message?: string;
-	error?: string;
-	user?: User;
-}
-
-interface LoginStatus {
-	isLoggedIn: boolean;
+interface Session {
+	/** `null` = non connecté. */
 	user: User | null;
 }
 
@@ -55,6 +41,8 @@ export interface UserProfile extends UserStats {
 
 export type Winner = "PLAYER1" | "PLAYER2" | "DRAW";
 
+export type FriendRelationStatus = "none" | "pending" | "friends";
+
 export interface HistoryPlayer {
 	id: string;
 	login: string;
@@ -72,7 +60,7 @@ export interface GameHistory {
 }
 
 class ApiClient {
-	private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+	private async send(endpoint: string, options: RequestInit = {}): Promise<Response> {
 		const url = `${API_BASE}${endpoint}`;
 		const hasBody = options.body !== undefined;
 		const headers: HeadersInit = {
@@ -91,32 +79,48 @@ class ApiClient {
 			throw new Error(body?.error || `HTTP error! status: ${response.status}`);
 		}
 
-		return await response.json();
+		return response;
+	}
+
+	/** Endpoints qui renvoient une représentation JSON. */
+	private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+		const response = await this.send(endpoint, options);
+		return (await response.json()) as T;
+	}
+
+	/** Endpoints qui répondent 204 No Content : il n'y a pas de corps à parser. */
+	private async requestVoid(endpoint: string, options: RequestInit = {}): Promise<void> {
+		await this.send(endpoint, options);
 	}
 
 	// Auth endpoints
-	async register(login: string, email: string, password: string): Promise<RegisterResponse> {
-		return this.request<RegisterResponse>("/auth/register", {
+
+	/** 201 : renvoie l'utilisateur créé. */
+	async register(login: string, email: string, password: string): Promise<User> {
+		return this.request<User>("/auth/register", {
 			method: "POST",
 			body: JSON.stringify({ login, email, password }),
 		});
 	}
 
-	async login(email: string, password: string): Promise<LoginResponse> {
-		return this.request<LoginResponse>("/auth/login", {
+	/** 200 : ouvre une session (portée par le cookie) et renvoie l'utilisateur connecté. */
+	async login(email: string, password: string): Promise<User> {
+		return this.request<User>("/auth/login", {
 			method: "POST",
 			body: JSON.stringify({ email, password }),
 		});
 	}
 
-	async logout(): Promise<LoginResponse> {
-		return this.request<LoginResponse>("/auth/logout", {
+	/** Ferme la session (204). */
+	async logout(): Promise<void> {
+		return this.requestVoid("/auth/logout", {
 			method: "POST",
 		});
 	}
 
-	async getLoginStatus(): Promise<LoginStatus> {
-		return this.request<LoginStatus>("/auth/status");
+	/** État de la session courante — `user` à `null` si personne n'est connecté. */
+	async getSession(): Promise<Session> {
+		return this.request<Session>("/auth/status");
 	}
 
 	/** URL pour initier la connexion Google (redirection) */
@@ -129,11 +133,9 @@ class ApiClient {
 		return this.request<Room[]>("/room");
 	}
 
-	async newRoom(
-		name: string,
-		players?: string[]
-	): Promise<{ success: boolean; roomId?: string; message?: string }> {
-		return this.request<{ success: boolean; roomId?: string; message?: string }>("/room", {
+	/** 201 : renvoie la room créée. */
+	async newRoom(name: string, players?: string[]): Promise<Room> {
+		return this.request<Room>("/room", {
 			method: "POST",
 			body: JSON.stringify({ name, players }),
 		});
@@ -164,41 +166,40 @@ class ApiClient {
 		return this.request("/friend/requests");
 	}
 
-	/** Accepter une demande d'ami */
-	async acceptFriendRequest(identifier: string): Promise<{ success: boolean }> {
-		return this.request(`/friend/requests/${encodeURIComponent(identifier)}/accept`, {
+	/** Accepter une demande d'ami (204) */
+	async acceptFriendRequest(identifier: string): Promise<void> {
+		return this.requestVoid(`/friend/requests/${encodeURIComponent(identifier)}/accept`, {
 			method: "POST",
 		});
 	}
 
-	/** Refuser une demande d'ami */
-	async rejectFriendRequest(identifier: string): Promise<{ success: boolean }> {
-		return this.request(`/friend/requests/${encodeURIComponent(identifier)}/reject`, {
+	/** Refuser une demande d'ami (204) */
+	async rejectFriendRequest(identifier: string): Promise<void> {
+		return this.requestVoid(`/friend/requests/${encodeURIComponent(identifier)}/reject`, {
 			method: "POST",
 		});
 	}
 
 	/** Statut amical avec un joueur */
-	async getFriendStatus(identifier: string): Promise<{ status: "none" | "pending" | "friends" }> {
-		return this.request<{ status: "none" | "pending" | "friends" }>(
+	async getFriendStatus(identifier: string): Promise<{ status: FriendRelationStatus }> {
+		return this.request<{ status: FriendRelationStatus }>(
 			`/friend/status/${encodeURIComponent(identifier)}`
 		);
 	}
 
-	/** Envoyer une demande d'ami */
-	async sendFriendRequest(identifier: string): Promise<{ success: boolean; status: "none" | "pending" | "friends" }> {
-		return this.request<{ success: boolean; status: "none" | "pending" | "friends" }>(
+	/** Envoyer une demande d'ami (201 : renvoie le statut résultant de la relation) */
+	async sendFriendRequest(identifier: string): Promise<{ status: FriendRelationStatus }> {
+		return this.request<{ status: FriendRelationStatus }>(
 			`/friend/request/${encodeURIComponent(identifier)}`,
 			{ method: "POST" }
 		);
 	}
 
-	/** Retirer un ami */
-	async removeFriendRequest(identifier: string): Promise<{ success: boolean }> {
-		return this.request<{ success: boolean }>(
-			`/friend/request/${encodeURIComponent(identifier)}`,
-			{ method: "DELETE" }
-		);
+	/** Retirer un ami (204) */
+	async removeFriendRequest(identifier: string): Promise<void> {
+		return this.requestVoid(`/friend/request/${encodeURIComponent(identifier)}`, {
+			method: "DELETE",
+		});
 	}
 
 	async getLeaderboard(): Promise<Array<{ id: string; login: string; eloRating: number; xp: number; level: number }>> {
@@ -208,5 +209,5 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
-export type { LoginResponse, RegisterResponse, LoginStatus };
+export type { Session };
 

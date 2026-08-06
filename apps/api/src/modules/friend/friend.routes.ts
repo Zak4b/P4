@@ -1,31 +1,72 @@
-import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { z } from "zod";
 import { FriendService } from "./friend.service.js";
 import { UserService } from "../user/user.service.js";
 import { HttpError } from "../../lib/HttpError.js";
+import { friendRequestSchema, friendSchema, relationSchema } from "./friend.schemas.js";
+import {
+	errorResponseSchema,
+	identifierParamsSchema,
+	noContentSchema,
+	validationErrorResponseSchema,
+} from "../../lib/http-schemas.js";
 
-export function friendRoutes(fastify: FastifyInstance) {
+export const friendRoutes: FastifyPluginAsyncZod = async (fastify) => {
 	/** Liste des amis */
-	fastify.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
-		const currentUser = request.user;
-		if (!currentUser) throw HttpError.unauthorized("Authentication required");
+	fastify.get(
+		"/",
+		{
+			schema: {
+				response: {
+					200: z.array(friendSchema),
+					401: errorResponseSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const currentUser = request.user;
+			if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
-		const friends = await FriendService.list(currentUser.id);
-		reply.send(friends);
-	});
+			const friends = await FriendService.list(currentUser.id);
+			reply.send(friends);
+		},
+	);
 
 	/** Demandes d'ami en attente */
-	fastify.get("/requests", async (request: FastifyRequest, reply: FastifyReply) => {
-		const currentUser = request.user;
-		if (!currentUser) throw HttpError.unauthorized("Authentication required");
+	fastify.get(
+		"/requests",
+		{
+			schema: {
+				response: {
+					200: z.array(friendRequestSchema),
+					401: errorResponseSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const currentUser = request.user;
+			if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
-		const requests = await FriendService.getRequests(currentUser.id);
-		reply.send(requests);
-	});
+			const requests = await FriendService.getRequests(currentUser.id);
+			reply.send(requests);
+		},
+	);
 
-	/** Accepter une demande d'ami */
+	// Accepter une demande d'ami
 	fastify.post(
 		"/requests/:identifier/accept",
-		async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
+		{
+			schema: {
+				params: identifierParamsSchema,
+				response: {
+					204: noContentSchema,
+					400: validationErrorResponseSchema,
+					401: errorResponseSchema,
+					404: errorResponseSchema,
+				},
+			},
+		},
+		async (request, reply) => {
 			const currentUser = request.user;
 			if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
@@ -36,14 +77,25 @@ export function friendRoutes(fastify: FastifyInstance) {
 			const result = await FriendService.accept(currentUser.id, fromUser.id);
 			if (!result.success) throw HttpError.notFound("Request not found");
 
-			reply.send({ success: true });
+			reply.status(204).send();
 		},
 	);
 
-	/** Refuser une demande d'ami */
+	// Refuser une demande d'ami
 	fastify.post(
 		"/requests/:identifier/reject",
-		async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
+		{
+			schema: {
+				params: identifierParamsSchema,
+				response: {
+					204: noContentSchema,
+					400: validationErrorResponseSchema,
+					401: errorResponseSchema,
+					404: errorResponseSchema,
+				},
+			},
+		},
+		async (request, reply) => {
 			const currentUser = request.user;
 			if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
@@ -54,14 +106,25 @@ export function friendRoutes(fastify: FastifyInstance) {
 			const result = await FriendService.reject(currentUser.id, fromUser.id);
 			if (!result.success) throw HttpError.notFound("Request not found");
 
-			reply.send({ success: true });
+			reply.status(204).send();
 		},
 	);
 
-	/** Statut de la relation avec un joueur (id ou login) */
+	// Statut de la relation avec un joueur (id ou login)
 	fastify.get(
 		"/status/:identifier",
-		async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
+		{
+			schema: {
+				params: identifierParamsSchema,
+				response: {
+					200: relationSchema,
+					400: validationErrorResponseSchema,
+					401: errorResponseSchema,
+					404: errorResponseSchema,
+				},
+			},
+		},
+		async (request, reply) => {
 			const currentUser = request.user;
 			if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
@@ -74,10 +137,22 @@ export function friendRoutes(fastify: FastifyInstance) {
 		},
 	);
 
-	/** Envoyer une demande d'ami */
+	// Envoyer une demande d'ami — 201 : une demande est créée
 	fastify.post(
 		"/request/:identifier",
-		async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
+		{
+			schema: {
+				params: identifierParamsSchema,
+				response: {
+					201: relationSchema,
+					400: validationErrorResponseSchema,
+					401: errorResponseSchema,
+					404: errorResponseSchema,
+					409: errorResponseSchema,
+				},
+			},
+		},
+		async (request, reply) => {
 			const currentUser = request.user;
 			if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
@@ -93,15 +168,30 @@ export function friendRoutes(fastify: FastifyInstance) {
 			if (!result.success && result.status === "pending") {
 				throw HttpError.conflict("Friend request already pending");
 			}
+			// Seul cas d'échec restant : demande envoyée à soi-même — rien n'est créé, donc pas de 201
+			if (!result.success) {
+				throw HttpError.badRequest("Cannot send a friend request to yourself");
+			}
 
-			reply.send({ success: true, status: result.status });
+			reply.status(201).send({ status: result.status });
 		},
 	);
 
-	/** Retirer un ami */
+	/** Retirer un ami — 204 : la relation est supprimée, rien à renvoyer */
 	fastify.delete(
 		"/request/:identifier",
-		async (request: FastifyRequest<{ Params: { identifier: string } }>, reply: FastifyReply) => {
+		{
+			schema: {
+				params: identifierParamsSchema,
+				response: {
+					204: noContentSchema,
+					400: validationErrorResponseSchema,
+					401: errorResponseSchema,
+					404: errorResponseSchema,
+				},
+			},
+		},
+		async (request, reply) => {
 			const currentUser = request.user;
 			if (!currentUser) throw HttpError.unauthorized("Authentication required");
 
@@ -115,7 +205,7 @@ export function friendRoutes(fastify: FastifyInstance) {
 				throw HttpError.notFound("Friendship not found");
 			}
 
-			reply.send({ success: true });
+			reply.status(204).send();
 		},
 	);
-}
+};

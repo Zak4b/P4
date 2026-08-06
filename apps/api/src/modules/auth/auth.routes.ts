@@ -1,7 +1,8 @@
-import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { AuthService } from "./auth.service.js";
 import { cookieName } from "./request-auth.js";
-import { registerSchema, loginSchema } from "../../lib/zod-schemas.js";
+import { authUserSchema, loginSchema, registerSchema, sessionStatusSchema } from "./auth.schemas.js";
+import { errorResponseSchema, noContentSchema, validationErrorResponseSchema } from "../../lib/http-schemas.js";
 import { ENV } from "../../config/env.js";
 
 const COOKIE_OPTS = {
@@ -16,49 +17,77 @@ const COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 jours
 
 const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo";
 
-export function authRoutes(fastify: FastifyInstance) {
+export const authRoutes: FastifyPluginAsyncZod = async (fastify) => {
 	// Inscription
-	fastify.post("/register", async (request: FastifyRequest, reply: FastifyReply) => {
-		const { login, email, password } = registerSchema.parse(request.body);
+	fastify.post(
+		"/register",
+		{
+			schema: {
+				body: registerSchema,
+				response: {
+					201: authUserSchema,
+					400: validationErrorResponseSchema,
+					409: errorResponseSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const { login, email, password } = request.body;
 
-		const result = await AuthService.register(login, email, password);
+			const result = await AuthService.register(login, email, password);
 
-		reply.status(201).send({
-			success: true,
-			message: "Registration successful",
-			user: result.user,
-		});
-	});
+			reply.status(201).send(result.user);
+		},
+	);
 
 	// Connexion (email/password)
-	fastify.post("/login", async (request: FastifyRequest, reply: FastifyReply) => {
-		const { email, password } = loginSchema.parse(request.body);
+	fastify.post(
+		"/login",
+		{
+			schema: {
+				body: loginSchema,
+				response: {
+					200: authUserSchema,
+					400: validationErrorResponseSchema,
+					401: errorResponseSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const { email, password } = request.body;
 
-		const result = await AuthService.login(email, password);
+			const result = await AuthService.login(email, password);
 
-		reply.setCookie(cookieName, result.token, {
-			...COOKIE_OPTS,
-			maxAge: COOKIE_MAX_AGE,
-		});
+			reply.setCookie(cookieName, result.token, {
+				...COOKIE_OPTS,
+				maxAge: COOKIE_MAX_AGE,
+			});
 
-		reply.status(200).send({
-			success: true,
-			message: "Login successful",
-			user: result.user,
-		});
-	});
+			reply.status(200).send(result.user);
+		},
+	);
 
-	fastify.get("/google", async (request: FastifyRequest, reply: FastifyReply) => {
-		const googleOAuth2 = fastify.googleOAuth2;
-		if (!googleOAuth2) {
-			return reply.status(503).send({ error: "Google login is not configured" });
-		}
-		const authorizationUri = await googleOAuth2.generateAuthorizationUri(request, reply);
-		return reply.redirect(authorizationUri);
-	});
+	fastify.get(
+		"/google",
+		{
+			schema: {
+				response: {
+					503: errorResponseSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const googleOAuth2 = fastify.googleOAuth2;
+			if (!googleOAuth2) {
+				return reply.status(503).send({ error: "Google login is not configured" });
+			}
+			const authorizationUri = await googleOAuth2.generateAuthorizationUri(request, reply);
+			return reply.redirect(authorizationUri);
+		},
+	);
 
 	// Callback Google OAuth
-	fastify.get("/google/callback", async (request: FastifyRequest, reply: FastifyReply) => {
+	fastify.get("/google/callback", async (request, reply) => {
 		const googleOAuth2 = fastify.googleOAuth2;
 		if (!googleOAuth2) {
 			return reply.redirect(`${ENV.web.url}/login?error=Google+login+not+configured`);
@@ -91,17 +120,33 @@ export function authRoutes(fastify: FastifyInstance) {
 		}
 	});
 
-	// Statut de connexion
-	fastify.get("/status", async (request: FastifyRequest, reply: FastifyReply) => {
-		reply.send({
-			isLoggedIn: request.user ? true : false,
-			user: request.user ?? null,
-		});
-	});
+	// État de la session courante — route publique : « personne » est une réponse valide, pas une erreur
+	fastify.get(
+		"/status",
+		{
+			schema: {
+				response: {
+					200: sessionStatusSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			reply.send({ user: request.user ?? null });
+		},
+	);
 
-	// Déconnexion
-	fastify.post("/logout", async (request: FastifyRequest, reply: FastifyReply) => {
-		reply.clearCookie(cookieName, COOKIE_OPTS);
-		reply.send({ success: true, message: "Logout successful" });
-	});
-}
+	fastify.post(
+		"/logout",
+		{
+			schema: {
+				response: {
+					204: noContentSchema,
+				},
+			},
+		},
+		async (_request, reply) => {
+			reply.clearCookie(cookieName, COOKIE_OPTS);
+			reply.status(204).send();
+		},
+	);
+};

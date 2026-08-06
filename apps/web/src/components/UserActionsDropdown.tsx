@@ -124,11 +124,9 @@ export default function UserActionsDropdown({
 				`room_${Date.now()}`;
 			const players =
 				currentUserId && targetUser.id ? [currentUserId, targetUser.id] : undefined;
-			const response = await apiClient.newRoom(roomName, players);
-			if (response.success && response.roomId) {
-				onCloseParent?.();
-				router.push(`/play/${response.roomId}`);
-			}
+			const room = await apiClient.newRoom(roomName, players);
+			onCloseParent?.();
+			router.push(`/play/${room.id}`);
 		} catch {
 			// Erreur gérée
 		} finally {

@@ -1,10 +1,24 @@
-import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { z } from "zod";
 import { GameHistoryService } from "./game-history.service.js";
+import { gameHistoryQuerySchema, gameHistorySchema } from "./match.schemas.js";
+import { validationErrorResponseSchema } from "../../lib/http-schemas.js";
 
-export function matchRoutes(fastify: FastifyInstance) {
-	fastify.get("/", async (request: FastifyRequest<{ Querystring: { limit?: string; startFrom?: string } }>, reply: FastifyReply) => {
-		const limit = request.query.limit ? parseInt(request.query.limit) : undefined;
-		const gameHistory = await GameHistoryService.get({ limit });
-		reply.send(gameHistory);
-	});
-}
+export const matchRoutes: FastifyPluginAsyncZod = async (fastify) => {
+	fastify.get(
+		"/",
+		{
+			schema: {
+				querystring: gameHistoryQuerySchema,
+				response: {
+					200: z.array(gameHistorySchema),
+					400: validationErrorResponseSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const gameHistory = await GameHistoryService.get({ limit: request.query.limit });
+			reply.send(gameHistory);
+		},
+	);
+};
