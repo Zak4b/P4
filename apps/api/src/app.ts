@@ -3,14 +3,11 @@ dotenv.config();
 
 import Fastify from "fastify";
 import { ENV } from "./config/env.js";
+import { logger } from "./lib/logger.js";
 import { registerPlugins } from "./bootstrap/plugins.js";
 import { routes } from "./bootstrap/routes.js";
 
-const fastify = Fastify({
-	logger: {
-		level: ENV.nodeEnv === "production" ? "info" : "debug",
-	},
-});
+const fastify = Fastify({ loggerInstance: logger });
 
 await registerPlugins(fastify);
 
