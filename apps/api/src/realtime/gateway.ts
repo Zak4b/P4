@@ -5,16 +5,14 @@ import { userRoom } from "./socket-rooms.js";
 import { socketBroadcaster } from "./socket-broadcaster.js";
 import { GameHistoryService } from "../modules/match/game-history.service.js";
 import { logger } from "../lib/logger.js";
+import type { JoinAck, MessageAck, SyncData } from "@p4/schemas/realtime";
 
-type syncObject = { playerId: number | null; cPlayer: number; board?: number[][]; last?: { x: number; y: number } };
-type JoinResponse = { success: boolean; roomId?: string; playerId?: number; error?: string };
-
-function getSyncData(player: Player<typeof P4>): syncObject {
+function getSyncData(player: Player<typeof P4>): SyncData {
 	const game = player.room?.game;
 	if (!game) {
 		throw new Error("");
 	}
-	const syncData: syncObject = { playerId: player.localId, cPlayer: game.cPlayer };
+	const syncData: SyncData = { playerId: player.localId, cPlayer: game.cPlayer };
 	if (game.playCount) {
 		syncData.board = game.board;
 		syncData.last = game.last;
@@ -88,7 +86,7 @@ export const websocketConnection = (socket: AuthenticatedSocket): void => {
 		manager.leaveMatchmaking(player);
 	});
 
-	socket.on("join", async (roomId: string, callback?: (response: JoinResponse) => void) => {
+	socket.on("join", async (roomId: string, callback?: (response: JoinAck) => void) => {
 		try {
 			if (!/[\w0-9]+/.test(roomId)) {
 				throw new Error("Invalid room ID format");
@@ -102,10 +100,6 @@ export const websocketConnection = (socket: AuthenticatedSocket): void => {
 			});
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : "Failed to join room";
-			const errorResponse: JoinResponse = {
-				success: false,
-				error: errorMessage,
-			};
 			player.send({ type: "info", data: `Impossible de rejoindre la Salle #${roomId}, ${errorMessage}` });
 			player.send({ type: "vote", data: { text: "Passer en mode spectateur ?", command: `/spect ${roomId}` } });
 			callback?.({ success: false, error: errorMessage });
@@ -170,7 +164,7 @@ export const websocketConnection = (socket: AuthenticatedSocket): void => {
 		},
 	};
 	const unknownHandler = async () => player.send({ type: "info", data: "Commande inconnue" });
-	socket.on("message", async (data: string, callback?: (response: { success: boolean; message?: string }) => void) => {
+	socket.on("message", async (data: string, callback?: (response: MessageAck) => void) => {
 		const text = (data ?? "").toString().trim();
 
 		if (text.length === 0) {

@@ -1,10 +1,9 @@
 import { FriendRepository } from "./friend.repository.js";
-
-export type FriendRelationStatus = "none" | "pending" | "friends";
+import type { RelationStatus } from "@p4/schemas/friend";
 
 export class FriendService {
 	/** Statut de la relation entre currentUserId et targetUserId */
-	static async getRelationStatus(currentUserId: string, targetUserId: string): Promise<FriendRelationStatus> {
+	static async getRelationStatus(currentUserId: string, targetUserId: string): Promise<RelationStatus> {
 		if (currentUserId === targetUserId) return "none";
 
 		const sent = await FriendRepository.findRequestByPair(currentUserId, targetUserId);
@@ -26,7 +25,7 @@ export class FriendService {
 	static async sendRequest(
 		fromUserId: string,
 		toUserId: string,
-	): Promise<{ success: boolean; status: FriendRelationStatus }> {
+	): Promise<{ success: boolean; status: RelationStatus }> {
 		if (fromUserId === toUserId) {
 			return { success: false, status: "none" };
 		}

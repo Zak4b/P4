@@ -8,7 +8,7 @@ import {
 	TrendingDown as LossIcon,
 	Remove as DrawIcon,
 } from "@mui/icons-material";
-import type { UserStats } from "@/lib/api";
+import type { UserStats } from "@p4/schemas/user";
 import { typographyStyles, paperStyles, layoutStyles, dividerStyles } from "@/lib/styles";
 
 interface StatTileProps {

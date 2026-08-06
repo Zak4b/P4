@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-/** Statistiques calculées d'un joueur (ELO, XP/niveau, bilan des parties). */
 export const userStatsSchema = z.object({
 	eloRating: z.number().int(),
 	xp: z.number().int(),
@@ -13,13 +12,11 @@ export const userStatsSchema = z.object({
 	draws: z.number().int(),
 });
 
-/** Entrée de la liste de tous les joueurs. */
 export const userRankingEntrySchema = z.object({
 	login: z.string(),
 	eloRating: z.number().int(),
 });
 
-/** Entrée du classement. */
 export const leaderboardEntrySchema = z.object({
 	id: z.string(),
 	login: z.string(),
@@ -28,13 +25,11 @@ export const leaderboardEntrySchema = z.object({
 	level: z.number().int(),
 });
 
-/** Profil public : identité + statistiques. */
 export const userProfileSchema = userStatsSchema.extend({
 	id: z.string(),
 	login: z.string(),
 });
 
-/** Utilisateur complet moins le mot de passe. */
 export const safeUserSchema = z.object({
 	id: z.string(),
 	login: z.string(),
@@ -50,3 +45,10 @@ export const safeUserSchema = z.object({
 export const userIdParamsSchema = z.object({
 	id: z.string().min(1).max(64),
 });
+
+export type UserStats = z.infer<typeof userStatsSchema>;
+export type UserRankingEntry = z.infer<typeof userRankingEntrySchema>;
+export type LeaderboardEntry = z.infer<typeof leaderboardEntrySchema>;
+export type UserProfile = z.infer<typeof userProfileSchema>;
+export type SafeUser = z.infer<typeof safeUserSchema>;
+export type UserIdParams = z.infer<typeof userIdParamsSchema>;

@@ -11,6 +11,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@p4/schemas": "workspace:*",
     "@dicebear/core": "catalog:",
     "@dicebear/micah": "catalog:",
     "@emotion/react": "catalog:",

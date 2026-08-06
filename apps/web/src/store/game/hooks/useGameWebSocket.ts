@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useWebSocket } from "@/components/WebSocketProvider";
-import type { SyncEvent, WinEvent, MatchedEvent } from "@/lib/socketTypes";
+import type { ServerMessageData } from "@p4/schemas/realtime";
 import { useGameStore } from "../gameStore";
 
 export const useGameWebSocket = () => {
@@ -17,7 +17,7 @@ export const useGameWebSocket = () => {
 
 	// Fonction pour gérer handleWin avec accès à l'UUID
 	const handleWinWithUuid = useCallback(
-		(data: WinEvent) => {
+		(data: ServerMessageData<"game-win">) => {
 			if (!uuid) return;
 			const isWinner = uuid === data.uuid;
 			const message = isWinner ? "🎉 Vous avez gagné !" : "😢 Vous avez perdu !";
@@ -31,7 +31,7 @@ export const useGameWebSocket = () => {
 		if (!socket || !isConnected) return;
 
 		// Écouter l'événement sync (qui est envoyé après un join réussi)
-		const syncHandler = (data: SyncEvent) => {
+		const syncHandler = (data: ServerMessageData<"sync">) => {
 			handleSync(data);
 			if (data.playerId === null) return;
 
@@ -46,7 +46,7 @@ export const useGameWebSocket = () => {
 			}
 		};
 
-		const matchedHandler = (data: MatchedEvent) => {
+		const matchedHandler = (data: ServerMessageData<"matched">) => {
 			setRoomId(data.roomId);
 			setPlayerId(data.playerId);
 			handleJoin(data.roomId);

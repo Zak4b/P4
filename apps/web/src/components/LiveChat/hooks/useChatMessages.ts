@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import { useWebSocket } from "@/components/WebSocketProvider";
-import type { MessageEvent, InfoEvent, VoteEvent } from "@/lib/socketTypes";
+import type { ServerMessageData } from "@p4/schemas/realtime";
 import type { Message } from "../types";
 import { messageReducer } from "../messageReducer";
 
@@ -24,7 +24,7 @@ export const useChatMessages = (roomId: string, isOpen: boolean) => {
 	useEffect(() => {
 		if (!socket || !isConnected) return;
 
-		const messageHandler = (data: MessageEvent) => {
+		const messageHandler = (data: ServerMessageData<"message">) => {
 			const isOwnMessage = data.clientId === uuid;
 			
 			const newMessage: Message = {
@@ -43,8 +43,7 @@ export const useChatMessages = (roomId: string, isOpen: boolean) => {
 			}
 		};
 
-		const infoHandler = (data: string | InfoEvent) => {
-			const content = typeof data === "string" ? data : data.data;
+		const infoHandler = (content: ServerMessageData<"info">) => {
 			const newMessage: Message = {
 				id: `info-${Date.now()}-${Math.random()}`,
 				type: "info",
@@ -54,7 +53,7 @@ export const useChatMessages = (roomId: string, isOpen: boolean) => {
 			dispatchMessages({ type: "add", payload: newMessage });
 		};
 
-		const voteHandler = (data: VoteEvent) => {
+		const voteHandler = (data: ServerMessageData<"vote">) => {
 			const newMessage: Message = {
 				id: `vote-${Date.now()}-${Math.random()}`,
 				type: "vote",

@@ -2,8 +2,8 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { createRoom, listAllRooms, getRoomById } from "./room.service.js";
 import { HttpError } from "../../lib/HttpError.js";
-import { createRoomSchema, roomIdParamsSchema, roomSchema } from "./room.schemas.js";
-import { errorResponseSchema, validationErrorResponseSchema } from "../../lib/http-schemas.js";
+import { createRoomSchema, roomIdParamsSchema, roomSchema } from "@p4/schemas/room";
+import { errorResponseSchema, validationErrorResponseSchema } from "@p4/schemas/http";
 
 export const roomRoutes: FastifyPluginAsyncZod = async (fastify) => {
 	fastify.get(

@@ -1,8 +1,8 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { GameHistoryService } from "./game-history.service.js";
-import { gameHistoryQuerySchema, gameHistorySchema } from "./match.schemas.js";
-import { validationErrorResponseSchema } from "../../lib/http-schemas.js";
+import { gameHistoryQuerySchema, gameHistorySchema } from "@p4/schemas/match";
+import { validationErrorResponseSchema } from "@p4/schemas/http";
 
 export const matchRoutes: FastifyPluginAsyncZod = async (fastify) => {
 	fastify.get(

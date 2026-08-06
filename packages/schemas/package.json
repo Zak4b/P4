@@ -1,0 +1,61 @@
+{
+	"name": "@p4/schemas",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Schémas zod partagés entre l'api et le web",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./auth": {
+			"types": "./dist/auth.d.ts",
+			"default": "./dist/auth.js"
+		},
+		"./friend": {
+			"types": "./dist/friend.d.ts",
+			"default": "./dist/friend.js"
+		},
+		"./http": {
+			"types": "./dist/http.d.ts",
+			"default": "./dist/http.js"
+		},
+		"./match": {
+			"types": "./dist/match.d.ts",
+			"default": "./dist/match.js"
+		},
+		"./realtime": {
+			"types": "./dist/realtime.d.ts",
+			"default": "./dist/realtime.js"
+		},
+		"./room": {
+			"types": "./dist/room.d.ts",
+			"default": "./dist/room.js"
+		},
+		"./user": {
+			"types": "./dist/user.d.ts",
+			"default": "./dist/user.js"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"lint": "eslint ."
+	},
+	"packageManager": "pnpm@11.20.0",
+	"dependencies": {
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@eslint/js": "catalog:",
+		"eslint": "catalog:",
+		"typescript": "catalog:",
+		"typescript-eslint": "catalog:"
+	}
+}

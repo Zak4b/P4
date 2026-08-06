@@ -6,6 +6,7 @@
 	"globalDependencies": [".env"],
 	"tasks": {
 		"dev": {
+			"dependsOn": ["^build"],
 			"cache": false,
 			"persistent": true
 		},
@@ -14,11 +15,11 @@
 			"outputs": ["dist/**", ".next/**", "!.next/cache/**"]
 		},
 		"lint": {
-			"dependsOn": ["prisma:generate"],
+			"dependsOn": ["^build", "prisma:generate"],
 			"outputs": []
 		},
 		"typecheck": {
-			"dependsOn": ["prisma:generate"],
+			"dependsOn": ["^build", "prisma:generate"],
 			"outputs": []
 		},
 		"prisma:generate": {

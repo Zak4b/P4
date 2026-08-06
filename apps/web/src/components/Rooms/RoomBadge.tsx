@@ -1,32 +1,24 @@
 "use client";
 
 import { Chip } from "@mui/material";
-import type { Room } from "@/lib/api";
+import type { Room } from "@p4/schemas/room";
 
 const GameBadge: React.FC<{ status: Room["status"] }> = ({ status }) => {
 	const getText = (status: Room["status"]) => {
 		switch (status) {
-			case "waiting":
+			case "idle":
 				return "En attente";
 			case "playing":
 				return "En cours";
-			case "finished":
-				return "Terminée";
-			default:
-				return "Inconnu";
 		}
 	};
 
 	const getColor = (status: Room["status"]): "warning" | "success" | "default" | "info" => {
 		switch (status) {
-			case "waiting":
+			case "idle":
 				return "warning";
 			case "playing":
 				return "success";
-			case "finished":
-				return "default";
-			default:
-				return "default";
 		}
 	};
 

@@ -1,4 +1,4 @@
-import type { SyncEvent, PlayEvent, PlayersEvent, PlayerJoinedEvent } from "@/lib/socketTypes";
+import type { RoomPlayerRef, ServerMessageData, SyncData } from "@p4/schemas/realtime";
 
 export type TokenColor = "empty" | "player1" | "player2";
 export type Board = TokenColor[][];
@@ -27,13 +27,13 @@ export interface GameStore {
 	players: Player[];
 
 	// Actions
-	handlePlay: (data: PlayEvent) => void;
-	handleSync: (data: SyncEvent) => void;
+	handlePlay: (data: ServerMessageData<"play">) => void;
+	handleSync: (data: SyncData) => void;
 	handleWin: (message: string, playerid: number) => void;
 	handleDraw: () => void;
 	handleJoin: (roomId: string) => void;
-	handlePlayers: (players: PlayersEvent[]) => void;
-	handlePlayerJoined: (data: PlayerJoinedEvent) => void;
+	handlePlayers: (players: RoomPlayerRef[]) => void;
+	handlePlayerJoined: (data: RoomPlayerRef) => void;
 	setLoading: (loading: boolean) => void;
 	setWinDialogOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
 }

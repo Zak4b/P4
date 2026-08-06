@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { Game } from "./game.js";
 import { Room } from "./room.js";
-import type { ServerMessage } from "./types.js";
+import type { ServerMessage } from "@p4/schemas/realtime";
 
 export class Player<T extends new () => Game> {
 	public readonly uuid: string;

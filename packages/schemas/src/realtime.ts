@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const roomIdSchema = z
+export const roomIdSchema = z
 	.string()
 	.regex(/^[\w0-9]+$/)
 	.min(1);
@@ -15,16 +15,14 @@ export const clientMessageSchema = z.discriminatedUnion("type", [
 	z.object({ type: z.literal("message"), data: z.object({ text: z.string().min(1) }) }),
 ]);
 
-/** Position/état de plateau envoyé au(x) joueur(s) lors d'un "sync" (rejoin, restart, swap...) */
-const syncDataSchema = z.object({
+export const syncDataSchema = z.object({
 	playerId: z.number().nullable(),
 	cPlayer: z.number(),
 	board: z.array(z.array(z.number())).optional(),
 	last: z.object({ x: z.number(), y: z.number() }).optional(),
 });
 
-/** Référence légère à un joueur dans une room (id local + nom affiché) */
-const roomPlayerRefSchema = z.object({
+export const roomPlayerRefSchema = z.object({
 	localId: z.number(),
 	name: z.string(),
 });
@@ -52,3 +50,31 @@ export const serverMessageSchema = z.discriminatedUnion("type", [
 		data: z.object({ clientId: z.string(), displayName: z.string(), message: z.string() }),
 	}),
 ]);
+
+export const joinAckSchema = z.object({
+	success: z.boolean(),
+	roomId: z.string().optional(),
+	playerId: z.number().optional(),
+	error: z.string().optional(),
+});
+
+export const messageAckSchema = z.object({
+	success: z.boolean(),
+	message: z.string().optional(),
+});
+
+export type ClientMessage = z.infer<typeof clientMessageSchema>;
+export type ServerMessage = z.infer<typeof serverMessageSchema>;
+
+export type JoinAck = z.infer<typeof joinAckSchema>;
+export type MessageAck = z.infer<typeof messageAckSchema>;
+
+export type SyncData = z.infer<typeof syncDataSchema>;
+export type RoomPlayerRef = z.infer<typeof roomPlayerRefSchema>;
+
+export type ServerMessageData<T extends ServerMessage["type"]> =
+	Extract<ServerMessage, { type: T }> extends { data?: infer D } ? D : never;
+
+/** Idem pour les messages émis par le client. */
+export type ClientMessageData<T extends ClientMessage["type"]> =
+	Extract<ClientMessage, { type: T }> extends { data?: infer D } ? D : never;

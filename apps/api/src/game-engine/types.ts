@@ -1,12 +1,8 @@
-import type { serverMessageSchema } from "../lib/zod-schemas.js";
-import type { z } from "zod";
+import type { ServerMessage } from "@p4/schemas/realtime";
 
 export interface Message {
 	type: string;
 }
-
-/** Cf. `serverMessageSchema` dans `lib/zod-schemas.ts` : source de vérité du shape des messages. */
-export type ServerMessage = z.infer<typeof serverMessageSchema>;
 
 export interface RoomBroadcaster {
 	toRoom(roomId: string, message: ServerMessage): void;

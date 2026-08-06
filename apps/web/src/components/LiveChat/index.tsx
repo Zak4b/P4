@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Box, Paper } from "@mui/material";
 import { useWebSocket } from "@/components/WebSocketProvider";
+import type { MessageAck } from "@p4/schemas/realtime";
 import { useChatMessages } from "./hooks/useChatMessages";
 import { ChatButton } from "./ChatButton";
 import { ChatHeader } from "./ChatHeader";
@@ -26,7 +27,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 
 		const messageText = message.trim();
 		
-		socket.emit("message", messageText, (response: { success: boolean; message?: string }) => {
+		socket.emit("message", messageText, (response: MessageAck) => {
 			if (response.success === false) {
 				dispatchMessages({
 					type: "add",

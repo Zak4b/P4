@@ -16,3 +16,8 @@ export const relationStatusSchema = z.enum(["none", "pending", "friends"]);
 export const relationSchema = z.object({
 	status: relationStatusSchema,
 });
+
+export type Friend = z.infer<typeof friendSchema>;
+export type FriendRequest = z.infer<typeof friendRequestSchema>;
+export type RelationStatus = z.infer<typeof relationStatusSchema>;
+export type Relation = z.infer<typeof relationSchema>;

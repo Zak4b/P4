@@ -14,7 +14,8 @@ import {
 	useMediaQuery,
 } from "@mui/material";
 import { Refresh as RefreshIcon, History as HistoryIcon } from "@mui/icons-material";
-import { apiClient, type GameHistory } from "@/lib/api";
+import { apiClient } from "@/lib/api";
+import type { GameHistory } from "@p4/schemas/match";
 import {
 	layoutStyles,
 	typographyStyles,

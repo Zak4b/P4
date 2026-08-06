@@ -1,6 +1,6 @@
-import type { GameHistory } from "@/lib/api";
+import type { GameHistory } from "@p4/schemas/match";
 
-export type HistoryRowProps = Omit<GameHistory, "board">;
+export type HistoryRowProps = GameHistory;
 
 export const formatDate = (dateStr: string | number) =>
 	new Date(dateStr).toLocaleDateString("fr-FR", {

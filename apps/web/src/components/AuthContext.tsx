@@ -1,13 +1,14 @@
 "use client";
 
 import { createContext, useContext, useState, type ReactNode, useEffect } from "react";
-import { apiClient, type User } from "@/lib/api";
+import { apiClient } from "@/lib/api";
+import type { AuthUser } from "@p4/schemas/auth";
 
 interface AuthContextType {
 	/** `false` tant que la session n'a pas été résolue : à distinguer de « non connecté ». */
 	isAuthReady: boolean;
 	/** `null` = non connecté. C'est la seule source de vérité, il n'y a pas de drapeau séparé. */
-	user: User | null;
+	user: AuthUser | null;
 	login: (email: string, password: string) => Promise<void>;
 	register: (login: string, email: string, password: string) => Promise<void>;
 	logout: () => Promise<void>;
@@ -17,7 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [isAuthReady, setIsAuthReady] = useState(false);
-	const [user, setUser] = useState<User | null>(null);
+	const [user, setUser] = useState<AuthUser | null>(null);
 
 	useEffect(() => {
 		let mounted = true;

@@ -167,6 +167,9 @@ importers:
       '@fastify/swagger-ui':
         specifier: 'catalog:'
         version: 5.2.6
+      '@p4/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       '@prisma/adapter-mariadb':
         specifier: 'catalog:'
         version: 7.9.1
@@ -258,6 +261,9 @@ importers:
       '@mui/material':
         specifier: 'catalog:'
         version: 7.3.11(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.0)(supports-color@7.2.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.0)(supports-color@7.2.0))(@types/react@19.2.18)(react@19.2.0)(supports-color@7.2.0))(@types/react@19.2.18)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@p4/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       next:
         specifier: 'catalog:'
         version: 16.3.0(@babel/core@7.29.7(supports-color@7.2.0))(@types/node@20.19.43)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -301,6 +307,25 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
+
+  packages/schemas:
+    dependencies:
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+    devDependencies:
+      '@eslint/js':
+        specifier: 'catalog:'
+        version: 9.39.5
+      eslint:
+        specifier: 'catalog:'
+        version: 9.39.5(jiti@2.7.0)(supports-color@7.2.0)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      typescript-eslint:
+        specifier: 'catalog:'
+        version: 8.66.0(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
 
 packages:
 

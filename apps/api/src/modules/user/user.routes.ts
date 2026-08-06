@@ -9,8 +9,8 @@ import {
 	userProfileSchema,
 	userRankingEntrySchema,
 	userStatsSchema,
-} from "./user.schemas.js";
-import { errorResponseSchema, identifierParamsSchema, validationErrorResponseSchema } from "../../lib/http-schemas.js";
+} from "@p4/schemas/user";
+import { errorResponseSchema, identifierParamsSchema, validationErrorResponseSchema } from "@p4/schemas/http";
 
 export const userRoutes: FastifyPluginAsyncZod = async (fastify) => {
 	fastify.get(

@@ -3,13 +3,13 @@ import { z } from "zod";
 import { FriendService } from "./friend.service.js";
 import { UserService } from "../user/user.service.js";
 import { HttpError } from "../../lib/HttpError.js";
-import { friendRequestSchema, friendSchema, relationSchema } from "./friend.schemas.js";
+import { friendRequestSchema, friendSchema, relationSchema } from "@p4/schemas/friend";
 import {
 	errorResponseSchema,
 	identifierParamsSchema,
 	noContentSchema,
 	validationErrorResponseSchema,
-} from "../../lib/http-schemas.js";
+} from "@p4/schemas/http";
 
 export const friendRoutes: FastifyPluginAsyncZod = async (fastify) => {
 	/** Liste des amis */

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useRef, type ReactNode, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "./AuthContext";
-import type { SyncEvent } from "@/lib/socketTypes";
+import type { SyncData } from "@p4/schemas/realtime";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000";
 
@@ -75,7 +75,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 			});
 
 			// Écouter l'événement sync pour mettre à jour playerId
-			newSocket.on("sync", (data: SyncEvent) => {
+			newSocket.on("sync", (data: SyncData) => {
 				if (data.playerId !== null) {
 					setPlayerIdState(data.playerId);
 				}

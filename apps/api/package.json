@@ -22,6 +22,7 @@
 	],
 	"packageManager": "pnpm@11.20.0",
 	"dependencies": {
+		"@p4/schemas": "workspace:*",
 		"@fastify/cookie": "catalog:",
 		"@fastify/cors": "catalog:",
 		"@fastify/oauth2": "catalog:",

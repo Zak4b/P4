@@ -20,3 +20,11 @@ export const loginSchema = z.object({
 export const sessionStatusSchema = z.object({
 	user: authUserSchema.nullable(),
 });
+
+export type AuthUser = z.infer<typeof authUserSchema>;
+
+export type RegisterBody = z.infer<typeof registerSchema>;
+
+export type RegisterInput = z.input<typeof registerSchema>;
+export type LoginBody = z.infer<typeof loginSchema>;
+export type SessionStatus = z.infer<typeof sessionStatusSchema>;

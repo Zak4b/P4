@@ -13,7 +13,8 @@ import {
 	Container,
 } from "@mui/material";
 import { Person as PersonIcon } from "@mui/icons-material";
-import { apiClient, type UserProfile } from "@/lib/api";
+import { apiClient } from "@/lib/api";
+import type { UserProfile } from "@p4/schemas/user";
 import { typographyStyles, paperStyles, avatarStyles, layoutStyles } from "@/lib/styles";
 import UserAvatar from "@/components/UserAvatar";
 import UserStatsPanel from "@/components/UserStatsPanel";

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { PlayEvent, PlayerJoinedEvent, PlayersEvent, SyncEvent } from "@/lib/socketTypes";
+import type { RoomPlayerRef, ServerMessageData, SyncData } from "@p4/schemas/realtime";
 import type { GameStore, Board } from "./types";
 import { createEmptyBoard, getPlayerColor, setCell } from "./utils";
 
@@ -22,7 +22,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		{ localId: 2, name: null },
 	],
 
-	handlePlay: (data: PlayEvent) => {
+	handlePlay: (data: ServerMessageData<"play">) => {
 		const { playerId, x, y, nextPlayerId } = data;
 
 		set((state) => {
@@ -54,7 +54,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		});
 	},
 
-	handleSync: (data: SyncEvent) => {
+	handleSync: (data: SyncData) => {
 		const { board, cPlayer, last } = data;
 
 		const newBoard: Board = createEmptyBoard();
@@ -109,7 +109,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		});
 	},
 
-	handlePlayers: (players: PlayersEvent[]) => {
+	handlePlayers: (players: RoomPlayerRef[]) => {
 		const byId = new Map(players.map((p) => [p.localId, p.name]));
 		set({
 			players: [
@@ -119,7 +119,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		});
 	},
 
-	handlePlayerJoined: (data: PlayerJoinedEvent) => {
+	handlePlayerJoined: (data: RoomPlayerRef) => {
 		set((state) => {
 			const existing = state.players.find((p) => p.localId === data.localId);
 			if (existing) {

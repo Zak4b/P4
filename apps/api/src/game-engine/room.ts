@@ -1,6 +1,7 @@
 import { Game } from "./game.js";
 import { Player } from "./player.js";
-import type { RoomBroadcaster, ServerMessage } from "./types.js";
+import type { ServerMessage } from "@p4/schemas/realtime";
+import type { RoomBroadcaster } from "./types.js";
 import { TypedEventEmitter } from "./typed-event-emitter.js";
 import { P4 } from "./p4.js";
 import { gameRoom } from "../realtime/socket-rooms.js";

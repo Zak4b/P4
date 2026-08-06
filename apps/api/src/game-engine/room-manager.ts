@@ -2,7 +2,8 @@ import { Game } from "./game.js";
 import { Room, type GameEndPayload } from "./room.js";
 import { Player } from "./player.js";
 import { randomUUID } from "node:crypto";
-import type { RoomBroadcaster, ServerMessage } from "./types.js";
+import type { ServerMessage } from "@p4/schemas/realtime";
+import type { RoomBroadcaster } from "./types.js";
 import { TypedEventEmitter } from "./typed-event-emitter.js";
 
 export type OnPlayerJoinRoom<T extends new () => Game> = (player: Player<T>) => void;

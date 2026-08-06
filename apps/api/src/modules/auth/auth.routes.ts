@@ -1,8 +1,8 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { AuthService } from "./auth.service.js";
 import { cookieName } from "./request-auth.js";
-import { authUserSchema, loginSchema, registerSchema, sessionStatusSchema } from "./auth.schemas.js";
-import { errorResponseSchema, noContentSchema, validationErrorResponseSchema } from "../../lib/http-schemas.js";
+import { authUserSchema, loginSchema, registerSchema, sessionStatusSchema } from "@p4/schemas/auth";
+import { errorResponseSchema, noContentSchema, validationErrorResponseSchema } from "@p4/schemas/http";
 import { ENV } from "../../config/env.js";
 
 const COOKIE_OPTS = {

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useWebSocket } from "@/components/WebSocketProvider";
-import type { JoinResponse } from "@/lib/socketTypes";
 import { useGameStore } from "../gameStore";
 import { BOARD_ROWS } from "../constants";
 import { getCell } from "../utils";
+import type { JoinAck } from "@p4/schemas/realtime";
 
 export const useGame = () => {
 	const { socket, isConnected, playerId } = useWebSocket();
@@ -43,7 +43,7 @@ export const useGame = () => {
 			}));
 
 			// En cas de succès, loading passera à false à la réception de l'événement "sync"
-			socket.emit("join", roomId, (response: JoinResponse) => {
+			socket.emit("join", roomId, (response: JoinAck) => {
 				if (!response.success || !response.roomId || response.playerId === undefined) {
 					setLoading(false);
 					console.error(`Failed to join room ${roomId}:`, response.error);

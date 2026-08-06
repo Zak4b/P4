@@ -10,11 +10,14 @@ export const validationErrorResponseSchema = z.object({
 	issues: z.unknown().optional(),
 });
 
-// status 204 — `z.undefined()` est la forme recommandée par fastify-type-provider-zod
-// pour une réponse sans corps : `reply.status(204).send()` suffit.
+// status 204
 export const noContentSchema = z.undefined();
 
 // login | uuid
 export const identifierParamsSchema = z.object({
 	identifier: z.string().min(1).max(64),
 });
+
+export type ErrorResponse = z.infer<typeof errorResponseSchema>;
+export type ValidationErrorResponse = z.infer<typeof validationErrorResponseSchema>;
+export type IdentifierParams = z.infer<typeof identifierParamsSchema>;
