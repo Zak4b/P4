@@ -4,7 +4,7 @@ import type { Room } from "@p4/schemas/room";
 import type { Me, User, UserProfile, UserStats } from "@p4/schemas/user";
 import type { AvatarOptions, AvatarSaveResponse } from "@p4/schemas/avatar";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 const API_BASE = `${BACKEND_URL}/api`;
 
 /** Détail des erreurs de validation Zod renvoyées par le error handler global de l'API. */

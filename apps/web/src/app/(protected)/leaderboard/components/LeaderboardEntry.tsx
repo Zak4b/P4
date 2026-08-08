@@ -48,7 +48,7 @@ export default function LeaderboardEntry({ player, rank, icon, background = "rgb
 				</Typography>
 			</Box>
 			{player ? (
-				<UserAvatar login={player.login} sx={{ width: avatarSize, height: avatarSize }} />
+				<UserAvatar userId={player.id} login={player.login} sx={{ width: avatarSize, height: avatarSize }} />
 			) : (
 				<Box sx={{ width: avatarSize, height: avatarSize, borderRadius: "50%", bgcolor: "action.hover" }} />
 			)}

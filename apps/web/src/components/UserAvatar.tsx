@@ -1,20 +1,23 @@
 import { Avatar, type AvatarProps } from "@mui/material";
-import { getAvatarDataUrl } from "@/lib/avatar";
+import { getAvatarUrl } from "@/lib/avatar";
 
 interface UserAvatarProps extends Omit<AvatarProps, "src"> {
-	login: string | null | undefined;
+	userId: string | null | undefined;
+	login?: string | null;
 	size?: number;
 }
 
 /**
  * Composant Avatar réutilisable pour afficher l'avatar d'un utilisateur
- * @param login - Le login de l'utilisateur
+ * @param userId - L'id de l'utilisateur
+ * @param login - alt)
  * @param size - Taille optionnelle de l'avatar
  */
-export default function UserAvatar({ login, size = 50, sx, ...props }: UserAvatarProps) {
+export default function UserAvatar({ userId, login, size = 50, sx, ...props }: UserAvatarProps) {
 	return (
 		<Avatar
-			src={login ? getAvatarDataUrl(login) : undefined}
+			src={getAvatarUrl(userId)}
+			alt={login ?? undefined}
 			sx={{
 				width: size,
 				height: size,
@@ -24,4 +27,3 @@ export default function UserAvatar({ login, size = 50, sx, ...props }: UserAvata
 		/>
 	);
 }
-

@@ -93,7 +93,11 @@ export default function PublicProfilePage() {
 				<Grid size={{ xs: 12, md: 6 }}>
 					<Paper elevation={3} sx={[paperStyles.gradientPaper, { p: 3, height: "100%" }]}>
 						<Stack spacing={3} alignItems="center">
-							<UserAvatar login={profile.login} sx={{ ...avatarStyles.large, ...avatarStyles.gradientAvatar }} />
+							<UserAvatar
+								userId={profile.id}
+								login={profile.login}
+								sx={{ ...avatarStyles.large, ...avatarStyles.gradientAvatar }}
+							/>
 							<Box sx={{ width: "100%" }}>
 								<Stack spacing={2} alignItems="center">
 									<Box sx={layoutStyles.flexCenter}>

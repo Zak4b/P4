@@ -41,6 +41,7 @@ export default function PlayerInfo({ player, isWinner, isLoser, isDraw, alignRig
 				}}
 			>
 				<UserAvatar
+					userId={player.id}
 					login={player.login}
 					size={avatarSize}
 					sx={{

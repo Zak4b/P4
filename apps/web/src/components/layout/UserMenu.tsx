@@ -69,7 +69,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 	return (
 		<>
 			<UserAvatar
-				login={user?.login || ""}
+				userId={user?.id}
+				login={user?.login}
 				size={isMobile ? 40 : 50}
 				onClick={handleAvatarClick}
 				sx={{
@@ -92,7 +93,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 				<Box sx={{ px: 2, py: 1.5 }}>
 					<Box sx={layoutStyles.flexCenter}>
 						<UserAvatar
-							login={user?.login || ""}
+							userId={user?.id}
+							login={user?.login}
 							size={40}
 							sx={{ bgcolor: "primary.main" }}
 						/>

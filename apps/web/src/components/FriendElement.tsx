@@ -36,7 +36,7 @@ const UserInfo = ({ user, avatarSize }: { user: FriendUser; avatarSize: number }
 			minWidth: 0,
 		}}
 	>
-		<UserAvatar login={user.login} size={avatarSize} />
+		<UserAvatar userId={user.id} login={user.login} size={avatarSize} />
 		<Stack spacing={0} sx={{ minWidth: 0, flex: 1 }}>
 			<Typography variant="body2" fontWeight={600} noWrap sx={{ color: "text.primary" }}>
 				{user.login}

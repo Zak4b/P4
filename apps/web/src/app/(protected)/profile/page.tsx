@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
 	Box,
 	Typography,
@@ -17,16 +17,18 @@ import {
 	Button,
 	Container,
 } from "@mui/material";
-import { Person as PersonIcon, Email as EmailIcon, Badge as BadgeIcon } from "@mui/icons-material";
+import { Person as PersonIcon, Email as EmailIcon, Badge as BadgeIcon, Save as SaveIcon } from "@mui/icons-material";
 import { useAuth } from "@/components/AuthContext";
 import { typographyStyles, paperStyles, avatarStyles, layoutStyles } from "@/lib/styles";
 import UserAvatar from "@/components/UserAvatar";
 import UserStatsPanel from "@/components/UserStatsPanel";
-import AvatarEditor from "@/components/AvatarEditor";
+import AvatarEditor, { type AvatarEditorHandle } from "@/components/AvatarEditor";
 
 export default function ProfilePage() {
 	const { user, isAuthReady } = useAuth();
 	const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+	const [avatarSaving, setAvatarSaving] = useState(false);
+	const avatarEditorRef = useRef<AvatarEditorHandle>(null);
 	const isLoading = !isAuthReady;
 
 	if (isLoading) {
@@ -65,7 +67,7 @@ export default function ProfilePage() {
 								}}
 								aria-label="Modifier l'avatar"
 							>
-								<UserAvatar login={user.login} sx={{ ...avatarStyles.large, ...avatarStyles.gradientAvatar }} />
+								<UserAvatar userId={user.id} login={user.login} sx={{ ...avatarStyles.large, ...avatarStyles.gradientAvatar }} />
 							</Box>
 							<Box sx={{ width: "100%" }}>
 								<Stack spacing={2}>
@@ -111,11 +113,19 @@ export default function ProfilePage() {
 			>
 				<DialogTitle sx={{ flexShrink: 0 }}>Personnaliser l&apos;avatar</DialogTitle>
 				<DialogContent sx={{ overflow: "hidden", flex: 1, minHeight: 0, display: "flex", p: 0 }}>
-					<AvatarEditor seed={user.login} />
+					<AvatarEditor ref={avatarEditorRef} seed={user.login} onSavingChange={setAvatarSaving} />
 				</DialogContent>
 				<DialogActions sx={{ flexShrink: 0 }}>
-					<Button onClick={() => setAvatarModalOpen(false)} variant="contained">
-						Fermer
+					<Button onClick={() => setAvatarModalOpen(false)} variant="outlined" color="error">
+						Annuler
+					</Button>
+					<Button
+						onClick={() => avatarEditorRef.current?.save()}
+						variant="contained"
+						disabled={avatarSaving}
+						startIcon={avatarSaving ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
+					>
+						Enregistrer
 					</Button>
 				</DialogActions>
 			</Dialog>
