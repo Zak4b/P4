@@ -1,24 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-	Box,
-	Typography,
-	Paper,
-	CircularProgress,
-	Alert,
-	Stack,
-	Container,
-} from "@mui/material";
-import {
-	EmojiEvents as TrophyIcon,
-} from "@mui/icons-material";
+import { Box, Typography, Paper, CircularProgress, Alert, Stack, Container } from "@mui/material";
+import { EmojiEvents as TrophyIcon } from "@mui/icons-material";
 import { apiClient } from "@/lib/api";
-import {
-	typographyStyles,
-	paperStyles,
-	layoutStyles,
-} from "@/lib/styles";
+import { typographyStyles, paperStyles, layoutStyles } from "@/lib/styles";
 import Podium from "./components/Podium";
 import LeaderboardEntry, { type LeaderboardPlayer } from "./components/LeaderboardEntry";
 
@@ -35,7 +21,7 @@ export default function LeaderboardPage() {
 				const leaderboard = await apiClient.getLeaderboard();
 				setPlayers(leaderboard);
 			} catch (err) {
-				setError("Erreur lors du chargement du classement: " + err);
+				setError(`Erreur lors du chargement du classement: ${err}`);
 			} finally {
 				setIsLoading(false);
 			}
@@ -53,11 +39,7 @@ export default function LeaderboardPage() {
 	}
 
 	if (error) {
-		return (
-			<Alert severity="error">
-				{error}
-			</Alert>
-		);
+		return <Alert severity="error">{error}</Alert>;
 	}
 
 	const topThree = players.slice(0, 3);
@@ -65,31 +47,23 @@ export default function LeaderboardPage() {
 
 	return (
 		<Container maxWidth="lg" sx={layoutStyles.container}>
-		<Box>
-			<Typography variant="h4" fontWeight={700} sx={typographyStyles.gradientTitle}>
-				<TrophyIcon />
-				Classement
-			</Typography>
+			<Box>
+				<Typography variant="h4" fontWeight={700} sx={typographyStyles.gradientTitle}>
+					<TrophyIcon />
+					Classement
+				</Typography>
 
-			<Podium topThree={topThree} />
-			{rest.length > 0 && (
-				<Paper
-					elevation={3}
-					sx={[paperStyles.gradientPaper, { p: 3 }]}
-				>
-					<Stack spacing={2}>
-						{rest.map((player, index) => (
-							<LeaderboardEntry
-								key={player.id}
-								player={player}
-								rank={index + 4}
-							/>
-						))}
-					</Stack>
-				</Paper>
-			)}
-		</Box>
+				<Podium topThree={topThree} />
+				{rest.length > 0 && (
+					<Paper elevation={3} sx={[paperStyles.gradientPaper, { p: 3 }]}>
+						<Stack spacing={2}>
+							{rest.map((player, index) => (
+								<LeaderboardEntry key={player.id} player={player} rank={index + 4} />
+							))}
+						</Stack>
+					</Paper>
+				)}
+			</Box>
 		</Container>
 	);
 }
-

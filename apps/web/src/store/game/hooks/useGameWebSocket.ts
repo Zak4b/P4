@@ -18,7 +18,9 @@ export const useGameWebSocket = () => {
 	// Fonction pour gérer handleWin avec accès à l'UUID
 	const handleWinWithUuid = useCallback(
 		(data: ServerMessageData<"game-win">) => {
-			if (!uuid) return;
+			if (!uuid) {
+				return;
+			}
 			const isWinner = uuid === data.uuid;
 			const message = isWinner ? "🎉 Vous avez gagné !" : "😢 Vous avez perdu !";
 			handleWin(message, data.playerid);
@@ -28,12 +30,16 @@ export const useGameWebSocket = () => {
 
 	// Écouter les événements Socket.IO directement
 	useEffect(() => {
-		if (!socket || !isConnected) return;
+		if (!socket || !isConnected) {
+			return;
+		}
 
 		// Écouter l'événement sync (qui est envoyé après un join réussi)
 		const syncHandler = (data: ServerMessageData<"sync">) => {
 			handleSync(data);
-			if (data.playerId === null) return;
+			if (data.playerId === null) {
+				return;
+			}
 
 			// Mettre à jour playerId dans le contexte WebSocket
 			setPlayerId(data.playerId);

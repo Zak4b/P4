@@ -26,15 +26,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		apiClient
 			.getMe()
 			.then((me) => {
-				if (!mounted) return;
+				if (!mounted) {
+					return;
+				}
 				setUser(me);
 			})
 			.catch(() => {
-				if (!mounted) return;
+				if (!mounted) {
+					return;
+				}
 				setUser(null);
 			})
 			.finally(() => {
-				if (!mounted) return;
+				if (!mounted) {
+					return;
+				}
 				setIsAuthReady(true);
 			});
 		return () => {
@@ -70,7 +76,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
 	const ctx = useContext(AuthContext);
-	if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+	if (!ctx) {
+		throw new Error("useAuth must be used inside AuthProvider");
+	}
 
 	return {
 		...ctx,

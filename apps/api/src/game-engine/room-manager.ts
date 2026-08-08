@@ -72,7 +72,9 @@ export class RoomManager<T extends new () => Game> extends TypedEventEmitter<Roo
 	private setupRoomEvents(room: Room<T>, timeoutDelay: number) {
 		let timer: NodeJS.Timeout;
 		const timeout_callback = () => {
-			if (timer) clearTimeout(timer);
+			if (timer) {
+				clearTimeout(timer);
+			}
 			timer = setTimeout(() => {
 				if (room.timeStamp + timeoutDelay < Date.now()) {
 					room.off("empty", timeout_callback);
@@ -100,7 +102,9 @@ export class RoomManager<T extends new () => Game> extends TypedEventEmitter<Roo
 
 	private deleteRoom(roomId: string): void {
 		const room = this.get(roomId);
-		if (!room) return;
+		if (!room) {
+			return;
+		}
 		room.lock_clean();
 		this._list.delete(room.id);
 	}
@@ -169,9 +173,13 @@ export class RoomManager<T extends new () => Game> extends TypedEventEmitter<Roo
 
 	private tryMatch(): void {
 		console.log("[matchmaking] tryMatch", { queueSize: this.matchmakingQueue.length });
-		if (this.matchmakingQueue.length < 2) return;
+		if (this.matchmakingQueue.length < 2) {
+			return;
+		}
 		const [p1, p2] = this.matchmakingQueue.splice(0, 2);
-		if (!p1 || !p2) return;
+		if (!p1 || !p2) {
+			return;
+		}
 		console.log("[matchmaking] match found", {
 			p1: { uuid: p1.uuid, displayName: p1.displayName },
 			p2: { uuid: p2.uuid, displayName: p2.displayName },

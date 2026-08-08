@@ -143,12 +143,21 @@ importers:
 
   .:
     devDependencies:
+      '@eslint/js':
+        specifier: 'catalog:'
+        version: 9.39.5
       dotenv-cli:
         specifier: ^11.0.0
         version: 11.0.0
+      eslint:
+        specifier: 'catalog:'
+        version: 9.39.5(jiti@2.7.0)(supports-color@7.2.0)
       turbo:
         specifier: ^2.10.8
         version: 2.10.8
+      typescript-eslint:
+        specifier: 'catalog:'
+        version: 8.66.0(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
 
   apps/api:
     dependencies:

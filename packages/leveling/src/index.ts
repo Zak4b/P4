@@ -11,7 +11,9 @@ const XP_COEFFICIENT = 100;
 
 /** XP total cumulé pour atteindre le niveau N (exclu) */
 function getTotalXpForLevel(level: number): number {
-	if (level <= 1) return 0;
+	if (level <= 1) {
+		return 0;
+	}
 	const n = level - 1;
 	return (XP_COEFFICIENT * n * (n + 1) * (2 * n + 1)) / 6;
 }
@@ -28,17 +30,17 @@ export interface LevelInfo {
  * Formule quadratique: niveaux 1, 2, 3... nécessitent 100, 400, 900... XP supplémentaires.
  */
 export function getLevelFromXp(totalXp: number): LevelInfo {
-	if (totalXp < 0) totalXp = 0;
+	const safeTotalXp = totalXp < 0 ? 0 : totalXp;
 
 	let level = 1;
-	while (getTotalXpForLevel(level + 1) <= totalXp) {
+	while (getTotalXpForLevel(level + 1) <= safeTotalXp) {
 		level++;
 	}
 
 	const xpAtLevelStart = getTotalXpForLevel(level);
 	const xpAtNextLevel = getTotalXpForLevel(level + 1);
 	const xpRequiredForNextLevel = xpAtNextLevel - xpAtLevelStart;
-	const xpInCurrentLevel = totalXp - xpAtLevelStart;
+	const xpInCurrentLevel = safeTotalXp - xpAtLevelStart;
 	const progressPercent =
 		xpRequiredForNextLevel > 0 ? Math.min(100, (xpInCurrentLevel / xpRequiredForNextLevel) * 100) : 100;
 

@@ -2,16 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-	Box,
-	Menu,
-	MenuItem,
-	ListItemIcon,
-	ListItemText,
-	Stack,
-	Typography,
-	Button,
-} from "@mui/material";
+import { Box, Menu, MenuItem, ListItemIcon, ListItemText, Stack, Typography, Button } from "@mui/material";
 import {
 	Person as PersonIcon,
 	SportsEsports as InviteIcon,
@@ -66,9 +57,7 @@ export default function UserActionsDropdown({
 		size: "sm",
 		content: ({ close }) => (
 			<Stack spacing={3}>
-				<Typography color="text.secondary">
-					Voulez-vous retirer {targetUser.login} de votre liste d'amis ?
-				</Typography>
+				<Typography color="text.secondary">Voulez-vous retirer {targetUser.login} de votre liste d'amis ?</Typography>
 				<Stack direction="row" spacing={2} justifyContent="flex-end">
 					<Button variant="outlined" onClick={close} disabled={isRemoving}>
 						Annuler
@@ -79,7 +68,9 @@ export default function UserActionsDropdown({
 						startIcon={<PersonRemoveIcon />}
 						disabled={isRemoving || !onRemove}
 						onClick={async () => {
-							if (!onRemove) return;
+							if (!onRemove) {
+								return;
+							}
 							setIsRemoving(true);
 							try {
 								await onRemove();
@@ -120,10 +111,8 @@ export default function UserActionsDropdown({
 		setIsInviting(true);
 		try {
 			const roomName =
-				`Partie avec ${targetUser.login}`.replace(/[^a-zA-Z0-9_]/g, "_").slice(0, 20) ||
-				`room_${Date.now()}`;
-			const players =
-				currentUserId && targetUser.id ? [currentUserId, targetUser.id] : undefined;
+				`Partie avec ${targetUser.login}`.replace(/[^a-zA-Z0-9_]/g, "_").slice(0, 20) || `room_${Date.now()}`;
+			const players = currentUserId && targetUser.id ? [currentUserId, targetUser.id] : undefined;
 			const room = await apiClient.newRoom(roomName, players);
 			onCloseParent?.();
 			router.push(`/play/${room.id}`);

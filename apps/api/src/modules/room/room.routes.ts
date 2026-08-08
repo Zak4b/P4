@@ -47,7 +47,9 @@ export const roomRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		},
 		async (request, reply) => {
 			const currentUser = request.user;
-			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+			if (!currentUser) {
+				throw HttpError.unauthorized("Authentication required");
+			}
 
 			const { name, invited } = request.body;
 			const players = [...new Set([currentUser.id, ...(invited ?? [])])];

@@ -105,7 +105,9 @@ export const websocketConnection = (socket: AuthenticatedSocket): void => {
 	});
 
 	socket.on("play", async (x: number) => {
-		if (player.localId === null || player.room === null) return;
+		if (player.localId === null || player.room === null) {
+			return;
+		}
 		const { game } = player.room;
 
 		try {
@@ -115,7 +117,6 @@ export const websocketConnection = (socket: AuthenticatedSocket): void => {
 				data: { playerId: player.localId, x, y, nextPlayerId: player.room.game.cPlayer },
 			});
 			if (!game.isEnded) {
-				return;
 			}
 		} catch (error) {
 			// TODO error

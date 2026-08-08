@@ -111,11 +111,11 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 			});
 
 			newSocket.on("connect_error", (error) => {
-				setError("Error while connecting to the server: " + error.message);
+				setError(`Error while connecting to the server: ${error.message}`);
 				setIsConnected(false);
 			});
 		} catch {
-			setError("Error")
+			setError("Error");
 			setIsConnected(false);
 		}
 	};

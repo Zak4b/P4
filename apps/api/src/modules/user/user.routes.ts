@@ -5,12 +5,7 @@ import { FriendService } from "../friend/friend.service.js";
 import { HttpError } from "../../lib/HttpError.js";
 import { userSchema, userStatsSchema } from "@p4/schemas/user";
 import { relationSchema } from "@p4/schemas/friend";
-import {
-	badRequestSchema,
-	notFoundSchema,
-	unauthorizedSchema,
-	userPathIdSchema,
-} from "@p4/schemas/http";
+import { badRequestSchema, notFoundSchema, unauthorizedSchema, userPathIdSchema } from "@p4/schemas/http";
 import { TAGS } from "../../config/api-tags.js";
 
 export const userRoutes: FastifyPluginAsyncZod = async (fastify) => {
@@ -115,11 +110,15 @@ export const userRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		},
 		async (request, reply) => {
 			const currentUser = request.user;
-			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+			if (!currentUser) {
+				throw HttpError.unauthorized("Authentication required");
+			}
 
 			const { id } = request.params;
 			const target = await UserService.getById(id);
-			if (!target) throw HttpError.notFound("User not found");
+			if (!target) {
+				throw HttpError.notFound("User not found");
+			}
 
 			const status = await FriendService.getRelationStatus(currentUser.id, target.id);
 			reply.send({ status });

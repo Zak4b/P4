@@ -30,10 +30,14 @@ export class UserService {
 
 	static async getMe(id: string) {
 		const user = await UserRepository.find({ id });
-		if (!user) return null;
+		if (!user) {
+			return null;
+		}
 
 		const stats = await UserService.getStats(user.id);
-		if (!stats) return null;
+		if (!stats) {
+			return null;
+		}
 
 		return {
 			id: user.id,
@@ -53,10 +57,14 @@ export class UserService {
 
 	static async verifyCredentials(email: string, passwordPlain: string) {
 		const user = await UserService.find({ email });
-		if (!user) return null;
+		if (!user) {
+			return null;
+		}
 
 		const isValid = await comparePassword(passwordPlain, user.password);
-		if (!isValid) return null;
+		if (!isValid) {
+			return null;
+		}
 
 		return user;
 	}
@@ -64,7 +72,9 @@ export class UserService {
 	/** Trouver ou créer un utilisateur à partir du profil Google */
 	static async findOrCreateByGoogle(googleId: string, email: string, displayName: string) {
 		let user = await UserService.find({ googleId });
-		if (user) return user;
+		if (user) {
+			return user;
+		}
 
 		user = await UserService.find({ email });
 		if (user) {

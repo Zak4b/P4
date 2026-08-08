@@ -6,7 +6,9 @@ interface UnreadBadgeProps {
 }
 
 export const UnreadBadge: React.FC<UnreadBadgeProps> = ({ count }) => {
-	if (count === 0) return null;
+	if (count === 0) {
+		return null;
+	}
 
 	return (
 		<Box
@@ -42,4 +44,3 @@ export const UnreadBadge: React.FC<UnreadBadgeProps> = ({ count }) => {
 		</Box>
 	);
 };
-

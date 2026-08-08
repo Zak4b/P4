@@ -22,21 +22,23 @@ export const useChatMessages = (roomId: string, isOpen: boolean) => {
 	}, [roomId]);
 
 	useEffect(() => {
-		if (!socket || !isConnected) return;
+		if (!socket || !isConnected) {
+			return;
+		}
 
 		const messageHandler = (data: ServerMessageData<"message">) => {
 			const isOwnMessage = data.clientId === uuid;
-			
+
 			const newMessage: Message = {
 				id: `msg-${Date.now()}-${Math.random()}`,
 				type: "message",
 				content: data.message,
-				author: isOwnMessage ? "Vous" : (data.displayName || `Joueur ${data.clientId.slice(0, 8)}`),
+				author: isOwnMessage ? "Vous" : data.displayName || `Joueur ${data.clientId.slice(0, 8)}`,
 				authorId: data.clientId,
 				timestamp: new Date(),
 			};
 			dispatchMessages({ type: "add", payload: newMessage });
-			
+
 			// Incrémenter le compteur de messages non lus si le chat est fermé et que ce n'est pas notre message
 			if (!isOpen && !isOwnMessage) {
 				setUnreadCount((prev) => prev + 1);
@@ -86,9 +88,8 @@ export const useChatMessages = (roomId: string, isOpen: boolean) => {
 	return {
 		messages,
 		dispatchMessages,
-		messageAreaRef: messageAreaRef as React.RefObject<HTMLDivElement>,
+		messageAreaRef: messageAreaRef,
 		unreadCount,
 		setUnreadCount,
 	};
 };
-

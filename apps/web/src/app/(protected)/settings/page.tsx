@@ -2,20 +2,9 @@
 
 import { useState } from "react";
 import { Box, Typography, Paper, TextField, Button, Stack, Divider, Container } from "@mui/material";
-import {
-	Settings as SettingsIcon,
-	Email as EmailIcon,
-	Lock as LockIcon,
-	Save as SaveIcon,
-} from "@mui/icons-material";
+import { Settings as SettingsIcon, Email as EmailIcon, Lock as LockIcon, Save as SaveIcon } from "@mui/icons-material";
 import { useAuth } from "@/components/AuthContext";
-import {
-	layoutStyles,
-	typographyStyles,
-	paperStyles,
-	buttonStyles,
-	textFieldStyles,
-} from "@/lib/styles";
+import { layoutStyles, typographyStyles, paperStyles, buttonStyles, textFieldStyles } from "@/lib/styles";
 import PasswordInput from "@/components/PasswordInput";
 import { passwordRules } from "@/lib/passwordRules";
 
@@ -90,7 +79,7 @@ export default function SettingsPage() {
 							type="email"
 							value={email}
 							onChange={handleEmailChange}
-							error={!!emailError}
+							error={Boolean(emailError)}
 							helperText={emailError}
 							variant="outlined"
 							sx={textFieldStyles.standard}
@@ -100,7 +89,7 @@ export default function SettingsPage() {
 								variant="contained"
 								startIcon={<SaveIcon />}
 								onClick={handleSaveEmail}
-								disabled={!isEmailChanged || !!emailError || !email}
+								disabled={!isEmailChanged || Boolean(emailError) || !email}
 								sx={[buttonStyles.gradientButtonDisabled, { px: 3 }]}
 							>
 								Sauvegarder
@@ -123,7 +112,7 @@ export default function SettingsPage() {
 							label="Nouveau mot de passe"
 							value={password}
 							onChange={handlePasswordChange}
-							error={!!passwordError && !!password}
+							error={Boolean(passwordError) && Boolean(password)}
 							autoComplete="new-password"
 							fullWidth
 							validations={passwordRules}
@@ -132,7 +121,7 @@ export default function SettingsPage() {
 							label="Confirmer le mot de passe"
 							value={confirmPassword}
 							onChange={handleConfirmPasswordChange}
-							error={!!passwordError && !!confirmPassword}
+							error={Boolean(passwordError) && Boolean(confirmPassword)}
 							autoComplete="new-password"
 							fullWidth
 						/>
@@ -153,4 +142,3 @@ export default function SettingsPage() {
 		</Container>
 	);
 }
-

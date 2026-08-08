@@ -23,7 +23,9 @@ export const useGame = () => {
 
 	const joinRoom = useCallback(
 		(roomId: string) => {
-			if (!socket || !isConnected || !roomId) return;
+			if (!socket || !isConnected || !roomId) {
+				return;
+			}
 
 			if (currentRoomIdRef.current === roomId) {
 				// S'assurer que loading est à false si on est déjà dans la room et que le jeu est chargé
@@ -50,7 +52,7 @@ export const useGame = () => {
 				}
 			});
 		},
-		[socket, isConnected, gameState.loading, gameState.currentRoomId, setLoading]
+		[socket, isConnected, gameState.loading, gameState.currentRoomId, setLoading],
 	);
 
 	const playMove = useCallback(
@@ -79,7 +81,7 @@ export const useGame = () => {
 
 			socket.emit("play", x);
 		},
-		[socket, isConnected, playerId, gameState]
+		[socket, isConnected, playerId, gameState],
 	);
 
 	const restart = useCallback(() => {

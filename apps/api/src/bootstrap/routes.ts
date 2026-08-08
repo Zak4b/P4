@@ -13,7 +13,7 @@ export async function routes(fastify: FastifyInstance) {
 	await fastify.register(authRoutes, { prefix: "/auth" });
 
 	// Protected API routes
-	await fastify.register(async function (fastify) {
+	await fastify.register(async (fastify) => {
 		fastify.addHook("onRequest", auth);
 
 		await fastify.register(meRoutes, { prefix: "/me" });

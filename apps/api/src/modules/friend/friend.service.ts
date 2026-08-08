@@ -16,7 +16,9 @@ function toFriendRequest(request: RequestWithParties) {
 export class FriendService {
 	/** Statut de la relation entre currentUserId et targetUserId */
 	static async getRelationStatus(currentUserId: string, targetUserId: string): Promise<RelationStatus> {
-		if (currentUserId === targetUserId) return "none";
+		if (currentUserId === targetUserId) {
+			return "none";
+		}
 
 		const sent = await FriendRepository.findRequestByPair(currentUserId, targetUserId);
 

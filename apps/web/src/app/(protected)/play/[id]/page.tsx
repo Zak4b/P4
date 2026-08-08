@@ -18,7 +18,9 @@ export default function PlayPage() {
 	const [activePlayerIndex, setActivePlayerIndex] = useState(0);
 
 	useEffect(() => {
-		if (!roomId || !socket || !isConnected) return;
+		if (!roomId || !socket || !isConnected) {
+			return;
+		}
 
 		// Si on est déjà dans cette room et que le jeu n'est pas en chargement, ne rien faire
 		if (lastRoomIdRef.current === roomId || (gameState.currentRoomId === roomId && !gameState.loading)) {

@@ -21,7 +21,9 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 	const router = useRouter();
 
 	useEffect(() => {
-		if (open) loadRooms();
+		if (open) {
+			loadRooms();
+		}
 	}, [open]);
 
 	const loadRooms = async () => {

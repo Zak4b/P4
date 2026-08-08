@@ -22,7 +22,9 @@ export const meRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		},
 		async (request, reply) => {
 			const currentUser = request.user;
-			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+			if (!currentUser) {
+				throw HttpError.unauthorized("Authentication required");
+			}
 
 			const me = await UserService.getMe(currentUser.id);
 			if (!me) {

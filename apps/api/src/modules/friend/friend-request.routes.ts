@@ -40,7 +40,9 @@ export const friendRequestRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		},
 		async (request, reply) => {
 			const currentUser = request.user;
-			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+			if (!currentUser) {
+				throw HttpError.unauthorized("Authentication required");
+			}
 
 			const requests = await FriendService.listRequests(currentUser.id, request.query.direction);
 			reply.send(requests);
@@ -69,17 +71,25 @@ export const friendRequestRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		},
 		async (request, reply) => {
 			const currentUser = request.user;
-			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+			if (!currentUser) {
+				throw HttpError.unauthorized("Authentication required");
+			}
 
 			const { toUserId } = request.body;
 			const target = await UserService.getById(toUserId);
-			if (!target) throw HttpError.notFound("User not found");
+			if (!target) {
+				throw HttpError.notFound("User not found");
+			}
 
 			const result = await FriendService.sendRequest(currentUser.id, target.id);
 
 			if (!result.success) {
-				if (result.reason === "friends") throw HttpError.conflict("Already friends");
-				if (result.reason === "pending") throw HttpError.conflict("Friend request already pending");
+				if (result.reason === "friends") {
+					throw HttpError.conflict("Already friends");
+				}
+				if (result.reason === "pending") {
+					throw HttpError.conflict("Friend request already pending");
+				}
 				throw HttpError.badRequest("Cannot send a friend request to yourself");
 			}
 
@@ -109,7 +119,9 @@ export const friendRequestRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		},
 		async (request, reply) => {
 			const currentUser = request.user;
-			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+			if (!currentUser) {
+				throw HttpError.unauthorized("Authentication required");
+			}
 
 			const result = await FriendService.acceptRequest(currentUser.id, request.params.id);
 
@@ -145,7 +157,9 @@ export const friendRequestRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		},
 		async (request, reply) => {
 			const currentUser = request.user;
-			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+			if (!currentUser) {
+				throw HttpError.unauthorized("Authentication required");
+			}
 
 			const result = await FriendService.deleteRequest(currentUser.id, request.params.id);
 

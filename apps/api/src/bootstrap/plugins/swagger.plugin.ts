@@ -13,21 +13,33 @@ import { cookieName } from "../../modules/auth/request-auth.js";
  */
 function stripSafeIntegerBounds(node: unknown): void {
 	if (Array.isArray(node)) {
-		for (const item of node) stripSafeIntegerBounds(item);
+		for (const item of node) {
+			stripSafeIntegerBounds(item);
+		}
 		return;
 	}
-	if (typeof node !== "object" || node === null) return;
+	if (typeof node !== "object" || node === null) {
+		return;
+	}
 
 	const schema = node as Record<string, unknown>;
 	if (schema.type === "integer") {
-		if (schema.minimum === -Number.MAX_SAFE_INTEGER) delete schema.minimum;
-		if (schema.maximum === Number.MAX_SAFE_INTEGER) delete schema.maximum;
+		if (schema.minimum === -Number.MAX_SAFE_INTEGER) {
+			delete schema.minimum;
+		}
+		if (schema.maximum === Number.MAX_SAFE_INTEGER) {
+			delete schema.maximum;
+		}
 	}
-	for (const value of Object.values(schema)) stripSafeIntegerBounds(value);
+	for (const value of Object.values(schema)) {
+		stripSafeIntegerBounds(value);
+	}
 }
 
 export async function registerSwagger(fastify: FastifyInstance): Promise<void> {
-	if (!ENV.api.docs.enabled) return;
+	if (!ENV.api.docs.enabled) {
+		return;
+	}
 
 	await fastify.register(fastifySwagger, {
 		openapi: {

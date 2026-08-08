@@ -1,0 +1,117 @@
+import eslint from "@eslint/js";
+import tseslint from "typescript-eslint";
+
+export const baseConfig = tseslint.config(
+	eslint.configs.recommended,
+	...tseslint.configs.recommendedTypeChecked,
+	{
+		rules: {
+			// ===== TypeScript Rules =====
+			"@typescript-eslint/no-unused-vars": [
+				"warn",
+				{
+					argsIgnorePattern: "^_",
+					varsIgnorePattern: "^_",
+					caughtErrorsIgnorePattern: "^_",
+				},
+			],
+			"@typescript-eslint/no-explicit-any": "warn",
+			"@typescript-eslint/no-non-null-assertion": "warn",
+			"@typescript-eslint/prefer-as-const": "error",
+			"@typescript-eslint/prefer-nullish-coalescing": "warn",
+			"@typescript-eslint/prefer-optional-chain": "warn",
+			"@typescript-eslint/no-empty-function": "warn",
+			"@typescript-eslint/no-non-null-asserted-optional-chain": "error",
+			"@typescript-eslint/no-this-alias": "warn",
+			"@typescript-eslint/prefer-reduce-type-parameter": "warn",
+			"@typescript-eslint/prefer-string-starts-ends-with": "warn",
+			"@typescript-eslint/switch-exhaustiveness-check": "warn",
+
+			// ===== General JavaScript/ES6+ Rules =====
+			"no-console": ["warn", { allow: ["warn", "error"] }],
+			"no-debugger": "error",
+			"no-alert": "warn",
+			"no-var": "error",
+			"prefer-const": "error",
+			"prefer-arrow-callback": "warn",
+			"prefer-template": "warn",
+			"prefer-spread": "warn",
+			"prefer-rest-params": "warn",
+			"no-throw-literal": "error",
+			"no-unused-expressions": "warn",
+			"no-useless-return": "warn",
+			"no-useless-concat": "warn",
+			"no-useless-escape": "warn",
+			"no-else-return": ["warn", { allowElseIf: false }],
+			"no-lonely-if": "warn",
+			"no-nested-ternary": "error",
+			"no-unneeded-ternary": "error",
+			"no-param-reassign": ["warn", { props: false }],
+			eqeqeq: ["error", "always", { null: "ignore" }],
+			curly: ["error", "all"],
+			"dot-notation": "warn",
+			"no-array-constructor": "error",
+			"no-new-object": "error",
+			"no-iterator": "error",
+			"no-proto": "error",
+			"no-restricted-syntax": [
+				"warn",
+				{
+					selector: 'CallExpression[callee.name="setTimeout"][arguments.length!=2]',
+					message: "setTimeout must always be invoked with two arguments.",
+				},
+				{
+					selector: 'CallExpression[callee.name="setInterval"][arguments.length!=2]',
+					message: "setInterval must always be invoked with two arguments.",
+				},
+			],
+
+			// ===== Code Quality Rules =====
+			complexity: ["warn", { max: 15 }],
+			"max-depth": ["warn", { max: 4 }],
+			"max-lines": ["warn", { max: 500, skipBlankLines: true, skipComments: true }],
+			"max-lines-per-function": ["warn", { max: 130, skipBlankLines: true, skipComments: true }],
+			"max-params": ["warn", { max: 5 }],
+			"max-nested-callbacks": ["warn", { max: 3 }],
+
+			// ===== Security Rules =====
+			"no-eval": "error",
+			"no-implied-eval": "error",
+			"no-new-func": "error",
+			"no-script-url": "error",
+
+			// ===== Best Practices =====
+			"array-callback-return": "error",
+			"consistent-return": "warn",
+			"default-case": "warn",
+			"default-case-last": "warn",
+			"no-caller": "error",
+			"no-constructor-return": "error",
+			"no-extend-native": "error",
+			"no-extra-bind": "warn",
+			"no-floating-decimal": "error",
+			"no-implicit-coercion": "warn",
+			"no-invalid-this": "off", // TypeScript handles this better
+			"no-labels": "error",
+			"no-lone-blocks": "warn",
+			"no-loop-func": "error",
+			"no-multi-assign": "warn",
+			"no-new": "warn",
+			"no-new-wrappers": "error",
+			"no-octal-escape": "error",
+			"no-return-assign": "error",
+			"no-self-compare": "error",
+			"no-sequences": "error",
+			"no-unmodified-loop-condition": "warn",
+			"no-unused-labels": "warn",
+			"no-useless-call": "warn",
+			"no-useless-computed-key": "warn",
+			"no-useless-rename": "warn",
+			"no-void": "error",
+			"prefer-promise-reject-errors": "error",
+			radix: "error",
+			"require-await": "warn",
+			yoda: "error",
+		},
+	},
+);

@@ -120,22 +120,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
 	},
 
 	handlePlayerJoined: (data: GamePlayer) => {
-		if (data.localId === null) return;
+		if (data.localId === null) {
+			return;
+		}
 		const localId = data.localId;
 
 		set((state) => {
 			const existing = state.players.find((p) => p.localId === localId);
 			if (existing) {
 				return {
-					players: state.players.map((p) =>
-						p.localId === localId ? { ...p, id: data.id, login: data.login } : p
-					),
+					players: state.players.map((p) => (p.localId === localId ? { ...p, id: data.id, login: data.login } : p)),
 				};
 			}
 			return {
-				players: [...state.players, { localId, id: data.id, login: data.login }].sort(
-					(a, b) => a.localId - b.localId
-				),
+				players: [...state.players, { localId, id: data.id, login: data.login }].sort((a, b) => a.localId - b.localId),
 			};
 		});
 	},

@@ -112,7 +112,8 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 			const found_player = this.players.registered.get(player.uuid);
 			if (found_player !== undefined) {
 				return found_player;
-			} else if (this.players.registered.size >= this.playerLimit) {
+			}
+			if (this.players.registered.size >= this.playerLimit) {
 				throw new Error("No more players can be added to this room");
 			}
 			const used: number[] = Array.from(this.players.registered.values());
@@ -170,7 +171,9 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 	}
 
 	public end() {
-		if (this.isEnded) return;
+		if (this.isEnded) {
+			return;
+		}
 		this.isEnded = true;
 		this.game.stop();
 		const local_winner = this.game.winner;

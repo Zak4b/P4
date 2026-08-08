@@ -63,7 +63,11 @@ export default function Modal({
 	return createPortal(
 		<Dialog
 			open={open}
-			onClose={() => { if (closable) onClose(); }}
+			onClose={() => {
+				if (closable) {
+					onClose();
+				}
+			}}
 			disableEscapeKeyDown={!closable}
 			maxWidth={maxWidth}
 			fullWidth
@@ -87,13 +91,10 @@ export default function Modal({
 				)}
 			</DialogTitle>
 			<Divider />
-			<DialogContent
-				dividers={scrollable}
-				sx={scrollable ? { maxHeight: "70vh", overflow: "auto" } : {}}
-			>
+			<DialogContent dividers={scrollable} sx={scrollable ? { maxHeight: "70vh", overflow: "auto" } : {}}>
 				{content}
 			</DialogContent>
-			{(onConfirm) ? (
+			{onConfirm ? (
 				<>
 					<Divider />
 					<DialogActions>
@@ -107,6 +108,6 @@ export default function Modal({
 				</>
 			) : null}
 		</Dialog>,
-		document.body
+		document.body,
 	);
 }

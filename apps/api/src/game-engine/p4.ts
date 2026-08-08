@@ -1,10 +1,10 @@
 import { Game } from "./game.js";
 import { Timer } from "./timer.js";
 
-type Move = { x: number; y: number; };
+type Move = { x: number; y: number };
 
 type P4EventMap = {
-	end: { winner: number, duration: number };
+	end: { winner: number; duration: number };
 	play: Move & { nextPlayerId: number };
 	reset: undefined;
 };
@@ -20,10 +20,10 @@ export class P4 extends Game<P4EventMap> {
 	private winnerIndex: number | undefined = undefined;
 	private _playCount: number = 0;
 
-	override readonly pidValues:number[] = [1, 2];
+	override readonly pidValues: number[] = [1, 2];
 
 	get board() {
-		return this._board.map(col => [...col]);
+		return this._board.map((col) => [...col]);
 	}
 
 	/** Colonne du plateau, bornée : les index hors plateau sont une erreur de programmation. */
@@ -69,7 +69,7 @@ export class P4 extends Game<P4EventMap> {
 		this.timer.start();
 	}
 
-	public	stop(): void {
+	public stop(): void {
 		this.running = false;
 		this.timer.stop();
 	}
@@ -99,8 +99,8 @@ export class P4 extends Game<P4EventMap> {
 		this.timer = new Timer();
 		this.reset();
 	}
-	
-	public reset():void {
+
+	public reset(): void {
 		//this.running = false;
 		this.ended = false;
 		this._board = Array.from({ length: 7 }, () => Array.from({ length: 6 }, () => 0));
@@ -138,7 +138,8 @@ export class P4 extends Game<P4EventMap> {
 		this._playCount++;
 		if (this.check(move.x, move.y)) {
 			return this.endWithWinner(this.currentPlayer);
-		}else if (this.checkDraw()) {
+		}
+		if (this.checkDraw()) {
 			return this.end();
 		}
 		this.updateCurrentPlayer();
@@ -148,7 +149,7 @@ export class P4 extends Game<P4EventMap> {
 		this.currentPlayer = this.currentPlayer == 2 ? 1 : 2;
 	}
 
-	private getCombinations(x: number, y: number): { c: string; r: string; d1: string; d2: string; } {
+	private getCombinations(x: number, y: number): { c: string; r: string; d1: string; d2: string } {
 		let d1 = "";
 		let d2 = "";
 		const c = this.column(x).map(String).join("");
@@ -191,9 +192,8 @@ export class P4 extends Game<P4EventMap> {
 		this.winnerIndex = playerId;
 		return true;
 	}
-	
+
 	private checkDraw(): boolean {
 		return this._board.every((col) => col[5] !== 0);
 	}
-	
 }

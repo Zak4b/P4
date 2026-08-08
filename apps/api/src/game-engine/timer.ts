@@ -23,7 +23,9 @@ export class Timer extends EventEmitter {
 	}
 
 	public start() {
-		if (this.intervalId) return;
+		if (this.intervalId) {
+			return;
+		}
 		this.intervalId = setInterval(() => {
 			this._elapsed++;
 			if (this.limit !== 0 && this._elapsed >= this.limit) {

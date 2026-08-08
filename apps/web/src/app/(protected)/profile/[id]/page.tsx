@@ -2,16 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import {
-	Box,
-	Typography,
-	Paper,
-	CircularProgress,
-	Alert,
-	Grid,
-	Stack,
-	Container,
-} from "@mui/material";
+import { Box, Typography, Paper, CircularProgress, Alert, Grid, Stack, Container } from "@mui/material";
 import { Person as PersonIcon } from "@mui/icons-material";
 import { apiClient } from "@/lib/api";
 import type { UserProfile } from "@p4/schemas/user";
@@ -54,7 +45,9 @@ export default function PublicProfilePage() {
 	}, [id]);
 
 	useEffect(() => {
-		if (!profile || !currentUser || profile.id === currentUser.id) return;
+		if (!profile || !currentUser || profile.id === currentUser.id) {
+			return;
+		}
 
 		const loadFriendStatus = async () => {
 			setFriendStatusLoading(true);
@@ -100,10 +93,7 @@ export default function PublicProfilePage() {
 				<Grid size={{ xs: 12, md: 6 }}>
 					<Paper elevation={3} sx={[paperStyles.gradientPaper, { p: 3, height: "100%" }]}>
 						<Stack spacing={3} alignItems="center">
-							<UserAvatar
-								login={profile.login}
-								sx={{ ...avatarStyles.large, ...avatarStyles.gradientAvatar }}
-							/>
+							<UserAvatar login={profile.login} sx={{ ...avatarStyles.large, ...avatarStyles.gradientAvatar }} />
 							<Box sx={{ width: "100%" }}>
 								<Stack spacing={2} alignItems="center">
 									<Box sx={layoutStyles.flexCenter}>

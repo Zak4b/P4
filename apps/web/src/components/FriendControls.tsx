@@ -61,9 +61,7 @@ export default function FriendControls({
 		size: "sm",
 		content: ({ close }) => (
 			<Stack spacing={3}>
-				<Typography color="text.secondary">
-					Voulez-vous retirer {targetLogin} de votre liste d'amis ?
-				</Typography>
+				<Typography color="text.secondary">Voulez-vous retirer {targetLogin} de votre liste d'amis ?</Typography>
 				<Stack direction="row" spacing={2} justifyContent="flex-end">
 					<Button variant="outlined" onClick={close} disabled={isRemoving}>
 						Annuler
@@ -103,7 +101,9 @@ export default function FriendControls({
 	};
 
 	const handleFriendsClick = () => {
-		if (status === "friends") removeModal.open();
+		if (status === "friends") {
+			removeModal.open();
+		}
 	};
 
 	if (isLoading) {
@@ -128,23 +128,23 @@ export default function FriendControls({
 				startIcon={<IconComponent />}
 				onClick={isAddClickable ? handleAddFriend : isFriendsClickable ? handleFriendsClick : undefined}
 				sx={[
-				buttonStyles.primaryOutlined,
-				{
-					borderColor: config.borderColor,
-					color: config.color,
-					"&:hover": {
-						borderColor: config.borderColor,
-						background: isClickable ? config.hoverBg : "transparent",
-					},
-					"&.Mui-disabled": {
+					buttonStyles.primaryOutlined,
+					{
 						borderColor: config.borderColor,
 						color: config.color,
-						opacity: 1,
-						cursor: "default",
+						"&:hover": {
+							borderColor: config.borderColor,
+							background: isClickable ? config.hoverBg : "transparent",
+						},
+						"&.Mui-disabled": {
+							borderColor: config.borderColor,
+							color: config.color,
+							opacity: 1,
+							cursor: "default",
+						},
 					},
-				},
-			]}
-		>
+				]}
+			>
 				{config.label}
 			</Button>
 			{removeModal.modal}

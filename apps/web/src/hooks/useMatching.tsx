@@ -32,7 +32,7 @@ export function useMatching() {
 			}, []);
 
 			const handleCancel = () => {
-				if (socket) socket.emit("matchmaking-leave");
+				socket?.emit("matchmaking-leave");
 				close();
 			};
 			return (
@@ -70,14 +70,18 @@ export function useMatching() {
 	});
 
 	const startMatchmaking = () => {
-		if (!socket || !isConnected) return;
+		if (!socket || !isConnected) {
+			return;
+		}
 		socket.emit("matchmaking-join");
 		matchmakingModal.open();
 	};
 
 	useEffect(() => {
 		return () => {
-			if (matchmakingModal.isOpen && socket) socket.emit("matchmaking-leave");
+			if (matchmakingModal.isOpen && socket) {
+				socket.emit("matchmaking-leave");
+			}
 		};
 	}, [matchmakingModal.isOpen, socket]);
 

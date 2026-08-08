@@ -6,9 +6,7 @@ export const getPlayerColor = (playerId: number): TokenColor => {
 };
 
 export const createEmptyBoard = (): Board => {
-	return Array(BOARD_COLS)
-		.fill(null)
-		.map(() => Array(BOARD_ROWS).fill("empty" as TokenColor));
+	return Array.from({ length: BOARD_COLS }, () => Array<TokenColor>(BOARD_ROWS).fill("empty"));
 };
 
 /** Lecture bornée du plateau : hors plateau, la case est considérée vide. */
@@ -23,4 +21,3 @@ export const setCell = (board: Board, x: number, y: number, color: TokenColor): 
 		column[y] = color;
 	}
 };
-

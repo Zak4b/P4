@@ -27,10 +27,14 @@ export default function FriendRequestsDrawer({
 	const [loadingRequestId, setLoadingRequestId] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (requests.length > 0) setExpanded(true);
+		if (requests.length > 0) {
+			setExpanded(true);
+		}
 	}, [requests.length]);
 
-	if (requests.length === 0) return null;
+	if (requests.length === 0) {
+		return null;
+	}
 
 	const handleAccept = async (request: FriendRequest) => {
 		setLoadingRequestId(request.id);

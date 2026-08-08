@@ -40,7 +40,7 @@ function getOptionsFromSeed(seed: string): AvatarOptions {
 	try {
 		const avatar = createAvatar(micahStyle, { seed, size: 1 });
 		const { extra } = avatar.toJson() as { extra?: Record<string, string | undefined> };
-		if (!extra) return buildInitialOptions();
+		if (!extra) {return buildInitialOptions();}
 
 		const toHex = (v: string | undefined) =>
 			v && v !== "transparent" ? v.replace(/^#/, "") : undefined;
@@ -48,20 +48,20 @@ function getOptionsFromSeed(seed: string): AvatarOptions {
 		const componentKeys = ["base", "mouth", "eyebrows", "hair", "eyes", "nose", "ears", "shirt", "earrings", "glasses", "facialHair"];
 		for (const key of componentKeys) {
 			const val = extra[key];
-			if (val) opts[key] = [val];
-			else if (OPTIONAL_COMPONENTS.includes(key)) opts[key] = [NONE];
+			if (val) {opts[key] = [val];}
+			else if (OPTIONAL_COMPONENTS.includes(key)) {opts[key] = [NONE];}
 		}
 
 		const colorKeys = ["baseColor", "earringColor", "eyeShadowColor", "eyebrowsColor", "facialHairColor", "glassesColor", "hairColor", "mouthColor", "shirtColor", "eyesColor"];
 		for (const key of colorKeys) {
 			const hex = toHex(extra[key]);
-			if (hex) opts[key] = [hex];
+			if (hex) {opts[key] = [hex];}
 		}
 
 		const bgPrimary = toHex(extra.primaryBackgroundColor);
 		const bgSecondary = toHex(extra.secondaryBackgroundColor);
-		if (bgPrimary) opts.backgroundColor = bgSecondary ? [bgPrimary, bgSecondary] : [bgPrimary];
-		if (extra.backgroundType) opts.backgroundType = [extra.backgroundType];
+		if (bgPrimary) {opts.backgroundColor = bgSecondary ? [bgPrimary, bgSecondary] : [bgPrimary];}
+		if (extra.backgroundType) {opts.backgroundType = [extra.backgroundType];}
 	} catch {
 		return buildInitialOptions();
 	}
@@ -71,8 +71,8 @@ function getOptionsFromSeed(seed: string): AvatarOptions {
 function buildInitialOptions(): AvatarOptions {
 	const opts: AvatarOptions = { size: PREVIEW_SIZE };
 	for (const [key, prop] of Object.entries(avatarSchemaProperties)) {
-		if (PROBABILITY_KEYS.includes(key) || key === "seed") continue;
-		const def = getDefaultValue(prop as AvatarSchemaProperty);
+		if (PROBABILITY_KEYS.includes(key) || key === "seed") {continue;}
+		const def = getDefaultValue(prop);
 		if (def !== undefined) {
 			opts[key] = Array.isArray(def) ? (def as string[]) : (def as string | number | boolean);
 		}
@@ -107,8 +107,8 @@ export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
 	}, []);
 
 	const renderControl = (key: string) => {
-		const prop = avatarSchemaProperties[key] as AvatarSchemaProperty | undefined;
-		if (!prop) return null;
+		const prop = avatarSchemaProperties[key];
+		if (!prop) {return null;}
 
 		const label = propertyLabels[key] ?? key;
 		const enumOpts = getEnumOptions(prop);
@@ -194,7 +194,7 @@ export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
 			<Box sx={{ flex: 1, minWidth: 0, maxWidth: "100%", minHeight: 0, overflowY: "auto", overflowX: "hidden", px: 2 }}>
 				{EDITOR_GROUPS.map(({ title, keys }) => {
 					const visibleKeys = keys.filter((k) => avatarSchemaProperties[k]);
-					if (visibleKeys.length === 0) return null;
+					if (visibleKeys.length === 0) {return null;}
 					return (
 						<Box key={title} sx={{ mb: 3, minWidth: 0 }}>
 							<Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>

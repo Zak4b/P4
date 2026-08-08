@@ -45,7 +45,9 @@ export const propertyLabels: Record<string, string> = {
 export function getColorOptions(prop: AvatarSchemaProperty): string[] {
 	if (prop?.type === "array" && "default" in prop) {
 		const def = prop.default;
-		if (Array.isArray(def)) return def as string[];
+		if (Array.isArray(def)) {
+			return def as string[];
+		}
 	}
 	return ["000000", "ffffff", "77311d", "ac6651", "f9c9b6", "9287ff", "6bd9e9"];
 }
@@ -58,8 +60,12 @@ export function getEnumOptions(prop: AvatarSchemaProperty): string[] | null {
 }
 
 export function getDefaultValue(prop: AvatarSchemaProperty): unknown {
-	if ("default" in prop && prop.default !== undefined) return prop.default;
-	if (prop?.type === "boolean") return false;
+	if ("default" in prop && prop.default !== undefined) {
+		return prop.default;
+	}
+	if (prop?.type === "boolean") {
+		return false;
+	}
 	if (prop?.type === "integer") {
 		const p = prop as { minimum?: number; maximum?: number };
 		return p.minimum ?? 0;

@@ -1,20 +1,19 @@
-import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
+import tseslint from "typescript-eslint";
+import { baseConfig } from "../../eslint.config.base.mjs";
 
 export default tseslint.config(
-	eslint.configs.recommended,
-	...tseslint.configs.recommendedTypeChecked,
+	...baseConfig,
 	{
 		languageOptions: {
 			parserOptions: {
 				ecmaVersion: 2022,
-				sourceType: 'module',
+				sourceType: "module",
 				project: true,
 				tsconfigRootDir: import.meta.dirname,
 			},
 		},
 	},
 	{
-		ignores: ['node_modules/**', 'dist/**', '*.js', '*.mjs'],
+		ignores: ["node_modules/**", "dist/**", "*.js", "*.mjs"],
 	}
 );

@@ -23,10 +23,12 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 
 	const handleSendMessage = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!message.trim() || !socket || !isConnected || !uuid) return;
+		if (!message.trim() || !socket || !isConnected || !uuid) {
+			return;
+		}
 
 		const messageText = message.trim();
-		
+
 		socket.emit("message", messageText, (response: MessageAck) => {
 			if (response.success === false) {
 				dispatchMessages({
@@ -80,9 +82,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 						color: isOpen ? "inherit" : "white",
 						cursor: !isOpen ? "pointer" : "default",
 						transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-						boxShadow: isOpen
-							? "0 8px 24px rgba(0,0,0,0.15)"
-							: "0 4px 12px rgba(0,0,0,0.15)",
+						boxShadow: isOpen ? "0 8px 24px rgba(0,0,0,0.15)" : "0 4px 12px rgba(0,0,0,0.15)",
 					}}
 				>
 					{!isOpen && <ChatButton onClick={toggleChat} />}
@@ -91,11 +91,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 						<>
 							<ChatHeader messages={messages} onClose={() => setIsOpen(false)} />
 							<ChatContent messages={messages} currentUserId={uuid} messageAreaRef={messageAreaRef} />
-							<ChatInput
-								message={message}
-								onMessageChange={setMessage}
-								onSubmit={handleSendMessage}
-							/>
+							<ChatInput message={message} onMessageChange={setMessage} onSubmit={handleSendMessage} />
 						</>
 					)}
 				</Paper>
@@ -106,4 +102,3 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 };
 
 export default LiveChat;
-

@@ -29,7 +29,9 @@ export const friendRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		},
 		async (request, reply) => {
 			const currentUser = request.user;
-			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+			if (!currentUser) {
+				throw HttpError.unauthorized("Authentication required");
+			}
 
 			const friends = await FriendService.list(currentUser.id);
 			reply.send(friends);
@@ -55,7 +57,9 @@ export const friendRoutes: FastifyPluginAsyncZod = async (fastify) => {
 		},
 		async (request, reply) => {
 			const currentUser = request.user;
-			if (!currentUser) throw HttpError.unauthorized("Authentication required");
+			if (!currentUser) {
+				throw HttpError.unauthorized("Authentication required");
+			}
 
 			const { userId } = request.params;
 			if (userId === currentUser.id) {
@@ -63,10 +67,14 @@ export const friendRoutes: FastifyPluginAsyncZod = async (fastify) => {
 			}
 
 			const target = await UserService.getById(userId);
-			if (!target) throw HttpError.notFound("User not found");
+			if (!target) {
+				throw HttpError.notFound("User not found");
+			}
 
 			const result = await FriendService.removeFriend(currentUser.id, target.id);
-			if (!result.success) throw HttpError.notFound("Friendship not found");
+			if (!result.success) {
+				throw HttpError.notFound("Friendship not found");
+			}
 
 			reply.status(204).send();
 		},
