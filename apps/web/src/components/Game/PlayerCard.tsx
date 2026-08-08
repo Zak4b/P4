@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Box, Avatar, Typography, Chip } from "@mui/material";
+import { Box, Typography, Chip } from "@mui/material";
 import { Person as PersonIcon } from "@mui/icons-material";
 import type { Player } from "@/store/game";
-import { getAvatarDataUrl } from "@/lib/avatar";
+import UserAvatar from "@/components/UserAvatar";
 
 interface PlayerCardProps {
 	player: Player;
@@ -37,8 +37,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 				minWidth: 0,
 			}}
 		>
-			<Avatar
-				src={player.login ? getAvatarDataUrl(player.login) : undefined}
+			<UserAvatar
+				userId={player.id}
+				login={player.login}
 				sx={{
 					width: { xs: 36, lg: 48 },
 					height: { xs: 36, lg: 48 },
@@ -49,7 +50,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 				}}
 			>
 				<PersonIcon sx={{ fontSize: { xs: 20, lg: 28 } }} />
-			</Avatar>
+			</UserAvatar>
 			<Box sx={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
 				<Typography
 					variant="subtitle1"

@@ -5,6 +5,7 @@ export const TAGS = {
 	users: "Users",
 	leaderboard: "Leaderboard",
 	friends: "Friends",
+	avatars: "Avatars",
 	friendRequests: "Friend requests",
 	matches: "Matches",
 	rooms: "Rooms",

@@ -24,6 +24,8 @@
 	"dependencies": {
 		"@p4/schemas": "workspace:*",
 		"@p4/leveling": "workspace:*",
+		"@dicebear/core": "catalog:",
+		"@dicebear/micah": "catalog:",
 		"@fastify/cookie": "catalog:",
 		"@fastify/cors": "catalog:",
 		"@fastify/oauth2": "catalog:",

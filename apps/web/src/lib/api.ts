@@ -3,7 +3,7 @@ import type { GameHistory } from "@p4/schemas/match";
 import type { Room } from "@p4/schemas/room";
 import type { Me, User, UserProfile, UserStats } from "@p4/schemas/user";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 const API_BASE = `${BACKEND_URL}/api`;
 
 class ApiClient {

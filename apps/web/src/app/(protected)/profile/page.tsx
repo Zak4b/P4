@@ -65,7 +65,7 @@ export default function ProfilePage() {
 								}}
 								aria-label="Modifier l'avatar"
 							>
-								<UserAvatar login={user.login} sx={{ ...avatarStyles.large, ...avatarStyles.gradientAvatar }} />
+								<UserAvatar userId={user.id} login={user.login} sx={{ ...avatarStyles.large, ...avatarStyles.gradientAvatar }} />
 							</Box>
 							<Box sx={{ width: "100%" }}>
 								<Stack spacing={2}>

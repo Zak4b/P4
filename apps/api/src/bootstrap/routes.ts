@@ -8,6 +8,7 @@ import { matchRoutes } from "../modules/match/match.routes.js";
 import { roomRoutes } from "../modules/room/room.routes.js";
 import { friendRoutes } from "../modules/friend/friend.routes.js";
 import { friendRequestRoutes } from "../modules/friend/friend-request.routes.js";
+import { avatarSvgRoutes } from "../modules/avatar/avatar-svg.routes.js";
 
 export async function routes(fastify: FastifyInstance) {
 	await fastify.register(authRoutes, { prefix: "/auth" });
@@ -16,6 +17,7 @@ export async function routes(fastify: FastifyInstance) {
 	await fastify.register(async (fastify) => {
 		fastify.addHook("onRequest", auth);
 
+		await fastify.register(avatarSvgRoutes, { prefix: "/avatars" });
 		await fastify.register(meRoutes, { prefix: "/me" });
 		await fastify.register(userRoutes, { prefix: "/users" });
 		await fastify.register(leaderboardRoutes, { prefix: "/leaderboard" });

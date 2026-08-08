@@ -73,7 +73,7 @@ const PodiumPlace = (position: 1 | 2 | 3, player: LeaderboardPlayer | undefined,
 								#{position}
 							</Typography>
 						</Box>
-						<UserAvatar login={player?.login ?? "Unknown"} sx={{ width: config.avatarSize, height: config.avatarSize, mx: "auto", mb: 2 }} />
+						<UserAvatar userId={player?.id} login={player?.login} sx={{ width: config.avatarSize, height: config.avatarSize, mx: "auto", mb: 2 }} />
 						<Typography variant={config.nameVariant} fontWeight={600} sx={{ mb: 1 }}>
 							{player?.login ?? "Unknown"}
 						</Typography>
