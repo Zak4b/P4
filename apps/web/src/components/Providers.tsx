@@ -4,6 +4,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { AuthProvider } from "./AuthContext";
 import { WebSocketProvider } from "./WebSocketProvider";
+import { QueryProvider } from "./QueryProvider";
 import { useGameWebSocket } from "@/store/game";
 import { theme } from "@/theme";
 
@@ -16,13 +17,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
 	return (
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
-			<AuthProvider>
-				<WebSocketProvider>
-					<GameWebSocketListener>
-						{children}
-					</GameWebSocketListener>
-				</WebSocketProvider>
-			</AuthProvider>
+			<QueryProvider>
+				<AuthProvider>
+					<WebSocketProvider>
+						<GameWebSocketListener>
+							{children}
+						</GameWebSocketListener>
+					</WebSocketProvider>
+				</AuthProvider>
+			</QueryProvider>
 		</ThemeProvider>
 	);
 }

@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { Drawer, Box, Typography, List, ListItem, Button, CircularProgress, Divider } from "@mui/material";
 import { Refresh as RefreshIcon } from "@mui/icons-material";
-import { apiClient } from "@/lib/api";
-import type { Room } from "@p4/schemas/room";
+import { useRoomsQuery } from "@/lib/api/room/useRoomQuery";
 import RoomBadge from "./RoomBadge";
 import RoomForm from "./RoomForm";
 import { colors } from "@/lib/styles";
@@ -16,26 +15,13 @@ interface RoomListProps {
 }
 
 const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
-	const [rooms, setRooms] = useState<Room[]>([]);
-	const [isLoading, setIsLoading] = useState(false);
 	const router = useRouter();
+	const roomsQuery = useRoomsQuery({ enabled: open });
+	const rooms = roomsQuery.data ?? [];
+	const isLoading = roomsQuery.isFetching;
 
-	useEffect(() => {
-		if (open) {
-			loadRooms();
-		}
-	}, [open]);
-
-	const loadRooms = async () => {
-		setIsLoading(true);
-		try {
-			const rooms = await apiClient.getRooms();
-			setRooms(rooms);
-		} catch (error) {
-			console.error("Failed to load rooms:", error);
-		} finally {
-			setIsLoading(false);
-		}
+	const loadRooms = () => {
+		roomsQuery.refetch().catch(() => {});
 	};
 
 	const handleJoinRoom = (roomId: string) => {

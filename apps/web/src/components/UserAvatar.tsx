@@ -1,5 +1,5 @@
 import { Avatar, type AvatarProps } from "@mui/material";
-import { getAvatarUrl } from "@/lib/avatar";
+import { AvatarApi } from "@/lib/api/avatar/avatar.api";
 
 interface UserAvatarProps extends Omit<AvatarProps, "src"> {
 	userId: string | null | undefined;
@@ -16,7 +16,7 @@ interface UserAvatarProps extends Omit<AvatarProps, "src"> {
 export default function UserAvatar({ userId, login, size = 50, sx, ...props }: UserAvatarProps) {
 	return (
 		<Avatar
-			src={getAvatarUrl(userId)}
+			src={AvatarApi.url(userId)}
 			alt={login ?? undefined}
 			sx={{
 				width: size,

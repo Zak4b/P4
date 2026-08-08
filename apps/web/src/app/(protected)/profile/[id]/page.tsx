@@ -1,72 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Box, Typography, Paper, CircularProgress, Alert, Grid, Stack, Container } from "@mui/material";
 import { Person as PersonIcon } from "@mui/icons-material";
-import { apiClient } from "@/lib/api";
-import type { UserProfile } from "@p4/schemas/user";
+import { useUserQuery, useUserStatsQuery } from "@/lib/api/user/useUserQuery";
+import { useFriendStatusQuery } from "@/lib/api/friend/useFriendQuery";
+import { useRemoveFriendMutation, useSendFriendRequestMutation } from "@/lib/api/friend/useFriendMutation";
 import { typographyStyles, paperStyles, avatarStyles, layoutStyles } from "@/lib/styles";
 import UserAvatar from "@/components/UserAvatar";
 import UserStatsPanel from "@/components/UserStatsPanel";
-import FriendControls, { type FriendStatus } from "@/components/FriendControls";
+import FriendControls from "@/components/FriendControls";
 import { useAuth } from "@/components/AuthContext";
 
 export default function PublicProfilePage() {
 	const params = useParams();
 	const { user: currentUser } = useAuth();
 	const id = (params?.id as string) ?? "";
-	const [profile, setProfile] = useState<UserProfile | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState("");
-	const [friendStatus, setFriendStatus] = useState<FriendStatus>("none");
-	const [friendStatusLoading, setFriendStatusLoading] = useState(false);
+	const isOwnProfile = Boolean(currentUser?.id === id);
 
-	useEffect(() => {
-		if (!id) {
-			setIsLoading(false);
-			setError("Joueur introuvable");
-			return;
-		}
+	const userQuery = useUserQuery(id);
+	const statsQuery = useUserStatsQuery(id);
+	const friendStatusQuery = useFriendStatusQuery(isOwnProfile ? undefined : id);
+	const sendFriendRequestMutation = useSendFriendRequestMutation();
+	const removeFriendMutation = useRemoveFriendMutation();
 
-		const loadData = async () => {
-			setIsLoading(true);
-			setError("");
-			try {
-				setProfile(await apiClient.getProfile(id));
-			} catch {
-				setError("Joueur introuvable");
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		loadData();
-	}, [id]);
-
-	useEffect(() => {
-		if (!profile || !currentUser || profile.id === currentUser.id) {
-			return;
-		}
-
-		const loadFriendStatus = async () => {
-			setFriendStatusLoading(true);
-			try {
-				const { status } = await apiClient.getFriendStatus(profile.id);
-				setFriendStatus(status);
-			} catch {
-				setFriendStatus("none");
-			} finally {
-				setFriendStatusLoading(false);
-			}
-		};
-
-		loadFriendStatus();
-	}, [profile, currentUser]);
-
-	const isOwnProfile = currentUser && profile && profile.id === currentUser.id;
-
-	if (isLoading) {
+	if (userQuery.isLoading || statsQuery.isLoading) {
 		return (
 			<Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
 				<CircularProgress />
@@ -74,13 +32,16 @@ export default function PublicProfilePage() {
 		);
 	}
 
-	if (error || !profile) {
+	if (!userQuery.data || !statsQuery.data) {
 		return (
 			<Container maxWidth="lg" sx={layoutStyles.container}>
-				<Alert severity="error">{error || "Joueur introuvable"}</Alert>
+				<Alert severity="error">Joueur introuvable</Alert>
 			</Container>
 		);
 	}
+
+	const profile = { ...userQuery.data, stats: statsQuery.data };
+	const friendStatus = friendStatusQuery.data?.status ?? "none";
 
 	return (
 		<Container maxWidth="lg" sx={layoutStyles.container}>
@@ -110,14 +71,13 @@ export default function PublicProfilePage() {
 										<FriendControls
 											targetLogin={profile.login}
 											status={friendStatus}
-											isLoading={friendStatusLoading}
+											isLoading={friendStatusQuery.isFetching}
 											onAddFriend={async () => {
-												await apiClient.sendFriendRequest(profile.id);
+												await sendFriendRequestMutation.mutateAsync(profile.id);
 											}}
 											onRemoveFriend={async () => {
-												await apiClient.removeFriend(profile.id);
+												await removeFriendMutation.mutateAsync(profile.id);
 											}}
-											onStatusChange={setFriendStatus}
 										/>
 									)}
 								</Stack>

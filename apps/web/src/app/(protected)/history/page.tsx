@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
 	Box,
 	Typography,
@@ -14,14 +13,8 @@ import {
 	useMediaQuery,
 } from "@mui/material";
 import { Refresh as RefreshIcon, History as HistoryIcon } from "@mui/icons-material";
-import { apiClient } from "@/lib/api";
-import type { GameHistory } from "@p4/schemas/match";
-import {
-	layoutStyles,
-	typographyStyles,
-	paperStyles,
-	buttonStyles,
-} from "@/lib/styles";
+import { useMatchQuery } from "@/lib/api/match/useMatchQuery";
+import { layoutStyles, typographyStyles, paperStyles, buttonStyles } from "@/lib/styles";
 import HistoryRow from "@/components/History/HistoryRow";
 import HistoryRowCompact from "@/components/History/HistoryRowCompact";
 
@@ -29,27 +22,10 @@ export default function HistoryPage() {
 	const theme = useTheme();
 	const compact = useMediaQuery(theme.breakpoints.down("sm"));
 	const Row = compact ? HistoryRowCompact : HistoryRow;
-	const [history, setHistory] = useState<GameHistory[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState("");
+	const matchQuery = useMatchQuery();
+	const history = matchQuery.data ?? [];
 
-	const loadHistory = () => {
-		setIsLoading(true);
-		setError("");
-		apiClient
-			.getHistory()
-			.then(setHistory)
-			.catch(() => setError("Failed to load history"))
-			.finally(() => setIsLoading(false));
-	};
-
-	useEffect(() => {
-		const t = setTimeout(() => loadHistory(), 0);
-		return () => clearTimeout(t);
-	}, []);
-
-
-	if (isLoading) {
+	if (matchQuery.isLoading) {
 		return (
 			<Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
 				<CircularProgress />
@@ -57,17 +33,23 @@ export default function HistoryPage() {
 		);
 	}
 
-	if (error) {
+	if (matchQuery.isError) {
 		return (
 			<Alert
 				severity="error"
 				action={
-					<Button color="inherit" size="small" onClick={loadHistory}>
+					<Button
+						color="inherit"
+						size="small"
+						onClick={() => {
+							matchQuery.refetch().catch(() => {});
+						}}
+					>
 						Retry
 					</Button>
 				}
 			>
-				{error}
+				Failed to load history
 			</Alert>
 		);
 	}
@@ -82,8 +64,10 @@ export default function HistoryPage() {
 				<Button
 					variant="outlined"
 					startIcon={<RefreshIcon />}
-					onClick={loadHistory}
-					disabled={isLoading}
+					onClick={() => {
+						matchQuery.refetch().catch(() => {});
+					}}
+					disabled={matchQuery.isFetching}
 					sx={buttonStyles.primaryOutlined}
 				>
 					Refresh

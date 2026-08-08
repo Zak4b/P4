@@ -1,6 +1,4 @@
-import type { GameHistory } from "@p4/schemas/match";
-
-export type HistoryRowProps = GameHistory;
+export type { Match } from "@p4/schemas/match";
 
 export const formatDate = (dateStr: string | number) =>
 	new Date(dateStr).toLocaleDateString("fr-FR", {

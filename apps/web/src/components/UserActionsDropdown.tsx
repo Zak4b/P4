@@ -8,7 +8,7 @@ import {
 	SportsEsports as InviteIcon,
 	PersonRemove as PersonRemoveIcon,
 } from "@mui/icons-material";
-import { apiClient } from "@/lib/api";
+import { useCreateRoomMutation } from "@/lib/api/room/useRoomMutation";
 import { useModalPortal } from "@/lib/hooks/useModalPortal";
 
 export interface TargetUser {
@@ -48,6 +48,7 @@ export default function UserActionsDropdown({
 	transformOrigin = { horizontal: "left", vertical: "top" },
 }: UserActionsDropdownProps) {
 	const router = useRouter();
+	const createRoomMutation = useCreateRoomMutation();
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [isInviting, setIsInviting] = useState(false);
 	const [isRemoving, setIsRemoving] = useState(false);
@@ -113,7 +114,7 @@ export default function UserActionsDropdown({
 			const roomName =
 				`Partie avec ${targetUser.login}`.replace(/[^a-zA-Z0-9_]/g, "_").slice(0, 20) || `room_${Date.now()}`;
 			const players = currentUserId && targetUser.id ? [currentUserId, targetUser.id] : undefined;
-			const room = await apiClient.newRoom(roomName, players);
+			const room = await createRoomMutation.mutateAsync({ name: roomName, invited: players });
 			onCloseParent?.();
 			router.push(`/play/${room.id}`);
 		} catch {

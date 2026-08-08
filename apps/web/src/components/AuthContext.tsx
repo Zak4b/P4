@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode, useEffect } from "react";
-import { apiClient } from "@/lib/api";
+import { createContext, useContext, type ReactNode } from "react";
+import { useMeQuery } from "@/lib/api/auth/useAuthQuery";
+import { useLoginMutation, useLogoutMutation, useRegisterMutation } from "@/lib/api/auth/useAuthMutation";
 import type { Me } from "@p4/schemas/user";
 
 interface AuthContextType {
@@ -17,58 +18,29 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-	const [isAuthReady, setIsAuthReady] = useState(false);
-	const [user, setUser] = useState<Me | null>(null);
+	const meQuery = useMeQuery();
+	const loginMutation = useLoginMutation();
+	const registerMutation = useRegisterMutation();
+	const logoutMutation = useLogoutMutation();
 
-	useEffect(() => {
-		let mounted = true;
-		// `/me` fait office de contrôle de session : 401 si le cookie est absent ou expiré.
-		apiClient
-			.getMe()
-			.then((me) => {
-				if (!mounted) {
-					return;
-				}
-				setUser(me);
-			})
-			.catch(() => {
-				if (!mounted) {
-					return;
-				}
-				setUser(null);
-			})
-			.finally(() => {
-				if (!mounted) {
-					return;
-				}
-				setIsAuthReady(true);
-			});
-		return () => {
-			mounted = false;
-		};
-	}, []);
+	const isAuthReady = meQuery.isFetched;
+	const user = meQuery.data ?? null;
 
-	// Un statut d'erreur fait déjà rejeter apiClient : arriver ici signifie que c'est un succès.
 	const login = async (email: string, password: string) => {
-		await apiClient.login(email, password);
-		setUser(await apiClient.getMe());
+		await loginMutation.mutateAsync({ email, password });
 	};
 
 	const register = async (loginValue: string, email: string, password: string) => {
-		await apiClient.register(loginValue, email, password);
-		setUser(await apiClient.getMe());
+		await registerMutation.mutateAsync({ login: loginValue, email, password });
 	};
 
 	const logout = async () => {
-		apiClient
-			.logout()
-			.then(() => {
-				setUser(null);
-				window.location.reload();
-			})
-			.catch((error) => {
-				console.error("Logout failed:", error);
-			});
+		try {
+			await logoutMutation.mutateAsync();
+			window.location.reload();
+		} catch (error) {
+			console.error("Logout failed:", error);
+		}
 	};
 
 	return <AuthContext.Provider value={{ isAuthReady, user, login, register, logout }}>{children}</AuthContext.Provider>;

@@ -19,7 +19,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { cardStyles, typographyStyles, buttonStyles, spacing } from "@/lib/styles";
 import PasswordInput from "./PasswordInput";
-import { apiClient } from "@/lib/api";
+import { AuthApi } from "@/lib/api/auth/auth.api";
 
 interface LoginFormProps {
 	onLogin?: () => void;
@@ -117,7 +117,7 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 							variant="outlined"
 							fullWidth
 							disabled={isLoading}
-							onClick={() => (window.location.href = apiClient.getGoogleLoginUrl())}
+							onClick={() => (window.location.href = AuthApi.oauthUrl())}
 							sx={[spacing.mb2, { py: 1.5, borderColor: "#4285f4", color: "#4285f4" }]}
 							startIcon={
 								<svg width="18" height="18" viewBox="0 0 18 18">

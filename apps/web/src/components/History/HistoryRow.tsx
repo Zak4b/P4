@@ -1,7 +1,7 @@
 import { Box, Typography, Paper } from "@mui/material";
 import { paperStyles } from "@/lib/styles";
 import PlayerInfo from "./HistoryPlayerInfo";
-import { type HistoryRowProps, formatDate } from "./historyRowShared";
+import { type Match, formatDate } from "./historyRowShared";
 
 export default function HistoryRow({
 	player1,
@@ -9,7 +9,7 @@ export default function HistoryRow({
 	winner,
 	time,
 	duration,
-}: HistoryRowProps) {
+}: Match) {
 	const player1Won = winner === "PLAYER1";
 	const player2Won = winner === "PLAYER2";
 	const isDraw = winner === "DRAW";

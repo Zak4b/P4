@@ -1,36 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Box, Typography, Paper, CircularProgress, Alert, Stack, Container } from "@mui/material";
 import { EmojiEvents as TrophyIcon } from "@mui/icons-material";
-import { apiClient } from "@/lib/api";
+import { useLeaderboardQuery } from "@/lib/api/user/useUserQuery";
 import { typographyStyles, paperStyles, layoutStyles } from "@/lib/styles";
 import Podium from "./components/Podium";
-import LeaderboardEntry, { type LeaderboardPlayer } from "./components/LeaderboardEntry";
+import LeaderboardEntry from "./components/LeaderboardEntry";
 
 export default function LeaderboardPage() {
-	const [players, setPlayers] = useState<LeaderboardPlayer[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState("");
+	const leaderboardQuery = useLeaderboardQuery();
+	const players = leaderboardQuery.data ?? [];
 
-	useEffect(() => {
-		const loadLeaderboard = async () => {
-			setIsLoading(true);
-			setError("");
-			try {
-				const leaderboard = await apiClient.getLeaderboard();
-				setPlayers(leaderboard);
-			} catch (err) {
-				setError(`Erreur lors du chargement du classement: ${err}`);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		loadLeaderboard();
-	}, []);
-
-	if (isLoading) {
+	if (leaderboardQuery.isLoading) {
 		return (
 			<Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
 				<CircularProgress />
@@ -38,8 +19,8 @@ export default function LeaderboardPage() {
 		);
 	}
 
-	if (error) {
-		return <Alert severity="error">{error}</Alert>;
+	if (leaderboardQuery.isError) {
+		return <Alert severity="error">Erreur lors du chargement du classement: {leaderboardQuery.error.message}</Alert>;
 	}
 
 	const topThree = players.slice(0, 3);

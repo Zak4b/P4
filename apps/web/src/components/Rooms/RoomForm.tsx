@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { TextField, Button, Stack, Alert, CircularProgress } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
-import { apiClient } from "@/lib/api";
+import { useCreateRoomMutation } from "@/lib/api/room/useRoomMutation";
 import { useRouter } from "next/navigation";
 import { colors } from "@/lib/styles";
 
@@ -14,9 +14,10 @@ interface RoomFormProps {
 
 const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 	const [name, setName] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
 	const router = useRouter();
+	const createRoomMutation = useCreateRoomMutation();
+	const isLoading = createRoomMutation.isPending;
 
 	const handleCreateRoom = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -25,7 +26,6 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 			return;
 		}
 
-		setIsLoading(true);
 		setError("");
 
 		try {
@@ -42,7 +42,7 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 				return;
 			}
 
-			const room = await apiClient.newRoom(roomId);
+			const room = await createRoomMutation.mutateAsync({ name: roomId });
 
 			setName("");
 			// Naviguer vers la salle créée
@@ -53,8 +53,6 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 			onSubmit(room.id);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Erreur lors de la création de la salle");
-		} finally {
-			setIsLoading(false);
 		}
 	};
 

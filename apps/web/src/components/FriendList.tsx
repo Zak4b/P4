@@ -1,18 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthContext";
 import { Box, Grid, Typography, CircularProgress, Alert, Stack } from "@mui/material";
 import FriendElement from "./FriendElement";
 import FriendRequestsDrawer from "./FriendRequests/FriendRequestsDrawer";
-import { apiClient } from "@/lib/api";
-import type { FriendRequest } from "@p4/schemas/friend";
-
-interface Friend {
-	id: string;
-	login: string;
-	eloRating: number;
-}
+import { useFriendRequestsQuery, useFriendsQuery } from "@/lib/api/friend/useFriendQuery";
+import {
+	useAcceptFriendRequestMutation,
+	useDeleteFriendRequestMutation,
+	useRemoveFriendMutation,
+} from "@/lib/api/friend/useFriendMutation";
 
 interface FriendListProps {
 	onCloseModal?: () => void;
@@ -20,28 +17,16 @@ interface FriendListProps {
 
 export default function FriendList({ onCloseModal }: FriendListProps) {
 	const { user } = useAuth();
-	const [friends, setFriends] = useState<Friend[]>([]);
-	const [requests, setRequests] = useState<FriendRequest[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState("");
+	const friendsQuery = useFriendsQuery();
+	const requestsQuery = useFriendRequestsQuery();
+	const acceptMutation = useAcceptFriendRequestMutation();
+	const deleteMutation = useDeleteFriendRequestMutation();
+	const removeMutation = useRemoveFriendMutation();
 
-	const loadData = async () => {
-		setIsLoading(true);
-		setError("");
-		try {
-			const [friendsData, requestsData] = await Promise.all([apiClient.getFriends(), apiClient.getFriendRequests()]);
-			setFriends(friendsData);
-			setRequests(requestsData);
-		} catch {
-			setError("Impossible de charger la liste");
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		loadData();
-	}, []);
+	const isLoading = friendsQuery.isLoading || requestsQuery.isLoading;
+	const isError = friendsQuery.isError || requestsQuery.isError;
+	const friends = friendsQuery.data ?? [];
+	const requests = requestsQuery.data ?? [];
 
 	if (isLoading) {
 		return (
@@ -51,10 +36,10 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 		);
 	}
 
-	if (error) {
+	if (isError) {
 		return (
 			<Alert severity="error" sx={{ mt: 1 }}>
-				{error}
+				Impossible de charger la liste
 			</Alert>
 		);
 	}
@@ -65,13 +50,10 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 				requests={requests}
 				onCloseModal={onCloseModal}
 				onAccept={async (req) => {
-					await apiClient.acceptFriendRequest(req.id);
-					setFriends((prev) => [...prev, req.fromUser]);
-					setRequests((prev) => prev.filter((r) => r.id !== req.id));
+					await acceptMutation.mutateAsync(req.id);
 				}}
 				onReject={async (req) => {
-					await apiClient.deleteFriendRequest(req.id);
-					setRequests((prev) => prev.filter((r) => r.id !== req.id));
+					await deleteMutation.mutateAsync(req.id);
 				}}
 			/>
 
@@ -91,9 +73,8 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 								hoverable
 								onCloseParent={onCloseModal}
 								onRemove={async () => {
-									await apiClient.removeFriend(friend.id);
+									await removeMutation.mutateAsync(friend.id);
 								}}
-								onRemoveSuccess={() => setFriends((prev) => prev.filter((f) => f.id !== friend.id))}
 							/>
 						</Grid>
 					))}
