@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Box, Typography, Popover, Stack, TextField, InputAdornment } from "@mui/material";
 import { Colorize as ColorizeIcon } from "@mui/icons-material";
-import { isHex } from "./utils";
-import { TRANSPARENT_SWATCH } from "./constants";
+import { isHex } from "./avatarState";
+import { TRANSPARENT_SWATCH } from "./ui";
 
 interface ColorControlProps {
 	label: string;

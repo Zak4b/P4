@@ -1,12 +1,31 @@
 import { createAvatar } from "@dicebear/core";
 import { micahStyle } from "@/lib/avatar";
-import { avatarSchemaProperties, getDefaultValue, type AvatarSchemaProperty } from "./avatarOptions";
-import { COLOR_KEYS, COMPONENT_KEYS, NONE, OPTIONAL_COMPONENTS, PREVIEW_SIZE, PROBABILITY_KEYS } from "./constants";
+import { avatarSchemaProperties, getDefaultValue, type AvatarSchemaProperty } from "./fieldOptions";
+import { COLOR_KEYS, COMPONENT_KEYS, OPTIONAL_COMPONENTS, PROBABILITY_KEYS } from "./fields";
+import { NONE, PREVIEW_SIZE } from "./ui";
 
 export type AvatarOptions = Record<string, string | number | boolean | string[] | number[]>;
 
 export function isHex(value: string): boolean {
 	return /^[a-fA-F0-9]{6}$/.test(value);
+}
+
+// Complète les options choisies par l'utilisateur avec les *Probability requis par dicebear pour
+// qu'un composant optionnel (hair, glasses...) soit effectivement rendu ou omis : "Aucun(e)"
+// sélectionné → probabilité 0, sinon 100. `overrides` permet de simuler un choix différent (ex.
+// pour générer la miniature d'un autre choix) sans toucher aux options réellement sélectionnées.
+export function resolveAvatarOptions(
+	options: AvatarOptions,
+	overrides: Record<string, unknown> = {},
+): Record<string, unknown> {
+	const opts: Record<string, unknown> = { ...options, ...overrides };
+	const first = (arr: unknown) => (Array.isArray(arr) ? arr[0] : undefined);
+
+	for (const key of OPTIONAL_COMPONENTS) {
+		const probKey = `${key}Probability`;
+		opts[probKey] = first(opts[key]) === NONE ? 0 : 100;
+	}
+	return opts;
 }
 
 export function getOptionsFromSeed(seed: string): AvatarOptions {

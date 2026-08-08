@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, Typography } from "@mui/material";
-import { NONE, SWATCH_SIZE } from "./constants";
+import { NONE, SWATCH_SIZE } from "./ui";
 
 interface EnumControlProps {
 	label: string;

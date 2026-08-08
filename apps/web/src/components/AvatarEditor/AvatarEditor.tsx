@@ -2,20 +2,13 @@
 
 import { useMemo, useState, useCallback, useImperativeHandle, forwardRef } from "react";
 import { Box, Stack, Tabs, Tab, Alert } from "@mui/material";
-import { createAvatar } from "@dicebear/core";
-import { micahStyle } from "@/lib/avatar";
-import {
-	avatarSchemaProperties,
-	propertyLabels,
-	getEnumOptions,
-	getColorOptions,
-	isColorField,
-	type AvatarSchemaProperty,
-} from "./avatarOptions";
-import { apiClient, ApiError } from "@/lib/api";
-import type { AvatarOptions as AvatarSaveOptions } from "@p4/schemas/avatar";
-import { EDITOR_GROUPS, EDITOR_HEIGHT, NONE, OPTIONAL_COMPONENTS, PREVIEW_SIZE, SWATCH_SIZE } from "./constants";
-import { buildInitialOptions, getOptionsFromSeed, type AvatarOptions } from "./utils";
+import { VISIBLE_GROUPS } from "./fieldGroups";
+import { EDITOR_HEIGHT, PREVIEW_SIZE } from "./ui";
+import { buildInitialOptions, getOptionsFromSeed, resolveAvatarOptions, type AvatarOptions } from "./avatarState";
+import { renderAvatarSvg } from "./renderAvatar";
+import { buildEnumPreviews } from "./avatarPreview";
+import { getControlDescriptor } from "./controlProps";
+import { saveAvatarOptions, formatSaveErrors } from "./avatarSave";
 import { EnumControl } from "./EnumControl";
 import { ColorControl } from "./ColorControl";
 
@@ -29,17 +22,6 @@ export interface AvatarEditorHandle {
 	save: () => void;
 }
 
-// EDITOR_GROUPS et avatarSchemaProperties sont tous deux figés au chargement du module :
-// pas besoin de recalculer ça par instance, encore moins de le mémoïser dans le composant.
-const VISIBLE_GROUPS = EDITOR_GROUPS.map((group) => ({
-	...group,
-	keys: group.keys.filter((k) => avatarSchemaProperties[k]),
-})).filter((group) => group.keys.length > 0);
-
-// Un composant optionnel (hair, glasses...) propose "Aucun(e)" en plus de ses variantes.
-const getChoices = (key: string, enumOpts: string[]): string[] =>
-	OPTIONAL_COMPONENTS.includes(key) ? [NONE, ...enumOpts] : enumOpts;
-
 const AvatarEditor = forwardRef<AvatarEditorHandle, AvatarEditorProps>(function AvatarEditor(
 	{ seed = "", onSavingChange },
 	ref,
@@ -49,26 +31,16 @@ const AvatarEditor = forwardRef<AvatarEditorHandle, AvatarEditorProps>(function 
 	);
 
 	const resolveOptions = useCallback(
-		(overrides: Record<string, unknown> = {}): Record<string, unknown> => {
-			const opts: Record<string, unknown> = { ...options, ...overrides };
-			const first = (arr: unknown) => (Array.isArray(arr) ? arr[0] : undefined);
-
-			for (const key of OPTIONAL_COMPONENTS) {
-				const probKey = `${key}Probability`;
-				opts[probKey] = first(opts[key]) === NONE ? 0 : 100;
-			}
-			return opts;
-		},
+		(overrides: Record<string, unknown> = {}) => resolveAvatarOptions(options, overrides),
 		[options],
 	);
 
-	const renderAvatarSvg = useCallback(
-		(overrides: Record<string, unknown>) =>
-			createAvatar(micahStyle, resolveOptions(overrides) as Record<string, string | number>).toString(),
+	const renderSvg = useCallback(
+		(overrides: Record<string, unknown>) => renderAvatarSvg(resolveOptions(overrides)),
 		[resolveOptions],
 	);
 
-	const previewSvg = useMemo(() => renderAvatarSvg({ size: PREVIEW_SIZE }), [renderAvatarSvg]);
+	const previewSvg = useMemo(() => renderSvg({ size: PREVIEW_SIZE }), [renderSvg]);
 
 	const updateOption = useCallback((key: string, value: string | number | boolean | string[] | number[]) => {
 		setOptions((prev) => ({ ...prev, [key]: value }));
@@ -82,16 +54,10 @@ const AvatarEditor = forwardRef<AvatarEditorHandle, AvatarEditorProps>(function 
 		setSaveErrors(null);
 		setSaveSuccess(false);
 		try {
-			// "size" est un paramètre de rendu de la preview, pas une caractéristique de l'avatar :
-			const { size: _size, ...persisted } = resolveOptions();
-			await apiClient.saveAvatar(persisted as AvatarSaveOptions);
+			await saveAvatarOptions(resolveOptions());
 			setSaveSuccess(true);
 		} catch (err) {
-			if (err instanceof ApiError && err.issues?.length) {
-				setSaveErrors(err.issues.map((issue) => `${issue.path || "options"} : ${issue.message}`));
-			} else {
-				setSaveErrors([err instanceof Error ? err.message : "Erreur inconnue lors de l'enregistrement"]);
-			}
+			setSaveErrors(formatSaveErrors(err));
 		} finally {
 			onSavingChange?.(false);
 		}
@@ -105,65 +71,37 @@ const AvatarEditor = forwardRef<AvatarEditorHandle, AvatarEditorProps>(function 
 	// Une miniature par choix, pour les contrôles à énumération du groupe affiché : on ne calcule
 	// que ce qui est visible (pas les autres onglets) et on recalcule quand les options changent,
 	// puisque les miniatures reflètent le reste de l'avatar actuel (couleurs, autres composants...).
-	const enumPreviews = useMemo(() => {
-		const previewsByKey: Record<string, Record<string, string>> = {};
-		for (const key of currentGroup?.keys ?? []) {
-			const prop = avatarSchemaProperties[key] as AvatarSchemaProperty | undefined;
-			const enumOpts = getEnumOptions(prop);
-			if (!enumOpts) continue;
-
-			const previews: Record<string, string> = {};
-			for (const choice of getChoices(key, enumOpts)) {
-				previews[choice] = renderAvatarSvg({ [key]: [choice], size: SWATCH_SIZE });
-			}
-			previewsByKey[key] = previews;
-		}
-		return previewsByKey;
-	}, [currentGroup, renderAvatarSvg]);
+	const enumPreviews = useMemo(
+		() => buildEnumPreviews(currentGroup?.keys ?? [], renderSvg),
+		[currentGroup, renderSvg],
+	);
 
 	const renderControl = (key: string) => {
-		const prop = avatarSchemaProperties[key] as AvatarSchemaProperty | undefined;
-		if (!prop) return null;
+		const descriptor = getControlDescriptor(key, options);
+		if (!descriptor) return null;
 
-		const label = propertyLabels[key] ?? key;
-		const enumOpts = getEnumOptions(prop);
-
-		if (enumOpts) {
-			const choices = getChoices(key, enumOpts);
-			const current =
-				(options[key] as string) ??
-				(Array.isArray((prop as { default?: unknown[] }).default)
-					? (prop as { default: string[] }).default[0]
-					: choices[0]);
-			const value = Array.isArray(current) ? current[0] : current;
+		if (descriptor.type === "enum") {
 			return (
 				<EnumControl
 					key={key}
-					label={label}
-					choices={choices}
-					value={value ?? choices[0]}
+					label={descriptor.label}
+					choices={descriptor.choices}
+					value={descriptor.value}
 					previews={enumPreviews[key]}
 					onChange={(v) => updateOption(key, [v])}
 				/>
 			);
 		}
 
-		if (isColorField(prop)) {
-			const colors = getColorOptions(prop);
-			const current = (options[key] as string[]) ?? colors;
-			const value = Array.isArray(current) ? current[0] : current;
-			return (
-				<ColorControl
-					key={key}
-					label={label}
-					colors={colors}
-					value={value ?? colors[0] ?? "000000"}
-					onChange={(hex) => updateOption(key, [hex])}
-				/>
-			);
-		}
-
-		return null;
+		return (
+			<ColorControl
+				key={key}
+				label={descriptor.label}
+				colors={descriptor.colors}
+				value={descriptor.value}
+				onChange={(hex) => updateOption(key, [hex])}
+			/>
+		);
 	};
 
 	return (
