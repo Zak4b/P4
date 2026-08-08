@@ -2,9 +2,24 @@ import type { FriendRequest, Relation } from "@p4/schemas/friend";
 import type { GameHistory } from "@p4/schemas/match";
 import type { Room } from "@p4/schemas/room";
 import type { Me, User, UserProfile, UserStats } from "@p4/schemas/user";
+import type { AvatarOptions, AvatarSaveResponse } from "@p4/schemas/avatar";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 const API_BASE = `${BACKEND_URL}/api`;
+
+/** Détail des erreurs de validation Zod renvoyées par le error handler global de l'API. */
+export type ApiValidationIssue = { path: string; message: string };
+
+/** Erreur API enrichie du détail de validation (quand présent), pour un affichage lisible côté UI. */
+export class ApiError extends Error {
+	readonly issues?: ApiValidationIssue[];
+
+	constructor(message: string, issues?: ApiValidationIssue[]) {
+		super(message);
+		this.name = "ApiError";
+		this.issues = issues;
+	}
+}
 
 class ApiClient {
 	private async send(endpoint: string, options: RequestInit = {}): Promise<Response> {
@@ -22,8 +37,11 @@ class ApiClient {
 
 		if (!response.ok) {
 			// Corps absent ou non JSON (ex. 5xx sans body) : on se rabat sur le statut
-			const body = (await response.json().catch(() => null)) as { error?: string } | null;
-			throw new Error(body?.error || `HTTP error! status: ${response.status}`);
+			const body = (await response.json().catch(() => null)) as {
+				error?: string;
+				issues?: ApiValidationIssue[];
+			} | null;
+			throw new ApiError(body?.error || `HTTP error! status: ${response.status}`, body?.issues);
 		}
 
 		return response;
@@ -156,6 +174,14 @@ class ApiClient {
 
 	async getLeaderboard(): Promise<User[]> {
 		return this.request<User[]>("/leaderboard");
+	}
+
+	/** Enregistre la configuration d'avatar DiceBear du joueur authentifié (options validées côté API). */
+	async saveAvatar(options: AvatarOptions): Promise<AvatarSaveResponse> {
+		return this.request<AvatarSaveResponse>("/me/avatar", {
+			method: "POST",
+			body: JSON.stringify({ options }),
+		});
 	}
 }
 
