@@ -105,4 +105,13 @@ export class UserService {
 	static async update(id: string, data: Prisma.UserUpdateInput) {
 		return await UserRepository.updateRecord(id, data);
 	}
+
+	/** Config d'avatar d'un joueur, ou `null` si l'utilisateur n'existe pas / n'en a pas encore choisi une. */
+	static async getAvatarConfig(id: string) {
+		return await UserRepository.findAvatarConfig(id);
+	}
+
+	static async saveAvatarConfig(id: string, style: string, options: Prisma.InputJsonValue) {
+		return await UserRepository.updateAvatarConfig(id, style, options);
+	}
 }

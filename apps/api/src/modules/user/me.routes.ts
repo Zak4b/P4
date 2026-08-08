@@ -4,8 +4,11 @@ import { HttpError } from "../../lib/HttpError.js";
 import { meSchema } from "@p4/schemas/user";
 import { unauthorizedSchema } from "@p4/schemas/http";
 import { TAGS } from "../../config/api-tags.js";
+import { avatarRoutes } from "../avatar/avatar.routes.js";
 
 export const meRoutes: FastifyPluginAsyncZod = async (fastify) => {
+	await fastify.register(avatarRoutes, { prefix: "/avatar" });
+
 	fastify.get(
 		"/",
 		{

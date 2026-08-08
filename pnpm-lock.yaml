@@ -161,6 +161,12 @@ importers:
 
   apps/api:
     dependencies:
+      '@dicebear/core':
+        specifier: 'catalog:'
+        version: 9.4.3
+      '@dicebear/micah':
+        specifier: 'catalog:'
+        version: 9.4.2(@dicebear/core@9.4.3)
       '@fastify/cookie':
         specifier: 'catalog:'
         version: 11.1.2
@@ -340,6 +346,12 @@ importers:
 
   packages/schemas:
     dependencies:
+      '@dicebear/core':
+        specifier: 'catalog:'
+        version: 9.4.3
+      '@dicebear/micah':
+        specifier: 'catalog:'
+        version: 9.4.2(@dicebear/core@9.4.3)
       zod:
         specifier: 'catalog:'
         version: 4.4.3

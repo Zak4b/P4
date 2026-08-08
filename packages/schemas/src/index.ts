@@ -1,4 +1,5 @@
 export * from "./auth.js";
+export * from "./avatar.js";
 export * from "./friend.js";
 export * from "./http.js";
 export * from "./match.js";

@@ -13,6 +13,10 @@
 			"types": "./dist/auth.d.ts",
 			"default": "./dist/auth.js"
 		},
+		"./avatar": {
+			"types": "./dist/avatar.d.ts",
+			"default": "./dist/avatar.js"
+		},
 		"./friend": {
 			"types": "./dist/friend.d.ts",
 			"default": "./dist/friend.js"
@@ -50,6 +54,8 @@
 	},
 	"packageManager": "pnpm@11.20.0",
 	"dependencies": {
+		"@dicebear/core": "catalog:",
+		"@dicebear/micah": "catalog:",
 		"zod": "catalog:"
 	},
 	"devDependencies": {

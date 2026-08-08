@@ -12,6 +12,21 @@ export class UserRepository {
 		return await prisma.user.findUnique({ where: { id }, select: USER_SELECT });
 	}
 
+	static async findAvatarConfig(id: string) {
+		return await prisma.user.findUnique({
+			where: { id },
+			select: { avatarStyle: true, avatarOptions: true },
+		});
+	}
+
+	static async updateAvatarConfig(id: string, avatarStyle: string, avatarOptions: Prisma.InputJsonValue) {
+		return await prisma.user.update({
+			where: { id },
+			data: { avatarStyle, avatarOptions },
+			select: { id: true },
+		});
+	}
+
 	static async findEloByIds(player1Id: string, player2Id: string) {
 		return await prisma.user.findMany({
 			where: { id: { in: [player1Id, player2Id] } },
