@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import { useMeQuery } from "@/lib/api/auth/useAuthQuery";
+import { useMeQuery } from "@/lib/api/user/useUserQuery";
 import { useLoginMutation, useLogoutMutation, useRegisterMutation } from "@/lib/api/auth/useAuthMutation";
 import type { Me } from "@p4/schemas/user";
 

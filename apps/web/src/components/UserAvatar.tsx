@@ -7,6 +7,10 @@ interface UserAvatarProps extends Omit<AvatarProps, "src"> {
 	size?: number;
 }
 
+function getInitial(login: string | null | undefined): string {
+	return login?.trim().charAt(0).toUpperCase() ?? "?";
+}
+
 /**
  * Composant Avatar réutilisable pour afficher l'avatar d'un utilisateur
  * @param userId - L'id de l'utilisateur
@@ -17,13 +21,16 @@ export default function UserAvatar({ userId, login, size = 50, sx, ...props }: U
 	return (
 		<Avatar
 			src={AvatarApi.url(userId)}
-			alt={login ?? undefined}
+			alt={login ? `Avatar de ${login}` : "Avatar"}
 			sx={{
 				width: size,
 				height: size,
+				fontSize: size * 0.4,
 				...sx,
 			}}
 			{...props}
-		/>
+		>
+			{getInitial(login)}
+		</Avatar>
 	);
 }
