@@ -1,6 +1,6 @@
 import { createAvatar } from "@dicebear/core";
 import { micahStyle } from "@/lib/avatar";
-import { avatarSchemaProperties, getDefaultValue, type AvatarSchemaProperty } from "@/lib/avatarOptions";
+import { avatarSchemaProperties, getDefaultValue, type AvatarSchemaProperty } from "./avatarOptions";
 import { COLOR_KEYS, COMPONENT_KEYS, NONE, OPTIONAL_COMPONENTS, PREVIEW_SIZE, PROBABILITY_KEYS } from "./constants";
 
 export type AvatarOptions = Record<string, string | number | boolean | string[] | number[]>;

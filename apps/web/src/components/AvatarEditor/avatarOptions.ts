@@ -42,21 +42,27 @@ export const propertyLabels: Record<string, string> = {
 	shirtColor: "Couleur du haut",
 };
 
+// La plupart des champs couleur du schéma dicebear ont leur propre palette par défaut
+// (ex. hairColor, shirtColor...) ; backgroundColor fait exception, d'où le repli ci-dessous.
 export function getColorOptions(prop: AvatarSchemaProperty): string[] {
 	if (prop?.type === "array" && "default" in prop) {
 		const def = prop.default;
-		if (Array.isArray(def)) {
+		if (Array.isArray(def) && def.length > 0) {
 			return def as string[];
 		}
 	}
 	return ["000000", "ffffff", "77311d", "ac6651", "f9c9b6", "9287ff", "6bd9e9"];
 }
 
-export function getEnumOptions(prop: AvatarSchemaProperty): string[] | null {
+export function getEnumOptions(prop: AvatarSchemaProperty | undefined): string[] | null {
 	if (prop?.type === "array" && prop.items && "enum" in prop.items) {
 		return prop.items.enum ?? null;
 	}
 	return null;
+}
+
+export function isColorField(prop: AvatarSchemaProperty | undefined): boolean {
+	return prop?.type === "array" && !!prop.items && "pattern" in prop.items && !!prop.items.pattern;
 }
 
 export function getDefaultValue(prop: AvatarSchemaProperty): unknown {

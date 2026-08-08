@@ -9,11 +9,12 @@ import {
 	propertyLabels,
 	getEnumOptions,
 	getColorOptions,
+	isColorField,
 	type AvatarSchemaProperty,
-} from "@/lib/avatarOptions";
+} from "./avatarOptions";
 import { apiClient, ApiError } from "@/lib/api";
 import type { AvatarOptions as AvatarSaveOptions } from "@p4/schemas/avatar";
-import { EDITOR_GROUPS, EDITOR_HEIGHT, NONE, OPTIONAL_COMPONENTS, PREVIEW_SIZE } from "./constants";
+import { EDITOR_GROUPS, EDITOR_HEIGHT, NONE, OPTIONAL_COMPONENTS, PREVIEW_SIZE, SWATCH_SIZE } from "./constants";
 import { buildInitialOptions, getOptionsFromSeed, type AvatarOptions } from "./utils";
 import { EnumControl } from "./EnumControl";
 import { ColorControl } from "./ColorControl";
@@ -34,6 +35,10 @@ const VISIBLE_GROUPS = EDITOR_GROUPS.map((group) => ({
 	...group,
 	keys: group.keys.filter((k) => avatarSchemaProperties[k]),
 })).filter((group) => group.keys.length > 0);
+
+// Un composant optionnel (hair, glasses...) propose "Aucun(e)" en plus de ses variantes.
+const getChoices = (key: string, enumOpts: string[]): string[] =>
+	OPTIONAL_COMPONENTS.includes(key) ? [NONE, ...enumOpts] : enumOpts;
 
 const AvatarEditor = forwardRef<AvatarEditorHandle, AvatarEditorProps>(function AvatarEditor(
 	{ seed = "", onSavingChange },
@@ -57,10 +62,13 @@ const AvatarEditor = forwardRef<AvatarEditorHandle, AvatarEditorProps>(function 
 		[options],
 	);
 
-	const previewSvg = useMemo(() => {
-		const opts = resolveOptions({ size: PREVIEW_SIZE });
-		return createAvatar(micahStyle, opts as Record<string, string | number>).toString();
-	}, [resolveOptions]);
+	const renderAvatarSvg = useCallback(
+		(overrides: Record<string, unknown>) =>
+			createAvatar(micahStyle, resolveOptions(overrides) as Record<string, string | number>).toString(),
+		[resolveOptions],
+	);
+
+	const previewSvg = useMemo(() => renderAvatarSvg({ size: PREVIEW_SIZE }), [renderAvatarSvg]);
 
 	const updateOption = useCallback((key: string, value: string | number | boolean | string[] | number[]) => {
 		setOptions((prev) => ({ ...prev, [key]: value }));
@@ -94,6 +102,25 @@ const AvatarEditor = forwardRef<AvatarEditorHandle, AvatarEditorProps>(function 
 	const [activeGroup, setActiveGroup] = useState(0);
 	const currentGroup = VISIBLE_GROUPS[Math.min(activeGroup, VISIBLE_GROUPS.length - 1)];
 
+	// Une miniature par choix, pour les contrôles à énumération du groupe affiché : on ne calcule
+	// que ce qui est visible (pas les autres onglets) et on recalcule quand les options changent,
+	// puisque les miniatures reflètent le reste de l'avatar actuel (couleurs, autres composants...).
+	const enumPreviews = useMemo(() => {
+		const previewsByKey: Record<string, Record<string, string>> = {};
+		for (const key of currentGroup?.keys ?? []) {
+			const prop = avatarSchemaProperties[key] as AvatarSchemaProperty | undefined;
+			const enumOpts = getEnumOptions(prop);
+			if (!enumOpts) continue;
+
+			const previews: Record<string, string> = {};
+			for (const choice of getChoices(key, enumOpts)) {
+				previews[choice] = renderAvatarSvg({ [key]: [choice], size: SWATCH_SIZE });
+			}
+			previewsByKey[key] = previews;
+		}
+		return previewsByKey;
+	}, [currentGroup, renderAvatarSvg]);
+
 	const renderControl = (key: string) => {
 		const prop = avatarSchemaProperties[key] as AvatarSchemaProperty | undefined;
 		if (!prop) return null;
@@ -102,8 +129,7 @@ const AvatarEditor = forwardRef<AvatarEditorHandle, AvatarEditorProps>(function 
 		const enumOpts = getEnumOptions(prop);
 
 		if (enumOpts) {
-			const hasNone = OPTIONAL_COMPONENTS.includes(key);
-			const choices = hasNone ? [NONE, ...enumOpts] : enumOpts;
+			const choices = getChoices(key, enumOpts);
 			const current =
 				(options[key] as string) ??
 				(Array.isArray((prop as { default?: unknown[] }).default)
@@ -116,12 +142,13 @@ const AvatarEditor = forwardRef<AvatarEditorHandle, AvatarEditorProps>(function 
 					label={label}
 					choices={choices}
 					value={value ?? choices[0]}
+					previews={enumPreviews[key]}
 					onChange={(v) => updateOption(key, [v])}
 				/>
 			);
 		}
 
-		if (prop.type === "array" && (prop.items as { pattern?: string })?.pattern) {
+		if (isColorField(prop)) {
 			const colors = getColorOptions(prop);
 			const current = (options[key] as string[]) ?? colors;
 			const value = Array.isArray(current) ? current[0] : current;
