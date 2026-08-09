@@ -16,6 +16,7 @@ export class P4 extends Game<P4EventMap> {
 	private timer: Timer;
 
 	private _board: number[] = [];
+	private _moves: number[] = [];
 	private currentPlayer: 1 | 2 = 1;
 	private lastMove?: Move;
 	private winnerIndex: number | undefined = undefined;
@@ -25,6 +26,10 @@ export class P4 extends Game<P4EventMap> {
 
 	get board() {
 		return [...this._board];
+	}
+
+	get moves(): number[] {
+		return [...this._moves];
 	}
 
 	private column(x: number): number[] {
@@ -113,6 +118,7 @@ export class P4 extends Game<P4EventMap> {
 		this.lastMove = undefined;
 		this.winnerIndex = undefined;
 		this._playCount = 0;
+		this._moves = [];
 		this.timer.reset();
 		this.start(); // temp
 		this.emit("reset");
@@ -138,6 +144,7 @@ export class P4 extends Game<P4EventMap> {
 
 	private playMove(move: Move): void {
 		this.setCell(move.x, move.y, this.currentPlayer);
+		this._moves.push(move.x);
 		this.lastMove = move;
 		this._playCount++;
 		if (this.check(move.x, move.y)) {

@@ -52,9 +52,9 @@ export async function notifyPlayerJoinedRoom(player: Player<typeof P4>): Promise
 
 export const manager = new RoomManager(2, P4, socketBroadcaster, notifyPlayerJoinedRoom);
 
-async function handleGameEnd({ room, winner, registeredPlayers, duration, board }: GameEndEvent): Promise<void> {
+async function handleGameEnd({ room, winner, registeredPlayers, duration, moves }: GameEndEvent): Promise<void> {
 	const turnCount = room.game.playCount;
-	await GameHistoryService.save(registeredPlayers, winner, duration, board).catch((error: unknown) => {
+	await GameHistoryService.save(registeredPlayers, winner, duration, moves).catch((error: unknown) => {
 		logger.error({ err: error, roomId: room.id }, "Failed to save game history");
 	});
 	const player = registeredPlayers.find((p) => p.playerId === winner);

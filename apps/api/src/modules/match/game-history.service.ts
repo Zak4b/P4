@@ -30,7 +30,7 @@ export class GameHistoryService {
 		id2: string,
 		result: GameWinner,
 		duration: number,
-		board: Prisma.InputJsonValue,
+		moves: Prisma.InputJsonValue,
 	) {
 		if (id1 && id2) {
 			// TODO check for empty room / missing players
@@ -46,7 +46,7 @@ export class GameHistoryService {
 					eloDelta1: delta1,
 					eloDelta2: delta2,
 					winner: result,
-					moves: board,
+					moves: moves,
 					duration: duration,
 				},
 				{ eloRating: newElo1, xpGain: xp1 },
@@ -61,7 +61,7 @@ export class GameHistoryService {
 		registeredPlayers: Array<{ uuid: string; playerId: number }>,
 		win: number,
 		duration: number,
-		board: Prisma.InputJsonValue,
+		moves: Prisma.InputJsonValue,
 	) {
 		const p1 = registeredPlayers.find((p) => p.playerId === 1);
 		const p2 = registeredPlayers.find((p) => p.playerId === 2);
@@ -76,7 +76,7 @@ export class GameHistoryService {
 			winner = GameWinner.PLAYER2;
 		}
 
-		await GameHistoryService._save(p1.uuid, p2.uuid, winner, duration, board);
+		await GameHistoryService._save(p1.uuid, p2.uuid, winner, duration, moves);
 	}
 
 	static async get({ playerId, limit }: { playerId?: string; limit?: number }) {

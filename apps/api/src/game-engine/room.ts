@@ -10,7 +10,7 @@ export type GameEndPayload = {
 	winner: number;
 	registeredPlayers: { uuid: string; playerId: number }[];
 	duration: number;
-	board: number[];
+	moves: number[];
 };
 type RoomEventMap = {
 	join: { id: number };
@@ -77,7 +77,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 				winner,
 				registeredPlayers: this.registeredPlayers,
 				duration,
-				board: G.board,
+				moves: G.moves,
 			});
 			//this.lock_clean();
 			//this.emit("end");
