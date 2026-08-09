@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { roomIdSchema } from "./realtime.js";
 
 export const roomStatusSchema = z.enum(["idle", "playing"]);
 
@@ -22,7 +23,7 @@ export const createRoomSchema = z.object({
 });
 
 export const roomIdParamsSchema = z.object({
-	id: z.string().min(1).max(64).meta({ example: "3f2504e0-4f89-41d3-9a0c-0305e82c3301" }),
+	id: roomIdSchema.meta({ example: "3f2504e0-4f89-41d3-9a0c-0305e82c3301" }),
 });
 
 export type RoomStatus = z.infer<typeof roomStatusSchema>;

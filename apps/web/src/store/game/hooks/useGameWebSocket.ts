@@ -65,9 +65,7 @@ export const useGameWebSocket = () => {
 		socket.on("players", handlePlayers);
 		socket.on("player-joined", handlePlayerJoined);
 		socket.on("play", handlePlay);
-		socket.on("win", handleWinWithUuid);
 		socket.on("game-win", handleWinWithUuid);
-		socket.on("draw", handleDraw);
 		socket.on("game-draw", handleDraw);
 
 		return () => {
@@ -77,9 +75,7 @@ export const useGameWebSocket = () => {
 			socket.off("players", handlePlayers);
 			socket.off("player-joined", handlePlayerJoined);
 			socket.off("play", handlePlay);
-			socket.off("win", handleWinWithUuid);
 			socket.off("game-win", handleWinWithUuid);
-			socket.off("draw", handleDraw);
 			socket.off("game-draw", handleDraw);
 		};
 	}, [

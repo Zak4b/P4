@@ -1,20 +1,24 @@
 import { z } from "zod";
 import { userIdentitySchema } from "./auth.js";
 
+/** Accepte les ids générés (UUID avec tirets) et les ids saisis par l'utilisateur */
 export const roomIdSchema = z
 	.string()
-	.regex(/^[\w0-9]+$/)
-	.min(1);
+	.regex(/^[\w-]+$/)
+	.min(1)
+	.max(64);
 
-export const clientMessageSchema = z.discriminatedUnion("type", [
-	z.object({ type: z.literal("leave") }),
-	z.object({ type: z.literal("matchmaking-join") }),
-	z.object({ type: z.literal("matchmaking-leave") }),
-	z.object({ type: z.literal("join"), data: z.object({ roomId: roomIdSchema }) }),
-	z.object({ type: z.literal("play"), data: z.object({ x: z.number().int().min(0).max(6) }) }),
-	z.object({ type: z.literal("restart") }),
-	z.object({ type: z.literal("message"), data: z.object({ text: z.string().min(1) }) }),
-]);
+export const BOARD_COLS = 7;
+export const BOARD_ROWS = 6;
+
+// --- Payloads des événements client -> serveur (validés avec zod côté api uniquement) ---
+
+export const playPayloadSchema = z
+	.number()
+	.int()
+	.min(0)
+	.max(BOARD_COLS - 1);
+export const chatMessagePayloadSchema = z.string().trim().min(1).max(500);
 
 export const syncDataSchema = z.object({
 	playerId: z.number().nullable(),
@@ -63,7 +67,6 @@ export const messageAckSchema = z.object({
 	message: z.string().optional(),
 });
 
-export type ClientMessage = z.infer<typeof clientMessageSchema>;
 export type ServerMessage = z.infer<typeof serverMessageSchema>;
 
 export type JoinAck = z.infer<typeof joinAckSchema>;
@@ -75,6 +78,29 @@ export type GamePlayer = z.infer<typeof gamePlayerSchema>;
 export type ServerMessageData<T extends ServerMessage["type"]> =
 	Extract<ServerMessage, { type: T }> extends { data?: infer D } ? D : never;
 
-/** Idem pour les messages émis par le client. */
-export type ClientMessageData<T extends ClientMessage["type"]> =
-	Extract<ClientMessage, { type: T }> extends { data?: infer D } ? D : never;
+/** Ack attendu par le client pour chaque événement qui en fournit un ; `ClientToServerEvents` en dérive ses callbacks */
+export interface ClientAckByEvent {
+	join: JoinAck;
+	message: MessageAck;
+}
+
+/**
+ * Maps d'événements Socket.IO partagées entre l'api et le web :
+ * - api : `Server<ClientToServerEvents, ServerToClientEvents, ...>`
+ * - web : `Socket<ServerToClientEvents, ClientToServerEvents>`
+ * Les types côté serveur décrivent des données non fiables : chaque payload
+ * entrant est validé par le schéma zod correspondant avant d'atteindre un handler.
+ */
+export interface ClientToServerEvents {
+	join: (roomId: z.infer<typeof roomIdSchema>, callback?: (ack: ClientAckByEvent["join"]) => void) => void;
+	play: (x: z.infer<typeof playPayloadSchema>) => void;
+	restart: () => void;
+	leave: () => void;
+	"matchmaking-join": () => void;
+	"matchmaking-leave": () => void;
+	message: (text: z.infer<typeof chatMessagePayloadSchema>, callback?: (ack: ClientAckByEvent["message"]) => void) => void;
+}
+
+export type ServerToClientEvents = {
+	[T in ServerMessage["type"]]: (data: ServerMessageData<T>) => void;
+};

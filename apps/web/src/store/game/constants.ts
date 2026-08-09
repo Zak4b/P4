@@ -1,3 +1,1 @@
-export const BOARD_COLS = 7;
-export const BOARD_ROWS = 6;
-
+export { BOARD_COLS, BOARD_ROWS } from "@p4/schemas/realtime";

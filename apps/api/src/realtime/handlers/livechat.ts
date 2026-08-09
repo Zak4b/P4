@@ -1,19 +1,25 @@
 import type { P4 } from "../../game-engine/p4.js";
 import type { Player } from "../../game-engine/index.js";
 import type { AuthenticatedSocket } from "../socket-auth.js";
-import type { MessageAck } from "@p4/schemas/realtime";
-import { manager, syncRoom } from "./p4.js";
+import { chatMessagePayloadSchema, roomIdSchema, type MessageAck } from "@p4/schemas/realtime";
+import { onValidated } from "../validate.js";
+import { joinRoom, manager, syncRoom } from "./p4.js";
 
 type Command = (...args: string[]) => void | Promise<void>;
 
 /** Commandes texte `/xxx` disponibles depuis le chat */
-function buildCommandList(socket: AuthenticatedSocket, player: Player<typeof P4>): Record<string, Command> {
+function buildCommandList(player: Player<typeof P4>): Record<string, Command> {
 	const commandList: Record<string, Command> = {
 		help: async () => {
 			await player.send({ type: "info", data: Object.keys(commandList).join(", ") });
 		},
-		join: (roomId: string) => {
-			socket.emit("join", roomId);
+		join: async (roomId: string) => {
+			const parsed = roomIdSchema.safeParse(roomId);
+			if (!parsed.success) {
+				await player.send({ type: "info", data: "Identifiant de salle invalide" });
+				return;
+			}
+			await joinRoom(player, parsed.data);
 		},
 		swap: async () => {
 			if (!player.room || !player.localId) {
@@ -90,19 +96,19 @@ async function handleCommand(
 
 /** Chat de salle : messages libres et commandes */
 export function registerLivechatHandlers(socket: AuthenticatedSocket, player: Player<typeof P4>): void {
-	const commandList = buildCommandList(socket, player);
+	const commandList = buildCommandList(player);
 
-	socket.on("message", async (data: string, callback?: (response: MessageAck) => void) => {
-		const text = (data ?? "").toString().trim();
-
-		if (text.length === 0) {
-			callback?.({ success: false });
-			return;
-		}
-
-		const ack = text.startsWith("/")
-			? await handleCommand(player, commandList, text)
-			: await handleChatMessage(player, text);
-		callback?.(ack);
-	});
+	// Le schéma garantit un texte non vide (trim + min 1) et borné en longueur
+	onValidated(
+		socket,
+		"message",
+		chatMessagePayloadSchema,
+		async (text, callback) => {
+			const ack = text.startsWith("/")
+				? await handleCommand(player, commandList, text)
+				: await handleChatMessage(player, text);
+			callback?.(ack);
+		},
+		{ success: false, message: "Invalid payload" },
+	);
 }

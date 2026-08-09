@@ -1,11 +1,12 @@
 import type { FastifyInstance } from "fastify";
 import { Server, type DefaultEventsMap } from "socket.io";
+import type { ClientToServerEvents, ServerToClientEvents } from "@p4/schemas/realtime";
 import { websocketConnection } from "../../realtime/gateway.js";
 import { getUserFromSocket } from "../../realtime/socket-auth.js";
 import type { SocketData } from "../../realtime/socket-auth.js";
 import { getSocketIOCorsOptions } from "../../config/cors.js";
 
-type GameServer = Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, SocketData>;
+type GameServer = Server<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, SocketData>;
 
 declare module "fastify" {
 	interface FastifyInstance {

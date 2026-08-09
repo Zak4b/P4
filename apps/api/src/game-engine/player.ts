@@ -1,16 +1,17 @@
-import { Socket } from "socket.io";
 import { Game } from "./game.js";
 import { Room } from "./room.js";
 import type { ServerMessage } from "@p4/schemas/realtime";
+import type { AuthenticatedSocket } from "../realtime/socket-auth.js";
+import { emitServerMessage } from "../realtime/socket-emit.js";
 
 export class Player<T extends new () => Game> {
 	public readonly uuid: string;
 	public readonly displayName: string;
 	private _localId: number | null = null;
-	public readonly socket: Socket;
+	public readonly socket: AuthenticatedSocket;
 	private _room: Room<T> | null = null;
 
-	constructor(socket: Socket, uuid: string, displayName: string) {
+	constructor(socket: AuthenticatedSocket, uuid: string, displayName: string) {
 		this.socket = socket;
 		this.uuid = uuid;
 		this.displayName = displayName;
@@ -38,16 +39,12 @@ export class Player<T extends new () => Game> {
 	}
 
 	clearRoom(): void {
-		if (this._room) {
-			this.socket.emit("leave", this._room.id);
-		}
 		this._room = null;
 		this._localId = null;
 	}
 
 	public async send(msg: ServerMessage) {
-		// Utiliser socket.emit() pour que le frontend puisse écouter les événements nommés
-		this.socket.emit(msg.type, msg.data);
+		emitServerMessage(this.socket, msg);
 	}
 
 	leaveRoom() {

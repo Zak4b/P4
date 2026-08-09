@@ -4,9 +4,10 @@ import type { Room } from "../../game-engine/index.js";
 import type { GameEndPayload } from "../../game-engine/room.js";
 import type { AuthenticatedSocket } from "../socket-auth.js";
 import { socketBroadcaster } from "../socket-broadcaster.js";
+import { onValidated } from "../validate.js";
 import { GameHistoryService } from "../../modules/match/game-history.service.js";
 import { logger } from "../../lib/logger.js";
-import type { GamePlayer, JoinAck, SyncData } from "@p4/schemas/realtime";
+import { playPayloadSchema, roomIdSchema, type GamePlayer, type JoinAck, type SyncData } from "@p4/schemas/realtime";
 
 export function getSyncData(player: Player<typeof P4>): SyncData {
 	const game = player.room?.game;
@@ -70,33 +71,43 @@ manager.on("game-end", (payload) => {
 	});
 });
 
+/**
+ * Flux de jonction commun à l'événement `join` et à la commande chat `/join` :
+ * messagerie d'échec (info + proposition de mode spectateur) et ack typé.
+ */
+export async function joinRoom(player: Player<typeof P4>, roomId: string): Promise<JoinAck> {
+	try {
+		await manager.join(roomId, player);
+		return {
+			success: true,
+			roomId: player.room!.id,
+			playerId: player.localId ?? undefined,
+		};
+	} catch (error) {
+		const errorMessage = error instanceof Error ? error.message : "Failed to join room";
+		await player.send({ type: "info", data: `Impossible de rejoindre la Salle #${roomId}, ${errorMessage}` });
+		await player.send({ type: "vote", data: { text: "Passer en mode spectateur ?", command: `/spect ${roomId}` } });
+		return { success: false, error: errorMessage };
+	}
+}
+
 /** Événements de salle et de partie : join / leave / play / restart */
 export function registerP4Handlers(socket: AuthenticatedSocket, player: Player<typeof P4>): void {
 	socket.on("leave", () => {
 		manager.leave(player);
 	});
 
-	socket.on("join", async (roomId: string, callback?: (response: JoinAck) => void) => {
-		try {
-			if (!/[\w0-9]+/.test(roomId)) {
-				throw new Error("Invalid room ID format");
-			}
-			await manager.join(roomId, player);
+	onValidated(
+		socket,
+		"join",
+		roomIdSchema,
+		async (roomId, callback) => {
+			callback?.(await joinRoom(player, roomId));
+		},
+		{ success: false, error: "Invalid payload" },
+	);
 
-			callback?.({
-				success: true,
-				roomId: player.room!.id,
-				playerId: player.localId ?? undefined,
-			});
-		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : "Failed to join room";
-			await player.send({ type: "info", data: `Impossible de rejoindre la Salle #${roomId}, ${errorMessage}` });
-			await player.send({ type: "vote", data: { text: "Passer en mode spectateur ?", command: `/spect ${roomId}` } });
-			callback?.({ success: false, error: errorMessage });
-		}
-	});
-
-	socket.on("play", async (x: number) => {
+	onValidated(socket, "play", playPayloadSchema, async (x) => {
 		if (player.localId === null || player.room === null) {
 			return;
 		}

@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useEffect, useState, useRef, type ReactNode, useCallback } from "react";
-import { io, Socket } from "socket.io-client";
+import { io, type Socket } from "socket.io-client";
 import { useAuth } from "./AuthContext";
-import type { SyncData } from "@p4/schemas/realtime";
+import type { ClientToServerEvents, ServerToClientEvents } from "@p4/schemas/realtime";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000";
 
+/** Socket client typé avec les maps d'événements partagées api/web */
+type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
+
 interface WebSocketContextType {
-	socket: Socket | null;
+	socket: AppSocket | null;
 	isConnected: boolean;
 	uuid: string | null;
 	roomId: string | null;
@@ -31,13 +34,13 @@ interface WebSocketProviderProps {
 
 export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }) => {
 	const { isAuthenticated, isAuthReady } = useAuth();
-	const [socket, setSocket] = useState<Socket | null>(null);
+	const [socket, setSocket] = useState<AppSocket | null>(null);
 	const [isConnected, setIsConnected] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [uuid, setUuid] = useState<string | null>(null);
 	const [roomId, setRoomIdState] = useState<string | null>(null);
 	const [playerId, setPlayerIdState] = useState<number | null>(null);
-	const socketRef = useRef<Socket | null>(null);
+	const socketRef = useRef<AppSocket | null>(null);
 	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const reconnectAttempts = useRef(0);
 	const MAX_RECONNECT_ATTEMPTS = 5;
@@ -58,7 +61,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
 		try {
 			// Socket.IO se connecte automatiquement
-			const newSocket = io(WS_URL, {
+			const newSocket: AppSocket = io(WS_URL, {
 				path: "/api/socket.io",
 				transports: ["websocket", "polling"], // Permettre polling puis upgrade vers websocket
 				reconnection: false, // On gère la reconnexion manuellement
@@ -70,12 +73,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 			setSocket(newSocket);
 
 			// Écouter l'événement registered pour obtenir l'UUID
-			newSocket.on("registered", (data: string) => {
+			newSocket.on("registered", (data) => {
 				setUuid(data);
 			});
 
 			// Écouter l'événement sync pour mettre à jour playerId
-			newSocket.on("sync", (data: SyncData) => {
+			newSocket.on("sync", (data) => {
 				if (data.playerId !== null) {
 					setPlayerIdState(data.playerId);
 				}
