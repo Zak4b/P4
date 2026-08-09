@@ -1,7 +1,7 @@
 import type { GamePlayer, ServerMessageData, SyncData } from "@p4/schemas/realtime";
 
 export type TokenColor = "empty" | "player1" | "player2";
-export type Board = TokenColor[][];
+export type Board = TokenColor[];
 
 /** Un siège de la partie. `id`/`login` à `null` tant que personne ne l'occupe. */
 export interface Player {

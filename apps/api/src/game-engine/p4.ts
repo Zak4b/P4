@@ -1,3 +1,4 @@
+import { BOARD_COLS, BOARD_ROWS, boardIndex } from "@p4/schemas/realtime";
 import { Game } from "./game.js";
 import { Timer } from "./timer.js";
 
@@ -14,7 +15,7 @@ export class P4 extends Game<P4EventMap> {
 	private ended: boolean = false;
 	private timer: Timer;
 
-	private _board: number[][] = [];
+	private _board: number[] = [];
 	private currentPlayer: 1 | 2 = 1;
 	private lastMove?: Move;
 	private winnerIndex: number | undefined = undefined;
@@ -23,26 +24,30 @@ export class P4 extends Game<P4EventMap> {
 	override readonly pidValues: number[] = [1, 2];
 
 	get board() {
-		return this._board.map((col) => [...col]);
+		return [...this._board];
 	}
 
-	/** Colonne du plateau, bornée : les index hors plateau sont une erreur de programmation. */
 	private column(x: number): number[] {
-		const col = this._board[x];
-		if (col === undefined) {
-			throw new Error(`Invalid column ${x}`);
-		}
-		return col;
+		const start = boardIndex(x, 0);
+		return this._board.slice(start, start + BOARD_ROWS);
 	}
 
-	/** Case du plateau, bornée. */
+	private row(y: number): number[] {
+		return Array.from({ length: BOARD_COLS }, (_, col) => this.cell(col, y));
+	}
+
 	private cell(x: number, y: number): number {
-		const value = this.column(x)[y];
+		const value = this._board[boardIndex(x, y)];
 		if (value === undefined) {
 			throw new Error(`Invalid cell ${x},${y}`);
 		}
 		return value;
 	}
+
+	private setCell(x: number, y: number, value: number): void {
+		this._board[boardIndex(x, y)] = value;
+	}
+
 	get cPlayer() {
 		return this.currentPlayer;
 	}
@@ -103,7 +108,7 @@ export class P4 extends Game<P4EventMap> {
 	public reset(): void {
 		//this.running = false;
 		this.ended = false;
-		this._board = Array.from({ length: 7 }, () => Array.from({ length: 6 }, () => 0));
+		this._board = Array.from({ length: BOARD_COLS * BOARD_ROWS }, () => 0);
 		this.currentPlayer = 1;
 		this.lastMove = undefined;
 		this.winnerIndex = undefined;
@@ -123,7 +128,6 @@ export class P4 extends Game<P4EventMap> {
 		if (x < 0 || x > 6) {
 			throw new Error("Invalid column");
 		}
-		// `board` clone tout le plateau : ici on lit la colonne directement.
 		const y = this.column(x).indexOf(0);
 		if (y === -1) {
 			throw new Error("Column is full");
@@ -133,7 +137,7 @@ export class P4 extends Game<P4EventMap> {
 	}
 
 	private playMove(move: Move): void {
-		this.column(move.x)[move.y] = this.currentPlayer;
+		this.setCell(move.x, move.y, this.currentPlayer);
 		this.lastMove = move;
 		this._playCount++;
 		if (this.check(move.x, move.y)) {
@@ -146,36 +150,46 @@ export class P4 extends Game<P4EventMap> {
 	}
 
 	private updateCurrentPlayer() {
-		this.currentPlayer = this.currentPlayer == 2 ? 1 : 2;
+		this.currentPlayer = this.currentPlayer === 2 ? 1 : 2;
+	}
+
+	// Diag "/"
+	private diag1(x: number, y: number): string {
+		// (-1, -1)
+		const backSteps = Math.min(x, y);
+		const startX = x - backSteps;
+		const startY = y - backSteps;
+		const length = Math.min(BOARD_COLS - 1 - startX, BOARD_ROWS - 1 - startY) + 1;
+
+		let result = "";
+		for (let i = 0; i < length; i++) {
+			result += this.cell(startX + i, startY + i).toString();
+		}
+		return result;
+	}
+
+	// Diag "\"
+	private diag2(x: number, y: number): string {
+		// (-1, +1)
+		const backSteps = Math.min(x, BOARD_ROWS - 1 - y);
+		const startX = x - backSteps;
+		const startY = y + backSteps;
+		const length = Math.min(BOARD_COLS - 1 - startX, startY) + 1;
+
+		let result = "";
+		for (let i = 0; i < length; i++) {
+			result += this.cell(startX + i, startY - i).toString();
+		}
+		return result;
 	}
 
 	private getCombinations(x: number, y: number): { c: string; r: string; d1: string; d2: string } {
-		let d1 = "";
-		let d2 = "";
-		const c = this.column(x).map(String).join("");
-		const r = this._board
-			.map((col) => col[y])
-			.map(String)
-			.join("");
-
-		const z1 = Math.min(x, y);
-		const xz1 = x - z1;
-		const yz1 = y - z1;
-		const rg1 = Math.min(6 - xz1, 5 - yz1) + 1;
-		for (let i = 0; i < rg1; i++) {
-			d1 += this.cell(i + xz1, i + yz1).toString();
-		}
-
-		const z2 = Math.min(6 - x, y);
-		const xz2 = x + z2;
-		const yz2 = y - z2;
-		const rg2 = Math.min(xz2, 5 - yz2) + 1;
-		for (let i = 0; i < rg2; i++) {
-			d2 += this.cell(xz2 - i, i + yz2).toString();
-		}
-		d2 = d2.split("").reverse().join("");
-
-		return { c: c, r: r, d1: d1, d2: d2 };
+		return {
+			c: this.column(x).map(String).join(""),
+			r: this.row(y).join(""),
+			d1: this.diag1(x, y),
+			d2: this.diag2(x, y),
+		};
 	}
 
 	private check(x: number, y: number): boolean {
@@ -194,6 +208,6 @@ export class P4 extends Game<P4EventMap> {
 	}
 
 	private checkDraw(): boolean {
-		return this._board.every((col) => col[5] !== 0);
+		return this._board.every((cell) => cell !== 0);
 	}
 }

@@ -10,7 +10,7 @@ export type GameEndPayload = {
 	winner: number;
 	registeredPlayers: { uuid: string; playerId: number }[];
 	duration: number;
-	board: number[][];
+	board: number[];
 };
 type RoomEventMap = {
 	join: { id: number };

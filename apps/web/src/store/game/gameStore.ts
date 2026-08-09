@@ -26,7 +26,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		const { playerId, x, y, nextPlayerId } = data;
 
 		set((state) => {
-			const newBoard = state.gameState.board.map((col) => [...col]);
+			const newBoard = [...state.gameState.board];
 			setCell(newBoard, x, y, getPlayerColor(playerId));
 
 			const tokenKey = `${x}-${y}`;
@@ -60,13 +60,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		const newBoard: Board = createEmptyBoard();
 
 		if (board) {
-			for (let x = 0; x < board.length; x++) {
-				const column = board[x] ?? [];
-				for (let y = 0; y < column.length; y++) {
-					const playerId = column[y];
-					if (playerId) {
-						setCell(newBoard, x, y, getPlayerColor(playerId));
-					}
+			for (let i = 0; i < board.length; i++) {
+				const playerId = board[i];
+				if (playerId) {
+					newBoard[i] = getPlayerColor(playerId);
 				}
 			}
 		}

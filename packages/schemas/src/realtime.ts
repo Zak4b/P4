@@ -11,6 +11,9 @@ export const roomIdSchema = z
 export const BOARD_COLS = 7;
 export const BOARD_ROWS = 6;
 
+/** Index dans le plateau à plat (colonne-major) : une seule dimension côté api et web. */
+export const boardIndex = (x: number, y: number): number => x * BOARD_ROWS + y;
+
 // --- Payloads des événements client -> serveur (validés avec zod côté api uniquement) ---
 
 export const playPayloadSchema = z
@@ -23,7 +26,7 @@ export const chatMessagePayloadSchema = z.string().trim().min(1).max(500);
 export const syncDataSchema = z.object({
 	playerId: z.number().nullable(),
 	cPlayer: z.number(),
-	board: z.array(z.array(z.number())).optional(),
+	board: z.array(z.number()).optional(),
 	last: z.object({ x: z.number(), y: z.number() }).optional(),
 });
 

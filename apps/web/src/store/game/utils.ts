@@ -1,3 +1,4 @@
+import { boardIndex } from "@p4/schemas/realtime";
 import type { TokenColor, Board } from "./types";
 import { BOARD_COLS, BOARD_ROWS } from "./constants";
 
@@ -6,18 +7,17 @@ export const getPlayerColor = (playerId: number): TokenColor => {
 };
 
 export const createEmptyBoard = (): Board => {
-	return Array.from({ length: BOARD_COLS }, () => Array<TokenColor>(BOARD_ROWS).fill("empty"));
+	return Array<TokenColor>(BOARD_COLS * BOARD_ROWS).fill("empty");
 };
 
 /** Lecture bornée du plateau : hors plateau, la case est considérée vide. */
 export const getCell = (board: Board, x: number, y: number): TokenColor => {
-	return board[x]?.[y] ?? "empty";
+	return board[boardIndex(x, y)] ?? "empty";
 };
 
 /** Écriture bornée : une coordonnée hors plateau (sync serveur incohérent) est ignorée. */
 export const setCell = (board: Board, x: number, y: number, color: TokenColor): void => {
-	const column = board[x];
-	if (column && y >= 0 && y < column.length) {
-		column[y] = color;
+	if (x >= 0 && x < BOARD_COLS && y >= 0 && y < BOARD_ROWS) {
+		board[boardIndex(x, y)] = color;
 	}
 };
