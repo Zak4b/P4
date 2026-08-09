@@ -13,6 +13,6 @@ export const socketBroadcaster: RoomBroadcaster = {
 		getSocketIO().emit(message.type, message.data);
 	},
 	evictRoom(roomId) {
-		void getSocketIO().in(gameRoom(roomId)).socketsLeave(gameRoom(roomId));
+		getSocketIO().in(gameRoom(roomId)).socketsLeave(gameRoom(roomId));
 	},
 };

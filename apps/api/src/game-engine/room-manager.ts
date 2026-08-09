@@ -6,7 +6,7 @@ import type { ServerMessage } from "@p4/schemas/realtime";
 import type { RoomBroadcaster } from "./types.js";
 import { TypedEventEmitter } from "./typed-event-emitter.js";
 
-export type OnPlayerJoinRoom<T extends new () => Game> = (player: Player<T>) => void;
+export type OnPlayerJoinRoom<T extends new () => Game> = (player: Player<T>) => void | Promise<void>;
 
 type RoomManagerEventMap<T extends new () => Game> = {
 	/** Une partie vient de se terminer dans une room gérée par ce manager. */
@@ -109,16 +109,16 @@ export class RoomManager<T extends new () => Game> extends TypedEventEmitter<Roo
 		this._list.delete(room.id);
 	}
 
-	public join(roomId: string, player: Player<T>): void {
+	public async join(roomId: string, player: Player<T>): Promise<void> {
 		const room = this.get(roomId);
 
 		if (!room) {
 			const msg = `GameRoom "${roomId}" not found`;
-			player.send({ type: "error", data: { message: msg } });
+			await player.send({ type: "error", data: { message: msg } });
 			throw new Error(msg);
 		}
 		room.join(player);
-		this.onPlayerJoinRoom?.(player);
+		await this.onPlayerJoinRoom?.(player);
 	}
 
 	public leave(player: Player<T>) {
@@ -134,7 +134,7 @@ export class RoomManager<T extends new () => Game> extends TypedEventEmitter<Roo
 	}
 	// --- Matchmaking ---
 
-	public joinMatchmaking(player: Player<T>): void {
+	public async joinMatchmaking(player: Player<T>): Promise<void> {
 		if (this.matchmakingQueue.some((p) => p.uuid === player.uuid)) {
 			console.log("[matchmaking] join: already in queue", { uuid: player.uuid, displayName: player.displayName });
 			return;
@@ -149,7 +149,7 @@ export class RoomManager<T extends new () => Game> extends TypedEventEmitter<Roo
 			displayName: player.displayName,
 			queueSize: this.matchmakingQueue.length,
 		});
-		this.tryMatch();
+		await this.tryMatch();
 	}
 
 	public leaveMatchmaking(player: Player<T>): void {
@@ -171,7 +171,7 @@ export class RoomManager<T extends new () => Game> extends TypedEventEmitter<Roo
 		});
 	}
 
-	private tryMatch(): void {
+	private async tryMatch(): Promise<void> {
 		console.log("[matchmaking] tryMatch", { queueSize: this.matchmakingQueue.length });
 		if (this.matchmakingQueue.length < 2) {
 			return;
@@ -194,11 +194,11 @@ export class RoomManager<T extends new () => Game> extends TypedEventEmitter<Roo
 		const room = this.newRoom({});
 		room.join(p1);
 		room.join(p2);
-		[p1, p2].forEach((p) => {
+		for (const p of [p1, p2]) {
 			console.log("MATCH SEND", p.displayName);
-			p.send({ type: "matched", data: { roomId: room.id, playerId: p.localId } });
-			this.onPlayerJoinRoom?.(p);
-		});
+			await p.send({ type: "matched", data: { roomId: room.id, playerId: p.localId } });
+			await this.onPlayerJoinRoom?.(p);
+		}
 		console.log("[matchmaking] room created", {
 			roomId: room.id,
 			players: room.playerList.map((p) => ({ uuid: p.uuid, displayName: p.displayName, localId: p.localId })),
