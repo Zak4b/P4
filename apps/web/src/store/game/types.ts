@@ -29,7 +29,7 @@ export interface GameStore {
 	players: Player[];
 
 	// Actions
-	handlePlay: (data: ServerMessageData<"play">) => void;
+	handlePlay: (data: ServerMessageData<"game:p4:play">) => void;
 	handleSync: (data: SyncData) => void;
 	handleWin: (message: string, playerid: number) => void;
 	handleDraw: () => void;

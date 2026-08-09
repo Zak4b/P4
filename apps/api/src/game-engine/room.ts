@@ -182,7 +182,7 @@ export class Room<T extends new () => Game> extends TypedEventEmitter<RoomEventM
 			// TODO get winner ID
 			winner = undefined;
 		}
-		this.send({ type: "info", data: "ended" });
+		this.send({ type: "chat:info", data: "ended" });
 		this.lock_clean();
 	}
 

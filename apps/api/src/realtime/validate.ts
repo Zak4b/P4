@@ -34,7 +34,7 @@ export function onValidated<
 		const parsed = schema.safeParse(payload);
 		if (!parsed.success) {
 			logger.warn({ event, userId: socket.data.user.id, issues: parsed.error.issues }, "Invalid realtime payload");
-			emitServerMessage(socket, { type: "error", data: { message: `Invalid payload for "${event}"` } });
+			emitServerMessage(socket, { type: "system:error", data: { message: `Invalid payload for "${event}"` } });
 			if (ack && invalidAck) {
 				ack(invalidAck);
 			}

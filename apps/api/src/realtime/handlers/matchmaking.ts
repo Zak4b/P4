@@ -6,13 +6,13 @@ import { manager } from "./p4.js";
 
 /** File d'attente : recherche automatique d'adversaire */
 export function registerMatchmakingHandlers(socket: AuthenticatedSocket, player: Player<typeof P4>): void {
-	socket.on("matchmaking-join", async () => {
-		logger.debug({ uuid: player.uuid, displayName: player.displayName }, "[matchmaking] matchmaking-join");
+	socket.on("game:p4:matchmaking:join", async () => {
+		logger.debug({ uuid: player.uuid, displayName: player.displayName }, "[matchmaking] game:p4:matchmaking:join");
 		await manager.joinMatchmaking(player);
 	});
 
-	socket.on("matchmaking-leave", () => {
-		logger.debug({ uuid: player.uuid, displayName: player.displayName }, "[matchmaking] matchmaking-leave");
+	socket.on("game:p4:matchmaking:leave", () => {
+		logger.debug({ uuid: player.uuid, displayName: player.displayName }, "[matchmaking] game:p4:matchmaking:leave");
 		manager.leaveMatchmaking(player);
 	});
 }

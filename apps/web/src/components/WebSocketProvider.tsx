@@ -73,12 +73,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 			setSocket(newSocket);
 
 			// Écouter l'événement registered pour obtenir l'UUID
-			newSocket.on("registered", (data) => {
+			newSocket.on("system:registered", (data) => {
 				setUuid(data);
 			});
 
 			// Écouter l'événement sync pour mettre à jour playerId
-			newSocket.on("sync", (data) => {
+			newSocket.on("game:p4:sync", (data) => {
 				if (data.playerId !== null) {
 					setPlayerIdState(data.playerId);
 				}

@@ -32,7 +32,7 @@ export function useMatching() {
 			}, []);
 
 			const handleCancel = () => {
-				socket?.emit("matchmaking-leave");
+				socket?.emit("game:p4:matchmaking:leave");
 				close();
 			};
 			return (
@@ -73,14 +73,14 @@ export function useMatching() {
 		if (!socket || !isConnected) {
 			return;
 		}
-		socket.emit("matchmaking-join");
+		socket.emit("game:p4:matchmaking:join");
 		matchmakingModal.open();
 	};
 
 	useEffect(() => {
 		return () => {
 			if (matchmakingModal.isOpen && socket) {
-				socket.emit("matchmaking-leave");
+				socket.emit("game:p4:matchmaking:leave");
 			}
 		};
 	}, [matchmakingModal.isOpen, socket]);

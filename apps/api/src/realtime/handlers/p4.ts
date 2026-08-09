@@ -32,17 +32,17 @@ function toGamePlayer(player: Player<typeof P4>): GamePlayer {
 /** Envoie un `sync` individuel à chaque joueur de la salle : le playerId diffère d'un joueur à l'autre */
 export async function syncRoom(player: Player<typeof P4>): Promise<void> {
 	const playerList = player.room?.playerList ?? [];
-	await Promise.all(playerList.map((p) => p.send({ type: "sync", data: getSyncData(p) })));
+	await Promise.all(playerList.map((p) => p.send({ type: "game:p4:sync", data: getSyncData(p) })));
 }
 
 export async function notifyPlayerJoinedRoom(player: Player<typeof P4>): Promise<void> {
 	const playerList = player.room?.playerList ?? [];
-	await player.send({ type: "players", data: playerList.map(toGamePlayer) });
-	await player.send({ type: "sync", data: getSyncData(player) });
+	await player.send({ type: "game:p4:players", data: playerList.map(toGamePlayer) });
+	await player.send({ type: "game:p4:sync", data: getSyncData(player) });
 	await Promise.all(
 		playerList.map((p) => {
 			if (p.uuid !== player.uuid) {
-				return p.send({ type: "player-joined", data: toGamePlayer(player) });
+				return p.send({ type: "game:p4:player-joined", data: toGamePlayer(player) });
 			}
 			return Promise.resolve();
 		}),
@@ -56,11 +56,11 @@ async function handleGameEnd({ room, winner, registeredPlayers, duration, board 
 		logger.error({ err: error, roomId: room.id }, "Failed to save game history");
 	});
 	if (winner === 0) {
-		await room.send({ type: "game-draw" });
+		await room.send({ type: "game:p4:draw" });
 	} else {
 		const player = registeredPlayers.find((p) => p.playerId === winner);
 		if (player) {
-			await room.send({ type: "game-win", data: { uuid: player.uuid, playerid: winner } });
+			await room.send({ type: "game:p4:win", data: { uuid: player.uuid, playerid: winner } });
 		}
 	}
 }
@@ -85,21 +85,21 @@ export async function joinRoom(player: Player<typeof P4>, roomId: string): Promi
 		};
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : "Failed to join room";
-		await player.send({ type: "info", data: `Impossible de rejoindre la Salle #${roomId}, ${errorMessage}` });
-		await player.send({ type: "vote", data: { text: "Passer en mode spectateur ?", command: `/spect ${roomId}` } });
+		await player.send({ type: "chat:info", data: `Impossible de rejoindre la Salle #${roomId}, ${errorMessage}` });
+		await player.send({ type: "chat:vote", data: { text: "Passer en mode spectateur ?", command: `/spect ${roomId}` } });
 		return { success: false, error: errorMessage };
 	}
 }
 
 /** Événements de salle et de partie : join / leave / play / restart */
 export function registerP4Handlers(socket: AuthenticatedSocket, player: Player<typeof P4>): void {
-	socket.on("leave", () => {
+	socket.on("game:p4:leave", () => {
 		manager.leave(player);
 	});
 
 	onValidated(
 		socket,
-		"join",
+		"game:p4:join",
 		roomIdSchema,
 		async (roomId, callback) => {
 			callback?.(await joinRoom(player, roomId));
@@ -107,7 +107,7 @@ export function registerP4Handlers(socket: AuthenticatedSocket, player: Player<t
 		{ success: false, error: "Invalid payload" },
 	);
 
-	onValidated(socket, "play", playPayloadSchema, async (x) => {
+	onValidated(socket, "game:p4:play", playPayloadSchema, async (x) => {
 		if (player.localId === null || player.room === null) {
 			return;
 		}
@@ -116,7 +116,7 @@ export function registerP4Handlers(socket: AuthenticatedSocket, player: Player<t
 		try {
 			const { y } = await game.play(player.localId, x);
 			await player.room.send({
-				type: "play",
+				type: "game:p4:play",
 				data: { playerId: player.localId, x, y, nextPlayerId: player.room.game.cPlayer },
 			});
 		} catch {
@@ -124,7 +124,7 @@ export function registerP4Handlers(socket: AuthenticatedSocket, player: Player<t
 		}
 	});
 
-	socket.on("restart", async () => {
+	socket.on("game:p4:restart", async () => {
 		if (player.room === null || player.localId === null) {
 			return;
 		}

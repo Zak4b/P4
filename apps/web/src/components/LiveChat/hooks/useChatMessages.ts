@@ -26,7 +26,7 @@ export const useChatMessages = (roomId: string, isOpen: boolean) => {
 			return;
 		}
 
-		const messageHandler = (data: ServerMessageData<"message">) => {
+		const messageHandler = (data: ServerMessageData<"chat:message">) => {
 			const isOwnMessage = data.clientId === uuid;
 
 			const newMessage: Message = {
@@ -45,7 +45,7 @@ export const useChatMessages = (roomId: string, isOpen: boolean) => {
 			}
 		};
 
-		const infoHandler = (content: ServerMessageData<"info">) => {
+		const infoHandler = (content: ServerMessageData<"chat:info">) => {
 			const newMessage: Message = {
 				id: `info-${Date.now()}-${Math.random()}`,
 				type: "info",
@@ -55,7 +55,7 @@ export const useChatMessages = (roomId: string, isOpen: boolean) => {
 			dispatchMessages({ type: "add", payload: newMessage });
 		};
 
-		const voteHandler = (data: ServerMessageData<"vote">) => {
+		const voteHandler = (data: ServerMessageData<"chat:vote">) => {
 			const newMessage: Message = {
 				id: `vote-${Date.now()}-${Math.random()}`,
 				type: "vote",
@@ -66,15 +66,15 @@ export const useChatMessages = (roomId: string, isOpen: boolean) => {
 		};
 
 		// Enregistrer les listeners
-		socket.on("message", messageHandler);
-		socket.on("info", infoHandler);
-		socket.on("vote", voteHandler);
+		socket.on("chat:message", messageHandler);
+		socket.on("chat:info", infoHandler);
+		socket.on("chat:vote", voteHandler);
 
 		return () => {
 			// Nettoyer les listeners
-			socket.off("message", messageHandler);
-			socket.off("info", infoHandler);
-			socket.off("vote", voteHandler);
+			socket.off("chat:message", messageHandler);
+			socket.off("chat:info", infoHandler);
+			socket.off("chat:vote", voteHandler);
 		};
 	}, [socket, isConnected, uuid, isOpen]);
 

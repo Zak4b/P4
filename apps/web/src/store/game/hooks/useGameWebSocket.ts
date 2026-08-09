@@ -17,7 +17,7 @@ export const useGameWebSocket = () => {
 
 	// Fonction pour gérer handleWin avec accès à l'UUID
 	const handleWinWithUuid = useCallback(
-		(data: ServerMessageData<"game-win">) => {
+		(data: ServerMessageData<"game:p4:win">) => {
 			if (!uuid) {
 				return;
 			}
@@ -35,7 +35,7 @@ export const useGameWebSocket = () => {
 		}
 
 		// Écouter l'événement sync (qui est envoyé après un join réussi)
-		const syncHandler = (data: ServerMessageData<"sync">) => {
+		const syncHandler = (data: ServerMessageData<"game:p4:sync">) => {
 			handleSync(data);
 			if (data.playerId === null) {
 				return;
@@ -52,7 +52,7 @@ export const useGameWebSocket = () => {
 			}
 		};
 
-		const matchedHandler = (data: ServerMessageData<"matched">) => {
+		const matchedHandler = (data: ServerMessageData<"game:p4:matchmaking:matched">) => {
 			setRoomId(data.roomId);
 			setPlayerId(data.playerId);
 			handleJoin(data.roomId);
@@ -60,23 +60,23 @@ export const useGameWebSocket = () => {
 		};
 
 		// Enregistrer les listeners
-		socket.on("sync", syncHandler);
-		socket.on("matched", matchedHandler);
-		socket.on("players", handlePlayers);
-		socket.on("player-joined", handlePlayerJoined);
-		socket.on("play", handlePlay);
-		socket.on("game-win", handleWinWithUuid);
-		socket.on("game-draw", handleDraw);
+		socket.on("game:p4:sync", syncHandler);
+		socket.on("game:p4:matchmaking:matched", matchedHandler);
+		socket.on("game:p4:players", handlePlayers);
+		socket.on("game:p4:player-joined", handlePlayerJoined);
+		socket.on("game:p4:play", handlePlay);
+		socket.on("game:p4:win", handleWinWithUuid);
+		socket.on("game:p4:draw", handleDraw);
 
 		return () => {
 			// Nettoyer les listeners
-			socket.off("sync", syncHandler);
-			socket.off("matched", matchedHandler);
-			socket.off("players", handlePlayers);
-			socket.off("player-joined", handlePlayerJoined);
-			socket.off("play", handlePlay);
-			socket.off("game-win", handleWinWithUuid);
-			socket.off("game-draw", handleDraw);
+			socket.off("game:p4:sync", syncHandler);
+			socket.off("game:p4:matchmaking:matched", matchedHandler);
+			socket.off("game:p4:players", handlePlayers);
+			socket.off("game:p4:player-joined", handlePlayerJoined);
+			socket.off("game:p4:play", handlePlay);
+			socket.off("game:p4:win", handleWinWithUuid);
+			socket.off("game:p4:draw", handleDraw);
 		};
 	}, [
 		socket,

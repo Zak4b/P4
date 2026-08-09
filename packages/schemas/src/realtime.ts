@@ -32,25 +32,25 @@ export const gamePlayerSchema = userIdentitySchema.extend({
 });
 
 export const serverMessageSchema = z.discriminatedUnion("type", [
-	z.object({ type: z.literal("registered"), data: z.string() }),
-	z.object({ type: z.literal("players"), data: z.array(gamePlayerSchema) }),
-	z.object({ type: z.literal("sync"), data: syncDataSchema }),
-	z.object({ type: z.literal("player-joined"), data: gamePlayerSchema }),
-	z.object({ type: z.literal("info"), data: z.string() }),
-	z.object({ type: z.literal("vote"), data: z.object({ text: z.string(), command: z.string() }) }),
+	z.object({ type: z.literal("system:registered"), data: z.string() }),
+	z.object({ type: z.literal("system:error"), data: z.object({ message: z.string() }) }),
+	z.object({ type: z.literal("game:p4:players"), data: z.array(gamePlayerSchema) }),
+	z.object({ type: z.literal("game:p4:sync"), data: syncDataSchema }),
+	z.object({ type: z.literal("game:p4:player-joined"), data: gamePlayerSchema }),
 	z.object({
-		type: z.literal("matched"),
+		type: z.literal("game:p4:matchmaking:matched"),
 		data: z.object({ roomId: z.string(), playerId: z.number().nullable() }),
 	}),
 	z.object({
-		type: z.literal("play"),
+		type: z.literal("game:p4:play"),
 		data: z.object({ playerId: z.number(), x: z.number(), y: z.number(), nextPlayerId: z.number() }),
 	}),
-	z.object({ type: z.literal("game-draw"), data: z.undefined().optional() }),
-	z.object({ type: z.literal("game-win"), data: z.object({ uuid: z.string(), playerid: z.number() }) }),
-	z.object({ type: z.literal("error"), data: z.object({ message: z.string() }) }),
+	z.object({ type: z.literal("game:p4:draw"), data: z.undefined().optional() }),
+	z.object({ type: z.literal("game:p4:win"), data: z.object({ uuid: z.string(), playerid: z.number() }) }),
+	z.object({ type: z.literal("chat:info"), data: z.string() }),
+	z.object({ type: z.literal("chat:vote"), data: z.object({ text: z.string(), command: z.string() }) }),
 	z.object({
-		type: z.literal("message"),
+		type: z.literal("chat:message"),
 		data: z.object({ clientId: z.string(), displayName: z.string(), message: z.string() }),
 	}),
 ]);
@@ -80,8 +80,8 @@ export type ServerMessageData<T extends ServerMessage["type"]> =
 
 /** Ack attendu par le client pour chaque événement qui en fournit un ; `ClientToServerEvents` en dérive ses callbacks */
 export interface ClientAckByEvent {
-	join: JoinAck;
-	message: MessageAck;
+	"game:p4:join": JoinAck;
+	"chat:message": MessageAck;
 }
 
 /**
@@ -92,13 +92,19 @@ export interface ClientAckByEvent {
  * entrant est validé par le schéma zod correspondant avant d'atteindre un handler.
  */
 export interface ClientToServerEvents {
-	join: (roomId: z.infer<typeof roomIdSchema>, callback?: (ack: ClientAckByEvent["join"]) => void) => void;
-	play: (x: z.infer<typeof playPayloadSchema>) => void;
-	restart: () => void;
-	leave: () => void;
-	"matchmaking-join": () => void;
-	"matchmaking-leave": () => void;
-	message: (text: z.infer<typeof chatMessagePayloadSchema>, callback?: (ack: ClientAckByEvent["message"]) => void) => void;
+	"game:p4:join": (
+		roomId: z.infer<typeof roomIdSchema>,
+		callback?: (ack: ClientAckByEvent["game:p4:join"]) => void,
+	) => void;
+	"game:p4:play": (x: z.infer<typeof playPayloadSchema>) => void;
+	"game:p4:restart": () => void;
+	"game:p4:leave": () => void;
+	"game:p4:matchmaking:join": () => void;
+	"game:p4:matchmaking:leave": () => void;
+	"chat:message": (
+		text: z.infer<typeof chatMessagePayloadSchema>,
+		callback?: (ack: ClientAckByEvent["chat:message"]) => void,
+	) => void;
 }
 
 export type ServerToClientEvents = {

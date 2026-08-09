@@ -45,7 +45,7 @@ export const useGame = () => {
 			}));
 
 			// En cas de succès, loading passera à false à la réception de l'événement "sync"
-			socket.emit("join", roomId, (response: JoinAck) => {
+			socket.emit("game:p4:join", roomId, (response: JoinAck) => {
 				if (!response.success || !response.roomId || response.playerId === undefined) {
 					setLoading(false);
 					console.error(`Failed to join room ${roomId}:`, response.error);
@@ -79,14 +79,14 @@ export const useGame = () => {
 				return;
 			}
 
-			socket.emit("play", x);
+			socket.emit("game:p4:play", x);
 		},
 		[socket, isConnected, playerId, gameState],
 	);
 
 	const restart = useCallback(() => {
 		if (socket && isConnected) {
-			socket.emit("restart");
+			socket.emit("game:p4:restart");
 		}
 		setWinDialogOpen(false);
 	}, [socket, isConnected, setWinDialogOpen]);

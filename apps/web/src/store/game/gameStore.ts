@@ -22,7 +22,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		{ localId: 2, id: null, login: null },
 	],
 
-	handlePlay: (data: ServerMessageData<"play">) => {
+	handlePlay: (data: ServerMessageData<"game:p4:play">) => {
 		const { playerId, x, y, nextPlayerId } = data;
 
 		set((state) => {

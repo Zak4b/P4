@@ -114,7 +114,7 @@ export class RoomManager<T extends new () => Game> extends TypedEventEmitter<Roo
 
 		if (!room) {
 			const msg = `GameRoom "${roomId}" not found`;
-			await player.send({ type: "error", data: { message: msg } });
+			await player.send({ type: "system:error", data: { message: msg } });
 			throw new Error(msg);
 		}
 		room.join(player);
@@ -196,7 +196,7 @@ export class RoomManager<T extends new () => Game> extends TypedEventEmitter<Roo
 		room.join(p2);
 		for (const p of [p1, p2]) {
 			console.log("MATCH SEND", p.displayName);
-			await p.send({ type: "matched", data: { roomId: room.id, playerId: p.localId } });
+			await p.send({ type: "game:p4:matchmaking:matched", data: { roomId: room.id, playerId: p.localId } });
 			await this.onPlayerJoinRoom?.(p);
 		}
 		console.log("[matchmaking] room created", {

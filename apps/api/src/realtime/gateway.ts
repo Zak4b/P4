@@ -18,7 +18,7 @@ export const websocketConnection = async (socket: AuthenticatedSocket): Promise<
 	}
 	const player = new Player<typeof P4>(socket, user.id, user.login);
 	await socket.join(userRoom(player.uuid));
-	await player.send({ type: "registered", data: player.uuid });
+	await player.send({ type: "system:registered", data: player.uuid });
 
 	registerP4Handlers(socket, player);
 	registerMatchmakingHandlers(socket, player);

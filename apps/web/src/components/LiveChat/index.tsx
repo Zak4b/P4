@@ -29,7 +29,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 
 		const messageText = message.trim();
 
-		socket.emit("message", messageText, (response: MessageAck) => {
+		socket.emit("chat:message", messageText, (response: MessageAck) => {
 			if (response.success === false) {
 				dispatchMessages({
 					type: "add",

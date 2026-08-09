@@ -11,12 +11,12 @@ type Command = (...args: string[]) => void | Promise<void>;
 function buildCommandList(player: Player<typeof P4>): Record<string, Command> {
 	const commandList: Record<string, Command> = {
 		help: async () => {
-			await player.send({ type: "info", data: Object.keys(commandList).join(", ") });
+			await player.send({ type: "chat:info", data: Object.keys(commandList).join(", ") });
 		},
 		join: async (roomId: string) => {
 			const parsed = roomIdSchema.safeParse(roomId);
 			if (!parsed.success) {
-				await player.send({ type: "info", data: "Identifiant de salle invalide" });
+				await player.send({ type: "chat:info", data: "Identifiant de salle invalide" });
 				return;
 			}
 			await joinRoom(player, parsed.data);
@@ -38,7 +38,7 @@ function buildCommandList(player: Player<typeof P4>): Record<string, Command> {
 		spect: async (roomId: string) => {
 			const room = manager.get(roomId);
 			if (room) {
-				await player.send({ type: "info", data: "Spectator mode not yet implemented" });
+				await player.send({ type: "chat:info", data: "Spectator mode not yet implemented" });
 			}
 		},
 		debug: () => {
@@ -52,13 +52,13 @@ function buildCommandList(player: Player<typeof P4>): Record<string, Command> {
 async function handleChatMessage(player: Player<typeof P4>, text: string): Promise<MessageAck> {
 	if (!player.room || player.localId === null) {
 		const errorMsg = "Vous devez être dans une partie pour envoyer des messages";
-		await player.send({ type: "info", data: errorMsg });
+		await player.send({ type: "chat:info", data: errorMsg });
 		return { success: false, message: errorMsg };
 	}
 
 	try {
 		await player.room.send({
-			type: "message",
+			type: "chat:message",
 			data: { clientId: player.uuid, displayName: player.displayName, message: text },
 		});
 		return { success: true };
@@ -81,7 +81,7 @@ async function handleCommand(
 	const cb: Command =
 		commandList[command] ??
 		(async () => {
-			await player.send({ type: "info", data: "Commande inconnue" });
+			await player.send({ type: "chat:info", data: "Commande inconnue" });
 		});
 	const argsArray: string[] = args.split(/\s+/).filter((e: string) => e);
 
@@ -101,7 +101,7 @@ export function registerLivechatHandlers(socket: AuthenticatedSocket, player: Pl
 	// Le schéma garantit un texte non vide (trim + min 1) et borné en longueur
 	onValidated(
 		socket,
-		"message",
+		"chat:message",
 		chatMessagePayloadSchema,
 		async (text, callback) => {
 			const ack = text.startsWith("/")
