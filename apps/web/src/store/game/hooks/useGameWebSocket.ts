@@ -15,17 +15,21 @@ export const useGameWebSocket = () => {
 	const handleJoin = useGameStore((state) => state.handleJoin);
 	const handleWin = useGameStore((state) => state.handleWin);
 
-	// Fonction pour gérer handleWin avec accès à l'UUID
-	const handleWinWithUuid = useCallback(
-		(data: ServerMessageData<"game:p4:win">) => {
+	// Fonction pour gérer la fin de partie avec accès à l'UUID
+	const handleEndWithUuid = useCallback(
+		(data: ServerMessageData<"game:p4:end">) => {
+			if (data.winner === null) {
+				handleDraw();
+				return;
+			}
 			if (!uuid) {
 				return;
 			}
-			const isWinner = uuid === data.uuid;
+			const isWinner = uuid === data.winner.uuid;
 			const message = isWinner ? "🎉 Vous avez gagné !" : "😢 Vous avez perdu !";
-			handleWin(message, data.playerid);
+			handleWin(message, data.winner.playerid);
 		},
-		[uuid, handleWin],
+		[uuid, handleWin, handleDraw],
 	);
 
 	// Écouter les événements Socket.IO directement
@@ -65,8 +69,7 @@ export const useGameWebSocket = () => {
 		socket.on("game:p4:players", handlePlayers);
 		socket.on("game:p4:player-joined", handlePlayerJoined);
 		socket.on("game:p4:play", handlePlay);
-		socket.on("game:p4:win", handleWinWithUuid);
-		socket.on("game:p4:draw", handleDraw);
+		socket.on("game:p4:end", handleEndWithUuid);
 
 		return () => {
 			// Nettoyer les listeners
@@ -75,8 +78,7 @@ export const useGameWebSocket = () => {
 			socket.off("game:p4:players", handlePlayers);
 			socket.off("game:p4:player-joined", handlePlayerJoined);
 			socket.off("game:p4:play", handlePlay);
-			socket.off("game:p4:win", handleWinWithUuid);
-			socket.off("game:p4:draw", handleDraw);
+			socket.off("game:p4:end", handleEndWithUuid);
 		};
 	}, [
 		socket,
@@ -85,8 +87,7 @@ export const useGameWebSocket = () => {
 		handleSync,
 		handlePlayers,
 		handlePlayerJoined,
-		handleWinWithUuid,
-		handleDraw,
+		handleEndWithUuid,
 		handleJoin,
 		setRoomId,
 		setPlayerId,

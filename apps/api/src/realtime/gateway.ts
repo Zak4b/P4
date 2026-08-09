@@ -5,6 +5,8 @@ import { userRoom } from "./socket-rooms.js";
 import { registerP4Handlers } from "./handlers/p4.js";
 import { registerMatchmakingHandlers } from "./handlers/matchmaking.js";
 import { registerLivechatHandlers } from "./handlers/livechat.js";
+// achievement hooks
+import "../modules/achievements/achievement.service.js";
 
 export { manager, notifyPlayerJoinedRoom } from "./handlers/p4.js";
 

@@ -45,8 +45,10 @@ export const serverMessageSchema = z.discriminatedUnion("type", [
 		type: z.literal("game:p4:play"),
 		data: z.object({ playerId: z.number(), x: z.number(), y: z.number(), nextPlayerId: z.number() }),
 	}),
-	z.object({ type: z.literal("game:p4:draw"), data: z.undefined().optional() }),
-	z.object({ type: z.literal("game:p4:win"), data: z.object({ uuid: z.string(), playerid: z.number() }) }),
+	z.object({
+		type: z.literal("game:p4:end"),
+		data: z.object({ winner: z.object({ uuid: z.string(), playerid: z.number() }).nullable() }),
+	}),
 	z.object({ type: z.literal("chat:info"), data: z.string() }),
 	z.object({ type: z.literal("chat:vote"), data: z.object({ text: z.string(), command: z.string() }) }),
 	z.object({

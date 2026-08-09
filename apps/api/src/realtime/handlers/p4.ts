@@ -7,6 +7,7 @@ import { socketBroadcaster } from "../socket-broadcaster.js";
 import { onValidated } from "../validate.js";
 import { GameHistoryService } from "../../modules/match/game-history.service.js";
 import { logger } from "../../lib/logger.js";
+import { gameEvents } from "../game-events.js";
 import { playPayloadSchema, roomIdSchema, type GamePlayer, type JoinAck, type SyncData } from "@p4/schemas/realtime";
 
 export function getSyncData(player: Player<typeof P4>): SyncData {
@@ -52,17 +53,20 @@ export async function notifyPlayerJoinedRoom(player: Player<typeof P4>): Promise
 export const manager = new RoomManager(2, P4, socketBroadcaster, notifyPlayerJoinedRoom);
 
 async function handleGameEnd({ room, winner, registeredPlayers, duration, board }: GameEndEvent): Promise<void> {
+	const turnCount = room.game.playCount;
 	await GameHistoryService.save(registeredPlayers, winner, duration, board).catch((error: unknown) => {
 		logger.error({ err: error, roomId: room.id }, "Failed to save game history");
 	});
-	if (winner === 0) {
-		await room.send({ type: "game:p4:draw" });
-	} else {
-		const player = registeredPlayers.find((p) => p.playerId === winner);
-		if (player) {
-			await room.send({ type: "game:p4:win", data: { uuid: player.uuid, playerid: winner } });
-		}
-	}
+	const player = registeredPlayers.find((p) => p.playerId === winner);
+	const winnerObj = player ? { uuid: player.uuid, playerid: winner } : null;
+	await room.send({ type: "game:p4:end", data: { winner: winnerObj } });
+	gameEvents.emit("match:ended", {
+		roomId: room.id,
+		registeredPlayers,
+		duration,
+		turnCount,
+		winnerUuid: player?.uuid ?? null,
+	});
 }
 
 manager.on("game-end", (payload) => {
@@ -80,13 +84,16 @@ export async function joinRoom(player: Player<typeof P4>, roomId: string): Promi
 		await manager.join(roomId, player);
 		return {
 			success: true,
-			roomId: player.room!.id,
+			roomId: roomId,
 			playerId: player.localId ?? undefined,
 		};
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : "Failed to join room";
 		await player.send({ type: "chat:info", data: `Impossible de rejoindre la Salle #${roomId}, ${errorMessage}` });
-		await player.send({ type: "chat:vote", data: { text: "Passer en mode spectateur ?", command: `/spect ${roomId}` } });
+		await player.send({
+			type: "chat:vote",
+			data: { text: "Passer en mode spectateur ?", command: `/spect ${roomId}` },
+		});
 		return { success: false, error: errorMessage };
 	}
 }
@@ -118,6 +125,13 @@ export function registerP4Handlers(socket: AuthenticatedSocket, player: Player<t
 			await player.room.send({
 				type: "game:p4:play",
 				data: { playerId: player.localId, x, y, nextPlayerId: player.room.game.cPlayer },
+			});
+			gameEvents.emit("match:play", {
+				roomId: player.room.id,
+				player: { uuid: player.uuid, playerId: player.localId },
+				x,
+				y,
+				turnCount: game.playCount,
 			});
 		} catch {
 			// TODO error
