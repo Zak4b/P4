@@ -60,3 +60,5 @@ allowBuilds:
   prisma: true
   sharp: true
   unrs-resolver: true
+
+injectWorkspacePackages: true
