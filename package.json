@@ -8,6 +8,9 @@
     "dev:api": "dotenv -e .env -v NODE_ENV=development -- turbo run dev --filter @p4/api",
     "dev:web": "dotenv -e .env -v NODE_ENV=development -- turbo run dev --filter @p4/web",
     "build": "turbo run build",
+    "start": "dotenv -e .env -- turbo run start",
+    "start:api": "dotenv -e .env -- turbo run start --filter @p4/api",
+    "start:web": "dotenv -e .env -- turbo run start --filter @p4/web",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "db:push": "dotenv -e .env -- pnpm --filter @p4/api exec prisma db push"
