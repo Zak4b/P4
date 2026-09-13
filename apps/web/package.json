@@ -19,6 +19,7 @@
     "@emotion/styled": "catalog:",
     "@mui/icons-material": "catalog:",
     "@mui/material": "catalog:",
+    "@mui/material-nextjs": "catalog:",
     "@tanstack/react-query": "catalog:",
     "axios": "catalog:",
     "next": "catalog:",

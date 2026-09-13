@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Box, Button, Container, Typography } from '@mui/material';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutlineOutlined';
 
 export default function NotFound() {
   return (
@@ -33,7 +33,9 @@ export default function NotFound() {
             }} 
           />
 
-          <Typography variant="h1" fontWeight="bold" color="primary">
+          <Typography variant="h1" color="primary" sx={{
+            fontWeight: "bold"
+          }}>
             404
           </Typography>
 
@@ -41,7 +43,13 @@ export default function NotFound() {
             Oups ! Cette page est introuvable.
           </Typography>
 
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: '600px' }}>
+          <Typography
+            variant="body1"
+            sx={{
+              color: "text.secondary",
+              mb: 4,
+              maxWidth: '600px'
+            }}>
             Désolé, la page que vous recherchez n'existe pas ou a été déplacée. 
             Vérifiez l'URL ou retournez à la page d'accueil.
           </Typography>

@@ -21,10 +21,16 @@ export default function ProfilePage({ userId }: ProfilePageProps) {
 	if (isOwn) {
 		if (!isAuthReady) {
 			return (
-				<Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-					<CircularProgress />
-				</Box>
-			);
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        minHeight: "400px"
+                    }}>
+                    <CircularProgress />
+                </Box>
+            );
 		}
 		if (!currentUser) {
 			return <Alert severity="warning">User information not available</Alert>;
@@ -33,10 +39,16 @@ export default function ProfilePage({ userId }: ProfilePageProps) {
 
 	if (userQuery.isLoading) {
 		return (
-			<Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-				<CircularProgress />
-			</Box>
-		);
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: "400px"
+                }}>
+                <CircularProgress />
+            </Box>
+        );
 	}
 
 	if (userQuery.isError || !userQuery.data) {
@@ -53,12 +65,16 @@ export default function ProfilePage({ userId }: ProfilePageProps) {
 	}
 
 	return (
-		<Container maxWidth="lg" sx={layoutStyles.container}>
-			<Typography variant="h4" fontWeight={700} sx={typographyStyles.gradientTitle}>
+        <Container maxWidth="lg" sx={layoutStyles.container}>
+            <Typography
+                variant="h4"
+                sx={[{
+                    fontWeight: 700
+                }, typographyStyles.gradientTitle]}>
 				{isOwn ? "Mon compte" : `Profil de ${login}`}
 			</Typography>
 
-			<Grid container spacing={3}>
+            <Grid container spacing={3}>
 				<Grid size={{ xs: 12, md: 6 }}>
 					<UserProfilePanel userId={resolvedUserId} />
 				</Grid>
@@ -67,6 +83,6 @@ export default function ProfilePage({ userId }: ProfilePageProps) {
 					<UserStatsPanel userId={resolvedUserId} />
 				</Grid>
 			</Grid>
-		</Container>
-	);
+        </Container>
+    );
 }

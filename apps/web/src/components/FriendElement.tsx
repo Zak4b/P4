@@ -38,10 +38,18 @@ const UserInfo = ({ user, avatarSize }: { user: FriendUser; avatarSize: number }
 	>
 		<UserAvatar userId={user.id} login={user.login} size={avatarSize} />
 		<Stack spacing={0} sx={{ minWidth: 0, flex: 1 }}>
-			<Typography variant="body2" fontWeight={600} noWrap sx={{ color: "text.primary" }}>
+			<Typography
+                variant="body2"
+                noWrap
+                sx={{
+                    fontWeight: 600,
+                    color: "text.primary"
+                }}>
 				{user.login}
 			</Typography>
-			<Typography variant="caption" color="text.secondary">
+			<Typography variant="caption" sx={{
+                color: "text.secondary"
+            }}>
 				{user.eloRating} ELO
 			</Typography>
 		</Stack>

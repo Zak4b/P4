@@ -19,8 +19,10 @@ export function ProfileDetails({ userId, login, onEditAvatar, actions }: Profile
 	);
 
 	return (
-		<Stack spacing={2} sx={{ width: "100%" }}>
-			<Stack direction="row" spacing={3} alignItems="center">
+        <Stack spacing={2} sx={{ width: "100%" }}>
+            <Stack direction="row" spacing={3} sx={{
+                alignItems: "center"
+            }}>
 				{onEditAvatar ? (
 					<Box
 						component="button"
@@ -63,16 +65,18 @@ export function ProfileDetails({ userId, login, onEditAvatar, actions }: Profile
 				) : (
 					avatar
 				)}
-				<Typography variant="h6" fontWeight={600} noWrap>
+				<Typography variant="h6" noWrap sx={{
+                    fontWeight: 600
+                }}>
 					{login}
 				</Typography>
 			</Stack>
-			{actions && (
+            {actions && (
 				<>
 					<Divider />
 					{actions}
 				</>
 			)}
-		</Stack>
-	);
+        </Stack>
+    );
 }

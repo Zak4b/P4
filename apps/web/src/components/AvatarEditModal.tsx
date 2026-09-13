@@ -16,7 +16,7 @@ export default function AvatarEditModal({ open, onClose, seed }: AvatarEditModal
 			onClose={onClose}
 			maxWidth="md"
 			fullWidth
-			PaperProps={{ sx: { maxHeight: "90vh", overflow: "hidden", display: "flex", flexDirection: "column" } }}
+			slotProps={{ paper: { sx: { maxHeight: "90vh", overflow: "hidden", display: "flex", flexDirection: "column" } } }}
 		>
 			<DialogTitle sx={{ flexShrink: 0 }}>Personnaliser l&apos;avatar</DialogTitle>
 			<DialogContent sx={{ overflow: "hidden", flex: 1, minHeight: 0, display: "flex", p: 0 }}>

@@ -119,11 +119,17 @@ export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
 			const current = (options[key] as string) ?? (Array.isArray((prop as { default?: unknown[] }).default) ? (prop as { default: string[] }).default[0] : choices[0]);
 			const value = Array.isArray(current) ? current[0] : current;
 			return (
-				<Box key={key} sx={{ mb: 2, minWidth: 0, overflow: "hidden" }}>
-					<Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                <Box key={key} sx={{ mb: 2, minWidth: 0, overflow: "hidden" }}>
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            color: "text.secondary",
+                            display: "block",
+                            mb: 0.5
+                        }}>
 						{label}
 					</Typography>
-					<ToggleButtonGroup
+                    <ToggleButtonGroup
 						value={value ?? choices[0]}
 						exclusive
 						onChange={(_, v) => v != null && updateOption(key, [v])}
@@ -136,8 +142,8 @@ export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
 							</ToggleButton>
 						))}
 					</ToggleButtonGroup>
-				</Box>
-			);
+                </Box>
+            );
 		}
 
 		if (prop.type === "array" && (prop.items as { pattern?: string })?.pattern) {
@@ -145,11 +151,17 @@ export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
 			const current = (options[key] as string[]) ?? colors;
 			const value = Array.isArray(current) ? current[0] : current;
 			return (
-				<Box key={key} sx={{ mb: 2, minWidth: 0, overflow: "hidden" }}>
-					<Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                <Box key={key} sx={{ mb: 2, minWidth: 0, overflow: "hidden" }}>
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            color: "text.secondary",
+                            display: "block",
+                            mb: 0.5
+                        }}>
 						{label}
 					</Typography>
-					<Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, maxWidth: "100%" }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, maxWidth: "100%" }}>
 						{colors.map((c) => (
 							<Box
 								key={c}
@@ -168,16 +180,16 @@ export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
 							/>
 						))}
 					</Box>
-				</Box>
-			);
+                </Box>
+            );
 		}
 
 		return null;
 	};
 
 	return (
-		<Stack direction={{ xs: "column", md: "row" }} spacing={4} sx={{ p: 2, flex: 1, minHeight: 0, overflow: "hidden" }}>
-			<Box sx={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <Stack direction={{ xs: "column", md: "row" }} spacing={4} sx={{ p: 2, flex: 1, minHeight: 0, overflow: "hidden" }}>
+            <Box sx={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
 				<Box
 					component="img"
 					src={dataUrl}
@@ -191,20 +203,25 @@ export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
 					}}
 				/>
 			</Box>
-			<Box sx={{ flex: 1, minWidth: 0, maxWidth: "100%", minHeight: 0, overflowY: "auto", overflowX: "hidden", px: 2 }}>
+            <Box sx={{ flex: 1, minWidth: 0, maxWidth: "100%", minHeight: 0, overflowY: "auto", overflowX: "hidden", px: 2 }}>
 				{EDITOR_GROUPS.map(({ title, keys }) => {
 					const visibleKeys = keys.filter((k) => avatarSchemaProperties[k]);
 					if (visibleKeys.length === 0) {return null;}
 					return (
-						<Box key={title} sx={{ mb: 3, minWidth: 0 }}>
-							<Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>
+                        <Box key={title} sx={{ mb: 3, minWidth: 0 }}>
+                            <Typography
+                                variant="subtitle2"
+                                sx={{
+                                    fontWeight: 600,
+                                    mb: 1.5
+                                }}>
 								{title}
 							</Typography>
-							{visibleKeys.map(renderControl)}
-						</Box>
-					);
+                            {visibleKeys.map(renderControl)}
+                        </Box>
+                    );
 				})}
 			</Box>
-		</Stack>
-	);
+        </Stack>
+    );
 }

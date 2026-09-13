@@ -13,10 +13,16 @@ export default function LeaderboardPage() {
 
 	if (leaderboardQuery.isLoading) {
 		return (
-			<Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-				<CircularProgress />
-			</Box>
-		);
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: "400px"
+                }}>
+                <CircularProgress />
+            </Box>
+        );
 	}
 
 	if (leaderboardQuery.isError) {
@@ -27,9 +33,13 @@ export default function LeaderboardPage() {
 	const rest = players.slice(3);
 
 	return (
-		<Container maxWidth="lg" sx={layoutStyles.container}>
-			<Box>
-				<Typography variant="h4" fontWeight={700} sx={typographyStyles.gradientTitle}>
+        <Container maxWidth="lg" sx={layoutStyles.container}>
+            <Box>
+				<Typography
+                    variant="h4"
+                    sx={[{
+                        fontWeight: 700
+                    }, typographyStyles.gradientTitle]}>
 					<TrophyIcon />
 					Classement
 				</Typography>
@@ -45,6 +55,6 @@ export default function LeaderboardPage() {
 					</Paper>
 				)}
 			</Box>
-		</Container>
-	);
+        </Container>
+    );
 }

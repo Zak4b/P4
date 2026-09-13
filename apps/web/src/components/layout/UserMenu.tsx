@@ -67,8 +67,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 	};
 
 	return (
-		<>
-			<UserAvatar
+        <>
+            <UserAvatar
 				userId={user?.id}
 				login={user?.login}
 				size={isMobile ? 40 : 50}
@@ -82,7 +82,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 					},
 				}}
 			/>
-			<Menu
+            <Menu
 				anchorEl={anchorEl}
 				open={open}
 				onClose={handleMenuClose}
@@ -99,10 +99,14 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 							sx={{ bgcolor: "primary.main" }}
 						/>
 						<Box sx={{ ml: 1.5 }}>
-							<Typography variant="body2" fontWeight={600}>
+							<Typography variant="body2" sx={{
+                                fontWeight: 600
+                            }}>
 								{user?.login || ""}
 							</Typography>
-							<Typography variant="caption" color="text.secondary">
+							<Typography variant="caption" sx={{
+                                color: "text.secondary"
+                            }}>
 								{user?.email || ""}
 							</Typography>
 						</Box>
@@ -130,9 +134,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 					Déconnexion
 				</MenuItem>
 			</Menu>
-			{friendsModal.modal}
-		</>
-	);
+            {friendsModal.modal}
+        </>
+    );
 };
 
 export default UserMenu;

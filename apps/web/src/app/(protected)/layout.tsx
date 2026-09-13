@@ -23,18 +23,17 @@ export default function ProtectedLayout({
 
 	if (!isAuthReady) {
 		return (
-			<Box
-				display="flex"
-				justifyContent="center"
-				alignItems="center"
-				minHeight="100vh"
-				sx={{
-					backgroundColor: colors.primary,
-				}}
-			>
-				<CircularProgress sx={{ color: "white" }} />
-			</Box>
-		);
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: "100vh",
+                    backgroundColor: colors.primary
+                }}>
+                <CircularProgress sx={{ color: "white" }} />
+            </Box>
+        );
 	}
 
 	if (!isAuthenticated) {

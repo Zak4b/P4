@@ -27,10 +27,16 @@ export default function HistoryPage() {
 
 	if (matchQuery.isLoading) {
 		return (
-			<Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-				<CircularProgress />
-			</Box>
-		);
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: "400px"
+                }}>
+                <CircularProgress />
+            </Box>
+        );
 	}
 
 	if (matchQuery.isError) {
@@ -55,9 +61,19 @@ export default function HistoryPage() {
 	}
 
 	return (
-		<Container maxWidth="lg" sx={layoutStyles.container}>
-			<Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-				<Typography variant="h4" fontWeight={700} sx={typographyStyles.gradientTitle}>
+        <Container maxWidth="lg" sx={layoutStyles.container}>
+            <Stack
+                direction="row"
+                sx={{
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 4
+                }}>
+				<Typography
+                    variant="h4"
+                    sx={[{
+                        fontWeight: 700
+                    }, typographyStyles.gradientTitle]}>
 					<HistoryIcon />
 					Game History
 				</Typography>
@@ -74,12 +90,16 @@ export default function HistoryPage() {
 				</Button>
 			</Stack>
 
-			{history.length === 0 ? (
+            {history.length === 0 ? (
 				<Paper elevation={3} sx={paperStyles.gradientPaperLarge}>
-					<Typography variant="h5" color="text.secondary" gutterBottom>
+					<Typography variant="h5" gutterBottom sx={{
+                        color: "text.secondary"
+                    }}>
 						No games played yet
 					</Typography>
-					<Typography variant="body1" color="text.secondary">
+					<Typography variant="body1" sx={{
+                        color: "text.secondary"
+                    }}>
 						Start a game to see your history here!
 					</Typography>
 				</Paper>
@@ -98,6 +118,6 @@ export default function HistoryPage() {
 					))}
 				</Stack>
 			)}
-		</Container>
-	);
+        </Container>
+    );
 }

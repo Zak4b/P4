@@ -30,20 +30,24 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 	};
 
 	return (
-		<Drawer
+        <Drawer
 			anchor="right"
 			open={open}
 			onClose={onClose}
-			PaperProps={{
-				sx: {
-					width: { xs: "100%", sm: 400 },
-					background: colors.backgroundLight,
+			slotProps={{
+				paper: {
+					sx: {
+						width: { xs: "100%", sm: 400 },
+						background: colors.backgroundLight,
+					},
 				},
 			}}
 		>
-			<Box sx={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+            <Box sx={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
 				<Box sx={{ p: 2, backgroundColor: colors.primary, color: "white" }}>
-					<Typography variant="h6" fontWeight={700}>
+					<Typography variant="h6" sx={{
+                        fontWeight: 700
+                    }}>
 						Rooms
 					</Typography>
 				</Box>
@@ -51,7 +55,13 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 					<RoomForm onSubmit={onClose} onRoomCreated={loadRooms} />
 					<Divider sx={{ my: 2 }} />
 					{isLoading ? (
-						<Box display="flex" justifyContent="center" alignItems="center" py={4}>
+						<Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                py: 4
+                            }}>
 							<CircularProgress />
 						</Box>
 					) : (
@@ -68,14 +78,29 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 										alignItems: "stretch",
 									}}
 								>
-									<Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-										<Typography variant="subtitle1" fontWeight={600}>
+									<Box
+                                        sx={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            mb: 1
+                                        }}>
+										<Typography variant="subtitle1" sx={{
+                                            fontWeight: 600
+                                        }}>
 											{room.name}
 										</Typography>
 										<RoomBadge status={room.status} />
 									</Box>
-									<Box display="flex" justifyContent="space-between" alignItems="center">
-										<Typography variant="body2" color="text.secondary">
+									<Box
+                                        sx={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center"
+                                        }}>
+										<Typography variant="body2" sx={{
+                                            color: "text.secondary"
+                                        }}>
 											{room.count}/{room.max} joueurs
 										</Typography>
 										<Button
@@ -118,8 +143,8 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 					</Button>
 				</Box>
 			</Box>
-		</Drawer>
-	);
+        </Drawer>
+    );
 };
 
 export default RoomList;

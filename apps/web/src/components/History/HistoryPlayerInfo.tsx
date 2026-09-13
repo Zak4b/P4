@@ -19,7 +19,7 @@ export default function PlayerInfo({ player, isWinner, isLoser, isDraw, alignRig
 	const avatarSize = compact ? 36 : 60;
 
 	return (
-		<Box 
+        <Box 
 			sx={{ 
 				display: "flex", 
 				flexDirection: alignRight ? "row-reverse" : "row",
@@ -28,7 +28,7 @@ export default function PlayerInfo({ player, isWinner, isLoser, isDraw, alignRig
 				...(alignRight ? {} : { flex: 1 }),
 			}}
 		>
-			<UserActionsDropdown
+            <UserActionsDropdown
 				targetUser={{ id: player.id, login: player.login }}
 				currentUserId={user?.id}
 				anchorOrigin={{
@@ -52,21 +52,31 @@ export default function PlayerInfo({ player, isWinner, isLoser, isDraw, alignRig
 					}}
 				/>
 			</UserActionsDropdown>
-			<Box sx={{ textAlign: alignRight ? "right" : "left", minWidth: 0 }}>
-				<Typography 
-					variant={compact ? "caption" : "body2"}
-					fontWeight={600} 
-					color={textColor} 
-					sx={{ mb: compact ? 0 : 0.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-				>
+            <Box sx={{ textAlign: alignRight ? "right" : "left", minWidth: 0 }}>
+				<Typography
+                    variant={compact ? "caption" : "body2"}
+                    color={textColor}
+                    sx={{
+                        fontWeight: 600,
+                        mb: compact ? 0 : 0.5,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap"
+                    }}>
 					{player.login}
 				</Typography>
 				{!isDraw && !compact && (
-					<Typography variant="body2" fontWeight={600} color={textColor} sx={{ mt: 0.5 }}>
+					<Typography
+                        variant="body2"
+                        color={textColor}
+                        sx={{
+                            fontWeight: 600,
+                            mt: 0.5
+                        }}>
 						{isWinner ? "Winner" : "Loser"}
 					</Typography>
 				)}
 			</Box>
-		</Box>
-	);
+        </Box>
+    );
 }

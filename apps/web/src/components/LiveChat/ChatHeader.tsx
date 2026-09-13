@@ -11,7 +11,7 @@ interface ChatHeaderProps {
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({ messages, onClose }) => {
 	return (
-		<Box
+        <Box
 			sx={{
 				backgroundColor: colors.primary,
 				color: "white",
@@ -21,7 +21,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ messages, onClose }) => 
 				justifyContent: "space-between",
 			}}
 		>
-			<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
 				<Avatar
 					sx={{
 						width: 32,
@@ -34,7 +34,9 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ messages, onClose }) => 
 					💬
 				</Avatar>
 				<Box>
-					<Typography variant="body2" fontWeight={600}>
+					<Typography variant="body2" sx={{
+                        fontWeight: 600
+                    }}>
 						Chat
 					</Typography>
 					{messages.length > 0 && (
@@ -44,7 +46,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ messages, onClose }) => 
 					)}
 				</Box>
 			</Box>
-			<IconButton
+            <IconButton
 				size="small"
 				onClick={(e) => {
 					e.stopPropagation();
@@ -54,7 +56,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ messages, onClose }) => 
 			>
 				<CloseIcon fontSize="small" />
 			</IconButton>
-		</Box>
-	);
+        </Box>
+    );
 };
 

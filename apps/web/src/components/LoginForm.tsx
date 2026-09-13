@@ -59,11 +59,21 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 	};
 
 	return (
-		<Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-			<Card sx={cardStyles.authCard}>
+        <Box
+            sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "60vh"
+            }}>
+            <Card sx={cardStyles.authCard}>
 				<CardHeader
 					title={
-						<Typography variant="h5" fontWeight={700} sx={typographyStyles.gradientHeading}>
+						<Typography
+                            variant="h5"
+                            sx={[{
+                                fontWeight: 700
+                            }, typographyStyles.gradientHeading]}>
 							Login to P4 Game
 						</Typography>
 					}
@@ -107,7 +117,9 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 						</Button>
 						<Box sx={{ my: 2 }}>
 							<Divider sx={{ "&::before, &::after": { borderColor: "divider" } }}>
-								<Typography variant="body2" color="text.secondary">
+								<Typography variant="body2" sx={{
+                                    color: "text.secondary"
+                                }}>
 									ou
 								</Typography>
 							</Divider>
@@ -145,8 +157,14 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 							{error}
 						</Alert>
 					)}
-					<Box textAlign="center" mt={2}>
-						<Typography variant="body2" color="text.secondary">
+					<Box
+                        sx={{
+                            textAlign: "center",
+                            mt: 2
+                        }}>
+						<Typography variant="body2" sx={{
+                            color: "text.secondary"
+                        }}>
 							Don't have an account?{" "}
 							<Link href="/register" style={{ color: "#6366f1", fontWeight: 600, textDecoration: "none" }}>
 								Register here
@@ -155,22 +173,28 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 					</Box>
 				</CardContent>
 			</Card>
-		</Box>
-	);
+        </Box>
+    );
 }
 
 const LoginForm: React.FC<LoginFormProps> = (props) => {
 	return (
-		<Suspense
+        <Suspense
 			fallback={
-				<Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+				<Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        minHeight: "60vh"
+                    }}>
 					<CircularProgress />
 				</Box>
 			}
 		>
-			<LoginFormContent {...props} />
-		</Suspense>
-	);
+            <LoginFormContent {...props} />
+        </Suspense>
+    );
 };
 
 export default LoginForm;

@@ -40,25 +40,39 @@ export default function PlayPage() {
 
 	if (!isConnected) {
 		return (
-			<Box display="flex" flexDirection="column" alignItems="center" gap={2} py={4}>
-				<CircularProgress />
-				<Alert severity="info">Connexion au serveur...</Alert>
-			</Box>
-		);
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 2,
+                    py: 4
+                }}>
+                <CircularProgress />
+                <Alert severity="info">Connexion au serveur...</Alert>
+            </Box>
+        );
 	}
 
 	return (
-		<Box display="flex" flexDirection="column" gap={2} alignItems="stretch" width="100%" flexGrow={1}>
-			<P4GameBoard setActivePlayer={handlePlayerStateChange} />
-			<Box
-				width={"100%"}
-				sx={{
-					maxWidth: `calc(75vh * 7 / 6)`,
-					mx: "auto",
-				}}
-			>
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+                alignItems: "stretch",
+                width: "100%",
+                flexGrow: 1
+            }}>
+            <P4GameBoard setActivePlayer={handlePlayerStateChange} />
+            <Box
+                sx={{
+                    width: "100%",
+                    maxWidth: `calc(75vh * 7 / 6)`,
+                    mx: "auto"
+                }}>
 				<PlayerIndicator players={players} activePlayerIndex={activePlayerIndex} />
 			</Box>
-		</Box>
-	);
+        </Box>
+    );
 }

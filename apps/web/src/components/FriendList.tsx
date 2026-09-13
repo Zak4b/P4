@@ -30,10 +30,15 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 
 	if (isLoading) {
 		return (
-			<Box display="flex" justifyContent="center" py={4}>
-				<CircularProgress />
-			</Box>
-		);
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    py: 4
+                }}>
+                <CircularProgress />
+            </Box>
+        );
 	}
 
 	if (isError) {
@@ -45,8 +50,8 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 	}
 
 	return (
-		<Stack spacing={2} sx={{ py: 1 }}>
-			<FriendRequestsDrawer
+        <Stack spacing={2} sx={{ py: 1 }}>
+            <FriendRequestsDrawer
 				requests={requests}
 				onCloseModal={onCloseModal}
 				onAccept={async (req) => {
@@ -57,8 +62,13 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 				}}
 			/>
 
-			{friends.length === 0 ? (
-				<Typography color="text.secondary" sx={{ py: 3, textAlign: "center" }}>
+            {friends.length === 0 ? (
+				<Typography
+                    sx={{
+                        color: "text.secondary",
+                        py: 3,
+                        textAlign: "center"
+                    }}>
 					Aucun ami pour le moment
 				</Typography>
 			) : (
@@ -80,6 +90,6 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 					))}
 				</Grid>
 			)}
-		</Stack>
-	);
+        </Stack>
+    );
 }

@@ -4,8 +4,9 @@ export const colors = {
 	backgroundLight: "#f8fafc",
 	messageBg: "#e5e7eb",
 	dark: "#1e293b",
-	transparentPrimary: "rgba(99, 102, 241, 0.3)",
-	transparentSecondary: "rgba(236, 72, 153, 0.2)",
+	holePattern: "rgba(15, 23, 42, 0.05)",
+	holeRed: "rgba(239, 68, 68, 0.10)",
+	holeYellow: "rgba(234, 179, 8, 0.14)",
 	whiteOverlay: "rgba(255, 255, 255, 0.4)",
 } as const;
 

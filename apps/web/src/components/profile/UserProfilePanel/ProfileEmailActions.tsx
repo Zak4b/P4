@@ -38,14 +38,16 @@ export function ProfileEmailActions({ userId, email }: ProfileEmailActionsProps)
 	};
 
 	return (
-		<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
-			<Box sx={layoutStyles.flexCenter}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+            <Box sx={layoutStyles.flexCenter}>
 				<EmailIcon color="primary" aria-hidden="true" />
-				<Typography variant="body1" color="text.secondary">
+				<Typography variant="body1" sx={{
+                    color: "text.secondary"
+                }}>
 					{email}
 				</Typography>
 			</Box>
-			<Button
+            <Button
 				size="small"
 				variant="outlined"
 				color={copyState === "error" ? "error" : "primary"}
@@ -59,7 +61,7 @@ export function ProfileEmailActions({ userId, email }: ProfileEmailActionsProps)
 			>
 				{copyStateLabel(copyState) || "Copier l'id"}
 			</Button>
-			<Box
+            <Box
 				role="status"
 				aria-live="polite"
 				sx={{ position: "absolute", width: "1px", height: "1px", overflow: "hidden" }}
@@ -67,6 +69,6 @@ export function ProfileEmailActions({ userId, email }: ProfileEmailActionsProps)
 				{copyState === "copied" && "Identifiant copié dans le presse-papiers"}
 				{copyState === "error" && "Échec de la copie de l'identifiant"}
 			</Box>
-		</Box>
-	);
+        </Box>
+    );
 }

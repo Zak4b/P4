@@ -15,7 +15,7 @@ export default function HistoryRow({
 	const isDraw = winner === "DRAW";
 
 	return (
-		<Paper
+        <Paper
 			elevation={3}
 			sx={[
 				paperStyles.gradientPaper,
@@ -29,7 +29,7 @@ export default function HistoryRow({
 				},
 			]}
 		>
-			<PlayerInfo
+            <PlayerInfo
 				player={player1}
 				isWinner={player1Won}
 				isLoser={player2Won}
@@ -37,16 +37,23 @@ export default function HistoryRow({
 				alignRight={false}
 			/>
 
-			<Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, flexShrink: 0 }}>
-				<Typography variant="body1" fontWeight={600} color="text.primary">
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, flexShrink: 0 }}>
+				<Typography
+                    variant="body1"
+                    sx={{
+                        fontWeight: 600,
+                        color: "text.primary"
+                    }}>
 					{formatDate(time)}
 				</Typography>
-				<Typography variant="body2" color="text.secondary">
+				<Typography variant="body2" sx={{
+                    color: "text.secondary"
+                }}>
 					Durée : {duration} s
 				</Typography>
 			</Box>
 
-			<Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1 }}>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1 }}>
 				<PlayerInfo
 					player={player2}
 					isWinner={player2Won}
@@ -55,7 +62,7 @@ export default function HistoryRow({
 					alignRight={true}
 				/>
 			</Box>
-		</Paper>
-	);
+        </Paper>
+    );
 }
 

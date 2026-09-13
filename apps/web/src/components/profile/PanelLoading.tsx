@@ -9,10 +9,15 @@ interface PanelLoadingProps {
 /** État de chargement partagé entre les panels de profil (avatar/infos et stats). */
 export function PanelLoading({ sx }: PanelLoadingProps) {
 	return (
-		<Paper elevation={3} sx={sx}>
-			<Box display="flex" justifyContent="center" py={4}>
+        <Paper elevation={3} sx={sx}>
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    py: 4
+                }}>
 				<CircularProgress />
 			</Box>
-		</Paper>
-	);
+        </Paper>
+    );
 }

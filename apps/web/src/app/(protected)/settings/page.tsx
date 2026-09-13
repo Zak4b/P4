@@ -56,19 +56,25 @@ export default function SettingsPage() {
 	const isPasswordValid = password && password.length >= 6 && password === confirmPassword;
 
 	return (
-		<Container maxWidth="lg" sx={layoutStyles.container}>
-			<Typography variant="h4" fontWeight={700} sx={typographyStyles.gradientTitle}>
+        <Container maxWidth="lg" sx={layoutStyles.container}>
+            <Typography
+                variant="h4"
+                sx={[{
+                    fontWeight: 700
+                }, typographyStyles.gradientTitle]}>
 				<SettingsIcon />
 				Paramètres
 			</Typography>
 
-			<Stack spacing={4}>
+            <Stack spacing={4}>
 				{/* Section Email */}
 				<Paper elevation={3} sx={paperStyles.gradientPaper}>
 					<Stack spacing={3}>
 						<Box sx={layoutStyles.flexCenter}>
 							<EmailIcon color="primary" />
-							<Typography variant="h6" fontWeight={600}>
+							<Typography variant="h6" sx={{
+                                fontWeight: 600
+                            }}>
 								Modifier l&apos;email
 							</Typography>
 						</Box>
@@ -103,7 +109,9 @@ export default function SettingsPage() {
 					<Stack spacing={3}>
 						<Box sx={layoutStyles.flexCenter}>
 							<LockIcon color="primary" />
-							<Typography variant="h6" fontWeight={600}>
+							<Typography variant="h6" sx={{
+                                fontWeight: 600
+                            }}>
 								Modifier le mot de passe
 							</Typography>
 						</Box>
@@ -139,6 +147,6 @@ export default function SettingsPage() {
 					</Stack>
 				</Paper>
 			</Stack>
-		</Container>
-	);
+        </Container>
+    );
 }

@@ -22,8 +22,8 @@ const NotificationsButton: React.FC = () => {
 	};
 
 	return (
-		<>
-			<IconButton
+        <>
+            <IconButton
 				color="inherit"
 				onClick={handleClick}
 				aria-label="Notifications"
@@ -37,7 +37,7 @@ const NotificationsButton: React.FC = () => {
 					<NotificationsIcon />
 				</Badge>
 			</IconButton>
-			<Menu
+            <Menu
 				anchorEl={anchorEl}
 				open={open}
 				onClose={handleClose}
@@ -45,15 +45,17 @@ const NotificationsButton: React.FC = () => {
 				anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
 			>
 				<MenuItem disabled>
-					<Typography variant="body2" color="text.secondary">
+					<Typography variant="body2" sx={{
+                        color: "text.secondary"
+                    }}>
 						{notificationCount > 0
 							? `${notificationCount} notification(s)`
 							: "Aucune notification"}
 					</Typography>
 				</MenuItem>
 			</Menu>
-		</>
-	);
+        </>
+    );
 };
 
 export default NotificationsButton;

@@ -35,21 +35,24 @@ export default function PlayIndexPage() {
 	};
 
 	return (
-		<Container maxWidth="lg" sx={{ py: 6 }}>
-			<Grid container spacing={6}>
+        <Container maxWidth="lg" sx={{ py: 6 }}>
+            <Grid container spacing={6}>
 				{/* Left Column: Actions */}
 				<Grid size={{ xs: 12, md: 5 }}>
 					<Stack spacing={4}>
 						<Box>
 							<Typography
-								variant="overline"
-								fontWeight="bold"
-								color="primary"
-								sx={{ letterSpacing: 1.5 }}
-							>
+                                variant="overline"
+                                color="primary"
+                                sx={{
+                                    fontWeight: "bold",
+                                    letterSpacing: 1.5
+                                }}>
 								GAME CENTER
 							</Typography>
-							<Typography variant="h2" fontWeight="800" gutterBottom>
+							<Typography variant="h2" gutterBottom sx={{
+                                fontWeight: "800"
+                            }}>
 								Ready to play?
 							</Typography>
 						</Box>
@@ -92,13 +95,15 @@ export default function PlayIndexPage() {
 									fullWidth
 									value={joinRoomId}
 									onChange={(e) => setJoinRoomId(e.target.value)}
-									InputProps={{
-										disableUnderline: true,
-										startAdornment: (
-											<InputAdornment position="start" sx={{ pl: 2 }}>
-												<Search color="action" />
-											</InputAdornment>
-										),
+									slotProps={{
+										input: {
+											disableUnderline: true,
+											startAdornment: (
+												<InputAdornment position="start" sx={{ pl: 2 }}>
+													<Search color="action" />
+												</InputAdornment>
+											),
+										},
 									}}
 									sx={{ px: 1 }}
 								/>
@@ -123,13 +128,19 @@ export default function PlayIndexPage() {
 							elevation={0}
 							sx={{ p: 3, bgcolor: "primary.50", borderRadius: 4 }}
 						>
-							<Stack direction="row" spacing={2} alignItems="flex-start">
+							<Stack direction="row" spacing={2} sx={{
+                                alignItems: "flex-start"
+                            }}>
 								<EmojiEvents color="gold" fontSize="large" />
 								<Box>
-									<Typography variant="h6" fontWeight="bold" gutterBottom>
+									<Typography variant="h6" gutterBottom sx={{
+                                        fontWeight: "bold"
+                                    }}>
 										Daily Challenge
 									</Typography>
-									<Typography variant="body2" color="text.secondary">
+									<Typography variant="body2" sx={{
+                                        color: "text.secondary"
+                                    }}>
 										Win 3 games in a row to unlock the "Strategist" badge and
 										earn double points today!
 									</Typography>
@@ -143,7 +154,9 @@ export default function PlayIndexPage() {
 				<Grid size={{ xs: 12, md: 7 }}>
 					<Stack spacing={4}>
 						<Box>
-							<Typography variant="h5" fontWeight="bold" gutterBottom>
+							<Typography variant="h5" gutterBottom sx={{
+                                fontWeight: "bold"
+                            }}>
 								How to Play
 							</Typography>
 							<Paper variant="outlined" sx={{ borderRadius: 4, overflow: 'hidden' }}>
@@ -153,7 +166,7 @@ export default function PlayIndexPage() {
 					</Stack>
 				</Grid>
 			</Grid>
-			{modal}
-		</Container>
-	);
+            {modal}
+        </Container>
+    );
 }

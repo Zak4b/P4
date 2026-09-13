@@ -15,7 +15,7 @@ export default function HistoryRowCompact({
 	const isDraw = winner === "DRAW";
 
 	return (
-		<Paper
+        <Paper
 			elevation={3}
 			sx={[
 				paperStyles.gradientPaper,
@@ -28,15 +28,22 @@ export default function HistoryRowCompact({
 				},
 			]}
 		>
-			<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-				<Typography variant="caption" fontWeight={600} color="text.primary">
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+				<Typography
+                    variant="caption"
+                    sx={{
+                        fontWeight: 600,
+                        color: "text.primary"
+                    }}>
 					{formatDate(time)}
 				</Typography>
-				<Typography variant="caption" color="text.secondary">
+				<Typography variant="caption" sx={{
+                    color: "text.secondary"
+                }}>
 					{duration} s
 				</Typography>
 			</Box>
-			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
 				<Box sx={{ flex: 1, minWidth: 0 }}>
 					<PlayerInfo
 						player={player1}
@@ -47,7 +54,14 @@ export default function HistoryRowCompact({
 						compact
 					/>
 				</Box>
-				<Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ flexShrink: 0, px: 0.5 }}>
+				<Typography
+                    variant="caption"
+                    sx={{
+                        color: "text.secondary",
+                        fontWeight: 600,
+                        flexShrink: 0,
+                        px: 0.5
+                    }}>
 					vs
 				</Typography>
 				<Box sx={{ flex: 1, minWidth: 0 }}>
@@ -61,6 +75,6 @@ export default function HistoryRowCompact({
 					/>
 				</Box>
 			</Box>
-		</Paper>
-	);
+        </Paper>
+    );
 }

@@ -68,7 +68,6 @@ export default function Modal({
 					onClose();
 				}
 			}}
-			disableEscapeKeyDown={!closable}
 			maxWidth={maxWidth}
 			fullWidth
 			scroll={scrollable ? "paper" : "body"}

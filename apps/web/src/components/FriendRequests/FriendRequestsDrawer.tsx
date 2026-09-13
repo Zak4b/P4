@@ -55,8 +55,8 @@ export default function FriendRequestsDrawer({
 	};
 
 	return (
-		<Box sx={{ mb: 2 }}>
-			<Paper
+        <Box sx={{ mb: 2 }}>
+            <Paper
 				elevation={0}
 				sx={{
 					borderRadius: 2,
@@ -81,9 +81,13 @@ export default function FriendRequestsDrawer({
 						"&:hover": { background: "rgba(245, 158, 11, 0.12)" },
 					}}
 				>
-					<Stack direction="row" alignItems="center" spacing={1}>
+					<Stack direction="row" spacing={1} sx={{
+                        alignItems: "center"
+                    }}>
 						<PersonAddIcon sx={{ color: "warning.main" }} fontSize="small" />
-						<Typography variant="subtitle2" fontWeight={600}>
+						<Typography variant="subtitle2" sx={{
+                            fontWeight: 600
+                        }}>
 							Demandes en attente
 						</Typography>
 						<Typography
@@ -120,6 +124,6 @@ export default function FriendRequestsDrawer({
 					</Box>
 				</Collapse>
 			</Paper>
-		</Box>
-	);
+        </Box>
+    );
 }

@@ -18,7 +18,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 	switch (message.type) {
 		case "info":
 			return (
-				<Alert
+                <Alert
 					severity="info"
 					icon={<InfoIcon />}
 					sx={{
@@ -26,14 +26,19 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 						py: 0.5,
 					}}
 				>
-					<Box>
-						<Typography variant="caption" color="text.secondary" sx={{ mr: 1 }}>
+                    <Box>
+						<Typography
+                            variant="caption"
+                            sx={{
+                                color: "text.secondary",
+                                mr: 1
+                            }}>
 							[{timeStr}]
 						</Typography>
 						{message.content}
 					</Box>
-				</Alert>
-			);
+                </Alert>
+            );
 
 		case "message":
 			const isOwnMessage = message.authorId === currentUserId;
@@ -69,7 +74,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 
 		case "vote":
 			return (
-				<Paper
+                <Paper
 					elevation={1}
 					sx={{
 						p: 1.5,
@@ -77,10 +82,15 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 						bgcolor: "background.paper",
 					}}
 				>
-					<Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            color: "text.secondary",
+                            mb: 1
+                        }}>
 						[{timeStr}] {message.content}
 					</Typography>
-					<Stack direction="row" spacing={1}>
+                    <Stack direction="row" spacing={1}>
 						<Button size="small" variant="contained" color="error" sx={{ flex: 1 }}>
 							Non
 						</Button>
@@ -88,8 +98,8 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 							Oui
 						</Button>
 					</Stack>
-				</Paper>
-			);
+                </Paper>
+            );
 
 		default:
 			return null;

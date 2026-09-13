@@ -24,7 +24,13 @@ export default function FriendRequestCard({
 	const compact = useMediaQuery(theme.breakpoints.down("sm"));
 
 	const slot = compact ? (
-		<Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ flexShrink: 0 }}>
+		<Stack
+            direction="row"
+            spacing={1}
+            sx={{
+                justifyContent: "flex-end",
+                flexShrink: 0
+            }}>
 			<IconButton
 				size="medium"
 				color="success"
@@ -47,7 +53,13 @@ export default function FriendRequestCard({
 			</IconButton>
 		</Stack>
 	) : (
-		<Stack direction="row" spacing={0.5} justifyContent="flex-end" sx={{ flexShrink: 0 }}>
+		<Stack
+            direction="row"
+            spacing={0.5}
+            sx={{
+                justifyContent: "flex-end",
+                flexShrink: 0
+            }}>
 			<Button
 				size="small"
 				variant="contained"

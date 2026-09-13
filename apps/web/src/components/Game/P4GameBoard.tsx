@@ -47,14 +47,14 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 	const canPlay = !gameState.isWin && !gameState.isDraw && !isLoading && playerId === gameState.currentPlayer;
 
 	return (
-		<Box
+        <Box
 			sx={{
 				width: "100%",
 				maxWidth: `calc(75vh * ${GRID_ASPECT_RATIO})`,
 				mx: "auto",
 			}}
 		>
-			<Paper
+            <Paper
 				elevation={4}
 				sx={{
 					p: { xs: 1, lg: 2 },
@@ -168,11 +168,15 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 				)}
 			</Paper>
 
-			{/* Dialog de victoire/match nul */}
-			<Dialog open={winDialogOpen} onClose={() => setWinDialogOpen(false)} maxWidth="sm" fullWidth>
+            {/* Dialog de victoire/match nul */}
+            <Dialog open={winDialogOpen} onClose={() => setWinDialogOpen(false)} maxWidth="sm" fullWidth>
 				<DialogTitle sx={{ textAlign: "center", fontSize: "1.5rem" }}>{winMessage}</DialogTitle>
 				<DialogContent>
-					<Typography textAlign="center" color="text.secondary">
+					<Typography
+                        sx={{
+                            textAlign: "center",
+                            color: "text.secondary"
+                        }}>
 						{gameState.isDraw ? "Le plateau est plein !" : "La partie est terminée."}
 					</Typography>
 				</DialogContent>
@@ -191,8 +195,8 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 					</Button>
 				</DialogActions>
 			</Dialog>
-		</Box>
-	);
+        </Box>
+    );
 };
 
 export default P4GameBoard;

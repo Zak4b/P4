@@ -12,16 +12,24 @@ interface StatTileProps {
 
 export function StatTile({ value, label, icon, color }: StatTileProps) {
 	return (
-		<Grid size={{ xs: 6, sm: 3 }}>
-			<Box textAlign="center">
-				<Typography variant="h4" fontWeight={700} color={color}>
+        <Grid size={{ xs: 6, sm: 3 }}>
+            <Box sx={{
+                textAlign: "center"
+            }}>
+				<Typography variant="h4" color={color} sx={{
+                    fontWeight: 700
+                }}>
 					{value}
 				</Typography>
-				<Typography variant="body2" color="text.secondary" sx={[layoutStyles.flexCenterJustifyCenter, { mt: 0.5 }]}>
+				<Typography
+                    variant="body2"
+                    sx={[{
+                        color: "text.secondary"
+                    }, layoutStyles.flexCenterJustifyCenter, { mt: 0.5 }]}>
 					{icon}
 					{label}
 				</Typography>
 			</Box>
-		</Grid>
-	);
+        </Grid>
+    );
 }

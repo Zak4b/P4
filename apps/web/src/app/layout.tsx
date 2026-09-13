@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
 import "../custom.css";
@@ -21,9 +22,11 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body>
-        <Providers>
-          {children}
-        </Providers>
+        <AppRouterCacheProvider options={{ key: "mui" }}>
+          <Providers>
+            {children}
+          </Providers>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );

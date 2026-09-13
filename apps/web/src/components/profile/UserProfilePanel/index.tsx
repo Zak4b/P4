@@ -47,9 +47,11 @@ export default function UserProfilePanel({ userId }: UserProfilePanelProps) {
 	}
 
 	return (
-		<>
-			<Paper elevation={3} sx={[paperStyles.gradientPaper, { p: 3, height: "100%" }]}>
-				<Stack spacing={3} alignItems="center">
+        <>
+            <Paper elevation={3} sx={[paperStyles.gradientPaper, { p: 3, height: "100%" }]}>
+				<Stack spacing={3} sx={{
+                    alignItems: "center"
+                }}>
 					{isOwnProfile && currentUser ? (
 						<ProfileDetails
 							userId={currentUser.id}
@@ -76,9 +78,9 @@ export default function UserProfilePanel({ userId }: UserProfilePanelProps) {
 				</Stack>
 			</Paper>
 
-			{isOwnProfile && (
+            {isOwnProfile && (
 				<AvatarEditModal open={avatarModalOpen} onClose={() => setAvatarModalOpen(false)} seed={login} />
 			)}
-		</>
-	);
+        </>
+    );
 }

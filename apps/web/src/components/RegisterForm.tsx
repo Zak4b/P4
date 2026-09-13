@@ -69,11 +69,21 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 	};
 
 	return (
-		<Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-			<Card sx={cardStyles.authCardLarge}>
+        <Box
+            sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "60vh"
+            }}>
+            <Card sx={cardStyles.authCardLarge}>
 				<CardHeader
 					title={
-						<Typography variant="h5" fontWeight={700} sx={typographyStyles.gradientHeading}>
+						<Typography
+                            variant="h5"
+                            sx={[{
+                                fontWeight: 700
+                            }, typographyStyles.gradientHeading]}>
 							Register to P4 Game
 						</Typography>
 					}
@@ -146,8 +156,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 							{error}
 						</Alert>
 					)}
-					<Box textAlign="center" mt={2}>
-						<Typography variant="body2" color="text.secondary">
+					<Box
+                        sx={{
+                            textAlign: "center",
+                            mt: 2
+                        }}>
+						<Typography variant="body2" sx={{
+                            color: "text.secondary"
+                        }}>
 							Already have an account?{" "}
 							<Link href="/login" style={{ color: "#6366f1", fontWeight: 600, textDecoration: "none" }}>
 								Login here
@@ -156,8 +172,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 					</Box>
 				</CardContent>
 			</Card>
-		</Box>
-	);
+        </Box>
+    );
 };
 
 export default RegisterForm;

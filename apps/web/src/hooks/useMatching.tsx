@@ -36,13 +36,19 @@ export function useMatching() {
 				close();
 			};
 			return (
-				<Stack spacing={3} alignItems="center">
-					<CircularProgress />
-					<Typography color="text.secondary">En attente d'un adversaire...</Typography>
-					<Typography variant="h5" fontWeight={700} color="primary">
+                <Stack spacing={3} sx={{
+                    alignItems: "center"
+                }}>
+                    <CircularProgress />
+                    <Typography sx={{
+                        color: "text.secondary"
+                    }}>En attente d'un adversaire...</Typography>
+                    <Typography variant="h5" color="primary" sx={{
+                        fontWeight: 700
+                    }}>
 						{formatElapsed(elapsed)}
 					</Typography>
-					<Button
+                    <Button
 						variant="outlined"
 						size="large"
 						startIcon={<Cancel />}
@@ -64,8 +70,8 @@ export function useMatching() {
 					>
 						Annuler
 					</Button>
-				</Stack>
-			);
+                </Stack>
+            );
 		},
 	});
 

@@ -24,7 +24,7 @@ interface LeaderboardEntryProps {
 
 export default function LeaderboardEntry({ player, rank, icon, background = "rgba(255, 255, 255, 0.7)", border, elevation = 1, avatarSize = 50 }: LeaderboardEntryProps) {
 	return (
-		<Paper
+        <Paper
 			elevation={elevation}
 			sx={{
 				p: 2,
@@ -41,32 +41,43 @@ export default function LeaderboardEntry({ player, rank, icon, background = "rgb
 				},
 			}}
 		>
-			<Box sx={{ minWidth: 40, textAlign: "center", display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ minWidth: 40, textAlign: "center", display: "flex", alignItems: "center", gap: 1 }}>
 				{icon}
-				<Typography variant="h6" fontWeight={700} color="text.secondary">
+				<Typography
+                    variant="h6"
+                    sx={{
+                        fontWeight: 700,
+                        color: "text.secondary"
+                    }}>
 					#{rank}
 				</Typography>
 			</Box>
-			{player ? (
+            {player ? (
 				<UserAvatar userId={player.id} login={player.login} sx={{ width: avatarSize, height: avatarSize }} />
 			) : (
 				<Box sx={{ width: avatarSize, height: avatarSize, borderRadius: "50%", bgcolor: "action.hover" }} />
 			)}
-			<Box sx={{ flexGrow: 1, minHeight: 24 }}>
-				<Typography variant="body1" fontWeight={600}>
+            <Box sx={{ flexGrow: 1, minHeight: 24 }}>
+				<Typography variant="body1" sx={{
+                    fontWeight: 600
+                }}>
 					{player?.login ?? "\u00A0"}
 				</Typography>
 			</Box>
-			<Box sx={{ textAlign: "right", minHeight: 36 }}>
-				<Typography variant="h6" fontWeight={700} color="primary">
+            <Box sx={{ textAlign: "right", minHeight: 36 }}>
+				<Typography variant="h6" color="primary" sx={{
+                    fontWeight: 700
+                }}>
 					{player != null ? player.eloRating : "\u00A0"}
 				</Typography>
-				<Typography variant="caption" color="text.secondary">
+				<Typography variant="caption" sx={{
+                    color: "text.secondary"
+                }}>
 					ELO
 				</Typography>
 			</Box>
-		</Paper>
-	);
+        </Paper>
+    );
 }
 
 export type { LeaderboardPlayer };

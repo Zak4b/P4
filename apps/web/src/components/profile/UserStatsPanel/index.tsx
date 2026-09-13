@@ -33,8 +33,13 @@ export default function UserStatsPanel({ userId }: UserStatsPanelProps) {
 	const level = getLevelFromXp(user?.xp ?? 0);
 
 	return (
-		<Paper elevation={3} sx={[paperStyles.gradientCard, { height: "100%" }]}>
-			<Stack spacing={3} alignItems="center" sx={{ py: 3 }}>
+        <Paper elevation={3} sx={[paperStyles.gradientCard, { height: "100%" }]}>
+            <Stack
+                spacing={3}
+                sx={{
+                    alignItems: "center",
+                    py: 3
+                }}>
 				{stats && user ? (
 					<Grid container>
 						<StatTile value={stats.totalGames} label="Parties" icon={<GameIcon fontSize="small" />} color="primary" />
@@ -55,9 +60,11 @@ export default function UserStatsPanel({ userId }: UserStatsPanelProps) {
 						</Grid>
 					</Grid>
 				) : (
-					<Typography color="text.secondary">Aucune statistique disponible</Typography>
+					<Typography sx={{
+                        color: "text.secondary"
+                    }}>Aucune statistique disponible</Typography>
 				)}
 			</Stack>
-		</Paper>
-	);
+        </Paper>
+    );
 }

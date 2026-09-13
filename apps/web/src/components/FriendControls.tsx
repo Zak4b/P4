@@ -61,8 +61,12 @@ export default function FriendControls({
 		size: "sm",
 		content: ({ close }) => (
 			<Stack spacing={3}>
-				<Typography color="text.secondary">Voulez-vous retirer {targetLogin} de votre liste d'amis ?</Typography>
-				<Stack direction="row" spacing={2} justifyContent="flex-end">
+				<Typography sx={{
+                    color: "text.secondary"
+                }}>Voulez-vous retirer {targetLogin} de votre liste d'amis ?</Typography>
+				<Stack direction="row" spacing={2} sx={{
+                    justifyContent: "flex-end"
+                }}>
 					<Button variant="outlined" onClick={close} disabled={isRemoving}>
 						Annuler
 					</Button>
