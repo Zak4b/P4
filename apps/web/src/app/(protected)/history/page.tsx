@@ -48,7 +48,7 @@ export default function HistoryPage() {
 						color="inherit"
 						size="small"
 						onClick={() => {
-							matchQuery.refetch().catch(() => {});
+							matchQuery.refetch().catch((err: unknown) => console.error(err));
 						}}
 					>
 						Retry
@@ -81,7 +81,7 @@ export default function HistoryPage() {
 					variant="outlined"
 					startIcon={<RefreshIcon />}
 					onClick={() => {
-						matchQuery.refetch().catch(() => {});
+						matchQuery.refetch().catch((err: unknown) => console.error(err));
 					}}
 					disabled={matchQuery.isFetching}
 					sx={buttonStyles.primaryOutlined}

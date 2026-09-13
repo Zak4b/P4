@@ -10,7 +10,7 @@ import { passwordRules } from "@/lib/passwordRules";
 
 export default function SettingsPage() {
 	const { user } = useAuth();
-	const [email, setEmail] = useState(user?.email || "");
+	const [email, setEmail] = useState(user?.email ?? "");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [emailError, setEmailError] = useState("");
@@ -44,12 +44,12 @@ export default function SettingsPage() {
 
 	const handleSaveEmail = () => {
 		// Logique non implémentée - seulement le design
-		console.log("Sauvegarder email:", email);
+		console.warn("Sauvegarder email (non implémenté):", email);
 	};
 
 	const handleSavePassword = () => {
 		// Logique non implémentée - seulement le design
-		console.log("Sauvegarder mot de passe");
+		console.warn("Sauvegarder mot de passe (non implémenté)");
 	};
 
 	const isEmailChanged = email !== user?.email;

@@ -16,10 +16,11 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 	const waitingForName = player.login === null;
 	const displayName = player.login ?? "En attente";
 
-	// Couleurs selon le joueur
-	const primaryColor = isPlayer1 ? "#ef4444" : "#f59e0b";
-	const bgColor = isActive ? `rgba(${isPlayer1 ? "239, 68, 68" : "245, 158, 11"}, 0.18)` : "rgba(255, 255, 255, 0.04)";
-	const borderColor = isActive ? primaryColor : "rgba(255,255,255,0.08)";
+	// La carte est posée sur un panneau sombre (`surfaceInverse`) dans les deux
+	// modes : ses couleurs viennent du jeton du joueur, pas du fond de page.
+	const tokenVar = isPlayer1 ? "var(--mui-palette-board-player1)" : "var(--mui-palette-board-player2)";
+	const bgColor = isActive ? `color-mix(in srgb, ${tokenVar} 18%, transparent)` : "rgba(255, 255, 255, 0.04)";
+	const borderColor = isActive ? tokenVar : "rgba(255, 255, 255, 0.08)";
 	const borderWidth = isActive ? 2 : 1;
 
 	return (
@@ -32,7 +33,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 				borderRadius: 2,
 				bgcolor: bgColor,
 				border: `${borderWidth}px solid ${borderColor}`,
-				boxShadow: isActive ? `0 0 16px rgba(${isPlayer1 ? "239, 68, 68" : "245, 158, 11"}, 0.35)` : "none",
+				boxShadow: isActive ? `0 0 16px color-mix(in srgb, ${tokenVar} 35%, transparent)` : "none",
 				flex: "1 1 0",
 				minWidth: 0,
 			}}
@@ -44,8 +45,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 					width: { xs: 36, lg: 48 },
 					height: { xs: 36, lg: 48 },
 					minWidth: { xs: 36, lg: 48 },
-					bgcolor: isPlayer1 ? "error.main" : "warning.main",
-					border: isActive ? "3px solid white" : "2px solid rgba(255,255,255,0.35)",
+					bgcolor: isPlayer1 ? "board.player1" : "board.player2",
+					border: isActive ? "3px solid" : "2px solid",
+					borderColor: isActive ? "surfaceInverse.contrastText" : "rgba(255, 255, 255, 0.35)",
 					boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.35)" : "none",
 				}}
 			>
@@ -55,7 +57,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 				<Typography
 					variant="subtitle1"
 					sx={{
-						color: waitingForName ? "rgba(255,255,255,0.7)" : "white",
+						color: waitingForName ? "surfaceInverse.mutedText" : "surfaceInverse.contrastText",
 						fontWeight: isActive ? 700 : 600,
 						lineHeight: 1.1,
 						fontSize: { xs: "0.875rem", lg: "1rem" },
@@ -80,8 +82,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 					label="Actif"
 					size="small"
 					sx={{
-						bgcolor: isPlayer1 ? "error.dark" : "warning.dark",
-						color: "white",
+						bgcolor: tokenVar,
+						color: "#0a141c",
 						fontWeight: 700,
 						height: { xs: 20, lg: 22 },
 						fontSize: { xs: "0.7rem", lg: "0.8125rem" },

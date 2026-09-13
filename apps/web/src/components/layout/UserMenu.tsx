@@ -25,10 +25,7 @@ interface UserMenuProps {
 type MenuOption = {
 	icon: React.ReactNode;
 	label: string;
-} & (
-		| { type: "link"; href: string }
-		| { type: "action"; onClick: () => void }
-	);
+} & ({ type: "link"; href: string } | { type: "action"; onClick: () => void });
 
 const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 	const { logout, user } = useAuth();
@@ -61,28 +58,33 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 		setAnchorEl(null);
 	};
 
-	const handleLogout = async () => {
+	const runLogout = async () => {
 		await logout();
 		setAnchorEl(null);
 	};
 
+	const handleLogout = () => {
+		runLogout().catch((err: unknown) => console.error(err));
+	};
+
 	return (
-        <>
-            <UserAvatar
+		<>
+			<UserAvatar
 				userId={user?.id}
 				login={user?.login}
 				size={isMobile ? 40 : 50}
 				onClick={handleAvatarClick}
 				sx={{
 					ml: 1,
-					border: "2px solid rgba(255, 255, 255, 0.5)",
+					border: "2px solid",
+					borderColor: "rgba(255, 255, 255, 0.5)",
 					"&:hover": {
-						borderColor: "white",
+						borderColor: "primary.contrastText",
 						cursor: "pointer",
 					},
 				}}
 			/>
-            <Menu
+			<Menu
 				anchorEl={anchorEl}
 				open={open}
 				onClose={handleMenuClose}
@@ -92,22 +94,23 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 			>
 				<Box sx={{ px: 2, py: 1.5 }}>
 					<Box sx={layoutStyles.flexCenter}>
-						<UserAvatar
-							userId={user?.id}
-							login={user?.login}
-							size={40}
-							sx={{ bgcolor: "primary.main" }}
-						/>
+						<UserAvatar userId={user?.id} login={user?.login} size={40} sx={{ bgcolor: "primary.main" }} />
 						<Box sx={{ ml: 1.5 }}>
-							<Typography variant="body2" sx={{
-                                fontWeight: 600
-                            }}>
-								{user?.login || ""}
+							<Typography
+								variant="body2"
+								sx={{
+									fontWeight: 600,
+								}}
+							>
+								{user?.login ?? ""}
 							</Typography>
-							<Typography variant="caption" sx={{
-                                color: "text.secondary"
-                            }}>
-								{user?.email || ""}
+							<Typography
+								variant="caption"
+								sx={{
+									color: "text.secondary",
+								}}
+							>
+								{user?.email ?? ""}
 							</Typography>
 						</Box>
 					</Box>
@@ -124,7 +127,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 							<ListItemIcon>{option.icon}</ListItemIcon>
 							{option.label}
 						</MenuItem>
-					)
+					),
 				)}
 				<Divider />
 				<MenuItem onClick={handleLogout}>
@@ -134,10 +137,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 					Déconnexion
 				</MenuItem>
 			</Menu>
-            {friendsModal.modal}
-        </>
-    );
+			{friendsModal.modal}
+		</>
+	);
 };
 
 export default UserMenu;
-

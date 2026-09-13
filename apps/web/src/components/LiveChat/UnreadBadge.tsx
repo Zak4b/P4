@@ -20,7 +20,7 @@ export const UnreadBadge: React.FC<UnreadBadgeProps> = ({ count }) => {
 				height: 24,
 				borderRadius: "50%",
 				bgcolor: "#ef4444",
-				color: "white",
+				color: "error.contrastText",
 				display: "flex",
 				alignItems: "center",
 				justifyContent: "center",

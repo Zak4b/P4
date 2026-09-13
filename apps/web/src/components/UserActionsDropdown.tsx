@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Box, Menu, MenuItem, ListItemIcon, ListItemText, Stack, Typography, Button } from "@mui/material";
+import { Box, Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import {
 	Person as PersonIcon,
 	SportsEsports as InviteIcon,
@@ -10,6 +10,7 @@ import {
 } from "@mui/icons-material";
 import { useCreateRoomMutation } from "@/lib/api/room/useRoomMutation";
 import { useModalPortal } from "@/lib/hooks/useModalPortal";
+import RemoveFriendConfirm from "./RemoveFriendConfirm";
 
 export interface TargetUser {
 	id: string;
@@ -53,46 +54,35 @@ export default function UserActionsDropdown({
 	const [isInviting, setIsInviting] = useState(false);
 	const [isRemoving, setIsRemoving] = useState(false);
 
+	const removeFriend = async (close: () => void) => {
+		if (!onRemove) {
+			return;
+		}
+		setIsRemoving(true);
+		try {
+			await onRemove();
+			onRemoveSuccess?.();
+			close();
+			setAnchorEl(null);
+		} catch {
+			// Erreur gérée par le parent
+		} finally {
+			setIsRemoving(false);
+		}
+	};
+
 	const removeModal = useModalPortal({
 		title: "Retirer l'ami",
 		size: "sm",
 		content: ({ close }) => (
-			<Stack spacing={3}>
-				<Typography sx={{
-                    color: "text.secondary"
-                }}>Voulez-vous retirer {targetUser.login} de votre liste d'amis ?</Typography>
-				<Stack direction="row" spacing={2} sx={{
-                    justifyContent: "flex-end"
-                }}>
-					<Button variant="outlined" onClick={close} disabled={isRemoving}>
-						Annuler
-					</Button>
-					<Button
-						variant="contained"
-						color="error"
-						startIcon={<PersonRemoveIcon />}
-						disabled={isRemoving || !onRemove}
-						onClick={async () => {
-							if (!onRemove) {
-								return;
-							}
-							setIsRemoving(true);
-							try {
-								await onRemove();
-								onRemoveSuccess?.();
-								close();
-								setAnchorEl(null);
-							} catch {
-								// Erreur gérée par le parent
-							} finally {
-								setIsRemoving(false);
-							}
-						}}
-					>
-						{isRemoving ? "Suppression..." : "Retirer l'ami"}
-					</Button>
-				</Stack>
-			</Stack>
+			<RemoveFriendConfirm
+				targetLogin={targetUser.login}
+				isRemoving={isRemoving || !onRemove}
+				onCancel={close}
+				onConfirm={() => {
+					removeFriend(close).catch((err: unknown) => console.error(err));
+				}}
+			/>
 		),
 	});
 
@@ -112,7 +102,7 @@ export default function UserActionsDropdown({
 		handleMenuClose();
 	};
 
-	const handleInvite = async () => {
+	const invite = async () => {
 		setIsInviting(true);
 		try {
 			const roomName =
@@ -127,6 +117,10 @@ export default function UserActionsDropdown({
 			setIsInviting(false);
 			handleMenuClose();
 		}
+	};
+
+	const handleInvite = () => {
+		invite().catch((err: unknown) => console.error(err));
 	};
 
 	const handleRemoveClick = () => {

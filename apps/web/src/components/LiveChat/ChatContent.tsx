@@ -2,7 +2,6 @@ import React from "react";
 import { Box, Stack } from "@mui/material";
 import type { Message } from "./types";
 import { MessageItem } from "./MessageItem";
-import { colors } from "@/lib/styles";
 
 interface ChatContentProps {
 	messages: Message[];
@@ -18,7 +17,7 @@ export const ChatContent: React.FC<ChatContentProps> = ({ messages, currentUserI
 				flexGrow: 1,
 				p: 2,
 				overflowY: "auto",
-				background: colors.backgroundLight,
+				backgroundColor: "background.default",
 				"&::-webkit-scrollbar": {
 					width: "6px",
 				},
@@ -42,4 +41,3 @@ export const ChatContent: React.FC<ChatContentProps> = ({ messages, currentUserI
 		</Box>
 	);
 };
-

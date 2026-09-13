@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Box, Collapse, Grid, IconButton, Paper, Stack, Typography } from "@mui/material";
 import {
 	ExpandMore as ExpandMoreIcon,
@@ -25,12 +25,15 @@ export default function FriendRequestsDrawer({
 }: FriendRequestsDrawerProps) {
 	const [expanded, setExpanded] = useState(requests.length > 0);
 	const [loadingRequestId, setLoadingRequestId] = useState<string | null>(null);
+	const [seenCount, setSeenCount] = useState(requests.length);
 
-	useEffect(() => {
+	// Ajustement pendant le rendu : une nouvelle demande ré-ouvre le panneau.
+	if (requests.length !== seenCount) {
+		setSeenCount(requests.length);
 		if (requests.length > 0) {
 			setExpanded(true);
 		}
-	}, [requests.length]);
+	}
 
 	if (requests.length === 0) {
 		return null;
@@ -94,7 +97,7 @@ export default function FriendRequestsDrawer({
 							variant="caption"
 							sx={{
 								bgcolor: "warning.main",
-								color: "white",
+								color: "primary.contrastText",
 								px: 1,
 								borderRadius: 1,
 							}}
@@ -114,8 +117,12 @@ export default function FriendRequestsDrawer({
 									<FriendRequestCard
 										request={request}
 										loading={loadingRequestId === request.id}
-										onAccept={handleAccept}
-										onReject={handleReject}
+										onAccept={(target) => {
+											handleAccept(target).catch((err: unknown) => console.error(err));
+										}}
+										onReject={(target) => {
+											handleReject(target).catch((err: unknown) => console.error(err));
+										}}
 										onCloseParent={onCloseModal}
 									/>
 								</Grid>

@@ -5,7 +5,6 @@ import { TextField, Button, Stack, Alert, CircularProgress } from "@mui/material
 import { Add as AddIcon } from "@mui/icons-material";
 import { useCreateRoomMutation } from "@/lib/api/room/useRoomMutation";
 import { useRouter } from "next/navigation";
-import { colors } from "@/lib/styles";
 
 interface RoomFormProps {
 	onSubmit: (roomId?: string) => void;
@@ -19,8 +18,7 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 	const createRoomMutation = useCreateRoomMutation();
 	const isLoading = createRoomMutation.isPending;
 
-	const handleCreateRoom = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const createRoom = async () => {
 		if (!name.trim()) {
 			setError("Le nom de la salle est requis");
 			return;
@@ -56,6 +54,11 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 		}
 	};
 
+	const handleCreateRoom = (e: React.FormEvent) => {
+		e.preventDefault();
+		createRoom().catch((err: unknown) => console.error(err));
+	};
+
 	return (
 		<form onSubmit={handleCreateRoom}>
 			<Stack spacing={1}>
@@ -79,9 +82,9 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 						startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <AddIcon />}
 						disabled={isLoading || !name.trim()}
 						sx={{
-							backgroundColor: colors.primary,
+							backgroundColor: "primary.main",
 							"&:hover": {
-								backgroundColor: colors.primaryHover,
+								backgroundColor: "primary.dark",
 							},
 						}}
 					>

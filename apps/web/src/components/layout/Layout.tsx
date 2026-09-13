@@ -6,7 +6,6 @@ import { Container, Box } from "@mui/material";
 import RoomList from "../Rooms/RoomList";
 import LiveChat from "../LiveChat";
 import Navbar from "./Navbar";
-import { colors } from "@/lib/styles";
 
 interface LayoutProps {
 	children: React.ReactNode;
@@ -23,7 +22,7 @@ export default function Layout({ children }: LayoutProps) {
 				minHeight: "100vh",
 				display: "flex",
 				flexDirection: "column",
-				background: colors.backgroundLight,
+				backgroundColor: "background.default",
 			}}
 		>
 			{/* Navbar */}

@@ -1,19 +1,4 @@
-export const colors = {
-	primary: "#6366f1",
-	primaryHover: "#4f46e5",
-	backgroundLight: "#f8fafc",
-	messageBg: "#e5e7eb",
-	dark: "#1e293b",
-	holePattern: "rgba(15, 23, 42, 0.05)",
-	holeRed: "rgba(239, 68, 68, 0.10)",
-	holeYellow: "rgba(234, 179, 8, 0.14)",
-	whiteOverlay: "rgba(255, 255, 255, 0.4)",
-} as const;
-
-// Gradients (only for backgrounds)
-export const gradients = {
-	background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
-} as const;
+import type { Theme } from "@mui/material/styles";
 
 // Layout styles
 export const layoutStyles = {
@@ -45,7 +30,7 @@ export const layoutStyles = {
 export const typographyStyles = {
 	gradientTitle: {
 		mb: 4,
-		color: colors.primary,
+		color: "primary.main",
 		display: "flex",
 		alignItems: "center",
 		gap: 1,
@@ -53,54 +38,59 @@ export const typographyStyles = {
 	},
 
 	gradientHeading: {
-		color: colors.primary,
+		color: "primary.main",
 		fontWeight: 700,
 	},
 } as const;
 
+const surface = (theme: Theme) => ({
+	background: theme.vars.palette.gradient.surface,
+});
+
 // Paper/Card styles
 export const paperStyles = {
-	gradientPaper: {
+	gradientPaper: (theme: Theme) => ({
 		p: 4,
-		background: gradients.background,
-	},
+		...surface(theme),
+	}),
 
-	gradientCard: {
-		background: gradients.background,
-	},
+	gradientCard: (theme: Theme) => surface(theme),
 
-	gradientPaperLarge: {
+	gradientPaperLarge: (theme: Theme) => ({
 		p: 6,
-		textAlign: "center",
-		background: gradients.background,
-	},
+		textAlign: "center" as const,
+		...surface(theme),
+	}),
 } as const;
 
 // Button styles
 export const buttonStyles = {
 	gradientButton: {
-		backgroundColor: colors.primary,
+		backgroundColor: "primary.main",
+		color: "primary.contrastText",
 		"&:hover": {
-			backgroundColor: colors.primaryHover,
+			backgroundColor: "primary.dark",
 		},
 	},
 
 	gradientButtonDisabled: {
-		backgroundColor: colors.primary,
+		backgroundColor: "primary.main",
+		color: "primary.contrastText",
 		"&:hover": {
-			backgroundColor: colors.primaryHover,
+			backgroundColor: "primary.dark",
 		},
 		"&.Mui-disabled": {
-			background: "grey.300",
+			backgroundColor: "action.disabledBackground",
+			color: "action.disabled",
 		},
 	},
 
 	primaryOutlined: {
-		borderColor: colors.primary,
-		color: colors.primary,
+		borderColor: "primary.main",
+		color: "primary.main",
 		"&:hover": {
-			borderColor: colors.primaryHover,
-			background: "rgba(99, 102, 241, 0.1)",
+			borderColor: "primary.dark",
+			backgroundColor: "tint.primary",
 		},
 	},
 } as const;
@@ -111,13 +101,13 @@ export const textFieldStyles = {
 		"& .MuiOutlinedInput-root": {
 			borderRadius: 2,
 			"& fieldset": {
-				borderColor: "#e0e0e0",
+				borderColor: "divider",
 			},
 			"&:hover fieldset": {
-				borderColor: "#6366f1",
+				borderColor: "primary.main",
 			},
 			"&.Mui-focused fieldset": {
-				borderColor: "#6366f1",
+				borderColor: "primary.main",
 			},
 		},
 	},
@@ -125,10 +115,11 @@ export const textFieldStyles = {
 
 // AppBar styles
 export const appBarStyles = {
-	gradientAppBar: {
-		backgroundColor: colors.primary,
-		boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-	},
+	gradientAppBar: (theme: Theme) => ({
+		backgroundColor: theme.vars.palette.primary.main,
+		color: theme.vars.palette.primary.contrastText,
+		boxShadow: theme.vars.palette.shadow.card,
+	}),
 
 	navButton: {
 		bgcolor: "rgba(255, 255, 255, 0.2)",
@@ -161,7 +152,7 @@ export const spacing = {
 // Avatar styles
 export const avatarStyles = {
 	gradientAvatar: {
-		backgroundColor: colors.primary,
+		backgroundColor: "primary.main",
 	},
 
 	large: {
@@ -174,15 +165,15 @@ export const avatarStyles = {
 
 // Card styles
 export const cardStyles = {
-	authCard: {
+	authCard: (theme: Theme) => ({
 		maxWidth: 450,
 		width: "100%",
-		background: gradients.background,
-	},
+		...surface(theme),
+	}),
 
-	authCardLarge: {
+	authCardLarge: (theme: Theme) => ({
 		maxWidth: 500,
 		width: "100%",
-		background: gradients.background,
-	},
+		...surface(theme),
+	}),
 } as const;

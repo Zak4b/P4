@@ -25,7 +25,7 @@ function XpBar({ level }: { level: LevelInfo }) {
 				sx={{
 					height: "100%",
 					width: `${progressPercent}%`,
-					background: "linear-gradient(90deg, #6366f1 0%, #ec4899 100%)",
+					background: (theme) => theme.vars.palette.gradient.brand,
 					borderRadius: 1,
 				}}
 			/>
@@ -35,28 +35,30 @@ function XpBar({ level }: { level: LevelInfo }) {
 
 export function LevelProgress({ level }: LevelProgressProps) {
 	return (
-        <Box sx={{ px: 6, display: "flex", alignItems: "center", gap: 2 }}>
-            <Typography
-                variant="subtitle1"
-                sx={{
-                    fontWeight: 600,
-                    width: 90,
-                    flexShrink: 0
-                }}>
+		<Box sx={{ px: 6, display: "flex", alignItems: "center", gap: 2 }}>
+			<Typography
+				variant="subtitle1"
+				sx={{
+					fontWeight: 600,
+					width: 90,
+					flexShrink: 0,
+				}}
+			>
 				Niveau {level.level}
 			</Typography>
-            <XpBar level={level} />
-            <Typography
-                variant="caption"
-                sx={{
-                    color: "text.secondary",
-                    width: 70,
-                    flexShrink: 0,
-                    ml: "auto",
-                    textAlign: "right"
-                }}>
+			<XpBar level={level} />
+			<Typography
+				variant="caption"
+				sx={{
+					color: "text.secondary",
+					width: 70,
+					flexShrink: 0,
+					ml: "auto",
+					textAlign: "right",
+				}}
+			>
 				{level.xpInCurrentLevel}/{level.xpRequiredForNextLevel}
 			</Typography>
-        </Box>
-    );
+		</Box>
+	);
 }

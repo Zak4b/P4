@@ -42,6 +42,14 @@ export const propertyLabels: Record<string, string> = {
 	shirtColor: "Couleur du haut",
 };
 
+/**
+ * `Array.isArray` élargit un `unknown` en `any[]`, ce qui fait fuiter du `any`
+ * dès qu'on lit un élément. Ce garde conserve `unknown` pour les éléments.
+ */
+export function isUnknownArray(value: unknown): value is unknown[] {
+	return Array.isArray(value);
+}
+
 export function getColorOptions(prop: AvatarSchemaProperty): string[] {
 	if (prop?.type === "array" && "default" in prop) {
 		const def = prop.default;

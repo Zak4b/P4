@@ -50,8 +50,8 @@ export default function NotFound() {
               mb: 4,
               maxWidth: '600px'
             }}>
-            Désolé, la page que vous recherchez n'existe pas ou a été déplacée. 
-            Vérifiez l'URL ou retournez à la page d'accueil.
+            Désolé, la page que vous recherchez n&apos;existe pas ou a été déplacée. 
+            Vérifiez l&apos;URL ou retournez à la page d&apos;accueil.
           </Typography>
 
           {/* Bouton de retour */}
@@ -62,7 +62,7 @@ export default function NotFound() {
             size="large"
             sx={{ px: 4, py: 1.5, borderRadius: 2 }}
           >
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Button>
         </Box>
       </Container>

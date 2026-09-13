@@ -23,7 +23,7 @@ export const ChatButton: React.FC<ChatButtonProps> = ({ onClick }) => {
 				sx={{
 					width: "100%",
 					height: "100%",
-					color: "white",
+					color: "primary.contrastText",
 					"&:hover": {
 						bgcolor: "primary.dark",
 					},
@@ -34,4 +34,3 @@ export const ChatButton: React.FC<ChatButtonProps> = ({ onClick }) => {
 		</Box>
 	);
 };
-

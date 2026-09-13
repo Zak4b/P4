@@ -1,7 +1,36 @@
-import { create } from "zustand";
+import { create, type StateCreator } from "zustand";
 import type { GamePlayer, ServerMessageData, SyncData } from "@p4/schemas/realtime";
-import type { GameStore, Board } from "./types";
+import type { Board, GameStore } from "./types";
 import { createEmptyBoard, getPlayerColor, setCell } from "./utils";
+
+type GameSet = Parameters<StateCreator<GameStore>>[0];
+
+const TOKEN_ANIMATION_MS = 400;
+
+/** Retire l'animation du jeton une fois sa durée écoulée. */
+function scheduleAnimationCleanup(set: GameSet, tokenKey: string) {
+	setTimeout(() => {
+		set((s) => {
+			const next = new Set(s.animatingTokens);
+			next.delete(tokenKey);
+			return { animatingTokens: next };
+		});
+	}, TOKEN_ANIMATION_MS);
+}
+
+function boardFromSync(board: SyncData["board"]): Board {
+	const newBoard: Board = createEmptyBoard();
+	if (!board) {
+		return newBoard;
+	}
+	for (let i = 0; i < board.length; i++) {
+		const playerId = board[i];
+		if (playerId) {
+			newBoard[i] = getPlayerColor(playerId);
+		}
+	}
+	return newBoard;
+}
 
 export const useGameStore = create<GameStore>((set, get) => ({
 	gameState: {
@@ -32,15 +61,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 			const tokenKey = `${x}-${y}`;
 			const newAnimatingTokens = new Set(state.animatingTokens);
 			newAnimatingTokens.add(tokenKey);
-
-			// Retirer l'animation après sa durée
-			setTimeout(() => {
-				set((s) => {
-					const next = new Set(s.animatingTokens);
-					next.delete(tokenKey);
-					return { animatingTokens: next };
-				});
-			}, 400);
+			scheduleAnimationCleanup(set, tokenKey);
 
 			return {
 				gameState: {
@@ -57,29 +78,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
 	handleSync: (data: SyncData) => {
 		const { board, cPlayer, last } = data;
 
-		const newBoard: Board = createEmptyBoard();
-
-		if (board) {
-			for (let i = 0; i < board.length; i++) {
-				const playerId = board[i];
-				if (playerId) {
-					newBoard[i] = getPlayerColor(playerId);
-				}
-			}
-		}
-
 		set((state) => ({
 			gameState: {
 				...state.gameState,
-				board: newBoard,
+				board: boardFromSync(board),
 				currentPlayer: cPlayer,
-				lastMove: last || null,
+				lastMove: last ?? null,
 				isDraw: false,
 				isWin: false,
 				winningPlayer: null,
 				loading: false,
 			},
-			animatingTokens: new Set(),
+			animatingTokens: new Set<string>(),
 		}));
 	},
 

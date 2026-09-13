@@ -1,14 +1,13 @@
 import { Box } from "@mui/material";
 
-import { colors } from "@/lib/styles";
-
 /** 0 = empty, 1 = red, 2 = yellow. */
 export type PreviewCell = 0 | 1 | 2;
 
+/** Les mêmes tokens que le vrai plateau, pour que l'aperçu ne diverge pas. */
 const CELL_COLOR: Record<PreviewCell, string> = {
-	0: "#f1f5f9",
-	1: "#ef4444",
-	2: "#eab308",
+	0: "board.hole",
+	1: "board.player1",
+	2: "board.player2",
 };
 
 const EMPTY_SHADOW = "inset 0 4px 6px rgba(0,0,0,0.1)";
@@ -23,7 +22,7 @@ const CHIP_SHINE = {
 	width: "40%",
 	height: "40%",
 	borderRadius: "50%",
-	background: colors.whiteOverlay,
+	backgroundColor: "tint.shine",
 } as const;
 
 export function BoardCell({ cell }: { cell: PreviewCell }) {

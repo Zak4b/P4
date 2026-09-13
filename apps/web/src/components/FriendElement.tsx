@@ -3,7 +3,6 @@
 import { Box, Paper, Stack, Typography } from "@mui/material";
 import UserAvatar from "./UserAvatar";
 import UserActionsDropdown from "./UserActionsDropdown";
-import { colors } from "@/lib/styles";
 
 export interface FriendUser {
 	id: string;
@@ -39,17 +38,21 @@ const UserInfo = ({ user, avatarSize }: { user: FriendUser; avatarSize: number }
 		<UserAvatar userId={user.id} login={user.login} size={avatarSize} />
 		<Stack spacing={0} sx={{ minWidth: 0, flex: 1 }}>
 			<Typography
-                variant="body2"
-                noWrap
-                sx={{
-                    fontWeight: 600,
-                    color: "text.primary"
-                }}>
+				variant="body2"
+				noWrap
+				sx={{
+					fontWeight: 600,
+					color: "text.primary",
+				}}
+			>
 				{user.login}
 			</Typography>
-			<Typography variant="caption" sx={{
-                color: "text.secondary"
-            }}>
+			<Typography
+				variant="caption"
+				sx={{
+					color: "text.secondary",
+				}}
+			>
 				{user.eloRating} ELO
 			</Typography>
 		</Stack>
@@ -109,7 +112,7 @@ export default function FriendElement({
 				textAlign: "left",
 				...(hoverable && {
 					"&:hover": {
-						borderColor: colors.primary,
+						borderColor: "primary.main",
 						background: "rgba(99, 102, 241, 0.06)",
 					},
 				}),

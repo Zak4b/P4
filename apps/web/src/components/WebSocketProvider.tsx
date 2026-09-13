@@ -3,7 +3,7 @@ import { io, type Socket } from "socket.io-client";
 import { useAuth } from "./AuthContext";
 import type { ClientToServerEvents, ServerToClientEvents } from "@p4/schemas/realtime";
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000";
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "http://localhost:3000";
 
 /** Socket client typé avec les maps d'événements partagées api/web */
 type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -36,7 +36,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 	const { isAuthenticated, isAuthReady } = useAuth();
 	const [socket, setSocket] = useState<AppSocket | null>(null);
 	const [isConnected, setIsConnected] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const [, setError] = useState<string | null>(null);
 	const [uuid, setUuid] = useState<string | null>(null);
 	const [roomId, setRoomIdState] = useState<string | null>(null);
 	const [playerId, setPlayerIdState] = useState<number | null>(null);
@@ -146,12 +146,14 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 	useEffect(() => {
 		// Attendre que l'authentification soit prête avant de se connecter
 		if (!isAuthReady) {
-			return;
+			return undefined;
 		}
 
+		// La socket est un système externe : son état miroir doit être synchronisé ici.
 		if (isAuthenticated) {
 			connect();
 		} else {
+			// eslint-disable-next-line react-hooks/set-state-in-effect
 			disconnect();
 		}
 

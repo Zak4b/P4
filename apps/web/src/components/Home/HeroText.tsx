@@ -8,7 +8,7 @@ export function HeroText() {
 				sx={{
 					fontWeight: 700,
 					letterSpacing: 2,
-					background: "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)",
+					background: (theme) => theme.vars.palette.gradient.brand,
 					backgroundClip: "text",
 					WebkitBackgroundClip: "text",
 					color: "transparent",
@@ -25,14 +25,14 @@ export function HeroText() {
 					fontSize: { xs: "3rem", md: "4.5rem" },
 					lineHeight: 1.1,
 					mb: 2,
-					background: "linear-gradient(to right, #1e293b, #475569)",
+					background: (theme) => theme.vars.palette.gradient.heading,
 					backgroundClip: "text",
 					WebkitBackgroundClip: "text",
 					color: "transparent",
 				}}
 			>
 				Master <br />
-				<Box component="span" sx={{ color: "#6366f1" }}>
+				<Box component="span" sx={{ color: "primary.main" }}>
 					the grid.
 				</Box>
 			</Typography>

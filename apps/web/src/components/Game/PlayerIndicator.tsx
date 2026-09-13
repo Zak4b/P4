@@ -1,6 +1,5 @@
 import React from "react";
 import { Paper, Stack } from "@mui/material";
-import { colors } from "@/lib/styles";
 import type { Player } from "@/store/game";
 import PlayerCard from "./PlayerCard";
 
@@ -24,7 +23,7 @@ const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ players, activePlayer
 			sx={{
 				mt: 0,
 				p: 1.5,
-				backgroundColor: colors.dark,
+				backgroundColor: "surfaceInverse.main",
 				borderRadius: 3,
 				overflow: "hidden",
 			}}

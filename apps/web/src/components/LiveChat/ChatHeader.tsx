@@ -2,7 +2,6 @@ import React from "react";
 import { Box, IconButton, Typography, Avatar } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import type { Message } from "./types";
-import { colors } from "@/lib/styles";
 
 interface ChatHeaderProps {
 	messages: Message[];
@@ -11,32 +10,35 @@ interface ChatHeaderProps {
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({ messages, onClose }) => {
 	return (
-        <Box
+		<Box
 			sx={{
-				backgroundColor: colors.primary,
-				color: "white",
+				backgroundColor: "primary.main",
+				color: "primary.contrastText",
 				p: 1.5,
 				display: "flex",
 				alignItems: "center",
 				justifyContent: "space-between",
 			}}
 		>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+			<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
 				<Avatar
 					sx={{
 						width: 32,
 						height: 32,
 						bgcolor: "rgba(255, 255, 255, 0.3)",
-						color: "white",
+						color: "primary.contrastText",
 						fontSize: "0.875rem",
 					}}
 				>
 					💬
 				</Avatar>
 				<Box>
-					<Typography variant="body2" sx={{
-                        fontWeight: 600
-                    }}>
+					<Typography
+						variant="body2"
+						sx={{
+							fontWeight: 600,
+						}}
+					>
 						Chat
 					</Typography>
 					{messages.length > 0 && (
@@ -46,17 +48,16 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ messages, onClose }) => 
 					)}
 				</Box>
 			</Box>
-            <IconButton
+			<IconButton
 				size="small"
 				onClick={(e) => {
 					e.stopPropagation();
 					onClose();
 				}}
-				sx={{ color: "white" }}
+				sx={{ color: "primary.contrastText" }}
 			>
 				<CloseIcon fontSize="small" />
 			</IconButton>
-        </Box>
-    );
+		</Box>
+	);
 };
-

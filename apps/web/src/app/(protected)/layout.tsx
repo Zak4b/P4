@@ -5,13 +5,8 @@ import { useRouter } from "next/navigation";
 import { Box, CircularProgress } from "@mui/material";
 import { useAuth } from "@/components/AuthContext";
 import Layout from "@/components/layout/Layout";
-import { colors } from "@/lib/styles";
 
-export default function ProtectedLayout({
-	children,
-}: {
-	children: React.ReactNode;
-}) {
+export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
 	const { isAuthenticated, isAuthReady } = useAuth();
 	const router = useRouter();
 
@@ -23,17 +18,18 @@ export default function ProtectedLayout({
 
 	if (!isAuthReady) {
 		return (
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minHeight: "100vh",
-                    backgroundColor: colors.primary
-                }}>
-                <CircularProgress sx={{ color: "white" }} />
-            </Box>
-        );
+			<Box
+				sx={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					minHeight: "100vh",
+					backgroundColor: "primary.main",
+				}}
+			>
+				<CircularProgress sx={{ color: "primary.contrastText" }} />
+			</Box>
+		);
 	}
 
 	if (!isAuthenticated) {

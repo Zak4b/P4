@@ -1,172 +1,42 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-	Container,
-	Box,
-	Typography,
-	Paper,
-	Grid,
-	Button,
-	Stack,
-	TextField,
-	InputAdornment,
-} from "@mui/material";
-import {
-	PlayArrow,
-	EmojiEvents,
-	Search,
-} from "@mui/icons-material";
-import { colors } from "@/lib/styles";
+import { Box, Container, Grid, Paper, Stack, Typography } from "@mui/material";
 import RuleList from "@/components/Game/Rules/RuleList";
 import { useMatching } from "@/hooks/useMatching";
+import PlayActionsPanel from "./components/PlayActionsPanel";
 
 export default function PlayIndexPage() {
-	const router = useRouter();
 	const { modal, startMatchmaking } = useMatching();
-	const [joinRoomId, setJoinRoomId] = useState("");
-
-	const handleJoinSpecificRoom = (e: React.FormEvent) => {
-		e.preventDefault();
-		if (joinRoomId.trim()) {
-			router.push(`/play/${joinRoomId.trim()}`);
-		}
-	};
 
 	return (
-        <Container maxWidth="lg" sx={{ py: 6 }}>
-            <Grid container spacing={6}>
+		<Container maxWidth="lg" sx={{ py: 6 }}>
+			<Grid container spacing={6}>
 				{/* Left Column: Actions */}
 				<Grid size={{ xs: 12, md: 5 }}>
-					<Stack spacing={4}>
-						<Box>
-							<Typography
-                                variant="overline"
-                                color="primary"
-                                sx={{
-                                    fontWeight: "bold",
-                                    letterSpacing: 1.5
-                                }}>
-								GAME CENTER
-							</Typography>
-							<Typography variant="h2" gutterBottom sx={{
-                                fontWeight: "800"
-                            }}>
-								Ready to play?
-							</Typography>
-						</Box>
-
-						<Stack spacing={2}>
-							<Button
-								onClick={startMatchmaking}
-								variant="contained"
-								size="large"
-								startIcon={<PlayArrow />}
-								sx={{
-									py: 2,
-									fontSize: "1.1rem",
-									borderRadius: 3,
-									textTransform: "none",
-									fontWeight: "bold",
-									backgroundColor: colors.primary,
-									boxShadow: "0 8px 16px -4px rgba(99, 102, 241, 0.4)",
-								}}
-							>
-								Quick Match
-							</Button>
-
-							<Paper
-								component="form"
-								onSubmit={handleJoinSpecificRoom}
-								elevation={0}
-								sx={{
-									p: 0.5,
-									display: "flex",
-									alignItems: "center",
-									border: "1px solid",
-									borderColor: "divider",
-									borderRadius: 3,
-								}}
-							>
-								<TextField
-									placeholder="Enter Room ID..."
-									variant="standard"
-									fullWidth
-									value={joinRoomId}
-									onChange={(e) => setJoinRoomId(e.target.value)}
-									slotProps={{
-										input: {
-											disableUnderline: true,
-											startAdornment: (
-												<InputAdornment position="start" sx={{ pl: 2 }}>
-													<Search color="action" />
-												</InputAdornment>
-											),
-										},
-									}}
-									sx={{ px: 1 }}
-								/>
-								<Button
-									type="submit"
-									disabled={!joinRoomId.trim()}
-									variant="contained"
-									color="secondary"
-									sx={{
-										borderRadius: 2.5,
-										px: 3,
-										textTransform: "none",
-										fontWeight: "bold"
-									}}
-								>
-									Join
-								</Button>
-							</Paper>
-						</Stack>
-
-						<Paper
-							elevation={0}
-							sx={{ p: 3, bgcolor: "primary.50", borderRadius: 4 }}
-						>
-							<Stack direction="row" spacing={2} sx={{
-                                alignItems: "flex-start"
-                            }}>
-								<EmojiEvents color="gold" fontSize="large" />
-								<Box>
-									<Typography variant="h6" gutterBottom sx={{
-                                        fontWeight: "bold"
-                                    }}>
-										Daily Challenge
-									</Typography>
-									<Typography variant="body2" sx={{
-                                        color: "text.secondary"
-                                    }}>
-										Win 3 games in a row to unlock the "Strategist" badge and
-										earn double points today!
-									</Typography>
-								</Box>
-							</Stack>
-						</Paper>
-					</Stack>
+					<PlayActionsPanel onQuickMatch={startMatchmaking} />
 				</Grid>
 
 				{/* Right Column: Info & Rules */}
 				<Grid size={{ xs: 12, md: 7 }}>
 					<Stack spacing={4}>
 						<Box>
-							<Typography variant="h5" gutterBottom sx={{
-                                fontWeight: "bold"
-                            }}>
+							<Typography
+								variant="h5"
+								gutterBottom
+								sx={{
+									fontWeight: "bold",
+								}}
+							>
 								How to Play
 							</Typography>
-							<Paper variant="outlined" sx={{ borderRadius: 4, overflow: 'hidden' }}>
+							<Paper variant="outlined" sx={{ borderRadius: 4, overflow: "hidden" }}>
 								<RuleList />
 							</Paper>
 						</Box>
 					</Stack>
 				</Grid>
 			</Grid>
-            {modal}
-        </Container>
-    );
+			{modal}
+		</Container>
+	);
 }

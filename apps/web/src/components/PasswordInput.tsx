@@ -20,7 +20,7 @@ export default function PasswordInput({
 	const validationMessages = validations?.map(([validator, message]) => ({
 		message,
 		isValid: validator(stringValue),
-	})) || [];
+	})) ?? [];
 
 	const hasErrors = validationMessages.some((v) => !v.isValid);
 
@@ -30,7 +30,7 @@ export default function PasswordInput({
 				{...props}
 				value={value}
 				type={show ? "text" : "password"}
-				error={props.error || (hasErrors && stringValue.length > 0)}
+				error={(props.error ?? false) || (hasErrors && stringValue.length > 0)}
 				slotProps={{
 					...slotProps,
 					input: {

@@ -7,7 +7,7 @@ import { Refresh as RefreshIcon } from "@mui/icons-material";
 import { useRoomsQuery } from "@/lib/api/room/useRoomQuery";
 import RoomBadge from "./RoomBadge";
 import RoomForm from "./RoomForm";
-import { colors } from "@/lib/styles";
+import { buttonStyles } from "@/lib/styles";
 
 interface RoomListProps {
 	open: boolean;
@@ -21,7 +21,7 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 	const isLoading = roomsQuery.isFetching;
 
 	const loadRooms = () => {
-		roomsQuery.refetch().catch(() => {});
+		roomsQuery.refetch().catch((err: unknown) => console.error(err));
 	};
 
 	const handleJoinRoom = (roomId: string) => {
@@ -30,7 +30,7 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 	};
 
 	return (
-        <Drawer
+		<Drawer
 			anchor="right"
 			open={open}
 			onClose={onClose}
@@ -38,16 +38,19 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 				paper: {
 					sx: {
 						width: { xs: "100%", sm: 400 },
-						background: colors.backgroundLight,
+						backgroundColor: "background.default",
 					},
 				},
 			}}
 		>
-            <Box sx={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
-				<Box sx={{ p: 2, backgroundColor: colors.primary, color: "white" }}>
-					<Typography variant="h6" sx={{
-                        fontWeight: 700
-                    }}>
+			<Box sx={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+				<Box sx={{ p: 2, backgroundColor: "primary.main", color: "primary.contrastText" }}>
+					<Typography
+						variant="h6"
+						sx={{
+							fontWeight: 700,
+						}}
+					>
 						Rooms
 					</Typography>
 				</Box>
@@ -56,12 +59,13 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 					<Divider sx={{ my: 2 }} />
 					{isLoading ? (
 						<Box
-                            sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                py: 4
-                            }}>
+							sx={{
+								display: "flex",
+								justifyContent: "center",
+								alignItems: "center",
+								py: 4,
+							}}
+						>
 							<CircularProgress />
 						</Box>
 					) : (
@@ -71,36 +75,44 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 									key={room.id}
 									sx={{
 										mb: 1,
-										bgcolor: "white",
+										bgcolor: "background.paper",
 										borderRadius: 2,
-										boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+										boxShadow: (theme) => theme.vars.palette.shadow.card,
 										flexDirection: "column",
 										alignItems: "stretch",
 									}}
 								>
 									<Box
-                                        sx={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            alignItems: "center",
-                                            mb: 1
-                                        }}>
-										<Typography variant="subtitle1" sx={{
-                                            fontWeight: 600
-                                        }}>
+										sx={{
+											display: "flex",
+											justifyContent: "space-between",
+											alignItems: "center",
+											mb: 1,
+										}}
+									>
+										<Typography
+											variant="subtitle1"
+											sx={{
+												fontWeight: 600,
+											}}
+										>
 											{room.name}
 										</Typography>
 										<RoomBadge status={room.status} />
 									</Box>
 									<Box
-                                        sx={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            alignItems: "center"
-                                        }}>
-										<Typography variant="body2" sx={{
-                                            color: "text.secondary"
-                                        }}>
+										sx={{
+											display: "flex",
+											justifyContent: "space-between",
+											alignItems: "center",
+										}}
+									>
+										<Typography
+											variant="body2"
+											sx={{
+												color: "text.secondary",
+											}}
+										>
 											{room.count}/{room.max} joueurs
 										</Typography>
 										<Button
@@ -108,12 +120,7 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 											size="small"
 											onClick={() => handleJoinRoom(room.id)}
 											disabled={!room.joinable}
-											sx={{
-												backgroundColor: colors.primary,
-												"&:hover": {
-													backgroundColor: colors.primaryHover,
-												},
-											}}
+											sx={buttonStyles.gradientButton}
 										>
 											Rejoindre
 										</Button>
@@ -130,21 +137,14 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 						startIcon={<RefreshIcon />}
 						onClick={loadRooms}
 						disabled={isLoading}
-						sx={{
-							borderColor: "#6366f1",
-							color: "#6366f1",
-							"&:hover": {
-								borderColor: "#4f46e5",
-								background: "rgba(99, 102, 241, 0.1)",
-							},
-						}}
+						sx={buttonStyles.primaryOutlined}
 					>
 						Actualiser
 					</Button>
 				</Box>
 			</Box>
-        </Drawer>
-    );
+		</Drawer>
+	);
 };
 
 export default RoomList;

@@ -1,17 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Button, CircularProgress, Stack, Typography } from "@mui/material";
-import { Cancel } from "@mui/icons-material";
+import { useEffect } from "react";
 import { useWebSocket } from "@/components/WebSocketProvider";
 import { useModalPortal } from "@/lib/hooks/useModalPortal";
-import { colors } from "@/lib/styles";
-
-function formatElapsed(seconds: number): string {
-	const m = Math.floor(seconds / 60);
-	const s = seconds % 60;
-	return `${m}:${s.toString().padStart(2, "0")}`;
-}
+import MatchmakingModalContent from "@/components/Matchmaking/MatchmakingModalContent";
 
 export function useMatching() {
 	const { socket, isConnected } = useWebSocket();
@@ -20,59 +12,14 @@ export function useMatching() {
 		title: "Recherche d'adversaire",
 		closable: false,
 		size: "xs",
-		content: ({ close }) => {
-			const [elapsed, setElapsed] = useState(0);
-
-			useEffect(() => {
-				const start = Date.now();
-				const interval = setInterval(() => {
-					setElapsed(Math.floor((Date.now() - start) / 1000));
-				}, 1000);
-				return () => clearInterval(interval);
-			}, []);
-
-			const handleCancel = () => {
-				socket?.emit("game:p4:matchmaking:leave");
-				close();
-			};
-			return (
-                <Stack spacing={3} sx={{
-                    alignItems: "center"
-                }}>
-                    <CircularProgress />
-                    <Typography sx={{
-                        color: "text.secondary"
-                    }}>En attente d'un adversaire...</Typography>
-                    <Typography variant="h5" color="primary" sx={{
-                        fontWeight: 700
-                    }}>
-						{formatElapsed(elapsed)}
-					</Typography>
-                    <Button
-						variant="outlined"
-						size="large"
-						startIcon={<Cancel />}
-						onClick={handleCancel}
-						sx={{
-							py: 2,
-							px: 4,
-							fontSize: "1.1rem",
-							borderRadius: 3,
-							textTransform: "none",
-							fontWeight: "bold",
-							borderColor: colors.primary,
-							color: colors.primary,
-							"&:hover": {
-								borderColor: colors.primaryHover,
-								backgroundColor: "rgba(99, 102, 241, 0.08)",
-							},
-						}}
-					>
-						Annuler
-					</Button>
-                </Stack>
-            );
-		},
+		content: ({ close }) => (
+			<MatchmakingModalContent
+				onCancel={() => {
+					socket?.emit("game:p4:matchmaking:leave");
+					close();
+				}}
+			/>
+		),
 	});
 
 	const startMatchmaking = () => {

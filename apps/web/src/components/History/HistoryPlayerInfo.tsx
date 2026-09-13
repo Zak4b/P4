@@ -3,6 +3,27 @@ import UserAvatar from "../UserAvatar";
 import UserActionsDropdown from "../UserActionsDropdown";
 import { useAuth } from "../AuthContext";
 
+type PlayerResult = "winner" | "loser" | "neutral";
+
+function getPlayerResult(isWinner: boolean, isLoser: boolean): PlayerResult {
+	if (isWinner) {
+		return "winner";
+	}
+	return isLoser ? "loser" : "neutral";
+}
+
+const BORDER_COLORS: Record<PlayerResult, string> = {
+	winner: "#4caf50",
+	loser: "#f44336",
+	neutral: "#757575",
+};
+
+const TEXT_COLORS: Record<PlayerResult, string> = {
+	winner: "success.main",
+	loser: "error.main",
+	neutral: "text.primary",
+};
+
 interface PlayerInfoProps {
 	player: { id: string; login: string; eloRating?: number };
 	isWinner: boolean;
@@ -14,8 +35,9 @@ interface PlayerInfoProps {
 
 export default function PlayerInfo({ player, isWinner, isLoser, isDraw, alignRight = false, compact = false }: PlayerInfoProps) {
 	const { user } = useAuth();
-	const borderColor = isWinner ? "#4caf50" : isLoser ? "#f44336" : "#757575";
-	const textColor = isWinner ? "success.main" : isLoser ? "error.main" : "text.primary";
+	const result = getPlayerResult(isWinner, isLoser);
+	const borderColor = BORDER_COLORS[result];
+	const textColor = TEXT_COLORS[result];
 	const avatarSize = compact ? 36 : 60;
 
 	return (

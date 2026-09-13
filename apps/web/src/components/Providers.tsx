@@ -15,7 +15,7 @@ function GameWebSocketListener({ children }: { children: React.ReactNode }) {
 
 export function Providers({ children }: { children: React.ReactNode }) {
 	return (
-		<ThemeProvider theme={theme}>
+		<ThemeProvider theme={theme} defaultMode="system">
 			<CssBaseline />
 			<QueryProvider>
 				<AuthProvider>

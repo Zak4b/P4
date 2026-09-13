@@ -35,7 +35,7 @@ export const useGameWebSocket = () => {
 	// Écouter les événements Socket.IO directement
 	useEffect(() => {
 		if (!socket || !isConnected) {
-			return;
+			return undefined;
 		}
 
 		// Écouter l'événement sync (qui est envoyé après un join réussi)

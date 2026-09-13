@@ -12,7 +12,20 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
+
+const subscribe = () => () => {
+	// Le statut ne change jamais après l'hydratation : rien à désabonner.
+};
+
+/** `false` pendant le rendu serveur, `true` une fois hydraté côté client. */
+function useIsClient(): boolean {
+	return useSyncExternalStore(
+		subscribe,
+		() => true,
+		() => false
+	);
+}
 
 export interface ModalProps {
 	open: boolean;
@@ -47,12 +60,7 @@ export default function Modal({
 			}
 		}
 	};
-	const [mounted, setMounted] = useState(false);
-
-	useEffect(() => {
-		setMounted(true);
-		return () => setMounted(false);
-	}, []);
+	const mounted = useIsClient();
 
 	if (!mounted) {
 		return null;
@@ -82,7 +90,7 @@ export default function Modal({
 							position: "absolute",
 							right: 8,
 							top: 8,
-							color: (theme) => theme.palette.grey[500],
+							color: "text.secondary",
 						}}
 					>
 						<CloseIcon />
@@ -100,7 +108,13 @@ export default function Modal({
 						<Button onClick={onClose} disabled={isConfirming}>
 							Annuler
 						</Button>
-						<Button onClick={handleConfirm} variant="contained" disabled={isConfirming}>
+						<Button
+							onClick={() => {
+								handleConfirm().catch((err: unknown) => console.error(err));
+							}}
+							variant="contained"
+							disabled={isConfirming}
+						>
 							{isConfirming ? "Validation..." : "Valider"}
 						</Button>
 					</DialogActions>

@@ -16,7 +16,7 @@ import {
 	getEnumOptions,
 	getDefaultValue,
 	getColorOptions,
-	type AvatarSchemaProperty,
+	isUnknownArray,
 } from "@/lib/avatarOptions";
 
 type AvatarOptions = Record<string, string | number | boolean | string[] | number[]>;
@@ -84,6 +84,96 @@ export interface AvatarEditorProps {
 	seed?: string;
 }
 
+type UpdateOption = (key: string, value: string | number | boolean | string[] | number[]) => void;
+
+function renderControl(key: string, options: AvatarOptions, updateOption: UpdateOption) {
+	const prop = avatarSchemaProperties[key];
+	if (!prop) {return null;}
+
+	const label = propertyLabels[key] ?? key;
+	const enumOpts = getEnumOptions(prop);
+
+	if (enumOpts) {
+		const hasNone = OPTIONAL_COMPONENTS.includes(key);
+		const choices = hasNone ? [NONE, ...enumOpts] : enumOpts;
+		// Une option est stockée tantôt en scalaire, tantôt en tableau d'un élément.
+		const stored: unknown = options[key] ?? getDefaultValue(prop);
+		const current = isUnknownArray(stored) ? stored[0] : stored;
+		const value = typeof current === "string" && choices.includes(current) ? current : choices[0];
+		return (
+                <Box key={key} sx={{ mb: 2, minWidth: 0, overflow: "hidden" }}>
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            color: "text.secondary",
+                            display: "block",
+                            mb: 0.5
+                        }}>
+					{label}
+				</Typography>
+                    <ToggleButtonGroup
+					value={value}
+					exclusive
+					onChange={(_, next: string | null) => {
+						if (next != null) {
+							updateOption(key, [next]);
+						}
+					}}
+					size="small"
+					sx={{ flexWrap: "wrap", gap: 0.5, maxWidth: "100%" }}
+				>
+					{choices.map((opt) => (
+						<ToggleButton key={opt} value={opt}>
+							{opt === NONE ? "Aucun" : opt}
+						</ToggleButton>
+					))}
+				</ToggleButtonGroup>
+                </Box>
+            );
+	}
+
+	if (prop.type === "array" && (prop.items as { pattern?: string })?.pattern) {
+		const colors = getColorOptions(prop);
+		const stored: unknown = options[key] ?? colors;
+		const current = isUnknownArray(stored) ? stored[0] : stored;
+		const value = typeof current === "string" ? current : colors[0];
+		return (
+                <Box key={key} sx={{ mb: 2, minWidth: 0, overflow: "hidden" }}>
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            color: "text.secondary",
+                            display: "block",
+                            mb: 0.5
+                        }}>
+					{label}
+				</Typography>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, maxWidth: "100%" }}>
+					{colors.map((c) => (
+						<Box
+							key={c}
+							onClick={() => updateOption(key, [c])}
+							sx={{
+								width: 28,
+								height: 28,
+								borderRadius: "50%",
+								bgcolor: c === "transparent" ? "transparent" : `#${c}`,
+								border: "2px solid",
+								borderColor: value === c ? "primary.main" : "divider",
+								cursor: "pointer",
+								"&:hover": { borderColor: "primary.light" },
+							}}
+							title={c}
+						/>
+					))}
+				</Box>
+                </Box>
+            );
+	}
+
+	return null;
+}
+
 export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
 	const [options, setOptions] = useState<AvatarOptions>(() =>
 		seed ? getOptionsFromSeed(seed) : buildInitialOptions()
@@ -91,7 +181,7 @@ export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
 
 	const dataUrl = useMemo(() => {
 		const opts: Record<string, unknown> = { ...options, size: PREVIEW_SIZE };
-		const first = (arr: unknown) => (Array.isArray(arr) ? arr[0] : undefined);
+		const first = (value: unknown): unknown => (isUnknownArray(value) ? value[0] : undefined);
 
 		for (const key of OPTIONAL_COMPONENTS) {
 			const probKey = `${key}Probability`;
@@ -106,86 +196,6 @@ export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
 		setOptions((prev) => ({ ...prev, [key]: value }));
 	}, []);
 
-	const renderControl = (key: string) => {
-		const prop = avatarSchemaProperties[key];
-		if (!prop) {return null;}
-
-		const label = propertyLabels[key] ?? key;
-		const enumOpts = getEnumOptions(prop);
-
-		if (enumOpts) {
-			const hasNone = OPTIONAL_COMPONENTS.includes(key);
-			const choices = hasNone ? [NONE, ...enumOpts] : enumOpts;
-			const current = (options[key] as string) ?? (Array.isArray((prop as { default?: unknown[] }).default) ? (prop as { default: string[] }).default[0] : choices[0]);
-			const value = Array.isArray(current) ? current[0] : current;
-			return (
-                <Box key={key} sx={{ mb: 2, minWidth: 0, overflow: "hidden" }}>
-                    <Typography
-                        variant="caption"
-                        sx={{
-                            color: "text.secondary",
-                            display: "block",
-                            mb: 0.5
-                        }}>
-						{label}
-					</Typography>
-                    <ToggleButtonGroup
-						value={value ?? choices[0]}
-						exclusive
-						onChange={(_, v) => v != null && updateOption(key, [v])}
-						size="small"
-						sx={{ flexWrap: "wrap", gap: 0.5, maxWidth: "100%" }}
-					>
-						{choices.map((opt) => (
-							<ToggleButton key={opt} value={opt}>
-								{opt === NONE ? "Aucun" : opt}
-							</ToggleButton>
-						))}
-					</ToggleButtonGroup>
-                </Box>
-            );
-		}
-
-		if (prop.type === "array" && (prop.items as { pattern?: string })?.pattern) {
-			const colors = getColorOptions(prop);
-			const current = (options[key] as string[]) ?? colors;
-			const value = Array.isArray(current) ? current[0] : current;
-			return (
-                <Box key={key} sx={{ mb: 2, minWidth: 0, overflow: "hidden" }}>
-                    <Typography
-                        variant="caption"
-                        sx={{
-                            color: "text.secondary",
-                            display: "block",
-                            mb: 0.5
-                        }}>
-						{label}
-					</Typography>
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, maxWidth: "100%" }}>
-						{colors.map((c) => (
-							<Box
-								key={c}
-								onClick={() => updateOption(key, [c])}
-								sx={{
-									width: 28,
-									height: 28,
-									borderRadius: "50%",
-									bgcolor: c === "transparent" ? "transparent" : `#${c}`,
-									border: "2px solid",
-									borderColor: value === c ? "primary.main" : "divider",
-									cursor: "pointer",
-									"&:hover": { borderColor: "primary.light" },
-								}}
-								title={c}
-							/>
-						))}
-					</Box>
-                </Box>
-            );
-		}
-
-		return null;
-	};
 
 	return (
         <Stack direction={{ xs: "column", md: "row" }} spacing={4} sx={{ p: 2, flex: 1, minHeight: 0, overflow: "hidden" }}>
@@ -217,7 +227,7 @@ export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
                                 }}>
 								{title}
 							</Typography>
-                            {visibleKeys.map(renderControl)}
+                            {visibleKeys.map((key) => renderControl(key, options, updateOption))}
                         </Box>
                     );
 				})}

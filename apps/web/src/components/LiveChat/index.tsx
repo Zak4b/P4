@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Paper } from "@mui/material";
+import { Box, Paper, type SxProps, type Theme } from "@mui/material";
 import { useWebSocket } from "@/components/WebSocketProvider";
 import type { MessageAck } from "@p4/schemas/realtime";
 import { useChatMessages } from "./hooks/useChatMessages";
@@ -10,6 +10,23 @@ import { ChatHeader } from "./ChatHeader";
 import { ChatContent } from "./ChatContent";
 import { ChatInput } from "./ChatInput";
 import { UnreadBadge } from "./UnreadBadge";
+
+const chatPanelStyles = (isOpen: boolean): SxProps<Theme> => ({
+	position: "relative",
+	width: isOpen ? { xs: "calc(100vw - 32px)", sm: 380 } : 56,
+	height: isOpen ? 500 : 56,
+	bottom: isOpen ? 0 : 12,
+	right: 0,
+	display: "flex",
+	flexDirection: "column",
+	borderRadius: isOpen ? 2 : "50%",
+	overflow: "hidden",
+	bgcolor: isOpen ? "background.paper" : "primary.main",
+	color: isOpen ? "text.primary" : "primary.contrastText",
+	cursor: isOpen ? "default" : "pointer",
+	transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+	boxShadow: isOpen ? "0 8px 24px rgba(0,0,0,0.15)" : "0 4px 12px rgba(0,0,0,0.15)",
+});
 
 interface LiveChatProps {
 	roomId?: string;
@@ -36,7 +53,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 					payload: {
 						id: `error-${Date.now()}`,
 						type: "info",
-						content: response.message || "Erreur lors de l'envoi du message",
+						content: response.message ?? "Erreur lors de l'envoi du message",
 						timestamp: new Date(),
 					},
 				});
@@ -67,23 +84,8 @@ const LiveChat: React.FC<LiveChatProps> = ({ roomId = "1" }) => {
 			<Box sx={{ position: "relative" }}>
 				<Paper
 					elevation={isOpen ? 8 : 4}
-					onClick={!isOpen ? toggleChat : undefined}
-					sx={{
-						position: "relative",
-						width: isOpen ? { xs: "calc(100vw - 32px)", sm: 380 } : 56,
-						height: isOpen ? 500 : 56,
-						bottom: isOpen ? 0 : 12,
-						right: isOpen ? 0 : 0,
-						display: "flex",
-						flexDirection: "column",
-						borderRadius: isOpen ? 2 : "50%",
-						overflow: "hidden",
-						bgcolor: isOpen ? "white" : "primary.main",
-						color: isOpen ? "inherit" : "white",
-						cursor: !isOpen ? "pointer" : "default",
-						transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-						boxShadow: isOpen ? "0 8px 24px rgba(0,0,0,0.15)" : "0 4px 12px rgba(0,0,0,0.15)",
-					}}
+					onClick={isOpen ? undefined : toggleChat}
+					sx={chatPanelStyles(isOpen)}
 				>
 					{!isOpen && <ChatButton onClick={toggleChat} />}
 

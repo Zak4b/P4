@@ -18,7 +18,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ message, onMessageChange, 
 				p: 1.5,
 				borderTop: "1px solid",
 				borderColor: "divider",
-				background: "white",
+				backgroundColor: "background.paper",
 			}}
 		>
 			<Stack direction="row" spacing={1}>
@@ -34,13 +34,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({ message, onMessageChange, 
 						"& .MuiOutlinedInput-root": {
 							borderRadius: 2,
 							"& fieldset": {
-								borderColor: "#e0e0e0",
+								borderColor: "divider",
 							},
 							"&:hover fieldset": {
-								borderColor: "#6366f1",
+								borderColor: "primary.main",
 							},
 							"&.Mui-focused fieldset": {
-								borderColor: "#6366f1",
+								borderColor: "primary.main",
 							},
 						},
 					}}
@@ -50,13 +50,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({ message, onMessageChange, 
 					disabled={!message.trim()}
 					sx={{
 						bgcolor: "primary.main",
-						color: "white",
+						color: "primary.contrastText",
 						"&:hover": {
 							bgcolor: "primary.dark",
 						},
 						"&.Mui-disabled": {
-							bgcolor: "grey.300",
-							color: "grey.500",
+							bgcolor: "action.disabledBackground",
+							color: "action.disabled",
 						},
 					}}
 				>
@@ -66,4 +66,3 @@ export const ChatInput: React.FC<ChatInputProps> = ({ message, onMessageChange, 
 		</Box>
 	);
 };
-

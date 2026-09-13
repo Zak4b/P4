@@ -1,14 +1,18 @@
 import { Box } from "@mui/material";
 
-import { colors } from "@/lib/styles";
+import type { Theme } from "@mui/material/styles";
 
-const TINTED_HOLES = [
-	`radial-gradient(circle at 28px 28px, ${colors.holeRed} 10px, transparent 11px)`,
-	`radial-gradient(circle at 140px 84px, ${colors.holeRed} 10px, transparent 11px)`,
-	`radial-gradient(circle at 84px 140px, ${colors.holeYellow} 10px, transparent 11px)`,
-	`radial-gradient(circle at 28px 84px, ${colors.holeYellow} 10px, transparent 11px)`,
-	`radial-gradient(circle, ${colors.holePattern} 10px, transparent 11px)`,
-].join(", ");
+/** Le motif suit le mode courant : les aplats viennent de `palette.tint`. */
+const tintedHoles = (theme: Theme) => {
+	const { holeRed, holeYellow, hole } = theme.vars.palette.tint;
+	return [
+		`radial-gradient(circle at 28px 28px, ${holeRed} 10px, transparent 11px)`,
+		`radial-gradient(circle at 140px 84px, ${holeRed} 10px, transparent 11px)`,
+		`radial-gradient(circle at 84px 140px, ${holeYellow} 10px, transparent 11px)`,
+		`radial-gradient(circle at 28px 84px, ${holeYellow} 10px, transparent 11px)`,
+		`radial-gradient(circle, ${hole} 10px, transparent 11px)`,
+	].join(", ");
+};
 
 const TINTED_HOLE_SIZES = "168px 168px, 168px 168px, 168px 168px, 168px 168px, 56px 56px";
 
@@ -22,7 +26,7 @@ export function HoleBackground() {
 				position: "absolute",
 				inset: 0,
 				zIndex: 0,
-				backgroundImage: TINTED_HOLES,
+				backgroundImage: tintedHoles,
 				backgroundSize: TINTED_HOLE_SIZES,
 				backgroundPosition: "center",
 				maskImage: FADE_OUT,

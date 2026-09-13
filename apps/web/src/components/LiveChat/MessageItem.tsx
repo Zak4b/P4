@@ -2,7 +2,6 @@ import React from "react";
 import { Box, Typography, Alert, Paper, Button, Stack } from "@mui/material";
 import { Info as InfoIcon } from "@mui/icons-material";
 import type { Message } from "./types";
-import { colors } from "@/lib/styles";
 
 interface MessageItemProps {
 	message: Message;
@@ -18,7 +17,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 	switch (message.type) {
 		case "info":
 			return (
-                <Alert
+				<Alert
 					severity="info"
 					icon={<InfoIcon />}
 					sx={{
@@ -26,21 +25,22 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 						py: 0.5,
 					}}
 				>
-                    <Box>
+					<Box>
 						<Typography
-                            variant="caption"
-                            sx={{
-                                color: "text.secondary",
-                                mr: 1
-                            }}>
+							variant="caption"
+							sx={{
+								color: "text.secondary",
+								mr: 1,
+							}}
+						>
 							[{timeStr}]
 						</Typography>
 						{message.content}
 					</Box>
-                </Alert>
-            );
+				</Alert>
+			);
 
-		case "message":
+		case "message": {
 			const isOwnMessage = message.authorId === currentUserId;
 			return (
 				<Box
@@ -54,13 +54,8 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 							maxWidth: "75%",
 							p: 1.5,
 							borderRadius: 3,
-							backgroundColor: isOwnMessage
-								? colors.primary
-								: undefined,
-							background: isOwnMessage
-								? undefined
-								: colors.messageBg,
-							color: isOwnMessage ? "white" : "text.primary",
+							backgroundColor: isOwnMessage ? "primary.main" : "action.hover",
+							color: isOwnMessage ? "primary.contrastText" : "text.primary",
 							boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
 						}}
 					>
@@ -71,10 +66,11 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 					</Box>
 				</Box>
 			);
+		}
 
 		case "vote":
 			return (
-                <Paper
+				<Paper
 					elevation={1}
 					sx={{
 						p: 1.5,
@@ -82,15 +78,16 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 						bgcolor: "background.paper",
 					}}
 				>
-                    <Typography
-                        variant="body2"
-                        sx={{
-                            color: "text.secondary",
-                            mb: 1
-                        }}>
+					<Typography
+						variant="body2"
+						sx={{
+							color: "text.secondary",
+							mb: 1,
+						}}
+					>
 						[{timeStr}] {message.content}
 					</Typography>
-                    <Stack direction="row" spacing={1}>
+					<Stack direction="row" spacing={1}>
 						<Button size="small" variant="contained" color="error" sx={{ flex: 1 }}>
 							Non
 						</Button>
@@ -98,11 +95,10 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 							Oui
 						</Button>
 					</Stack>
-                </Paper>
-            );
+				</Paper>
+			);
 
 		default:
 			return null;
 	}
 };
-

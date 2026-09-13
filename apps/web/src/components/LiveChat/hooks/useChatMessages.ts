@@ -23,7 +23,7 @@ export const useChatMessages = (roomId: string, isOpen: boolean) => {
 
 	useEffect(() => {
 		if (!socket || !isConnected) {
-			return;
+			return undefined;
 		}
 
 		const messageHandler = (data: ServerMessageData<"chat:message">) => {

@@ -20,7 +20,7 @@ export function HeroShowcase() {
 				icon={<Bolt fontSize="large" />}
 				title="Fast"
 				caption="Real-time"
-				tint="rgba(99, 102, 241, 0.1)"
+				tint="tint.primary"
 				iconColor="primary.main"
 				float="6s ease-in-out infinite"
 				position={{ top: 40, right: 40 }}
@@ -29,7 +29,7 @@ export function HeroShowcase() {
 				icon={<Group fontSize="large" />}
 				title="Multiplayer"
 				caption="Invite friends"
-				tint="rgba(236, 72, 153, 0.1)"
+				tint="tint.secondary"
 				iconColor="secondary.main"
 				float="7s ease-in-out infinite 1s"
 				position={{ bottom: 80, left: 20, zIndex: 2 }}

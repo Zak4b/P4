@@ -19,11 +19,9 @@ import HistoryIcon from "@mui/icons-material/History";
 import RoomIcon from "@mui/icons-material/MeetingRoom";
 import TrophyIcon from "@mui/icons-material/EmojiEvents";
 import MenuIcon from "@mui/icons-material/Menu";
-import {
-	appBarStyles,
-	layoutStyles,
-} from "@/lib/styles";
+import { appBarStyles, layoutStyles } from "@/lib/styles";
 import UserMenu from "./UserMenu";
+import ColorModeToggle from "./ColorModeToggle";
 import NotificationsButton from "./NotificationsButton";
 
 interface NavButtonProps {
@@ -55,11 +53,7 @@ function NavButton({ href, icon, children, pathname }: NavButtonProps) {
 	const isActive = pathname === href;
 	return (
 		<Link href={href} style={{ textDecoration: "none" }}>
-			<Button
-				color="inherit"
-				startIcon={icon}
-				sx={isActive ? appBarStyles.navButtonActive : appBarStyles.navButton}
-			>
+			<Button color="inherit" startIcon={icon} sx={isActive ? appBarStyles.navButtonActive : appBarStyles.navButton}>
 				{children}
 			</Button>
 		</Link>
@@ -86,18 +80,10 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 	};
 
 	return (
-		<AppBar
-			position="fixed"
-			sx={appBarStyles.gradientAppBar}
-		>
+		<AppBar position="fixed" sx={appBarStyles.gradientAppBar}>
 			<Toolbar sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
 				{isMobile && (
-					<IconButton
-						color="inherit"
-						edge="start"
-						onClick={handleMobileMenuOpen}
-						sx={{ mr: 1 }}
-					>
+					<IconButton color="inherit" edge="start" onClick={handleMobileMenuOpen} sx={{ mr: 1 }}>
 						<MenuIcon />
 					</IconButton>
 				)}
@@ -122,7 +108,7 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 				{/* Desktop Navigation */}
 				<Box
 					sx={{
-						...(layoutStyles.flexCenter),
+						...layoutStyles.flexCenter,
 						flexGrow: 1,
 						display: { xs: "none", md: "flex" },
 					}}
@@ -148,6 +134,7 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 					Rooms
 				</Button>
 
+				<ColorModeToggle />
 				<NotificationsButton />
 				<UserMenu isMobile={isMobile} />
 
@@ -168,14 +155,17 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 							onClick={handleMobileMenuClose}
 							selected={pathname === option.href}
 						>
-							<ListItemIcon>
-								{option.icon}
-							</ListItemIcon>
+							<ListItemIcon>{option.icon}</ListItemIcon>
 							{option.label}
 						</MenuItem>
 					))}
 					<Divider />
-					<MenuItem onClick={() => { onRoomsClick(); handleMobileMenuClose(); }}>
+					<MenuItem
+						onClick={() => {
+							onRoomsClick();
+							handleMobileMenuClose();
+						}}
+					>
 						<ListItemIcon>
 							<RoomIcon fontSize="small" />
 						</ListItemIcon>
