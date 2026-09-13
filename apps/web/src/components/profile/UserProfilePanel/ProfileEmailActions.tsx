@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Button, Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import { Button, Muted } from "@/components/ui";
 import { ContentCopy as CopyIcon, Email as EmailIcon } from "@mui/icons-material";
 import { layoutStyles } from "@/lib/styles";
 
@@ -41,16 +42,11 @@ export function ProfileEmailActions({ userId, email }: ProfileEmailActionsProps)
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
             <Box sx={layoutStyles.flexCenter}>
 				<EmailIcon color="primary" aria-hidden="true" />
-				<Typography variant="body1" sx={{
-                    color: "text.secondary"
-                }}>
-					{email}
-				</Typography>
+				<Muted variant="body1">{email}</Muted>
 			</Box>
             <Button
-				size="small"
-				variant="outlined"
-				color={copyState === "error" ? "error" : "primary"}
+				size="sm"
+				variant={copyState === "error" ? "destructiveOutline" : "outline"}
 				startIcon={<CopyIcon fontSize="small" />}
 				sx={{ minHeight: 44 }}
 				onClick={() => {

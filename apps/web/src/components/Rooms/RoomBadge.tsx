@@ -1,6 +1,6 @@
 "use client";
 
-import { Chip } from "@mui/material";
+import { Badge, type BadgeVariant } from "@/components/ui";
 import type { Room } from "@p4/schemas/room";
 
 const GameBadge: React.FC<{ status: Room["status"] }> = ({ status }) => {
@@ -15,27 +15,18 @@ const GameBadge: React.FC<{ status: Room["status"] }> = ({ status }) => {
 		}
 	};
 
-	const getColor = (value: Room["status"]): "warning" | "success" | "default" | "info" => {
+	const getVariant = (value: Room["status"]): BadgeVariant => {
 		switch (value) {
 			case "idle":
 				return "warning";
 			case "playing":
 				return "success";
 			default:
-				return "default";
+				return "outline";
 		}
 	};
 
-	return (
-		<Chip
-			label={getText(status)}
-			color={getColor(status)}
-			size="small"
-			sx={{
-				fontWeight: 600,
-			}}
-		/>
-	);
+	return <Badge variant={getVariant(status)}>{getText(status)}</Badge>;
 };
 
 export default GameBadge;

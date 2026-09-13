@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { TextField, InputAdornment, IconButton, type TextFieldProps, FormHelperText, Box } from "@mui/material";
+import { InputAdornment, IconButton, type TextFieldProps, FormHelperText, Box } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Input } from "@/components/ui";
 
 export type ValidationRule = [(value: string) => boolean, string];
 
@@ -26,7 +27,7 @@ export default function PasswordInput({
 
 	return (
 		<Box>
-			<TextField
+			<Input
 				{...props}
 				value={value}
 				type={show ? "text" : "password"}

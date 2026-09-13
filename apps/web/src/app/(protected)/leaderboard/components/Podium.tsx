@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Typography, Paper, Grid, Stack } from "@mui/material";
+import { Box, Paper, Grid, Stack } from "@mui/material";
+import { Text } from "@/components/ui";
 import { EmojiEvents as TrophyIcon, MilitaryTech as MedalIcon } from "@mui/icons-material";
 import { paperStyles } from "@/lib/styles";
 import UserAvatar from "@/components/UserAvatar";
@@ -76,7 +77,7 @@ const PodiumPlace = (position: 1 | 2 | 3, player: LeaderboardPlayer | undefined,
 					<>
 						<Box sx={{ position: "absolute", top: 8, right: 8 }}>{config.icon}</Box>
 						<Box sx={{ mb: 2 }}>
-							<Typography
+							<Text
 								variant={config.rankVariant}
 								sx={{
 									fontWeight: 700,
@@ -84,14 +85,14 @@ const PodiumPlace = (position: 1 | 2 | 3, player: LeaderboardPlayer | undefined,
 								}}
 							>
 								#{position}
-							</Typography>
+							</Text>
 						</Box>
 						<UserAvatar
 							userId={player?.id}
 							login={player?.login}
 							sx={{ width: config.avatarSize, height: config.avatarSize, mx: "auto", mb: 2 }}
 						/>
-						<Typography
+						<Text
 							variant={config.nameVariant}
 							sx={{
 								fontWeight: 600,
@@ -99,8 +100,8 @@ const PodiumPlace = (position: 1 | 2 | 3, player: LeaderboardPlayer | undefined,
 							}}
 						>
 							{player?.login ?? "Unknown"}
-						</Typography>
-						<Typography
+						</Text>
+						<Text
 							variant={config.eloVariant}
 							sx={{
 								fontWeight: 700,
@@ -108,8 +109,8 @@ const PodiumPlace = (position: 1 | 2 | 3, player: LeaderboardPlayer | undefined,
 							}}
 						>
 							{player?.eloRating ?? "Unknown"}
-						</Typography>
-						<Typography
+						</Text>
+						<Text
 							variant={position === 1 ? "body1" : "body2"}
 							sx={{
 								color: "podium.inkMuted",
@@ -117,7 +118,7 @@ const PodiumPlace = (position: 1 | 2 | 3, player: LeaderboardPlayer | undefined,
 							}}
 						>
 							ELO
-						</Typography>
+						</Text>
 					</>
 				) : null}
 			</Paper>

@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import { Text, Muted } from "@/components/ui";
 import type { LevelInfo } from "@p4/leveling";
 
 interface LevelProgressProps {
@@ -36,7 +37,7 @@ function XpBar({ level }: { level: LevelInfo }) {
 export function LevelProgress({ level }: LevelProgressProps) {
 	return (
 		<Box sx={{ px: 6, display: "flex", alignItems: "center", gap: 2 }}>
-			<Typography
+			<Text
 				variant="subtitle1"
 				sx={{
 					fontWeight: 600,
@@ -45,12 +46,11 @@ export function LevelProgress({ level }: LevelProgressProps) {
 				}}
 			>
 				Niveau {level.level}
-			</Typography>
+			</Text>
 			<XpBar level={level} />
-			<Typography
+			<Muted
 				variant="caption"
 				sx={{
-					color: "text.secondary",
 					width: 70,
 					flexShrink: 0,
 					ml: "auto",
@@ -58,7 +58,7 @@ export function LevelProgress({ level }: LevelProgressProps) {
 				}}
 			>
 				{level.xpInCurrentLevel}/{level.xpRequiredForNextLevel}
-			</Typography>
+			</Muted>
 		</Box>
 	);
 }

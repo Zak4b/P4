@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Box, Card, CardContent, CardHeader, Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import { Card, CardHeader, CardContent, Heading } from "@/components/ui";
 import { cardStyles, typographyStyles } from "@/lib/styles";
 
 interface AuthCardProps {
@@ -21,22 +22,11 @@ export default function AuthCard({ title, large = false, children }: AuthCardPro
 			}}
 		>
 			<Card sx={large ? cardStyles.authCardLarge : cardStyles.authCard}>
-				<CardHeader
-					title={
-						<Typography
-							variant="h5"
-							sx={[
-								{
-									fontWeight: 700,
-								},
-								typographyStyles.gradientHeading,
-							]}
-						>
-							{title}
-						</Typography>
-					}
-					sx={{ pb: 1 }}
-				/>
+				<CardHeader sx={{ pb: 1 }}>
+					<Heading level={5} sx={[{ fontWeight: 700 }, typographyStyles.gradientHeading]}>
+						{title}
+					</Heading>
+				</CardHeader>
 				<CardContent>{children}</CardContent>
 			</Card>
 		</Box>

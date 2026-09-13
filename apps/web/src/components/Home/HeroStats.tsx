@@ -1,4 +1,5 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
+import { Heading, Muted } from "@/components/ui";
 
 interface Stat {
 	value: string;
@@ -16,12 +17,10 @@ export function HeroStats() {
 		<Stack direction="row" spacing={4} sx={{ pt: 2 }}>
 			{STATS.map((stat, index) => (
 				<Box key={index}>
-					<Typography variant="h4" sx={{ fontWeight: 800, color: stat.color }}>
+					<Heading level={4} sx={{ fontWeight: 800, color: stat.color }}>
 						{stat.value}
-					</Typography>
-					<Typography variant="body2" sx={{ color: "text.secondary" }}>
-						{stat.label}
-					</Typography>
+					</Heading>
+					<Muted>{stat.label}</Muted>
 				</Box>
 			))}
 		</Stack>

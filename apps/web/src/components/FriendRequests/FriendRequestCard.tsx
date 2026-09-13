@@ -1,6 +1,7 @@
 "use client";
 
-import { Stack, Button, CircularProgress, useTheme, useMediaQuery, IconButton } from "@mui/material";
+import { Stack, CircularProgress, useTheme, useMediaQuery, IconButton } from "@mui/material";
+import { Button } from "@/components/ui";
 import { PersonAdd as PersonAddIcon, PersonRemove as PersonRemoveIcon } from "@mui/icons-material";
 import FriendElement from "../FriendElement";
 import type { FriendRequest } from "@p4/schemas/friend";
@@ -61,9 +62,8 @@ export default function FriendRequestCard({
                 flexShrink: 0
             }}>
 			<Button
-				size="small"
-				variant="contained"
-				color="success"
+				size="sm"
+				variant="success"
 				disabled={loading}
 				onClick={() => onAccept(request)}
 				sx={{ minWidth: 0, px: 1.5 }}
@@ -72,9 +72,8 @@ export default function FriendRequestCard({
 				Accepter
 			</Button>
 			<Button
-				size="small"
-				variant="outlined"
-				color="error"
+				size="sm"
+				variant="destructiveOutline"
 				disabled={loading}
 				onClick={() => onReject(request)}
 				sx={{ minWidth: 0, px: 1.5 }}

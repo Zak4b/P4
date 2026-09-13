@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Typography, Paper, type SxProps, type Theme } from "@mui/material";
+import { Box, Paper, type SxProps, type Theme } from "@mui/material";
+import { Text } from "@/components/ui";
 import type { ReactNode } from "react";
 import UserAvatar from "@/components/UserAvatar";
 
@@ -88,9 +89,9 @@ export default function LeaderboardEntry({
 		>
 			<Box sx={{ minWidth: 40, textAlign: "center", display: "flex", alignItems: "center", gap: 1 }}>
 				{icon}
-				<Typography variant="h6" sx={rankTextStyles(isMedal)}>
+				<Text variant="h6" sx={rankTextStyles(isMedal)}>
 					#{rank}
-				</Typography>
+				</Text>
 			</Box>
 			{player ? (
 				<UserAvatar userId={player.id} login={player.login} sx={{ width: avatarSize, height: avatarSize }} />
@@ -98,22 +99,22 @@ export default function LeaderboardEntry({
 				<Box sx={{ width: avatarSize, height: avatarSize, borderRadius: "50%", bgcolor: "action.hover" }} />
 			)}
 			<Box sx={{ flexGrow: 1, minHeight: 24 }}>
-				<Typography
+				<Text
 					variant="body1"
 					sx={{
 						fontWeight: 600,
 					}}
 				>
 					{player?.login ?? "\u00A0"}
-				</Typography>
+				</Text>
 			</Box>
 			<Box sx={{ textAlign: "right", minHeight: 36 }}>
-				<Typography variant="h6" sx={eloValueStyles(isMedal)}>
+				<Text variant="h6" sx={eloValueStyles(isMedal)}>
 					{player != null ? player.eloRating : "\u00A0"}
-				</Typography>
-				<Typography variant="caption" sx={eloLabelStyles(isMedal)}>
+				</Text>
+				<Text variant="caption" sx={eloLabelStyles(isMedal)}>
 					ELO
-				</Typography>
+				</Text>
 			</Box>
 		</Paper>
 	);

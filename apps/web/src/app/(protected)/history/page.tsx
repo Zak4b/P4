@@ -2,7 +2,6 @@
 
 import {
 	Box,
-	Typography,
 	Button,
 	CircularProgress,
 	Alert,
@@ -12,6 +11,7 @@ import {
 	useTheme,
 	useMediaQuery,
 } from "@mui/material";
+import { Heading, Muted, Button as KitButton } from "@/components/ui";
 import { Refresh as RefreshIcon, History as HistoryIcon } from "@mui/icons-material";
 import { useMatchQuery } from "@/lib/api/match/useMatchQuery";
 import { layoutStyles, typographyStyles, paperStyles, buttonStyles } from "@/lib/styles";
@@ -69,16 +69,16 @@ export default function HistoryPage() {
                     alignItems: "center",
                     mb: 4
                 }}>
-				<Typography
-                    variant="h4"
+				<Heading
+                    level={4}
                     sx={[{
                         fontWeight: 700
                     }, typographyStyles.gradientTitle]}>
 					<HistoryIcon />
 					Game History
-				</Typography>
-				<Button
-					variant="outlined"
+				</Heading>
+				<KitButton
+					variant="outline"
 					startIcon={<RefreshIcon />}
 					onClick={() => {
 						matchQuery.refetch().catch((err: unknown) => console.error(err));
@@ -87,21 +87,15 @@ export default function HistoryPage() {
 					sx={buttonStyles.primaryOutlined}
 				>
 					Refresh
-				</Button>
+				</KitButton>
 			</Stack>
 
             {history.length === 0 ? (
 				<Paper elevation={3} sx={paperStyles.gradientPaperLarge}>
-					<Typography variant="h5" gutterBottom sx={{
-                        color: "text.secondary"
-                    }}>
+					<Muted variant="h5" gutterBottom>
 						No games played yet
-					</Typography>
-					<Typography variant="body1" sx={{
-                        color: "text.secondary"
-                    }}>
-						Start a game to see your history here!
-					</Typography>
+					</Muted>
+					<Muted variant="body1">Start a game to see your history here!</Muted>
 				</Paper>
 			) : (
 				<Stack spacing={2}>

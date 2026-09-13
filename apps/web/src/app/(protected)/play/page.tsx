@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Container, Grid, Paper, Stack, Typography } from "@mui/material";
+import { Box, Container, Grid, Paper, Stack } from "@mui/material";
+import { Heading } from "@/components/ui";
 import RuleList from "@/components/Game/Rules/RuleList";
 import { useMatching } from "@/hooks/useMatching";
 import PlayActionsPanel from "./components/PlayActionsPanel";
@@ -20,15 +21,15 @@ export default function PlayIndexPage() {
 				<Grid size={{ xs: 12, md: 7 }}>
 					<Stack spacing={4}>
 						<Box>
-							<Typography
-								variant="h5"
+							<Heading
+								level={5}
 								gutterBottom
 								sx={{
 									fontWeight: "bold",
 								}}
 							>
 								How to Play
-							</Typography>
+							</Heading>
 							<Paper variant="outlined" sx={{ borderRadius: 4, overflow: "hidden" }}>
 								<RuleList />
 							</Paper>

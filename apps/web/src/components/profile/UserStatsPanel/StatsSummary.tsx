@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid } from "@mui/material";
+import { Heading, Muted } from "@/components/ui";
 import { typographyStyles } from "@/lib/styles";
 
 function StatItem({ value, label }: { value: number; label: string }) {
@@ -8,18 +9,14 @@ function StatItem({ value, label }: { value: number; label: string }) {
         <Box sx={{
             textAlign: "center"
         }}>
-            <Typography
-                variant="h5"
+            <Heading
+                level={5}
                 sx={[{
                     fontWeight: 700
                 }, typographyStyles.gradientHeading]}>
 				{value}
-			</Typography>
-            <Typography variant="body2" sx={{
-                color: "text.secondary"
-            }}>
-				{label}
-			</Typography>
+			</Heading>
+            <Muted>{label}</Muted>
         </Box>
     );
 }

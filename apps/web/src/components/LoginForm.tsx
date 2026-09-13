@@ -1,7 +1,8 @@
 "use client";
 
 import React, { Suspense, useState } from "react";
-import { Alert, Box, Button, CircularProgress, Divider, TextField, Typography } from "@mui/material";
+import { Alert, Box, CircularProgress, Divider } from "@mui/material";
+import { Button, Input, Muted } from "@/components/ui";
 import { Login as LoginIcon } from "@mui/icons-material";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "./AuthContext";
@@ -51,7 +52,7 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 	return (
 		<AuthCard title="Login to P4 Game">
 			<form onSubmit={handleSubmit}>
-				<TextField
+				<Input
 					fullWidth
 					label="Email"
 					type="email"
@@ -61,7 +62,6 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 					disabled={isLoading}
 					autoComplete="email"
 					margin="normal"
-					variant="outlined"
 					sx={spacing.mb2}
 				/>
 				<PasswordInput
@@ -73,11 +73,9 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 					autoComplete="current-password"
 					fullWidth
 					margin="normal"
-					variant="outlined"
 				/>
 				<Button
 					type="submit"
-					variant="contained"
 					fullWidth
 					disabled={isLoading || !email.trim() || !password.trim()}
 					startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <LoginIcon />}
@@ -87,14 +85,7 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 				</Button>
 				<Box sx={{ my: 2 }}>
 					<Divider sx={{ "&::before, &::after": { borderColor: "divider" } }}>
-						<Typography
-							variant="body2"
-							sx={{
-								color: "text.secondary",
-							}}
-						>
-							ou
-						</Typography>
+						<Muted>ou</Muted>
 					</Divider>
 				</Box>
 				<GoogleAuthButton disabled={isLoading} />

@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { Button } from "@/components/ui";
 import AvatarEditor from "@/components/AvatarEditor";
 
 interface AvatarEditModalProps {
@@ -23,7 +24,7 @@ export default function AvatarEditModal({ open, onClose, seed }: AvatarEditModal
 				<AvatarEditor seed={seed} />
 			</DialogContent>
 			<DialogActions sx={{ flexShrink: 0 }}>
-				<Button onClick={onClose} variant="contained">
+				<Button onClick={onClose}>
 					Fermer
 				</Button>
 			</DialogActions>

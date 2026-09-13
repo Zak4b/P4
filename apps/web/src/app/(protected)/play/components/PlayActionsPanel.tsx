@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import { Box, Paper, Stack } from "@mui/material";
+import { Button, Heading, Text, Muted } from "@/components/ui";
 import { EmojiEvents, PlayArrow } from "@mui/icons-material";
 import JoinRoomForm from "./JoinRoomForm";
 
@@ -12,7 +13,7 @@ export default function PlayActionsPanel({ onQuickMatch }: PlayActionsPanelProps
 	return (
 		<Stack spacing={4}>
 			<Box>
-				<Typography
+				<Text
 					variant="overline"
 					color="primary"
 					sx={{
@@ -21,23 +22,22 @@ export default function PlayActionsPanel({ onQuickMatch }: PlayActionsPanelProps
 					}}
 				>
 					GAME CENTER
-				</Typography>
-				<Typography
-					variant="h2"
+				</Text>
+				<Heading
+					level={2}
 					gutterBottom
 					sx={{
 						fontWeight: "800",
 					}}
 				>
 					Ready to play?
-				</Typography>
+				</Heading>
 			</Box>
 
 			<Stack spacing={2}>
 				<Button
 					onClick={onQuickMatch}
-					variant="contained"
-					size="large"
+					size="lg"
 					startIcon={<PlayArrow />}
 					sx={{
 						py: 2,
@@ -64,23 +64,18 @@ export default function PlayActionsPanel({ onQuickMatch }: PlayActionsPanelProps
 				>
 					<EmojiEvents color="gold" fontSize="large" />
 					<Box>
-						<Typography
-							variant="h6"
+						<Heading
+							level={6}
 							gutterBottom
 							sx={{
 								fontWeight: "bold",
 							}}
 						>
 							Daily Challenge
-						</Typography>
-						<Typography
-							variant="body2"
-							sx={{
-								color: "text.secondary",
-							}}
-						>
+						</Heading>
+						<Muted>
 							Win 3 games in a row to unlock the &quot;Strategist&quot; badge and earn double points today!
-						</Typography>
+						</Muted>
 					</Box>
 				</Stack>
 			</Paper>

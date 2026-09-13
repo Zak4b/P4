@@ -1,7 +1,8 @@
 "use client";
 
 import { useAuth } from "@/components/AuthContext";
-import { Box, Grid, Typography, CircularProgress, Alert, Stack } from "@mui/material";
+import { Box, Grid, CircularProgress, Alert, Stack } from "@mui/material";
+import { Text } from "@/components/ui";
 import FriendElement from "./FriendElement";
 import FriendRequestsDrawer from "./FriendRequests/FriendRequestsDrawer";
 import { useFriendRequestsQuery, useFriendsQuery } from "@/lib/api/friend/useFriendQuery";
@@ -63,14 +64,14 @@ export default function FriendList({ onCloseModal }: FriendListProps) {
 			/>
 
             {friends.length === 0 ? (
-				<Typography
+				<Text
                     sx={{
                         color: "text.secondary",
                         py: 3,
                         textAlign: "center"
                     }}>
 					Aucun ami pour le moment
-				</Typography>
+				</Text>
 			) : (
 				<Grid container spacing={1.5}>
 					{friends.map((friend) => (

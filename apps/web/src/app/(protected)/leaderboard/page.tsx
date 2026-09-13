@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Typography, Paper, CircularProgress, Alert, Stack, Container } from "@mui/material";
+import { Box, Paper, CircularProgress, Alert, Stack, Container } from "@mui/material";
+import { Heading } from "@/components/ui";
 import { EmojiEvents as TrophyIcon } from "@mui/icons-material";
 import { useLeaderboardQuery } from "@/lib/api/user/useUserQuery";
 import { typographyStyles, paperStyles, layoutStyles } from "@/lib/styles";
@@ -35,14 +36,14 @@ export default function LeaderboardPage() {
 	return (
         <Container maxWidth="lg" sx={layoutStyles.container}>
             <Box>
-				<Typography
-                    variant="h4"
+				<Heading
+                    level={4}
                     sx={[{
                         fontWeight: 700
                     }, typographyStyles.gradientTitle]}>
 					<TrophyIcon />
 					Classement
-				</Typography>
+				</Heading>
 
 				<Podium topThree={topThree} />
 				{rest.length > 0 && (

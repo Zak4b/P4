@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Box, Divider, Stack, Typography } from "@mui/material";
+import { Box, Divider, Stack } from "@mui/material";
+import { Heading } from "@/components/ui";
 import { Edit as EditIcon } from "@mui/icons-material";
 import { avatarStyles } from "@/lib/styles";
 import UserAvatar from "@/components/UserAvatar";
@@ -65,11 +66,11 @@ export function ProfileDetails({ userId, login, onEditAvatar, actions }: Profile
 				) : (
 					avatar
 				)}
-				<Typography variant="h6" noWrap sx={{
+				<Heading level={6} noWrap sx={{
                     fontWeight: 600
                 }}>
 					{login}
-				</Typography>
+				</Heading>
 			</Stack>
             {actions && (
 				<>

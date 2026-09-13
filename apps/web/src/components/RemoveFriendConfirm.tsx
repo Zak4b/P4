@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
+import { Button, Muted } from "@/components/ui";
 import { PersonRemove as PersonRemoveIcon } from "@mui/icons-material";
 
 interface RemoveFriendConfirmProps {
@@ -18,13 +19,7 @@ export default function RemoveFriendConfirm({
 }: RemoveFriendConfirmProps) {
 	return (
 		<Stack spacing={3}>
-			<Typography
-				sx={{
-					color: "text.secondary",
-				}}
-			>
-				Voulez-vous retirer {targetLogin} de votre liste d&apos;amis ?
-			</Typography>
+			<Muted variant="body1">Voulez-vous retirer {targetLogin} de votre liste d&apos;amis ?</Muted>
 			<Stack
 				direction="row"
 				spacing={2}
@@ -32,12 +27,11 @@ export default function RemoveFriendConfirm({
 					justifyContent: "flex-end",
 				}}
 			>
-				<Button variant="outlined" onClick={onCancel} disabled={isRemoving}>
+				<Button variant="outline" onClick={onCancel} disabled={isRemoving}>
 					Annuler
 				</Button>
 				<Button
-					variant="contained"
-					color="error"
+					variant="destructive"
 					startIcon={<PersonRemoveIcon />}
 					disabled={isRemoving}
 					onClick={onConfirm}

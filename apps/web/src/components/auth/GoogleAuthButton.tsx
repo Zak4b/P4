@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@mui/material";
+import { Button } from "@/components/ui";
 import { AuthApi } from "@/lib/api/auth/auth.api";
 import { spacing } from "@/lib/styles";
 
@@ -12,7 +12,7 @@ export default function GoogleAuthButton({ disabled = false }: GoogleAuthButtonP
 	return (
 		<Button
 			type="button"
-			variant="outlined"
+			variant="outline"
 			fullWidth
 			disabled={disabled}
 			onClick={() => {

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
+import { Button } from "@/components/ui";
 import {
 	PersonAdd as PersonAddIcon,
 	People as PeopleIcon,
@@ -115,7 +116,7 @@ export default function FriendControls({
 	return (
 		<>
 			<Button
-				variant="outlined"
+				variant="outline"
 				disabled={!isClickable}
 				startIcon={<IconComponent />}
 				onClick={isClickable ? handleClick : undefined}

@@ -3,11 +3,11 @@
 import { useMemo, useState, useCallback } from "react";
 import {
 	Box,
-	Typography,
 	Stack,
 	ToggleButtonGroup,
 	ToggleButton,
 } from "@mui/material";
+import { Text, Muted } from "@/components/ui";
 import { createAvatar } from "@dicebear/core";
 import { micahStyle } from "@/lib/avatar";
 import {
@@ -102,15 +102,14 @@ function renderControl(key: string, options: AvatarOptions, updateOption: Update
 		const value = typeof current === "string" && choices.includes(current) ? current : choices[0];
 		return (
                 <Box key={key} sx={{ mb: 2, minWidth: 0, overflow: "hidden" }}>
-                    <Typography
+                    <Muted
                         variant="caption"
                         sx={{
-                            color: "text.secondary",
                             display: "block",
                             mb: 0.5
                         }}>
 					{label}
-				</Typography>
+				</Muted>
                     <ToggleButtonGroup
 					value={value}
 					exclusive
@@ -139,15 +138,14 @@ function renderControl(key: string, options: AvatarOptions, updateOption: Update
 		const value = typeof current === "string" ? current : colors[0];
 		return (
                 <Box key={key} sx={{ mb: 2, minWidth: 0, overflow: "hidden" }}>
-                    <Typography
+                    <Muted
                         variant="caption"
                         sx={{
-                            color: "text.secondary",
                             display: "block",
                             mb: 0.5
                         }}>
 					{label}
-				</Typography>
+				</Muted>
                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, maxWidth: "100%" }}>
 					{colors.map((c) => (
 						<Box
@@ -219,14 +217,14 @@ export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
 					if (visibleKeys.length === 0) {return null;}
 					return (
                         <Box key={title} sx={{ mb: 3, minWidth: 0 }}>
-                            <Typography
+                            <Text
                                 variant="subtitle2"
                                 sx={{
                                     fontWeight: 600,
                                     mb: 1.5
                                 }}>
 								{title}
-							</Typography>
+							</Text>
                             {visibleKeys.map((key) => renderControl(key, options, updateOption))}
                         </Box>
                     );

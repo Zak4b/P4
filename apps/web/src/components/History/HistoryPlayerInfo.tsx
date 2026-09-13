@@ -1,4 +1,5 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import { Text } from "@/components/ui";
 import UserAvatar from "../UserAvatar";
 import UserActionsDropdown from "../UserActionsDropdown";
 import { useAuth } from "../AuthContext";
@@ -75,8 +76,8 @@ export default function PlayerInfo({ player, isWinner, isLoser, isDraw, alignRig
 				/>
 			</UserActionsDropdown>
             <Box sx={{ textAlign: alignRight ? "right" : "left", minWidth: 0 }}>
-				<Typography
-                    variant={compact ? "caption" : "body2"}
+				<Text
+                    size={compact ? "sm" : "md"}
                     color={textColor}
                     sx={{
                         fontWeight: 600,
@@ -86,17 +87,17 @@ export default function PlayerInfo({ player, isWinner, isLoser, isDraw, alignRig
                         whiteSpace: "nowrap"
                     }}>
 					{player.login}
-				</Typography>
+				</Text>
 				{!isDraw && !compact && (
-					<Typography
-                        variant="body2"
+					<Text
+                        size="md"
                         color={textColor}
                         sx={{
                             fontWeight: 600,
                             mt: 0.5
                         }}>
 						{isWinner ? "Winner" : "Loser"}
-					</Typography>
+					</Text>
 				)}
 			</Box>
         </Box>

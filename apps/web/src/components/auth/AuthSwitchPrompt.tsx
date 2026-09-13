@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import { Muted } from "@/components/ui";
 
 interface AuthSwitchPromptProps {
 	question: string;
@@ -17,17 +18,12 @@ export default function AuthSwitchPrompt({ question, href, linkLabel }: AuthSwit
 				mt: 2,
 			}}
 		>
-			<Typography
-				variant="body2"
-				sx={{
-					color: "text.secondary",
-				}}
-			>
+			<Muted>
 				{question}{" "}
 				<Box component={Link} href={href} sx={{ color: "primary.main", fontWeight: 600, textDecoration: "none" }}>
 					{linkLabel}
 				</Box>
-			</Typography>
+			</Muted>
 		</Box>
 	);
 }

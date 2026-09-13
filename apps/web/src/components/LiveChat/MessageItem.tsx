@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Typography, Alert, Paper, Button, Stack } from "@mui/material";
+import { Box, Alert, Paper, Stack } from "@mui/material";
+import { Text, Muted, Button } from "@/components/ui";
 import { Info as InfoIcon } from "@mui/icons-material";
 import type { Message } from "./types";
 
@@ -26,15 +27,9 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 					}}
 				>
 					<Box>
-						<Typography
-							variant="caption"
-							sx={{
-								color: "text.secondary",
-								mr: 1,
-							}}
-						>
+						<Muted variant="caption" sx={{ mr: 1 }}>
 							[{timeStr}]
-						</Typography>
+						</Muted>
 						{message.content}
 					</Box>
 				</Alert>
@@ -59,10 +54,10 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 							boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
 						}}
 					>
-						<Typography variant="caption" sx={{ opacity: 0.9, display: "block", mb: 0.5 }}>
+						<Text variant="caption" sx={{ opacity: 0.9, display: "block", mb: 0.5 }}>
 							{message.author} - {timeStr}
-						</Typography>
-						<Typography variant="body2">{message.content}</Typography>
+						</Text>
+						<Text size="md">{message.content}</Text>
 					</Box>
 				</Box>
 			);
@@ -78,20 +73,14 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, currentUserId
 						bgcolor: "background.paper",
 					}}
 				>
-					<Typography
-						variant="body2"
-						sx={{
-							color: "text.secondary",
-							mb: 1,
-						}}
-					>
+					<Muted sx={{ mb: 1 }}>
 						[{timeStr}] {message.content}
-					</Typography>
+					</Muted>
 					<Stack direction="row" spacing={1}>
-						<Button size="small" variant="contained" color="error" sx={{ flex: 1 }}>
+						<Button size="sm" variant="destructive" sx={{ flex: 1 }}>
 							Non
 						</Button>
-						<Button size="small" variant="contained" color="success" sx={{ flex: 1 }}>
+						<Button size="sm" variant="success" sx={{ flex: 1 }}>
 							Oui
 						</Button>
 					</Stack>

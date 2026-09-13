@@ -1,9 +1,10 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import { Heading, Text } from "@/components/ui";
 
 export function HeroText() {
 	return (
 		<Box>
-			<Typography
+			<Text
 				variant="overline"
 				sx={{
 					fontWeight: 700,
@@ -17,9 +18,9 @@ export function HeroText() {
 				}}
 			>
 				CONNECT 4 ONLINE
-			</Typography>
-			<Typography
-				variant="h1"
+			</Text>
+			<Heading
+				level={1}
 				sx={{
 					fontWeight: 900,
 					fontSize: { xs: "3rem", md: "4.5rem" },
@@ -35,17 +36,18 @@ export function HeroText() {
 				<Box component="span" sx={{ color: "primary.main" }}>
 					the grid.
 				</Box>
-			</Typography>
-			<Typography
-				variant="h5"
+			</Heading>
+			<Heading
+				level={5}
 				sx={{
+					fontWeight: 600,
 					color: "text.secondary",
 					maxWidth: 500,
 					lineHeight: 1.6,
 				}}
 			>
 				Challenge friends or players worldwide in the ultimate classic strategy game. Simple to learn, hard to master.
-			</Typography>
+			</Heading>
 		</Box>
 	);
 }

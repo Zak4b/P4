@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Collapse, Grid, IconButton, Paper, Stack, Typography } from "@mui/material";
+import { Box, Collapse, Grid, IconButton, Paper, Stack } from "@mui/material";
+import { Text } from "@/components/ui";
 import {
 	ExpandMore as ExpandMoreIcon,
 	ExpandLess as ExpandLessIcon,
@@ -88,12 +89,10 @@ export default function FriendRequestsDrawer({
                         alignItems: "center"
                     }}>
 						<PersonAddIcon sx={{ color: "warning.main" }} fontSize="small" />
-						<Typography variant="subtitle2" sx={{
-                            fontWeight: 600
-                        }}>
+						<Text variant="subtitle2" sx={{ fontWeight: 600 }}>
 							Demandes en attente
-						</Typography>
-						<Typography
+						</Text>
+						<Text
 							variant="caption"
 							sx={{
 								bgcolor: "warning.main",
@@ -103,7 +102,7 @@ export default function FriendRequestsDrawer({
 							}}
 						>
 							{requests.length}
-						</Typography>
+						</Text>
 					</Stack>
 					<IconButton size="small" sx={{ p: 0.5 }}>
 						{expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, CircularProgress, Stack, Typography } from "@mui/material";
+import { CircularProgress, Stack } from "@mui/material";
+import { Button, Heading, Muted } from "@/components/ui";
 import { Cancel } from "@mui/icons-material";
 
 function formatElapsed(seconds: number): string {
@@ -33,25 +34,19 @@ export default function MatchmakingModalContent({ onCancel }: MatchmakingModalCo
 			}}
 		>
 			<CircularProgress />
-			<Typography
-				sx={{
-					color: "text.secondary",
-				}}
-			>
-				En attente d&apos;un adversaire...
-			</Typography>
-			<Typography
-				variant="h5"
+			<Muted>En attente d&apos;un adversaire...</Muted>
+			<Heading
+				level={5}
 				color="primary"
 				sx={{
 					fontWeight: 700,
 				}}
 			>
 				{formatElapsed(elapsed)}
-			</Typography>
+			</Heading>
 			<Button
-				variant="outlined"
-				size="large"
+				variant="outline"
+				size="lg"
 				startIcon={<Cancel />}
 				onClick={onCancel}
 				sx={{

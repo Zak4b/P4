@@ -2,7 +2,8 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Drawer, Box, Typography, List, ListItem, Button, CircularProgress, Divider } from "@mui/material";
+import { Drawer, Box, List, ListItem, CircularProgress, Divider } from "@mui/material";
+import { Heading, Text, Muted, Button } from "@/components/ui";
 import { Refresh as RefreshIcon } from "@mui/icons-material";
 import { useRoomsQuery } from "@/lib/api/room/useRoomQuery";
 import RoomBadge from "./RoomBadge";
@@ -45,14 +46,7 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 		>
 			<Box sx={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
 				<Box sx={{ p: 2, backgroundColor: "primary.main", color: "primary.contrastText" }}>
-					<Typography
-						variant="h6"
-						sx={{
-							fontWeight: 700,
-						}}
-					>
-						Rooms
-					</Typography>
+					<Heading level={6}>Rooms</Heading>
 				</Box>
 				<Box sx={{ p: 2, flexGrow: 1, overflowY: "auto" }}>
 					<RoomForm onSubmit={onClose} onRoomCreated={loadRooms} />
@@ -90,14 +84,9 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 											mb: 1,
 										}}
 									>
-										<Typography
-											variant="subtitle1"
-											sx={{
-												fontWeight: 600,
-											}}
-										>
+										<Text variant="subtitle1" sx={{ fontWeight: 600 }}>
 											{room.name}
-										</Typography>
+										</Text>
 										<RoomBadge status={room.status} />
 									</Box>
 									<Box
@@ -107,17 +96,11 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 											alignItems: "center",
 										}}
 									>
-										<Typography
-											variant="body2"
-											sx={{
-												color: "text.secondary",
-											}}
-										>
+										<Muted>
 											{room.count}/{room.max} joueurs
-										</Typography>
+										</Muted>
 										<Button
-											variant="contained"
-											size="small"
+											size="sm"
 											onClick={() => handleJoinRoom(room.id)}
 											disabled={!room.joinable}
 											sx={buttonStyles.gradientButton}
@@ -133,7 +116,7 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 				<Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
 					<Button
 						fullWidth
-						variant="outlined"
+						variant="outline"
 						startIcon={<RefreshIcon />}
 						onClick={loadRooms}
 						disabled={isLoading}

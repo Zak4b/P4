@@ -1,6 +1,7 @@
 "use client";
 
-import { Alert, Box, CircularProgress, Container, Grid, Typography } from "@mui/material";
+import { Alert, Box, CircularProgress, Container, Grid } from "@mui/material";
+import { Heading } from "@/components/ui";
 import { useAuth } from "@/components/AuthContext";
 import { useUserQuery } from "@/lib/api/user/useUserQuery";
 import { layoutStyles, typographyStyles } from "@/lib/styles";
@@ -66,13 +67,13 @@ export default function ProfilePage({ userId }: ProfilePageProps) {
 
 	return (
         <Container maxWidth="lg" sx={layoutStyles.container}>
-            <Typography
-                variant="h4"
+            <Heading
+                level={4}
                 sx={[{
                     fontWeight: 700
                 }, typographyStyles.gradientTitle]}>
 				{isOwn ? "Mon compte" : `Profil de ${login}`}
-			</Typography>
+			</Heading>
 
             <Grid container spacing={3}>
 				<Grid size={{ xs: 12, md: 6 }}>

@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Paper, Stack, Typography } from "@mui/material";
+import { Box, Paper, Stack } from "@mui/material";
+import { Text, Muted } from "@/components/ui";
 import UserAvatar from "./UserAvatar";
 import UserActionsDropdown from "./UserActionsDropdown";
 
@@ -37,8 +38,8 @@ const UserInfo = ({ user, avatarSize }: { user: FriendUser; avatarSize: number }
 	>
 		<UserAvatar userId={user.id} login={user.login} size={avatarSize} />
 		<Stack spacing={0} sx={{ minWidth: 0, flex: 1 }}>
-			<Typography
-				variant="body2"
+			<Text
+				size="md"
 				noWrap
 				sx={{
 					fontWeight: 600,
@@ -46,15 +47,8 @@ const UserInfo = ({ user, avatarSize }: { user: FriendUser; avatarSize: number }
 				}}
 			>
 				{user.login}
-			</Typography>
-			<Typography
-				variant="caption"
-				sx={{
-					color: "text.secondary",
-				}}
-			>
-				{user.eloRating} ELO
-			</Typography>
+			</Text>
+			<Muted variant="caption">{user.eloRating} ELO</Muted>
 		</Stack>
 	</Box>
 );

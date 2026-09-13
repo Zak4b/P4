@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Typography, Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
+import { Heading, Text } from "@/components/ui";
 import { layoutStyles } from "@/lib/styles";
 
 interface StatTileProps {
@@ -16,19 +17,19 @@ export function StatTile({ value, label, icon, color }: StatTileProps) {
             <Box sx={{
                 textAlign: "center"
             }}>
-				<Typography variant="h4" color={color} sx={{
+				<Heading level={4} color={color} sx={{
                     fontWeight: 700
                 }}>
 					{value}
-				</Typography>
-				<Typography
-                    variant="body2"
+				</Heading>
+				<Text
+                    size="md"
                     sx={[{
                         color: "text.secondary"
                     }, layoutStyles.flexCenterJustifyCenter, { mt: 0.5 }]}>
 					{icon}
 					{label}
-				</Typography>
+				</Text>
 			</Box>
         </Grid>
     );

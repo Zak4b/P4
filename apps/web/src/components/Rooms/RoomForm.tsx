@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { TextField, Button, Stack, Alert, CircularProgress } from "@mui/material";
+import { Stack, Alert, CircularProgress } from "@mui/material";
+import { Input, Button } from "@/components/ui";
 import { Add as AddIcon } from "@mui/icons-material";
 import { useCreateRoomMutation } from "@/lib/api/room/useRoomMutation";
 import { useRouter } from "next/navigation";
@@ -63,7 +64,7 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 		<form onSubmit={handleCreateRoom}>
 			<Stack spacing={1}>
 				<Stack direction="row" spacing={1}>
-					<TextField
+					<Input
 						fullWidth
 						placeholder="Nom de la nouvelle salle"
 						value={name}
@@ -72,13 +73,11 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 							setError("");
 						}}
 						size="small"
-						variant="outlined"
 						disabled={isLoading}
 						required
 					/>
 					<Button
 						type="submit"
-						variant="contained"
 						startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <AddIcon />}
 						disabled={isLoading || !name.trim()}
 						sx={{

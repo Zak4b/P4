@@ -8,10 +8,13 @@ import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Typography from "@mui/material/Typography";
+import { useColorScheme } from "@mui/material/styles";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AccountIcon from "@mui/icons-material/AccountCircle";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PeopleIcon from "@mui/icons-material/People";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 import { layoutStyles } from "@/lib/styles";
 import UserAvatar from "../UserAvatar";
 import FriendList from "../FriendList";
@@ -32,6 +35,11 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
 
+	// `mode` reste indéfini tant que l'hydratation n'a pas eu lieu.
+	const { mode, systemMode, setMode } = useColorScheme();
+	const resolvedMode = mode === "system" ? systemMode : mode;
+	const isDark = resolvedMode === "dark";
+
 	const friendsModal = useModalPortal({
 		title: "Amis",
 		content: ({ close }) => <FriendList onCloseModal={close} />,
@@ -48,6 +56,12 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 			label: "Amis",
 		},
 		{ type: "link", href: "/settings", icon: <SettingsIcon fontSize="small" />, label: "Paramètres" },
+		{
+			type: "action",
+			onClick: () => setMode(isDark ? "light" : "dark"),
+			icon: isDark ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />,
+			label: isDark ? "Thème clair" : "Thème sombre",
+		},
 	];
 
 	const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {

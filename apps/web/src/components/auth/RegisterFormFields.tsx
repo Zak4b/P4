@@ -1,6 +1,6 @@
 "use client";
 
-import { TextField } from "@mui/material";
+import { Input } from "@/components/ui";
 import PasswordInput from "../PasswordInput";
 import { passwordRules } from "@/lib/passwordRules";
 import { spacing } from "@/lib/styles";
@@ -21,7 +21,7 @@ interface RegisterFormFieldsProps {
 export default function RegisterFormFields({ values, disabled, onChange }: RegisterFormFieldsProps) {
 	return (
 		<>
-			<TextField
+			<Input
 				fullWidth
 				label="Login"
 				type="text"
@@ -31,10 +31,9 @@ export default function RegisterFormFields({ values, disabled, onChange }: Regis
 				disabled={disabled}
 				autoComplete="username"
 				margin="normal"
-				variant="outlined"
 				sx={spacing.mb2}
 			/>
-			<TextField
+			<Input
 				fullWidth
 				label="Email"
 				type="email"
@@ -44,7 +43,6 @@ export default function RegisterFormFields({ values, disabled, onChange }: Regis
 				disabled={disabled}
 				autoComplete="email"
 				margin="normal"
-				variant="outlined"
 				sx={spacing.mb2}
 			/>
 			<PasswordInput
@@ -56,7 +54,6 @@ export default function RegisterFormFields({ values, disabled, onChange }: Regis
 				autoComplete="new-password"
 				fullWidth
 				margin="normal"
-				variant="outlined"
 				validations={passwordRules}
 			/>
 			<PasswordInput
@@ -68,7 +65,6 @@ export default function RegisterFormFields({ values, disabled, onChange }: Regis
 				autoComplete="new-password"
 				fullWidth
 				margin="normal"
-				variant="outlined"
 			/>
 		</>
 	);

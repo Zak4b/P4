@@ -1,6 +1,7 @@
 "use client";
 
-import { Typography, Paper, Grid, Stack, Divider } from "@mui/material";
+import { Paper, Grid, Stack, Divider } from "@mui/material";
+import { Muted } from "@/components/ui";
 import {
 	SportsEsports as GameIcon,
 	TrendingUp as WinIcon,
@@ -60,9 +61,7 @@ export default function UserStatsPanel({ userId }: UserStatsPanelProps) {
 						</Grid>
 					</Grid>
 				) : (
-					<Typography sx={{
-                        color: "text.secondary"
-                    }}>Aucune statistique disponible</Typography>
+					<Muted variant="body1">Aucune statistique disponible</Muted>
 				)}
 			</Stack>
         </Paper>

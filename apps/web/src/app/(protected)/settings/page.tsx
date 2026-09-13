@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Typography, Paper, TextField, Button, Stack, Divider, Container } from "@mui/material";
+import { Box, Paper, Stack, Divider, Container } from "@mui/material";
+import { Heading, Input, Button } from "@/components/ui";
 import { Settings as SettingsIcon, Email as EmailIcon, Lock as LockIcon, Save as SaveIcon } from "@mui/icons-material";
 import { useAuth } from "@/components/AuthContext";
 import { layoutStyles, typographyStyles, paperStyles, buttonStyles, textFieldStyles } from "@/lib/styles";
@@ -57,14 +58,14 @@ export default function SettingsPage() {
 
 	return (
         <Container maxWidth="lg" sx={layoutStyles.container}>
-            <Typography
-                variant="h4"
+            <Heading
+                level={4}
                 sx={[{
                     fontWeight: 700
                 }, typographyStyles.gradientTitle]}>
 				<SettingsIcon />
 				Paramètres
-			</Typography>
+			</Heading>
 
             <Stack spacing={4}>
 				{/* Section Email */}
@@ -72,14 +73,14 @@ export default function SettingsPage() {
 					<Stack spacing={3}>
 						<Box sx={layoutStyles.flexCenter}>
 							<EmailIcon color="primary" />
-							<Typography variant="h6" sx={{
+							<Heading level={6} sx={{
                                 fontWeight: 600
                             }}>
 								Modifier l&apos;email
-							</Typography>
+							</Heading>
 						</Box>
 						<Divider />
-						<TextField
+						<Input
 							fullWidth
 							label="Email"
 							type="email"
@@ -87,12 +88,10 @@ export default function SettingsPage() {
 							onChange={handleEmailChange}
 							error={Boolean(emailError)}
 							helperText={emailError}
-							variant="outlined"
 							sx={textFieldStyles.standard}
 						/>
 						<Box sx={layoutStyles.flexEnd}>
 							<Button
-								variant="contained"
 								startIcon={<SaveIcon />}
 								onClick={handleSaveEmail}
 								disabled={!isEmailChanged || Boolean(emailError) || !email}
@@ -109,11 +108,11 @@ export default function SettingsPage() {
 					<Stack spacing={3}>
 						<Box sx={layoutStyles.flexCenter}>
 							<LockIcon color="primary" />
-							<Typography variant="h6" sx={{
+							<Heading level={6} sx={{
                                 fontWeight: 600
                             }}>
 								Modifier le mot de passe
-							</Typography>
+							</Heading>
 						</Box>
 						<Divider />
 						<PasswordInput
@@ -135,7 +134,6 @@ export default function SettingsPage() {
 						/>
 						<Box sx={layoutStyles.flexEnd}>
 							<Button
-								variant="contained"
 								startIcon={<SaveIcon />}
 								onClick={handleSavePassword}
 								disabled={!isPasswordValid}

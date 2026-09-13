@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import { Heading } from "@/components/ui";
 import Box from "@mui/material/Box";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -21,7 +21,6 @@ import TrophyIcon from "@mui/icons-material/EmojiEvents";
 import MenuIcon from "@mui/icons-material/Menu";
 import { appBarStyles, layoutStyles } from "@/lib/styles";
 import UserMenu from "./UserMenu";
-import ColorModeToggle from "./ColorModeToggle";
 import NotificationsButton from "./NotificationsButton";
 
 interface NavButtonProps {
@@ -88,8 +87,8 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 					</IconButton>
 				)}
 
-				<Typography
-					variant="h6"
+				<Heading
+					level={6}
 					component={Link}
 					href="/"
 					sx={{
@@ -102,8 +101,8 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 						fontSize: { xs: "1rem", sm: "1.25rem" },
 					}}
 				>
-					🎮 P4 Game
-				</Typography>
+					P4
+				</Heading>
 
 				{/* Desktop Navigation */}
 				<Box
@@ -134,7 +133,6 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 					Rooms
 				</Button>
 
-				<ColorModeToggle />
 				<NotificationsButton />
 				<UserMenu isMobile={isMobile} />
 

@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, IconButton, Typography, Avatar } from "@mui/material";
+import { Box, IconButton, Avatar } from "@mui/material";
+import { Text, Muted } from "@/components/ui";
 import { Close as CloseIcon } from "@mui/icons-material";
 import type { Message } from "./types";
 
@@ -33,18 +34,13 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ messages, onClose }) => 
 					💬
 				</Avatar>
 				<Box>
-					<Typography
-						variant="body2"
-						sx={{
-							fontWeight: 600,
-						}}
-					>
+					<Text size="md" sx={{ fontWeight: 600 }}>
 						Chat
-					</Typography>
+					</Text>
 					{messages.length > 0 && (
-						<Typography variant="caption" sx={{ opacity: 0.8 }}>
+						<Muted variant="caption" sx={{ opacity: 0.8, color: "inherit" }}>
 							{messages.filter((m) => m.type === "message").length} messages
-						</Typography>
+						</Muted>
 					)}
 				</Box>
 			</Box>

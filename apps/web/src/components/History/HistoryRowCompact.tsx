@@ -1,4 +1,5 @@
-import { Box, Typography, Paper } from "@mui/material";
+import { Box, Paper } from "@mui/material";
+import { Text, Muted } from "@/components/ui";
 import { paperStyles } from "@/lib/styles";
 import PlayerInfo from "./HistoryPlayerInfo";
 import { type Match, formatDate } from "./historyRowShared";
@@ -29,19 +30,15 @@ export default function HistoryRowCompact({
 			]}
 		>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-				<Typography
-                    variant="caption"
+				<Text
+                    size="sm"
                     sx={{
                         fontWeight: 600,
                         color: "text.primary"
                     }}>
 					{formatDate(time)}
-				</Typography>
-				<Typography variant="caption" sx={{
-                    color: "text.secondary"
-                }}>
-					{duration} s
-				</Typography>
+				</Text>
+				<Muted variant="caption">{duration} s</Muted>
 			</Box>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
 				<Box sx={{ flex: 1, minWidth: 0 }}>
@@ -54,16 +51,15 @@ export default function HistoryRowCompact({
 						compact
 					/>
 				</Box>
-				<Typography
+				<Muted
                     variant="caption"
                     sx={{
-                        color: "text.secondary",
                         fontWeight: 600,
                         flexShrink: 0,
                         px: 0.5
                     }}>
 					vs
-				</Typography>
+				</Muted>
 				<Box sx={{ flex: 1, minWidth: 0 }}>
 					<PlayerInfo
 						player={player2}

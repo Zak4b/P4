@@ -1,15 +1,13 @@
 import Link from "next/link";
-import { Button } from "@mui/material";
+import { Button } from "@/components/ui";
 import { PlayArrow as PlayIcon } from "@mui/icons-material";
-
 
 export function PlayButton() {
 	return (
 		<Button
 			component={Link}
 			href="/play"
-			variant="contained"
-			size="large"
+			size="lg"
 			startIcon={<PlayIcon />}
 			sx={{
 				px: 4,

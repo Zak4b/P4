@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Alert, Button, CircularProgress } from "@mui/material";
+import { Alert, CircularProgress } from "@mui/material";
+import { Button } from "@/components/ui";
 import { PersonAdd as PersonAddIcon } from "@mui/icons-material";
 import { useAuth } from "./AuthContext";
 import { buttonStyles, spacing } from "@/lib/styles";
@@ -71,7 +72,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 				<RegisterFormFields values={values} disabled={isLoading} onChange={updateValue} />
 				<Button
 					type="submit"
-					variant="contained"
 					fullWidth
 					disabled={isLoading || isIncomplete}
 					startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <PersonAddIcon />}

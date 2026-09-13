@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, TextField, IconButton, Stack } from "@mui/material";
+import { Box, IconButton, Stack } from "@mui/material";
+import { Input } from "@/components/ui";
 import { Send as SendIcon } from "@mui/icons-material";
 
 interface ChatInputProps {
@@ -22,13 +23,12 @@ export const ChatInput: React.FC<ChatInputProps> = ({ message, onMessageChange, 
 			}}
 		>
 			<Stack direction="row" spacing={1}>
-				<TextField
+				<Input
 					fullWidth
 					placeholder="Tapez votre message..."
 					value={message}
 					onChange={(e) => onMessageChange(e.target.value)}
 					size="small"
-					variant="outlined"
 					autoFocus
 					sx={{
 						"& .MuiOutlinedInput-root": {

@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Box, Typography, Chip } from "@mui/material";
+import { Box } from "@mui/material";
+import { Text, Badge } from "@/components/ui";
 import { Person as PersonIcon } from "@mui/icons-material";
 import type { Player } from "@/store/game";
 import UserAvatar from "@/components/UserAvatar";
@@ -54,7 +55,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 				<PersonIcon sx={{ fontSize: { xs: 20, lg: 28 } }} />
 			</UserAvatar>
 			<Box sx={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
-				<Typography
+				<Text
 					variant="subtitle1"
 					sx={{
 						color: waitingForName ? "surfaceInverse.mutedText" : "surfaceInverse.contrastText",
@@ -75,12 +76,10 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 					}}
 				>
 					{displayName}
-				</Typography>
+				</Text>
 			</Box>
 			{isActive && (
-				<Chip
-					label="Actif"
-					size="small"
+				<Badge
 					sx={{
 						bgcolor: tokenVar,
 						color: "#0a141c",
@@ -88,7 +87,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 						height: { xs: 20, lg: 22 },
 						fontSize: { xs: "0.7rem", lg: "0.8125rem" },
 					}}
-				/>
+				>
+					Actif
+				</Badge>
 			)}
 		</Box>
 	);

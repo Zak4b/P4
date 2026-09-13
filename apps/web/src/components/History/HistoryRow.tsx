@@ -1,4 +1,5 @@
-import { Box, Typography, Paper } from "@mui/material";
+import { Box, Paper } from "@mui/material";
+import { Text, Muted } from "@/components/ui";
 import { paperStyles } from "@/lib/styles";
 import PlayerInfo from "./HistoryPlayerInfo";
 import { type Match, formatDate } from "./historyRowShared";
@@ -38,19 +39,14 @@ export default function HistoryRow({
 			/>
 
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, flexShrink: 0 }}>
-				<Typography
-                    variant="body1"
+				<Text
                     sx={{
                         fontWeight: 600,
                         color: "text.primary"
                     }}>
 					{formatDate(time)}
-				</Typography>
-				<Typography variant="body2" sx={{
-                    color: "text.secondary"
-                }}>
-					Durée : {duration} s
-				</Typography>
+				</Text>
+				<Muted>Durée : {duration} s</Muted>
 			</Box>
 
             <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1 }}>

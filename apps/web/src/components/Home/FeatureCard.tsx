@@ -1,5 +1,6 @@
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Paper } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material";
+import { Text, Muted } from "@/components/ui";
 
 interface FeatureCardProps {
 	icon: React.ReactNode;
@@ -50,12 +51,10 @@ export function FeatureCard({ icon, title, caption, tint, iconColor, float, posi
 				{icon}
 			</Box>
 			<Box>
-				<Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+				<Text variant="subtitle2" sx={{ fontWeight: 700 }}>
 					{title}
-				</Typography>
-				<Typography variant="caption" sx={{ color: "text.secondary" }}>
-					{caption}
-				</Typography>
+				</Text>
+				<Muted variant="caption">{caption}</Muted>
 			</Box>
 		</Paper>
 	);

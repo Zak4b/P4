@@ -8,8 +8,8 @@ import {
 	type DialogProps,
 	IconButton,
 	Divider,
-	Button,
 } from "@mui/material";
+import { Button } from "@/components/ui";
 import CloseIcon from "@mui/icons-material/Close";
 import { createPortal } from "react-dom";
 import { useState, useSyncExternalStore } from "react";
@@ -105,14 +105,13 @@ export default function Modal({
 				<>
 					<Divider />
 					<DialogActions>
-						<Button onClick={onClose} disabled={isConfirming}>
+						<Button variant="ghost" onClick={onClose} disabled={isConfirming}>
 							Annuler
 						</Button>
 						<Button
 							onClick={() => {
 								handleConfirm().catch((err: unknown) => console.error(err));
 							}}
-							variant="contained"
 							disabled={isConfirming}
 						>
 							{isConfirming ? "Validation..." : "Valider"}

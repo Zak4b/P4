@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, InputAdornment, Paper, TextField } from "@mui/material";
+import { InputAdornment, Paper, TextField } from "@mui/material";
+import { Button } from "@/components/ui";
 import { Search } from "@mui/icons-material";
 
 export default function JoinRoomForm() {
@@ -51,8 +52,7 @@ export default function JoinRoomForm() {
 			<Button
 				type="submit"
 				disabled={!joinRoomId.trim()}
-				variant="contained"
-				color="secondary"
+				variant="secondary"
 				sx={{
 					borderRadius: 2.5,
 					px: 3,
