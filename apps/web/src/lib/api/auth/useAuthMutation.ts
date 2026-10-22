@@ -3,8 +3,10 @@ import { userKeys } from "@/lib/api/user/user.keys";
 import { AuthApi } from "./auth.api";
 
 export function useLoginMutation() {
+	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: ({ email, password }: { email: string; password: string }) => AuthApi.login(email, password),
+		onSuccess: () => queryClient.refetchQueries({ queryKey: userKeys.me() }),
 	});
 }
 
