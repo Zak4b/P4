@@ -19,7 +19,7 @@ const PlayerIndicator: React.FC<PlayerIndicatorProps> = ({ players, activePlayer
 
 	return (
         <Paper
-			elevation={4}
+			elevation={0}
 			sx={{
 				mt: 0,
 				p: 1.5,

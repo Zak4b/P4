@@ -16,7 +16,7 @@ interface ProfileDetailsProps {
 
 export function ProfileDetails({ userId, login, onEditAvatar, actions }: ProfileDetailsProps) {
 	const avatar = (
-		<UserAvatar userId={userId} login={login} sx={{ ...avatarStyles.large, ...avatarStyles.gradientAvatar }} />
+		<UserAvatar userId={userId} login={login} sx={avatarStyles.large} />
 	);
 
 	return (
@@ -37,8 +37,11 @@ export function ProfileDetails({ userId, login, onEditAvatar, actions }: Profile
 							borderRadius: "50%",
 							background: "none",
 							flexShrink: 0,
-							transition: "transform 200ms ease-out, opacity 200ms ease-out",
-							"&:hover": { opacity: 0.9, transform: "scale(1.03)" },
+							transition: "transform 160ms var(--ease-out), opacity 200ms ease",
+							"&:active": { transform: "scale(0.97)" },
+							"@media (hover: hover) and (pointer: fine)": {
+								"&:hover": { opacity: 0.9 },
+							},
 						}}
 					>
 						{avatar}
@@ -66,9 +69,7 @@ export function ProfileDetails({ userId, login, onEditAvatar, actions }: Profile
 				) : (
 					avatar
 				)}
-				<Heading level={6} noWrap sx={{
-                    fontWeight: 600
-                }}>
+				<Heading level={5} noWrap sx={{ fontWeight: 700, letterSpacing: "-0.01em" }}>
 					{login}
 				</Heading>
 			</Stack>

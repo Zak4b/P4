@@ -28,11 +28,13 @@ export default function JoinRoomForm() {
 				alignItems: "center",
 				border: "1px solid",
 				borderColor: "divider",
-				borderRadius: 3,
+				borderRadius: 999,
+				transition: "border-color 200ms ease",
+				"&:focus-within": { borderColor: "primary.main" },
 			}}
 		>
 			<TextField
-				placeholder="Enter Room ID..."
+				placeholder="ID de la partie"
 				variant="standard"
 				fullWidth
 				value={joinRoomId}
@@ -49,18 +51,8 @@ export default function JoinRoomForm() {
 				}}
 				sx={{ px: 1 }}
 			/>
-			<Button
-				type="submit"
-				disabled={!joinRoomId.trim()}
-				variant="secondary"
-				sx={{
-					borderRadius: 2.5,
-					px: 3,
-					textTransform: "none",
-					fontWeight: "bold",
-				}}
-			>
-				Join
+			<Button type="submit" disabled={!joinRoomId.trim()} variant="outline" sx={{ px: 3, flexShrink: 0 }}>
+				Rejoindre
 			</Button>
 		</Paper>
 	);

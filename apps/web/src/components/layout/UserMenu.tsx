@@ -48,7 +48,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ isMobile }) => {
 	});
 
 	const menuOptions: MenuOption[] = [
-		{ type: "link", href: "/profile", icon: <AccountIcon fontSize="small" />, label: "Mon compte" },
+		{ type: "link", href: "/profile", icon: <AccountIcon fontSize="small" />, label: "Mon profil" },
 		{
 			type: "action",
 			onClick: friendsModal.open,

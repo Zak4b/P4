@@ -14,6 +14,8 @@ export const matchSchema = z.object({
 
 export const matchQuerySchema = z.object({
 	limit: z.coerce.number().int().positive().max(100).optional().meta({ example: 20 }),
+	/** Ne garder que les parties de ce joueur (en rouge ou en jaune). */
+	playerId: z.string().optional().meta({ example: "f47ac10b-58cc-4372-a567-0e02b2c3d479" }),
 });
 
 export type MatchResult = z.infer<typeof matchResultSchema>;

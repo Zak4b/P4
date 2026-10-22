@@ -1,23 +1,15 @@
 "use client";
 
-import { Box, CircularProgress, Paper, type SxProps, type Theme } from "@mui/material";
+import { Box } from "@mui/material";
+import { Panel } from "@/components/ui";
 
-interface PanelLoadingProps {
-	sx: SxProps<Theme>;
-}
-
-/** État de chargement partagé entre les panels de profil (avatar/infos et stats). */
-export function PanelLoading({ sx }: PanelLoadingProps) {
+/** Chargement d'un panneau de profil : sa forme finale, valeurs remplacées par des barres grises. */
+export function PanelLoading() {
 	return (
-        <Paper elevation={3} sx={sx}>
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    py: 4
-                }}>
-				<CircularProgress />
-			</Box>
-        </Paper>
-    );
+		<Panel sx={{ height: "100%", p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+			<Box sx={{ width: 96, height: 18, borderRadius: "4px", bgcolor: "action.hover" }} />
+			<Box sx={{ width: 160, height: 36, borderRadius: "4px", bgcolor: "action.hover" }} />
+			<Box sx={{ width: "100%", height: 72, borderRadius: "8px", bgcolor: "action.hover" }} />
+		</Panel>
+	);
 }

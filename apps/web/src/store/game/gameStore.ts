@@ -5,7 +5,8 @@ import { createEmptyBoard, getPlayerColor, setCell } from "./utils";
 
 type GameSet = Parameters<StateCreator<GameStore>>[0];
 
-const TOKEN_ANIMATION_MS = 400;
+/** Couvre la plus longue chute (six cases), voir `dropDurationMs`. */
+const TOKEN_ANIMATION_MS = 520;
 
 /** Retire l'animation du jeton une fois sa durée écoulée. */
 function scheduleAnimationCleanup(set: GameSet, tokenKey: string) {

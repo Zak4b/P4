@@ -1,122 +1,73 @@
 "use client";
 
-import { Box, Paper, type SxProps, type Theme } from "@mui/material";
-import { Text } from "@/components/ui";
-import type { ReactNode } from "react";
+import { Box } from "@mui/material";
+import { getLevelFromXp } from "@p4/leveling";
+import { Text, Muted, Token, type TokenTone } from "@/components/ui";
 import UserAvatar from "@/components/UserAvatar";
-
-interface EntryPaperStyleOptions {
-	background?: string;
-	border?: string;
-	isMedal: boolean;
-	hasPlayer: boolean;
-}
-
-const hoverOpacity = (hasPlayer: boolean, isMedal: boolean) => {
-	if (!hasPlayer) {
-		return 0.5;
-	}
-	return isMedal ? 0.9 : 1;
-};
-
-const entryPaperStyles = ({
-	background,
-	border,
-	isMedal,
-	hasPlayer,
-}: EntryPaperStyleOptions): SxProps<Theme> => ({
-	p: 2,
-	display: "flex",
-	alignItems: "center",
-	gap: 2,
-	background,
-	border,
-	...(isMedal && { color: "podium.ink" }),
-	opacity: hasPlayer ? 1 : 0.5,
-	transition: isMedal ? "opacity 0.2s ease-in-out" : "background-color 0.2s ease-in-out",
-	"&:hover": {
-		...(isMedal ? {} : { backgroundColor: "action.hover" }),
-		opacity: hoverOpacity(hasPlayer, isMedal),
-	},
-});
-
-const rankTextStyles = (isMedal: boolean) => ({
-	fontWeight: 700,
-	color: isMedal ? "podium.inkMuted" : "text.secondary",
-});
-
-const eloValueStyles = (isMedal: boolean) => ({
-	fontWeight: 700,
-	color: isMedal ? "podium.ink" : "primary.main",
-});
-
-const eloLabelStyles = (isMedal: boolean) => ({
-	color: isMedal ? "podium.inkMuted" : "text.secondary",
-});
+import UserActionsDropdown from "@/components/UserActionsDropdown";
 
 interface LeaderboardPlayer {
 	id: string;
 	login: string;
 	eloRating: number;
 	xp?: number;
-	level?: number;
 }
+
+const MEDAL: Partial<Record<number, TokenTone>> = { 1: "gold", 2: "silver", 3: "bronze" };
+
+/** Rang, joueur, niveau, ELO : partagé par l'en-tête et les lignes. */
+export const LEADERBOARD_COLUMNS = { xs: "40px 1fr 72px", sm: "56px 1fr 80px 96px" };
 
 interface LeaderboardEntryProps {
-	player: LeaderboardPlayer | undefined;
+	player: LeaderboardPlayer;
 	rank: number;
-	icon?: ReactNode;
-	background?: string;
-	border?: string;
-	elevation?: number;
-	avatarSize?: number;
+	isMe: boolean;
+	currentUserId?: string;
 }
 
-export default function LeaderboardEntry({
-	player,
-	rank,
-	icon,
-	background,
-	border,
-	elevation = 1,
-	avatarSize = 50,
-}: LeaderboardEntryProps) {
-	const isMedal = background !== undefined;
+/** Une ligne du classement. La sienne est teintée, et marquée « Toi ». */
+export default function LeaderboardEntry({ player, rank, isMe, currentUserId }: LeaderboardEntryProps) {
+	const medal = MEDAL[rank];
 	return (
-		<Paper
-			elevation={elevation}
-			sx={entryPaperStyles({ background, border, isMedal, hasPlayer: player !== undefined })}
+		<Box
+			sx={{
+				display: "grid",
+				gridTemplateColumns: LEADERBOARD_COLUMNS,
+				alignItems: "center",
+				columnGap: 2,
+				px: { xs: 2, sm: 3 },
+				minHeight: 56,
+				borderTop: "1px solid",
+				borderColor: "divider",
+				bgcolor: isMe ? "tint.primary" : "transparent",
+			}}
 		>
-			<Box sx={{ minWidth: 40, textAlign: "center", display: "flex", alignItems: "center", gap: 1 }}>
-				{icon}
-				<Text variant="h6" sx={rankTextStyles(isMedal)}>
-					#{rank}
+			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 1 }}>
+				{medal && <Token tone={medal} size={12} />}
+				<Text sx={{ fontVariantNumeric: "tabular-nums", fontWeight: medal ? 600 : 400, color: medal ? "text.primary" : "text.secondary" }}>
+					{rank}
 				</Text>
 			</Box>
-			{player ? (
-				<UserAvatar userId={player.id} login={player.login} sx={{ width: avatarSize, height: avatarSize }} />
-			) : (
-				<Box sx={{ width: avatarSize, height: avatarSize, borderRadius: "50%", bgcolor: "action.hover" }} />
-			)}
-			<Box sx={{ flexGrow: 1, minHeight: 24 }}>
-				<Text
-					variant="body1"
-					sx={{
-						fontWeight: 600,
-					}}
-				>
-					{player?.login ?? "\u00A0"}
-				</Text>
+			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
+				<UserActionsDropdown targetUser={{ id: player.id, login: player.login }} currentUserId={currentUserId}>
+					<Box sx={{ lineHeight: 0, cursor: "pointer" }}>
+						<UserAvatar userId={player.id} login={player.login} size={32} />
+					</Box>
+				</UserActionsDropdown>
+				<Text sx={{ fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{player.login}</Text>
+				{isMe && (
+					<Muted component="span" sx={{ fontSize: "0.8125rem", flex: "none" }}>
+						Toi
+					</Muted>
+				)}
 			</Box>
-			<Box sx={{ textAlign: "right", minHeight: 36 }}>
-				<Text variant="h6" sx={eloValueStyles(isMedal)}>
-					{player != null ? player.eloRating : "\u00A0"}
-				</Text>
-				<Text variant="caption" sx={eloLabelStyles(isMedal)}>
-					ELO
-				</Text>
-			</Box>
-		</Paper>
+			<Muted sx={{ display: { xs: "none", sm: "block" }, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
+				{player.xp === undefined ? "—" : getLevelFromXp(player.xp).level}
+			</Muted>
+			<Text sx={{ textAlign: "right", fontVariantNumeric: "tabular-nums", fontWeight: 600 }}>
+				{player.eloRating.toLocaleString("fr-FR")}
+			</Text>
+		</Box>
 	);
 }
 

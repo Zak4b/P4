@@ -20,7 +20,7 @@ export interface TargetUser {
 interface UserActionsDropdownProps {
 	children: React.ReactNode;
 	targetUser: TargetUser;
-	/** UUID de l'utilisateur connecté (pour filtrer la salle d'invitation) */
+	/** UUID de l'utilisateur connecté (pour filtrer la partie d'invitation) */
 	currentUserId?: string;
 	/** Affiche le bouton Retirer (quand l'utilisateur est ami) */
 	showRemove?: boolean;
@@ -30,8 +30,8 @@ interface UserActionsDropdownProps {
 	onRemove?: () => Promise<void>;
 	/** Appelé après suppression réussie (ex: mise à jour de la liste) */
 	onRemoveSuccess?: () => void;
-	anchorOrigin?: { horizontal: "left" | "right"; vertical: "top" | "bottom" };
-	transformOrigin?: { horizontal: "left" | "right"; vertical: "top" | "bottom" };
+	anchorOrigin?: { horizontal: "left" | "center" | "right"; vertical: "top" | "bottom" };
+	transformOrigin?: { horizontal: "left" | "center" | "right"; vertical: "top" | "bottom" };
 	/** Étend le trigger sur toute la largeur disponible */
 	fullWidth?: boolean;
 }
@@ -45,8 +45,8 @@ export default function UserActionsDropdown({
 	onCloseParent,
 	onRemove,
 	onRemoveSuccess,
-	anchorOrigin = { horizontal: "left", vertical: "bottom" },
-	transformOrigin = { horizontal: "left", vertical: "top" },
+	anchorOrigin = { horizontal: "center", vertical: "bottom" },
+	transformOrigin = { horizontal: "center", vertical: "top" },
 }: UserActionsDropdownProps) {
 	const router = useRouter();
 	const createRoomMutation = useCreateRoomMutation();
@@ -147,6 +147,8 @@ export default function UserActionsDropdown({
 				onClose={handleMenuClose}
 				anchorOrigin={anchorOrigin}
 				transformOrigin={transformOrigin}
+				// Un petit écart sous le portrait, pour ne pas coller au déclencheur.
+				slotProps={{ paper: { sx: { mt: 0.25 } } }}
 			>
 				<MenuItem onClick={handleViewProfile}>
 					<ListItemIcon>

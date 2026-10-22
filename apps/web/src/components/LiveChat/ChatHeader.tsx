@@ -35,7 +35,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ messages, onClose }) => 
 				</Avatar>
 				<Box>
 					<Text size="md" sx={{ fontWeight: 600 }}>
-						Chat
+						Discussion
 					</Text>
 					{messages.length > 0 && (
 						<Muted variant="caption" sx={{ opacity: 0.8, color: "inherit" }}>

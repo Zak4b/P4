@@ -22,7 +22,7 @@ export const matchRoutes: FastifyPluginAsyncZod = async (fastify) => {
 			},
 		},
 		async (request, reply) => {
-			const gameHistory = await GameHistoryService.get({ limit: request.query.limit });
+			const gameHistory = await GameHistoryService.get({ limit: request.query.limit, playerId: request.query.playerId });
 			reply.send(gameHistory);
 		},
 	);

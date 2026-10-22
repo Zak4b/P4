@@ -15,7 +15,7 @@ export const useChatMessages = (roomId: string, isOpen: boolean) => {
 		const welcomeMessage: Message = {
 			id: "welcome",
 			type: "info",
-			content: `Bienvenue dans la salle ${roomId}`,
+			content: `Bienvenue dans la partie ${roomId}`,
 			timestamp: new Date(),
 		};
 		dispatchMessages({ type: "reset", payload: [welcomeMessage] });

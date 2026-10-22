@@ -16,13 +16,13 @@ interface RegisterFormProps {
 
 export function validateRegistration({ login, email, password, confirmPassword }: RegisterFormValues): string | null {
 	if (!login.trim() || !email.trim() || !password.trim()) {
-		return "All fields are required";
+		return "Tous les champs sont obligatoires";
 	}
 	if (password.length < 8) {
-		return "Password must be at least 8 characters long";
+		return "Le mot de passe doit contenir au moins 8 caractères";
 	}
 	if (password !== confirmPassword) {
-		return "Passwords do not match";
+		return "Les mots de passe ne correspondent pas";
 	}
 	return null;
 }
@@ -53,7 +53,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 			await register(values.login, values.email, values.password);
 			onRegister?.();
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Registration failed");
+			setError(err instanceof Error ? err.message : "L'inscription a échoué");
 		} finally {
 			setIsLoading(false);
 		}
@@ -67,7 +67,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 	const isIncomplete = (Object.keys(values) as (keyof RegisterFormValues)[]).some((key) => !values[key].trim());
 
 	return (
-		<AuthCard title="Register to P4 Game" large>
+		<AuthCard title="Créer un compte P4" large>
 			<form onSubmit={handleSubmit}>
 				<RegisterFormFields values={values} disabled={isLoading} onChange={updateValue} />
 				<Button
@@ -77,7 +77,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 					startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <PersonAddIcon />}
 					sx={[buttonStyles.gradientButton, spacing.mb2, { py: 1.5 }]}
 				>
-					{isLoading ? "Registering..." : "Register"}
+					{isLoading ? "Création…" : "Créer mon compte"}
 				</Button>
 			</form>
 			{error && (
@@ -85,7 +85,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 					{error}
 				</Alert>
 			)}
-			<AuthSwitchPrompt question="Already have an account?" href="/login" linkLabel="Login here" />
+			<AuthSwitchPrompt question="Déjà un compte ?" href="/login" linkLabel="Se connecter" />
 		</AuthCard>
 	);
 };

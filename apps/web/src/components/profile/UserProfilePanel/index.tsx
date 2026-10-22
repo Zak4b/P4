@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Paper, Stack } from "@mui/material";
-import { paperStyles } from "@/lib/styles";
+import { Stack } from "@mui/material";
+import { Panel } from "@/components/ui";
 import AvatarEditModal from "@/components/AvatarEditModal";
 import { useAuth } from "@/components/AuthContext";
 import { useUserQuery } from "@/lib/api/user/useUserQuery";
@@ -28,7 +28,7 @@ export default function UserProfilePanel({ userId }: UserProfilePanelProps) {
 	const friendStatusQuery = useFriendStatusQuery(showFriendControls ? userId : undefined);
 
 	if (!isOwnProfile && userQuery.isLoading) {
-		return <PanelLoading sx={[paperStyles.gradientPaper, { p: 3, height: "100%" }]} />;
+		return <PanelLoading />;
 	}
 
 	if (!isOwnProfile && userQuery.isError) {
@@ -48,7 +48,7 @@ export default function UserProfilePanel({ userId }: UserProfilePanelProps) {
 
 	return (
         <>
-            <Paper elevation={3} sx={[paperStyles.gradientPaper, { p: 3, height: "100%" }]}>
+            <Panel sx={{ p: 3, height: "100%" }}>
 				<Stack spacing={3} sx={{
                     alignItems: "center"
                 }}>
@@ -76,7 +76,7 @@ export default function UserProfilePanel({ userId }: UserProfilePanelProps) {
 						/>
 					)}
 				</Stack>
-			</Paper>
+			</Panel>
 
             {isOwnProfile && (
 				<AvatarEditModal open={avatarModalOpen} onClose={() => setAvatarModalOpen(false)} seed={login} />

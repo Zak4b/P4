@@ -30,7 +30,7 @@ function toGamePlayer(player: Player<typeof P4>): GamePlayer {
 	return { id: player.uuid, login: player.displayName, localId: player.localId };
 }
 
-/** Envoie un `sync` individuel à chaque joueur de la salle : le playerId diffère d'un joueur à l'autre */
+/** Envoie un `sync` individuel à chaque joueur de la partie : le playerId diffère d'un joueur à l'autre */
 export async function syncRoom(player: Player<typeof P4>): Promise<void> {
 	const playerList = player.room?.playerList ?? [];
 	await Promise.all(playerList.map((p) => p.send({ type: "game:p4:sync", data: getSyncData(p) })));
@@ -89,7 +89,7 @@ export async function joinRoom(player: Player<typeof P4>, roomId: string): Promi
 		};
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : "Failed to join room";
-		await player.send({ type: "chat:info", data: `Impossible de rejoindre la Salle #${roomId}, ${errorMessage}` });
+		await player.send({ type: "chat:info", data: `Impossible de rejoindre la partie #${roomId}, ${errorMessage}` });
 		await player.send({
 			type: "chat:vote",
 			data: { text: "Passer en mode spectateur ?", command: `/spect ${roomId}` },
@@ -98,7 +98,7 @@ export async function joinRoom(player: Player<typeof P4>, roomId: string): Promi
 	}
 }
 
-/** Événements de salle et de partie : join / leave / play / restart */
+/** Événements de partie et de partie : join / leave / play / restart */
 export function registerP4Handlers(socket: AuthenticatedSocket, player: Player<typeof P4>): void {
 	socket.on("game:p4:leave", () => {
 		manager.leave(player);

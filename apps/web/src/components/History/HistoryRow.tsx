@@ -1,64 +1,123 @@
-import { Box, Paper } from "@mui/material";
+import { Box } from "@mui/material";
 import { Text, Muted } from "@/components/ui";
-import { paperStyles } from "@/lib/styles";
-import PlayerInfo from "./HistoryPlayerInfo";
-import { type Match, formatDate } from "./historyRowShared";
+import UserAvatar from "../UserAvatar";
+import UserActionsDropdown from "../UserActionsDropdown";
+import { formatDay, formatDuration, formatTime, type GameView, type Seat } from "./historyRowShared";
 
-export default function HistoryRow({
-	player1,
-	player2,
-	winner,
-	time,
-	duration,
-}: Match) {
-	const player1Won = winner === "PLAYER1";
-	const player2Won = winner === "PLAYER2";
-	const isDraw = winner === "DRAW";
+const TOKEN_VAR: Record<Seat, string> = {
+	player1: "var(--mui-palette-board-player1)",
+	player2: "var(--mui-palette-board-player2)",
+};
 
-	return (
-        <Paper
-			elevation={3}
-			sx={[
-				paperStyles.gradientPaper,
-				{
-					borderRadius: 2,
-					p: 2,
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "space-between",
-					gap: 2,
-				},
-			]}
-		>
-            <PlayerInfo
-				player={player1}
-				isWinner={player1Won}
-				isLoser={player2Won}
-				isDraw={isDraw}
-				alignRight={false}
-			/>
-
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, flexShrink: 0 }}>
-				<Text
-                    sx={{
-                        fontWeight: 600,
-                        color: "text.primary"
-                    }}>
-					{formatDate(time)}
-				</Text>
-				<Muted>Durée : {duration} s</Muted>
-			</Box>
-
-            <Box sx={{ display: "flex", justifyContent: "flex-end", flex: 1 }}>
-				<PlayerInfo
-					player={player2}
-					isWinner={player2Won}
-					isLoser={player1Won}
-					isDraw={isDraw}
-					alignRight={true}
-				/>
-			</Box>
-        </Paper>
-    );
+function resultLabel(game: GameView, seat: Seat): string {
+	if (!game.winner) {
+		return "Nul";
+	}
+	return game.winner === seat ? "Victoire" : "Défaite";
 }
 
+/** Un côté de la partie : l'avatar cerclé de sa couleur, le nom, le résultat. */
+function PlayerSide({ seat, game, currentUserId, selfLabel }: { seat: Seat; game: GameView; currentUserId?: string; selfLabel?: string }) {
+	const person = game.match[seat];
+	const won = game.winner === seat;
+	const alignRight = seat === "player2";
+	const label = resultLabel(game, seat);
+
+	return (
+		<Box
+			sx={{
+				display: "flex",
+				flexDirection: alignRight ? "row-reverse" : "row",
+				alignItems: "center",
+				gap: { xs: 1, sm: 1.5 },
+				minWidth: 0,
+				p: { xs: 1, sm: 1.5 },
+				borderRadius: "12px",
+				// La moitié gagnante prend la teinte de son jeton.
+				bgcolor: won ? `color-mix(in srgb, ${TOKEN_VAR[seat]} 16%, transparent)` : "transparent",
+			}}
+		>
+			<UserActionsDropdown
+				targetUser={{ id: person.id, login: person.login }}
+				currentUserId={currentUserId}
+			>
+				<Box sx={{ p: "3px", borderRadius: "50%", bgcolor: TOKEN_VAR[seat], flex: "none", cursor: "pointer", lineHeight: 0 }}>
+					<UserAvatar userId={person.id} login={person.login} size={44} sx={{ width: { xs: 36, sm: 44 }, height: { xs: 36, sm: 44 } }} />
+				</Box>
+			</UserActionsDropdown>
+			<Box sx={{ minWidth: 0, textAlign: alignRight ? "right" : "left" }}>
+				<Text
+					sx={{
+						fontWeight: won ? 700 : 500,
+						fontSize: { xs: "0.9375rem", sm: "1.0625rem" },
+						overflow: "hidden",
+						textOverflow: "ellipsis",
+						whiteSpace: "nowrap",
+					}}
+				>
+					{game.mySeat === seat && selfLabel ? selfLabel : person.login}
+				</Text>
+				<Box
+					component="span"
+					sx={{
+						display: "inline-block",
+						mt: 0.5,
+						px: 1,
+						py: "1px",
+						borderRadius: 999,
+						fontSize: "0.8125rem",
+						fontWeight: 600,
+						...(won
+							? {
+									bgcolor: TOKEN_VAR[seat],
+									color: seat === "player1" ? "board.player1Contrast" : "board.player2Contrast",
+								}
+							: { bgcolor: "action.hover", color: "text.secondary" }),
+					}}
+				>
+					{label}
+				</Box>
+			</Box>
+		</Box>
+	);
+}
+
+interface HistoryRowProps {
+	game: GameView;
+	currentUserId?: string;
+	/** Nom affiché à la place du login du joueur suivi (« Toi » sur son propre profil). */
+	selfLabel?: string;
+}
+
+/** Une partie : rouge à gauche, jaune à droite, la date et la durée au milieu. */
+export default function HistoryRow({ game, currentUserId, selfLabel }: HistoryRowProps) {
+	const { match } = game;
+	return (
+		<Box
+			sx={{
+				display: "grid",
+				gridTemplateColumns: { xs: "minmax(0, 1fr) 64px minmax(0, 1fr)", sm: "minmax(0, 1fr) 140px minmax(0, 1fr)" },
+				alignItems: "center",
+				gap: { xs: 0.5, sm: 2 },
+				p: { xs: 1, sm: 1.5 },
+				bgcolor: "background.paper",
+				border: "1px solid",
+				borderColor: "divider",
+				borderRadius: "16px",
+			}}
+		>
+			<PlayerSide seat="player1" game={game} currentUserId={currentUserId} selfLabel={selfLabel} />
+			<Box sx={{ textAlign: "center" }}>
+				<Text sx={{ fontWeight: 600, fontSize: { xs: "0.8125rem", sm: "1rem" } }}>{formatDay(match.time)}</Text>
+				<Muted sx={{ fontSize: "0.8125rem", fontVariantNumeric: "tabular-nums" }}>
+					{formatTime(match.time)}
+					<Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+						{" · "}
+						{formatDuration(match.duration)}
+					</Box>
+				</Muted>
+			</Box>
+			<PlayerSide seat="player2" game={game} currentUserId={currentUserId} selfLabel={selfLabel} />
+		</Box>
+	);
+}

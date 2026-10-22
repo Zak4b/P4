@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Box, CircularProgress, Paper } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { useGame } from "@/store/game";
 import { useWebSocket } from "../WebSocketProvider";
 import GameBoardGrid, { GRID_ASPECT_RATIO } from "./GameBoardGrid";
@@ -37,12 +37,8 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 				mx: "auto",
 			}}
 		>
-			<Paper
-				elevation={4}
+			<Box
 				sx={{
-					p: { xs: 1, lg: 2 },
-					background: (theme) => theme.vars.palette.gradient.surface,
-					borderRadius: 3,
 					width: "100%",
 					position: "relative",
 				}}
@@ -72,13 +68,14 @@ const P4GameBoard: React.FC<P4GameBoardProps> = ({ setActivePlayer }) => {
 						<CircularProgress size={60} />
 					</Box>
 				)}
-			</Paper>
+			</Box>
 
 			{/* Dialog de victoire/match nul */}
 			<GameOverDialog
 				open={winDialogOpen}
 				message={winMessage}
 				isDraw={gameState.isDraw}
+				winner={gameState.winningPlayer}
 				onClose={() => setWinDialogOpen(false)}
 				onRestart={handleRestart}
 			/>

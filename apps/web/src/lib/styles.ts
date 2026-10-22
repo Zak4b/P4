@@ -114,24 +114,31 @@ export const textFieldStyles = {
 } as const;
 
 // AppBar styles
+// La barre est le cadre du plateau : bleu plein, texte blanc. L'onglet actif est
+// une pastille blanche translucide.
 export const appBarStyles = {
 	gradientAppBar: (theme: Theme) => ({
-		backgroundColor: theme.vars.palette.primary.main,
-		color: theme.vars.palette.primary.contrastText,
-		boxShadow: theme.vars.palette.shadow.card,
+		backgroundColor: theme.vars.palette.board.frame,
+		color: theme.vars.palette.common.white,
+		boxShadow: "none",
 	}),
 
 	navButton: {
-		bgcolor: "rgba(255, 255, 255, 0.2)",
-		"&:hover": {
-			bgcolor: "rgba(255, 255, 255, 0.15)",
+		color: "rgba(255, 255, 255, 0.82)",
+		bgcolor: "transparent",
+		"@media (hover: hover) and (pointer: fine)": {
+			"&:hover": {
+				bgcolor: "rgba(255, 255, 255, 0.12)",
+				color: "common.white",
+			},
 		},
 	},
 
 	navButtonActive: {
+		color: "common.white",
 		bgcolor: "rgba(255, 255, 255, 0.2)",
 		"&:hover": {
-			bgcolor: "rgba(255, 255, 255, 0.3)",
+			bgcolor: "rgba(255, 255, 255, 0.24)",
 		},
 	},
 } as const;

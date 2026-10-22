@@ -23,7 +23,7 @@ export default function RegisterFormFields({ values, disabled, onChange }: Regis
 		<>
 			<Input
 				fullWidth
-				label="Login"
+				label="Pseudo"
 				type="text"
 				value={values.login}
 				onChange={(e) => onChange("login", e.target.value)}
@@ -46,7 +46,7 @@ export default function RegisterFormFields({ values, disabled, onChange }: Regis
 				sx={spacing.mb2}
 			/>
 			<PasswordInput
-				label="Password"
+				label="Mot de passe"
 				value={values.password}
 				onChange={(e) => onChange("password", e.target.value)}
 				required
@@ -57,7 +57,7 @@ export default function RegisterFormFields({ values, disabled, onChange }: Regis
 				validations={passwordRules}
 			/>
 			<PasswordInput
-				label="Confirm Password"
+				label="Confirmer le mot de passe"
 				value={values.confirmPassword}
 				onChange={(e) => onChange("confirmPassword", e.target.value)}
 				required

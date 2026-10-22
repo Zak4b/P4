@@ -1,12 +1,111 @@
-body {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+:root {
+	/* Courbes fortes : la sortie répond tout de suite, le mouvement à l'écran respire. */
+	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+	--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-@keyframes tokenGrow {
+body {
+	font-family: var(--font-jost), "Helvetica Neue", Arial, sans-serif;
+	-webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Chute d'un jeton : il part du haut de la colonne (`--drop` = nombre de cases
+ * à traverser), accélère comme sous la gravité, puis rebondit une fois en bas.
+ * L'accélération (ease-in) est voulue ici : c'est de la physique, pas une
+ * réponse d'interface.
+ */
+@keyframes tokenDrop {
 	0% {
-		transform: translate(-50%, -50%) scale(0);
+		transform: translateY(calc(var(--drop, 1) * -112%));
+		animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+	}
+	68% {
+		transform: translateY(0);
+		animation-timing-function: var(--ease-out);
+	}
+	84% {
+		transform: translateY(-9%);
+		animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
 	}
 	100% {
-		transform: translate(-50%, -50%) scale(1);
+		transform: translateY(0);
+	}
+}
+
+/*
+ * Arrivée d'un joueur sur sa marche du podium : invisible pendant son délai,
+ * il apparaît bien au-dessus de sa place, tombe et rebondit une fois.
+ */
+@keyframes podiumDrop {
+	0% {
+		opacity: 0;
+		transform: translateY(-160px);
+		animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+	}
+	15% {
+		opacity: 1;
+	}
+	68% {
+		transform: translateY(0);
+		animation-timing-function: var(--ease-out);
+	}
+	84% {
+		transform: translateY(-14px);
+		animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Entrée d'un bloc : monte de quelques pixels en apparaissant. */
+@keyframes riseIn {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Le disque géant du héros se pose, sans partir de rien. */
+@keyframes discIn {
+	from {
+		opacity: 0;
+		transform: translateY(-8%) scale(0.94);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+/*
+ * Mouvement réduit : on garde l'apparition en fondu (elle aide à comprendre),
+ * on retire tout déplacement. Ne vise que nos animations (`data-motion`), pour
+ * laisser tourner les indicateurs de chargement.
+ */
+@media (prefers-reduced-motion: reduce) {
+	[data-motion] {
+		animation-name: fadeOnly !important;
+		animation-duration: 180ms !important;
+		animation-iteration-count: 1 !important;
+	}
+
+	.MuiButtonBase-root:active {
+		transform: none !important;
+	}
+}
+
+@keyframes fadeOnly {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
 	}
 }

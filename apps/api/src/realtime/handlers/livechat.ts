@@ -16,7 +16,7 @@ function buildCommandList(player: Player<typeof P4>): Record<string, Command> {
 		join: async (roomId: string) => {
 			const parsed = roomIdSchema.safeParse(roomId);
 			if (!parsed.success) {
-				await player.send({ type: "chat:info", data: "Identifiant de salle invalide" });
+				await player.send({ type: "chat:info", data: "Identifiant de partie invalide" });
 				return;
 			}
 			await joinRoom(player, parsed.data);
@@ -48,7 +48,7 @@ function buildCommandList(player: Player<typeof P4>): Record<string, Command> {
 	return commandList;
 }
 
-/** Message libre : diffusé à toute la salle, à condition d'être dans une partie */
+/** Message libre : diffusé à toute la partie, à condition d'être dans une partie */
 async function handleChatMessage(player: Player<typeof P4>, text: string): Promise<MessageAck> {
 	if (!player.room || player.localId === null) {
 		const errorMsg = "Vous devez être dans une partie pour envoyer des messages";
@@ -94,7 +94,7 @@ async function handleCommand(
 	}
 }
 
-/** Chat de salle : messages libres et commandes */
+/** Chat de partie : messages libres et commandes */
 export function registerLivechatHandlers(socket: AuthenticatedSocket, player: Player<typeof P4>): void {
 	const commandList = buildCommandList(player);
 

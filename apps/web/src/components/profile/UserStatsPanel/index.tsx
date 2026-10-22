@@ -1,69 +1,77 @@
 "use client";
 
-import { Paper, Grid, Stack, Divider } from "@mui/material";
-import { Muted } from "@/components/ui";
-import {
-	SportsEsports as GameIcon,
-	TrendingUp as WinIcon,
-	TrendingDown as LossIcon,
-	Remove as DrawIcon,
-} from "@mui/icons-material";
+import { Box } from "@mui/material";
+import { Muted, Panel, PanelHeader, StatStrip, Text } from "@/components/ui";
 import { getLevelFromXp } from "@p4/leveling";
-import { paperStyles, dividerStyles } from "@/lib/styles";
 import { useUserQuery, useUserStatsQuery } from "@/lib/api/user/useUserQuery";
 import { PanelLoading } from "@/components/profile/PanelLoading";
-import { StatTile } from "./StatTile";
 import { LevelProgress } from "./LevelProgress";
-import { StatsSummary } from "./StatsSummary";
 
 interface UserStatsPanelProps {
 	userId: string;
 }
 
+/** Le niveau d'un joueur : l'ELO en tête, puis le bilan et la progression. */
 export default function UserStatsPanel({ userId }: UserStatsPanelProps) {
 	const userQuery = useUserQuery(userId);
 	const statsQuery = useUserStatsQuery(userId);
 
 	if (userQuery.isLoading || statsQuery.isLoading) {
-		return <PanelLoading sx={[paperStyles.gradientCard, { height: "100%" }]} />;
+		return <PanelLoading />;
 	}
 
 	const user = userQuery.data ?? null;
 	const stats = statsQuery.data ?? null;
-	const winrate = stats && stats.totalGames > 0 ? Math.round((stats.wins / stats.totalGames) * 100) : 0;
-	const level = getLevelFromXp(user?.xp ?? 0);
+
+	if (!stats || !user) {
+		return (
+			<Panel sx={{ height: "100%" }}>
+				<PanelHeader title="Statistiques" />
+				<Muted sx={{ px: 3, pb: 3 }}>Aucune statistique disponible.</Muted>
+			</Panel>
+		);
+	}
+
+	const winRate = stats.totalGames > 0 ? ((stats.wins / stats.totalGames) * 100).toFixed(0) : null;
 
 	return (
-        <Paper elevation={3} sx={[paperStyles.gradientCard, { height: "100%" }]}>
-            <Stack
-                spacing={3}
-                sx={{
-                    alignItems: "center",
-                    py: 3
-                }}>
-				{stats && user ? (
-					<Grid container>
-						<StatTile value={stats.totalGames} label="Parties" icon={<GameIcon fontSize="small" />} color="primary" />
-						<StatTile value={stats.wins} label="Victoires" icon={<WinIcon fontSize="small" />} color="success.main" />
-						<StatTile value={stats.losses} label="Défaites" icon={<LossIcon fontSize="small" />} color="error.main" />
-						<StatTile
-							value={stats.draws}
-							label="Égalités"
-							icon={<DrawIcon fontSize="small" />}
-							color="text.secondary"
-						/>
-						<Grid size={{ xs: 12 }}>
-							<Divider sx={dividerStyles.standard} />
-							<LevelProgress level={level} />
-							<Divider sx={dividerStyles.standard} />
+		<Panel sx={{ height: "100%" }}>
+			<PanelHeader title="Statistiques" />
+			<Box sx={{ px: { xs: 2, sm: 3 }, pb: 3, display: "flex", flexDirection: "column", gap: 3 }}>
+				<Box sx={{ display: "flex", alignItems: "baseline", gap: 3, flexWrap: "wrap" }}>
+					<Box>
+						<Muted sx={{ fontSize: "0.875rem" }}>Classement</Muted>
+						<Text sx={{ fontSize: "2.25rem", fontWeight: 600, lineHeight: 1.1, fontVariantNumeric: "tabular-nums" }}>
+							{user.eloRating.toLocaleString("fr-FR")}
+							<Box component="span" sx={{ ml: 0.75, fontSize: "1rem", fontWeight: 400, color: "text.secondary" }}>
+								ELO
+							</Box>
+						</Text>
+					</Box>
+					<Box>
+						<Muted sx={{ fontSize: "0.875rem" }}>Taux de victoire</Muted>
+						<Text sx={{ fontSize: "1.5rem", fontWeight: 500, lineHeight: 1.3, fontVariantNumeric: "tabular-nums" }}>
+							{winRate ?? "—"}
+							{winRate && (
+								<Box component="span" sx={{ ml: 0.5, fontSize: "0.875rem", color: "text.secondary" }}>
+									%
+								</Box>
+							)}
+						</Text>
+					</Box>
+				</Box>
 
-							<StatsSummary eloRating={user.eloRating} winrate={winrate} />
-						</Grid>
-					</Grid>
-				) : (
-					<Muted variant="body1">Aucune statistique disponible</Muted>
-				)}
-			</Stack>
-        </Paper>
-    );
+				<StatStrip
+					stats={[
+						{ label: "Parties", value: stats.totalGames },
+						{ label: "Victoires", value: stats.wins },
+						{ label: "Défaites", value: stats.losses },
+						{ label: "Nuls", value: stats.draws },
+					]}
+				/>
+
+				<LevelProgress level={getLevelFromXp(user.xp)} />
+			</Box>
+		</Panel>
+	);
 }

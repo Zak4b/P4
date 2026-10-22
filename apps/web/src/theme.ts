@@ -1,7 +1,12 @@
 import { createTheme } from "@mui/material/styles";
 
 /**
- * Thème « Ciel & sarcelle ».
+ * Thème « Plateau ».
+ *
+ * La personnalité vient de l'objet lui-même : le bleu du cadre est la couleur de
+ * marque, le rouge et le jaune des jetons sont les deux accents, et le jeton rond
+ * est le seul motif (boutons en pastille, pastilles de liste, grands disques).
+ * Aplats uniquement : pas de dégradé, pas d'ombre sur ce qui est au repos.
  *
  * Les couleurs vivent toutes ici, en deux jeux (clair et sombre) exposés sous
  * forme de variables CSS. Dans un composant on lit un token — `primary.main`,
@@ -48,18 +53,11 @@ interface TintPalette {
 	shine: string;
 }
 
-/** Métaux du podium : identiques dans les deux modes, comme de vraies médailles. */
+/** Métaux du podium : identiques dans les deux modes, comme de vraies médailles. Aplats. */
 interface PodiumPalette {
 	gold: string;
-	goldBorder: string;
-	goldIcon: string;
 	silver: string;
-	silverIcon: string;
 	bronze: string;
-	bronzeIcon: string;
-	/** Texte posé sur un métal, toujours sombre. */
-	ink: string;
-	inkMuted: string;
 }
 
 interface ShadowPalette {
@@ -102,6 +100,9 @@ declare module "@mui/material/SvgIcon" {
 	}
 }
 
+/** Courbes partagées (voir aussi `custom.css`). */
+export const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
+
 /** Couleurs de jeu : identiques dans les deux modes, ce sont celles du plateau physique. */
 const TOKEN_RED = "#CE1D30";
 const TOKEN_YELLOW = "#FDD334";
@@ -109,15 +110,9 @@ const TOKEN_ON_RED = "#ffffff";
 const TOKEN_ON_YELLOW = "#2b2100";
 
 const PODIUM: PodiumPalette = {
-	gold: "linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)",
-	goldBorder: "#ffd700",
-	goldIcon: "#ff8c00",
-	silver: "linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%)",
-	silverIcon: "#6f6f6f",
-	bronze: "linear-gradient(135deg, #cd7f32 0%, #e6a85c 100%)",
-	bronzeIcon: "#7a5a10",
-	ink: "#1f1a05",
-	inkMuted: "rgba(31, 26, 5, 0.68)",
+	gold: "#e8b923",
+	silver: "#a9afb8",
+	bronze: "#c27a3c",
 };
 
 export const theme = createTheme({
@@ -128,16 +123,16 @@ export const theme = createTheme({
 		light: {
 			palette: {
 				primary: {
-					main: "#0369a1",
-					light: "#0ea5e9",
-					dark: "#075985",
+					main: "#1f5bd8",
+					light: "#4f82ea",
+					dark: "#1746a8",
 					contrastText: "#ffffff",
 				},
 				secondary: {
-					main: "#14b8a6",
-					light: "#2dd4bf",
-					dark: "#0f766e",
-					contrastText: "#ffffff",
+					main: "#fdd334",
+					light: "#fee27a",
+					dark: "#e0b400",
+					contrastText: "#2b2100",
 				},
 				success: {
 					main: "#10b981",
@@ -166,46 +161,46 @@ export const theme = createTheme({
 					contrastText: "#000000",
 				},
 				background: {
-					default: "#f6f9fb",
+					default: "#f3f5fa",
 					paper: "#ffffff",
 				},
 				text: {
-					primary: "#0f172a",
-					secondary: "#5b6b7c",
+					primary: "#0d1530",
+					secondary: "#4d5875",
 					disabled: "#94a3b8",
 				},
-				divider: "#dce7ef",
+				divider: "#dde3f0",
 				board: {
-					frame: "#9c9c9c",
-					hole: "#f6f9fb",
+					frame: "#1f5bd8",
+					hole: "#f3f5fa",
 					player1: TOKEN_RED,
 					player2: TOKEN_YELLOW,
 					player1Contrast: TOKEN_ON_RED,
 					player2Contrast: TOKEN_ON_YELLOW,
 				},
 				gradient: {
-					brand: "linear-gradient(135deg, #0369a1 0%, #14b8a6 100%)",
-					heading: "linear-gradient(to right, #0f172a, #41556b)",
-					surface: "linear-gradient(135deg, #ffffff 0%, #f6f9fb 100%)",
+					brand: "#1f5bd8",
+					heading: "#0d1530",
+					surface: "#ffffff",
 				},
 				tint: {
-					primary: "rgba(3, 105, 161, 0.10)",
-					secondary: "rgba(20, 184, 166, 0.10)",
+					primary: "rgba(31, 91, 216, 0.10)",
+					secondary: "rgba(253, 211, 52, 0.22)",
 					warning: "rgba(245, 158, 11, 0.10)",
 					success: "rgba(16, 185, 129, 0.10)",
-					hole: "rgba(15, 23, 42, 0.05)",
+					hole: "rgba(13, 21, 48, 0.05)",
 					holeRed: "rgba(206, 29, 48, 0.10)",
 					holeYellow: "rgba(253, 211, 52, 0.16)",
 					shine: "rgba(255, 255, 255, 0.4)",
 				},
 				shadow: {
-					card: "0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.06)",
-					board: "0 25px 50px -12px rgba(15, 23, 42, 0.15)",
-					float: "0 12px 28px -12px rgba(15, 23, 42, 0.28)",
+					card: "none",
+					board: "none",
+					float: "0 2px 6px rgba(13, 21, 48, 0.08), 0 12px 28px -8px rgba(13, 21, 48, 0.22)",
 				},
 				podium: PODIUM,
 				surfaceInverse: {
-					main: "#0f2231",
+					main: "#0d1530",
 					contrastText: "#e8f2f8",
 					mutedText: "rgba(232, 242, 248, 0.7)",
 				},
@@ -214,16 +209,16 @@ export const theme = createTheme({
 		dark: {
 			palette: {
 				primary: {
-					main: "#0ea5e9",
-					light: "#38bdf8",
-					dark: "#0284c7",
-					contrastText: "#052030",
+					main: "#5b8ef0",
+					light: "#86acf5",
+					dark: "#2f6be0",
+					contrastText: "#06112b",
 				},
 				secondary: {
-					main: "#2dd4bf",
-					light: "#5eead4",
-					dark: "#14b8a6",
-					contrastText: "#04211d",
+					main: "#fdd334",
+					light: "#fee27a",
+					dark: "#e0b400",
+					contrastText: "#2b2100",
 				},
 				success: {
 					main: "#34d399",
@@ -252,80 +247,89 @@ export const theme = createTheme({
 					contrastText: "#000000",
 				},
 				background: {
-					default: "#0b1620",
-					paper: "#12202c",
+					default: "#0a1024",
+					paper: "#121a33",
 				},
 				text: {
-					primary: "#e8f2f8",
-					secondary: "#8ea5b8",
-					disabled: "#5c7285",
+					primary: "#eef2fb",
+					secondary: "#9aa6c4",
+					disabled: "#5a6688",
 				},
-				divider: "#1e3242",
+				divider: "#222c4a",
 				board: {
-					frame: "#5c6570",
-					hole: "#0b1620",
+					frame: "#1d4fbf",
+					hole: "#0a1024",
 					player1: TOKEN_RED,
 					player2: TOKEN_YELLOW,
 					player1Contrast: TOKEN_ON_RED,
 					player2Contrast: TOKEN_ON_YELLOW,
 				},
 				gradient: {
-					brand: "linear-gradient(135deg, #0ea5e9 0%, #2dd4bf 100%)",
-					heading: "linear-gradient(to right, #e8f2f8, #93aabd)",
-					surface: "linear-gradient(135deg, #162836 0%, #12202c 100%)",
+					brand: "#5b8ef0",
+					heading: "#eef2fb",
+					surface: "#121a33",
 				},
 				tint: {
-					primary: "rgba(14, 165, 233, 0.16)",
-					secondary: "rgba(45, 212, 191, 0.16)",
+					primary: "rgba(91, 142, 240, 0.16)",
+					secondary: "rgba(253, 211, 52, 0.16)",
 					warning: "rgba(251, 191, 36, 0.16)",
 					success: "rgba(52, 211, 153, 0.16)",
-					hole: "rgba(232, 242, 248, 0.05)",
+					hole: "rgba(238, 242, 251, 0.05)",
 					holeRed: "rgba(206, 29, 48, 0.14)",
 					holeYellow: "rgba(253, 211, 52, 0.14)",
 					shine: "rgba(255, 255, 255, 0.25)",
 				},
 				shadow: {
-					card: "0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7)",
-					board: "0 25px 50px -12px rgba(0, 0, 0, 0.6)",
+					card: "none",
+					board: "none",
 					float: "0 12px 28px -12px rgba(0, 0, 0, 0.7)",
 				},
 				podium: PODIUM,
 				surfaceInverse: {
-					main: "#0a141c",
-					contrastText: "#e8f2f8",
-					mutedText: "rgba(232, 242, 248, 0.7)",
+					main: "#070c1c",
+					contrastText: "#eef2fb",
+					mutedText: "rgba(238, 242, 251, 0.7)",
 				},
 			},
 		},
 	},
 	typography: {
-		fontFamily: [
-			"-apple-system",
-			"BlinkMacSystemFont",
-			'"Segoe UI"',
-			"Roboto",
-			'"Helvetica Neue"',
-			"Arial",
-			"sans-serif",
-		].join(","),
-		h1: { fontWeight: 700 },
-		h2: { fontWeight: 700 },
-		h3: { fontWeight: 600 },
-		h4: { fontWeight: 600 },
+		// Jost : géométrie ronde des années 1920, qui fait écho au jeton.
+		// La variable est posée par `next/font` dans le layout racine.
+		fontFamily: ["var(--font-jost)", '"Helvetica Neue"', "Arial", "sans-serif"].join(","),
+		h1: { fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 0.95 },
+		h2: { fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 1 },
+		h3: { fontWeight: 700, letterSpacing: "-0.02em" },
+		h4: { fontWeight: 700, letterSpacing: "-0.015em" },
 		h5: { fontWeight: 600 },
 		h6: { fontWeight: 600 },
+		button: { fontWeight: 600, letterSpacing: 0 },
 	},
 	shape: {
 		borderRadius: 12,
 	},
 	components: {
-		MuiButton: {
+		MuiButtonBase: {
 			styleOverrides: {
+				// Tout ce qui se presse répond à la pression : c'est le « clac » du jeton.
+				root: {
+					transition: `transform 160ms ${EASE_OUT}`,
+					"&:active:not(.Mui-disabled)": { transform: "scale(0.97)" },
+				},
+			},
+		},
+		MuiButton: {
+			defaultProps: {
+				disableElevation: true,
+			},
+			styleOverrides: {
+				// Boutons en pastille : la forme du jeton, jamais l'arrondi « moyen ».
 				root: {
 					textTransform: "none",
 					fontWeight: 600,
-					borderRadius: 12,
+					borderRadius: 999,
 					padding: "10px 24px",
+					transition: `transform 160ms ${EASE_OUT}, background-color 200ms ease, border-color 200ms ease, color 200ms ease`,
 				},
 			},
 		},
@@ -335,6 +339,44 @@ export const theme = createTheme({
 					borderRadius: 16,
 					boxShadow: theme.vars.palette.shadow.card,
 				}),
+			},
+		},
+		MuiPaper: {
+			styleOverrides: {
+				// Les surfaces au repos se séparent par un pas de ton, pas par une ombre.
+				elevation: { boxShadow: "none" },
+			},
+		},
+		MuiMenu: {
+			styleOverrides: {
+				// Un liseré en plus de l'ombre : sans lui, le haut du menu se perd sur le fond clair.
+				paper: ({ theme }) => ({
+					boxShadow: theme.vars.palette.shadow.float,
+					border: `1px solid ${theme.vars.palette.divider}`,
+					borderRadius: 12,
+				}),
+				list: { padding: 4 },
+			},
+		},
+		MuiMenuItem: {
+			styleOverrides: {
+				root: {
+					minHeight: 34,
+					padding: "6px 10px",
+					borderRadius: 8,
+					fontSize: "0.9375rem",
+					"& .MuiListItemIcon-root": { minWidth: 28 },
+				},
+			},
+		},
+		MuiPopover: {
+			styleOverrides: {
+				paper: ({ theme }) => ({ boxShadow: theme.vars.palette.shadow.float }),
+			},
+		},
+		MuiDialog: {
+			styleOverrides: {
+				paper: ({ theme }) => ({ borderRadius: 24, boxShadow: theme.vars.palette.shadow.float }),
 			},
 		},
 		MuiTextField: {

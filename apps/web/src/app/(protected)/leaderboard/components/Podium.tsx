@@ -1,172 +1,124 @@
 "use client";
 
-import { Box, Paper, Grid, Stack } from "@mui/material";
-import { Text } from "@/components/ui";
-import { EmojiEvents as TrophyIcon, MilitaryTech as MedalIcon } from "@mui/icons-material";
-import { paperStyles } from "@/lib/styles";
+import { Box, Typography } from "@mui/material";
 import UserAvatar from "@/components/UserAvatar";
-import LeaderboardEntry, { type LeaderboardPlayer } from "./LeaderboardEntry";
+import UserActionsDropdown from "@/components/UserActionsDropdown";
+import { useAuth } from "@/components/AuthContext";
+import type { LeaderboardPlayer } from "./LeaderboardEntry";
 
-const configs = {
-	1: {
-		height: { xs: "auto", sm: "320px" },
-		background: "var(--mui-palette-podium-gold)",
-		border: "3px solid var(--mui-palette-podium-goldBorder)",
-		avatarSize: { xs: 50, sm: 100 },
-		icon: <TrophyIcon sx={{ fontSize: { xs: 24, sm: 40 }, color: "podium.goldIcon" }} />,
-		rankVariant: "h5" as const,
-		eloVariant: "h4" as const,
-		nameVariant: "h5" as const,
-		elevation: 6,
-	},
-	2: {
-		height: { xs: "auto", sm: "280px" },
-		background: "var(--mui-palette-podium-silver)",
-		border: "none",
-		avatarSize: { xs: 50, sm: 80 },
-		icon: <MedalIcon sx={{ fontSize: { xs: 20, sm: 32 }, color: "podium.silverIcon" }} />,
-		rankVariant: "h6" as const,
-		eloVariant: "h5" as const,
-		nameVariant: "h6" as const,
-		elevation: 4,
-	},
-	3: {
-		height: { xs: "auto", sm: "260px" },
-		background: "var(--mui-palette-podium-bronze)",
-		border: "none",
-		avatarSize: { xs: 50, sm: 70 },
-		icon: <MedalIcon sx={{ fontSize: { xs: 20, sm: 32 }, color: "podium.bronzeIcon" }} />,
-		rankVariant: "h6" as const,
-		eloVariant: "h5" as const,
-		nameVariant: "h6" as const,
-		elevation: 4,
-	},
-};
-
-const PodiumPlace = (position: 1 | 2 | 3, player: LeaderboardPlayer | undefined, order: { xs: number; sm: number }) => {
-	const config = configs[position];
-
-	return (
-		<Grid
-			size={{ xs: 12, sm: 4 }}
-			key={position}
-			sx={{
-				order: order,
-			}}
-		>
-			<Paper
-				elevation={config.elevation}
-				sx={[
-					paperStyles.gradientPaper,
-					{
-						textAlign: "center",
-						p: 3,
-						position: "relative",
-						height: config.height,
-						display: "flex",
-						flexDirection: "column",
-						justifyContent: "flex-end",
-						background: config.background,
-						border: config.border,
-						color: "podium.ink",
-						opacity: player ? 1 : 0.5,
-					},
-				]}
-			>
-				{player ? (
-					<>
-						<Box sx={{ position: "absolute", top: 8, right: 8 }}>{config.icon}</Box>
-						<Box sx={{ mb: 2 }}>
-							<Text
-								variant={config.rankVariant}
-								sx={{
-									fontWeight: 700,
-									color: "podium.inkMuted",
-								}}
-							>
-								#{position}
-							</Text>
-						</Box>
-						<UserAvatar
-							userId={player?.id}
-							login={player?.login}
-							sx={{ width: config.avatarSize, height: config.avatarSize, mx: "auto", mb: 2 }}
-						/>
-						<Text
-							variant={config.nameVariant}
-							sx={{
-								fontWeight: 600,
-								mb: 1,
-							}}
-						>
-							{player?.login ?? "Unknown"}
-						</Text>
-						<Text
-							variant={config.eloVariant}
-							sx={{
-								fontWeight: 700,
-								color: "podium.ink",
-							}}
-						>
-							{player?.eloRating ?? "Unknown"}
-						</Text>
-						<Text
-							variant={position === 1 ? "body1" : "body2"}
-							sx={{
-								color: "podium.inkMuted",
-								fontWeight: position === 1 ? 600 : 400,
-							}}
-						>
-							ELO
-						</Text>
-					</>
-				) : null}
-			</Paper>
-		</Grid>
-	);
-};
-
-const smallPodium = (player: LeaderboardPlayer | undefined, position: 1 | 2 | 3) => {
-	const config = configs[position];
-	return (
-		<LeaderboardEntry
-			player={player}
-			rank={position}
-			icon={config.icon}
-			background={config.background}
-			border={config.border}
-			elevation={config.elevation}
-			avatarSize={config.avatarSize.xs}
-		/>
-	);
-};
-
-interface PodiumProps {
-	topThree: LeaderboardPlayer[];
+interface Place {
+	rank: 1 | 2 | 3;
+	color: string;
+	/** Hauteur de la marche : téléphone, puis écran large. */
+	height: { xs: number; sm: number };
+	avatar: { xs: number; sm: number };
 }
 
-export default function Podium({ topThree }: PodiumProps) {
+/** Ordre d'affichage d'un vrai podium : deuxième, premier, troisième. */
+const PLACES: Place[] = [
+	{ rank: 2, color: "podium.silver", height: { xs: 84, sm: 140 }, avatar: { xs: 48, sm: 72 } },
+	{ rank: 1, color: "podium.gold", height: { xs: 116, sm: 190 }, avatar: { xs: 60, sm: 96 } },
+	{ rank: 3, color: "podium.bronze", height: { xs: 64, sm: 104 }, avatar: { xs: 44, sm: 64 } },
+];
+
+/** Rang d'arrivée sur le podium : le 1er d'abord. */
+const DROP_ORDER: Record<Place["rank"], number> = { 1: 0, 2: 1, 3: 2 };
+
+function Step({ place, player, currentUserId }: { place: Place; player: LeaderboardPlayer | undefined; currentUserId?: string }) {
+	const { rank, color, height, avatar } = place;
 	return (
-		<>
-			<Grid
-				container
-				spacing={2}
+		<Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 0 }}>
+			{player ? (
+				<Box
+					data-motion=""
+					sx={{
+						display: "flex",
+						flexDirection: "column",
+						alignItems: "center",
+						minWidth: 0,
+						maxWidth: "100%",
+						mb: 1.5,
+						// Le joueur tombe sur sa marche, comme un jeton dans sa colonne.
+						// Le 1er tombe d'abord, puis le 2e et le 3e.
+						animation: `podiumDrop 620ms ${DROP_ORDER[rank] * 140}ms both`,
+					}}
+				>
+					{/* Clic sur le portrait : voir le profil, inviter… comme dans l'historique. */}
+					<UserActionsDropdown targetUser={{ id: player.id, login: player.login }} currentUserId={currentUserId}>
+						<Box sx={{ p: "4px", borderRadius: "50%", bgcolor: color, lineHeight: 0, cursor: "pointer" }}>
+							<UserAvatar
+								userId={player.id}
+								login={player.login}
+								sx={{ width: avatar, height: avatar, border: "3px solid", borderColor: "background.paper" }}
+							/>
+						</Box>
+					</UserActionsDropdown>
+					<Typography
+						sx={{
+							mt: 1,
+							fontWeight: 700,
+							fontSize: { xs: "0.9375rem", sm: rank === 1 ? "1.25rem" : "1.0625rem" },
+							maxWidth: "100%",
+							overflow: "hidden",
+							textOverflow: "ellipsis",
+							whiteSpace: "nowrap",
+						}}
+					>
+						{player.login}
+					</Typography>
+					<Typography
+						sx={{ color: "text.secondary", fontVariantNumeric: "tabular-nums", fontSize: { xs: "0.8125rem", sm: "0.9375rem" } }}
+					>
+						{player.eloRating.toLocaleString("fr-FR")} ELO
+					</Typography>
+				</Box>
+			) : (
+				<Typography sx={{ mb: 1.5, color: "text.secondary", fontSize: "0.875rem" }}>Place libre</Typography>
+			)}
+			<Box
 				sx={{
+					width: "100%",
+					height,
+					bgcolor: player ? color : "action.hover",
+					borderRadius: "16px 16px 0 0",
+					display: "flex",
 					justifyContent: "center",
-					alignItems: "flex-end",
-					display: { xs: "none", sm: "flex" },
+					pt: { xs: 1, sm: 2 },
 				}}
 			>
-				{PodiumPlace(2, topThree[1], { xs: 1, sm: 1 })}
-				{PodiumPlace(1, topThree[0], { xs: 2, sm: 2 })}
-				{PodiumPlace(3, topThree[2], { xs: 3, sm: 3 })}
-			</Grid>
-			{/* Version horizontale pour petits écrans */}
-			<Stack spacing={2} sx={{ display: { xs: "flex", sm: "none" } }}>
-				{smallPodium(topThree[0], 1)}
-				{smallPodium(topThree[1], 2)}
-				{smallPodium(topThree[2], 3)}
-			</Stack>
-		</>
+				<Typography
+					sx={{
+						fontSize: { xs: "2rem", sm: rank === 1 ? "4rem" : "3rem" },
+						fontWeight: 700,
+						lineHeight: 1,
+						color: player ? "rgba(255, 255, 255, 0.92)" : "text.disabled",
+					}}
+				>
+					{rank}
+				</Typography>
+			</Box>
+		</Box>
+	);
+}
+
+/** Le podium des trois premiers, en marches de hauteur décroissante. */
+export default function Podium({ topThree }: { topThree: LeaderboardPlayer[] }) {
+	const { user } = useAuth();
+	return (
+		<Box
+			sx={{
+				display: "grid",
+				gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+				alignItems: "end",
+				gap: { xs: 1, sm: 2 },
+				maxWidth: 720,
+				mx: "auto",
+				mb: 4,
+			}}
+		>
+			{PLACES.map((place) => (
+				<Step key={place.rank} place={place} player={topThree[place.rank - 1]} currentUserId={user?.id} />
+			))}
+		</Box>
 	);
 }

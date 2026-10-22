@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Paper, Stack, Divider, Container } from "@mui/material";
-import { Heading, Input, Button } from "@/components/ui";
-import { Settings as SettingsIcon, Email as EmailIcon, Lock as LockIcon, Save as SaveIcon } from "@mui/icons-material";
+import { Box, Stack, Container } from "@mui/material";
+import { Input, Button, Muted, PageHeader, Panel, Text } from "@/components/ui";
 import { useAuth } from "@/components/AuthContext";
-import { layoutStyles, typographyStyles, paperStyles, buttonStyles, textFieldStyles } from "@/lib/styles";
+import { layoutStyles, textFieldStyles } from "@/lib/styles";
 import PasswordInput from "@/components/PasswordInput";
 import { passwordRules } from "@/lib/passwordRules";
 
@@ -57,94 +56,68 @@ export default function SettingsPage() {
 	const isPasswordValid = password && password.length >= 6 && password === confirmPassword;
 
 	return (
-        <Container maxWidth="lg" sx={layoutStyles.container}>
-            <Heading
-                level={4}
-                sx={[{
-                    fontWeight: 700
-                }, typographyStyles.gradientTitle]}>
-				<SettingsIcon />
-				Paramètres
-			</Heading>
+		<Container maxWidth="md" sx={{ py: { xs: 4, md: 6 } }}>
+			<PageHeader title="Paramètres" finding="Les informations de connexion de ton compte." />
 
-            <Stack spacing={4}>
-				{/* Section Email */}
-				<Paper elevation={3} sx={paperStyles.gradientPaper}>
-					<Stack spacing={3}>
-						<Box sx={layoutStyles.flexCenter}>
-							<EmailIcon color="primary" />
-							<Heading level={6} sx={{
-                                fontWeight: 600
-                            }}>
-								Modifier l&apos;email
-							</Heading>
-						</Box>
-						<Divider />
-						<Input
-							fullWidth
-							label="Email"
-							type="email"
-							value={email}
-							onChange={handleEmailChange}
-							error={Boolean(emailError)}
-							helperText={emailError}
-							sx={textFieldStyles.standard}
-						/>
-						<Box sx={layoutStyles.flexEnd}>
-							<Button
-								startIcon={<SaveIcon />}
-								onClick={handleSaveEmail}
-								disabled={!isEmailChanged || Boolean(emailError) || !email}
-								sx={[buttonStyles.gradientButtonDisabled, { px: 3 }]}
-							>
-								Sauvegarder
-							</Button>
-						</Box>
-					</Stack>
-				</Paper>
+			<Stack spacing={4} data-motion="" sx={{ animation: "riseIn 420ms var(--ease-out) 60ms both" }}>
+				<SettingsSection title="Email" description="L'adresse utilisée pour te connecter et récupérer ton compte.">
+					<Input
+						fullWidth
+						label="Email"
+						type="email"
+						value={email}
+						onChange={handleEmailChange}
+						error={Boolean(emailError)}
+						helperText={emailError}
+						sx={textFieldStyles.standard}
+					/>
+					<Box sx={layoutStyles.flexEnd}>
+						<Button onClick={handleSaveEmail} disabled={!isEmailChanged || Boolean(emailError) || !email}>
+							Enregistrer
+						</Button>
+					</Box>
+				</SettingsSection>
 
-				{/* Section Mot de passe */}
-				<Paper elevation={3} sx={paperStyles.gradientPaper}>
-					<Stack spacing={3}>
-						<Box sx={layoutStyles.flexCenter}>
-							<LockIcon color="primary" />
-							<Heading level={6} sx={{
-                                fontWeight: 600
-                            }}>
-								Modifier le mot de passe
-							</Heading>
-						</Box>
-						<Divider />
-						<PasswordInput
-							label="Nouveau mot de passe"
-							value={password}
-							onChange={handlePasswordChange}
-							error={Boolean(passwordError) && Boolean(password)}
-							autoComplete="new-password"
-							fullWidth
-							validations={passwordRules}
-						/>
-						<PasswordInput
-							label="Confirmer le mot de passe"
-							value={confirmPassword}
-							onChange={handleConfirmPasswordChange}
-							error={Boolean(passwordError) && Boolean(confirmPassword)}
-							autoComplete="new-password"
-							fullWidth
-						/>
-						<Box sx={layoutStyles.flexEnd}>
-							<Button
-								startIcon={<SaveIcon />}
-								onClick={handleSavePassword}
-								disabled={!isPasswordValid}
-								sx={[buttonStyles.gradientButtonDisabled, { px: 3 }]}
-							>
-								Sauvegarder
-							</Button>
-						</Box>
-					</Stack>
-				</Paper>
+				<SettingsSection title="Mot de passe" description="Choisis un mot de passe que tu n'utilises nulle part ailleurs.">
+					<PasswordInput
+						label="Nouveau mot de passe"
+						value={password}
+						onChange={handlePasswordChange}
+						error={Boolean(passwordError) && Boolean(password)}
+						autoComplete="new-password"
+						fullWidth
+						validations={passwordRules}
+					/>
+					<PasswordInput
+						label="Confirmer le mot de passe"
+						value={confirmPassword}
+						onChange={handleConfirmPasswordChange}
+						error={Boolean(passwordError) && Boolean(confirmPassword)}
+						autoComplete="new-password"
+						fullWidth
+					/>
+					<Box sx={layoutStyles.flexEnd}>
+						<Button onClick={handleSavePassword} disabled={!isPasswordValid}>
+							Enregistrer
+						</Button>
+					</Box>
+				</SettingsSection>
 			</Stack>
-        </Container>
-    );
+		</Container>
+	);
+}
+
+/** Une section de réglages : le libellé et son explication à gauche, les champs à droite. */
+function SettingsSection({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
+	return (
+		<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "240px 1fr" }, gap: { xs: 1.5, md: 4 } }}>
+			<Box sx={{ pt: { md: 2.5 } }}>
+				<Text sx={{ fontWeight: 600 }}>{title}</Text>
+				<Muted sx={{ mt: 0.5 }}>{description}</Muted>
+			</Box>
+			<Panel sx={{ p: 3 }}>
+				<Stack spacing={2.5}>{children}</Stack>
+			</Panel>
+		</Box>
+	);
 }

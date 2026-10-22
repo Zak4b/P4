@@ -15,3 +15,4 @@ export { Select, type SelectProps, type SelectOption } from "./Select";
 export { Checkbox, type CheckboxProps, SwitchInput, type SwitchInputProps } from "./Checkbox";
 export { Badge, type BadgeProps, type BadgeVariant } from "./Badge";
 export { FormField, type FormFieldProps } from "./FormField";
+export { Panel, PanelHeader, PageHeader, StatStrip, type Stat, Token, type TokenTone } from "./Panel";

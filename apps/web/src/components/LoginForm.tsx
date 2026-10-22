@@ -39,7 +39,7 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 			await login(email, password);
 			onLogin?.();
 		} catch (err) {
-			setSubmitError(err instanceof Error ? err.message : "Login failed");
+			setSubmitError(err instanceof Error ? err.message : "La connexion a échoué");
 			setIsLoading(false);
 		}
 	};
@@ -50,7 +50,7 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 	};
 
 	return (
-		<AuthCard title="Login to P4 Game">
+		<AuthCard title="Connexion à P4">
 			<form onSubmit={handleSubmit}>
 				<Input
 					fullWidth
@@ -65,7 +65,7 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 					sx={spacing.mb2}
 				/>
 				<PasswordInput
-					label="Password"
+					label="Mot de passe"
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
 					required
@@ -81,7 +81,7 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 					startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <LoginIcon />}
 					sx={[buttonStyles.gradientButton, spacing.mb2, { py: 1.5 }]}
 				>
-					{isLoading ? "Logging in..." : "Login"}
+					{isLoading ? "Connexion…" : "Se connecter"}
 				</Button>
 				<Box sx={{ my: 2 }}>
 					<Divider sx={{ "&::before, &::after": { borderColor: "divider" } }}>
@@ -95,7 +95,7 @@ function LoginFormContent({ onLogin }: LoginFormProps) {
 					{error}
 				</Alert>
 			)}
-			<AuthSwitchPrompt question="Don't have an account?" href="/register" linkLabel="Register here" />
+			<AuthSwitchPrompt question="Pas encore de compte ?" href="/register" linkLabel="Créer un compte" />
 		</AuthCard>
 	);
 }

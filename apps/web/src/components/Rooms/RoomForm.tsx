@@ -21,7 +21,7 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 
 	const createRoom = async () => {
 		if (!name.trim()) {
-			setError("Le nom de la salle est requis");
+			setError("Le nom de la partie est requis");
 			return;
 		}
 
@@ -37,21 +37,21 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 					.replace(/^_|_$/g, "") || `room_${Date.now()}`;
 
 			if (!roomId) {
-				setError("Le nom de la salle doit contenir au moins un caractère alphanumérique");
+				setError("Le nom de la partie doit contenir au moins un caractère alphanumérique");
 				return;
 			}
 
 			const room = await createRoomMutation.mutateAsync({ name: roomId });
 
 			setName("");
-			// Naviguer vers la salle créée
+			// Naviguer vers la partie créée
 			router.push(`/play/${room.id}`);
-			// Recharger la liste des salles
+			// Recharger la liste des parties
 			onRoomCreated?.();
 			// Fermer le drawer
 			onSubmit(room.id);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Erreur lors de la création de la salle");
+			setError(err instanceof Error ? err.message : "Erreur lors de la création de la partie");
 		}
 	};
 
@@ -66,7 +66,7 @@ const RoomForm: React.FC<RoomFormProps> = ({ onSubmit, onRoomCreated }) => {
 				<Stack direction="row" spacing={1}>
 					<Input
 						fullWidth
-						placeholder="Nom de la nouvelle salle"
+						placeholder="Nom de la nouvelle partie"
 						value={name}
 						onChange={(e) => {
 							setName(e.target.value);

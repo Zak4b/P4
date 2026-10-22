@@ -46,7 +46,7 @@ const RoomList: React.FC<RoomListProps> = ({ open, onClose }) => {
 		>
 			<Box sx={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
 				<Box sx={{ p: 2, backgroundColor: "primary.main", color: "primary.contrastText" }}>
-					<Heading level={6}>Rooms</Heading>
+					<Heading level={6}>Parties</Heading>
 				</Box>
 				<Box sx={{ p: 2, flexGrow: 1, overflowY: "auto" }}>
 					<RoomForm onSubmit={onClose} onRoomCreated={loadRooms} />

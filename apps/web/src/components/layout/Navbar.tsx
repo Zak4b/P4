@@ -15,7 +15,6 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import IconButton from "@mui/material/IconButton";
 import { useTheme, useMediaQuery } from "@mui/material";
 import PlayIcon from "@mui/icons-material/PlayArrow";
-import HistoryIcon from "@mui/icons-material/History";
 import RoomIcon from "@mui/icons-material/MeetingRoom";
 import TrophyIcon from "@mui/icons-material/EmojiEvents";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -34,17 +33,12 @@ const navOptions = [
 	{
 		href: "/play",
 		icon: <PlayIcon />,
-		label: "Play",
-	},
-	{
-		href: "/history",
-		icon: <HistoryIcon />,
-		label: "History",
+		label: "Jouer",
 	},
 	{
 		href: "/leaderboard",
 		icon: <TrophyIcon />,
-		label: "Leaderboard",
+		label: "Classement",
 	},
 ];
 
@@ -87,22 +81,28 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 					</IconButton>
 				)}
 
-				<Heading
-					level={6}
+				<Box
 					component={Link}
 					href="/"
 					sx={{
+						...layoutStyles.flexCenter,
 						flexGrow: { xs: 1, md: 0 },
 						mr: { xs: 1, md: 4 },
-						fontWeight: 700,
-						cursor: "pointer",
 						color: "inherit",
 						textDecoration: "none",
-						fontSize: { xs: "1rem", sm: "1.25rem" },
 					}}
 				>
-					P4
-				</Heading>
+					<Heading
+						level={6}
+						component="span"
+						sx={{ fontWeight: 700, fontSize: { xs: "1.125rem", sm: "1.375rem" }, letterSpacing: "-0.02em" }}
+					>
+						P4
+					</Heading>
+					{/* Les deux jetons, dans l'ordre du premier coup. */}
+					<Box aria-hidden sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "board.player1" }} />
+					<Box aria-hidden sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "board.player2", ml: -0.5 }} />
+				</Box>
 
 				{/* Desktop Navigation */}
 				<Box
@@ -119,18 +119,21 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 					))}
 				</Box>
 
-				{/* Desktop Rooms Button */}
+				{/* Bouton parties (bureau) */}
 				<Button
 					color="inherit"
 					startIcon={<RoomIcon />}
 					onClick={onRoomsClick}
+					variant="contained"
 					sx={{
-						...appBarStyles.navButtonActive,
 						mr: { xs: 0, md: 2 },
 						display: { xs: "none", md: "flex" },
+						bgcolor: "board.player2",
+						color: "board.player2Contrast",
+						"&:hover": { bgcolor: "secondary.dark" },
 					}}
 				>
-					Rooms
+					Parties
 				</Button>
 
 				<NotificationsButton />
@@ -167,7 +170,7 @@ const Navbar: React.FC<NavbarProps> = ({ onRoomsClick }) => {
 						<ListItemIcon>
 							<RoomIcon fontSize="small" />
 						</ListItemIcon>
-						Rooms
+						Parties
 					</MenuItem>
 				</Menu>
 			</Toolbar>

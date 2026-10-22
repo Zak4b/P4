@@ -97,12 +97,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 				setPlayerIdState(null);
 
 				if (!isAuthenticated) {
-					setError("User not authenticated");
+					setError("Utilisateur non connecté");
 					return;
 				}
 
 				if (reconnectAttempts.current >= MAX_RECONNECT_ATTEMPTS) {
-					setError("Server is not responding");
+					setError("Le serveur ne répond pas");
 					return;
 				}
 				reconnectAttempts.current++;
@@ -114,11 +114,11 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 			});
 
 			newSocket.on("connect_error", (error) => {
-				setError(`Error while connecting to the server: ${error.message}`);
+				setError(`Erreur de connexion au serveur : ${error.message}`);
 				setIsConnected(false);
 			});
 		} catch {
-			setError("Error");
+			setError("Erreur");
 			setIsConnected(false);
 		}
 	};

@@ -1,7 +1,7 @@
 "use client";
 
-import { Box, Container, Grid, Paper, Stack } from "@mui/material";
-import { Heading } from "@/components/ui";
+import { Box, Container } from "@mui/material";
+import { PageHeader } from "@/components/ui";
 import RuleList from "@/components/Game/Rules/RuleList";
 import { useMatching } from "@/hooks/useMatching";
 import PlayActionsPanel from "./components/PlayActionsPanel";
@@ -10,33 +10,23 @@ export default function PlayIndexPage() {
 	const { modal, startMatchmaking } = useMatching();
 
 	return (
-		<Container maxWidth="lg" sx={{ py: 6 }}>
-			<Grid container spacing={6}>
-				{/* Left Column: Actions */}
-				<Grid size={{ xs: 12, md: 5 }}>
+		<Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
+			<PageHeader title="Jouer" finding="Affronte le prochain joueur en attente, ou rejoins la partie d'un ami." />
+			<Box
+				sx={{
+					display: "grid",
+					gridTemplateColumns: { xs: "1fr", md: "5fr 7fr" },
+					gap: 3,
+					alignItems: "start",
+				}}
+			>
+				<Box data-motion="" sx={{ animation: "riseIn 420ms var(--ease-out) 60ms both" }}>
 					<PlayActionsPanel onQuickMatch={startMatchmaking} />
-				</Grid>
-
-				{/* Right Column: Info & Rules */}
-				<Grid size={{ xs: 12, md: 7 }}>
-					<Stack spacing={4}>
-						<Box>
-							<Heading
-								level={5}
-								gutterBottom
-								sx={{
-									fontWeight: "bold",
-								}}
-							>
-								How to Play
-							</Heading>
-							<Paper variant="outlined" sx={{ borderRadius: 4, overflow: "hidden" }}>
-								<RuleList />
-							</Paper>
-						</Box>
-					</Stack>
-				</Grid>
-			</Grid>
+				</Box>
+				<Box data-motion="" sx={{ animation: "riseIn 420ms var(--ease-out) 120ms both" }}>
+					<RuleList />
+				</Box>
+			</Box>
 			{modal}
 		</Container>
 	);

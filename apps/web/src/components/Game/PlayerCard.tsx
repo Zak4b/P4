@@ -34,7 +34,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 				borderRadius: 2,
 				bgcolor: bgColor,
 				border: `${borderWidth}px solid ${borderColor}`,
-				boxShadow: isActive ? `0 0 16px color-mix(in srgb, ${tokenVar} 35%, transparent)` : "none",
+				// Le tour passe d'une carte à l'autre : on fond les couleurs, sans halo.
+				transition: "background-color 240ms ease, border-color 240ms ease",
 				flex: "1 1 0",
 				minWidth: 0,
 			}}
@@ -49,7 +50,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 					bgcolor: isPlayer1 ? "board.player1" : "board.player2",
 					border: isActive ? "3px solid" : "2px solid",
 					borderColor: isActive ? "surfaceInverse.contrastText" : "rgba(255, 255, 255, 0.35)",
-					boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.35)" : "none",
+					transition: "border-color 240ms ease",
 				}}
 			>
 				<PersonIcon sx={{ fontSize: { xs: 20, lg: 28 } }} />
