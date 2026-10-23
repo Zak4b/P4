@@ -1,6 +1,7 @@
 import { Prisma } from "../../generated/prisma/client.js";
 import { UserRepository } from "./user.repository.js";
 import { hashPassword, comparePassword } from "../auth/password.js";
+import { HttpError } from "../../lib/HttpError.js";
 import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from "@p4/schemas/auth";
 import crypto from "node:crypto";
 
@@ -104,6 +105,26 @@ export class UserService {
 
 	static async changeUsername(id: string, username: string) {
 		return await UserRepository.updateUsername(id, username);
+	}
+
+	private static async assertPassword(id: string, passwordPlain: string) {
+		const user = await UserRepository.find({ id });
+		if (!user) {
+			throw HttpError.unauthorized("Session user no longer exists");
+		}
+		if (!(await comparePassword(passwordPlain, user.password))) {
+			throw HttpError.forbidden("Invalid password");
+		}
+	}
+
+	static async changeEmail(id: string, email: string, currentPassword: string) {
+		await UserService.assertPassword(id, currentPassword);
+		return await UserRepository.updateEmail(id, email);
+	}
+
+	static async changePassword(id: string, currentPassword: string, newPassword: string) {
+		await UserService.assertPassword(id, currentPassword);
+		await UserRepository.updatePassword(id, await hashPassword(newPassword));
 	}
 
 	static async listAll() {

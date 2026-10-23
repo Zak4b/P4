@@ -67,6 +67,20 @@ export class UserRepository {
 		});
 	}
 
+	static async updateEmail(id: string, email: string) {
+		return await prisma.user.update({
+			where: { id },
+			data: { email },
+		});
+	}
+
+	static async updatePassword(id: string, password: string) {
+		return await prisma.user.update({
+			where: { id },
+			data: { password },
+		});
+	}
+
 	static async findAllRanking() {
 		return await prisma.user.findMany({
 			select: USER_SELECT,

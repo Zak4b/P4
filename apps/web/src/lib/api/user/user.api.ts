@@ -1,4 +1,5 @@
 import type { Me, User, UserStats } from "@p4/schemas/user";
+import type { UpdateEmailBody, UpdatePasswordBody } from "@p4/schemas/auth";
 import { apiClient } from "../api_client";
 
 export class UserApi {
@@ -20,5 +21,14 @@ export class UserApi {
 	static async updateUsername(username: string): Promise<Me> {
 		const { data } = await apiClient.patch<Me>("/me/username", { username });
 		return data;
+	}
+
+	static async updateEmail(body: UpdateEmailBody): Promise<Me> {
+		const { data } = await apiClient.patch<Me>("/me/email", body);
+		return data;
+	}
+
+	static async updatePassword(body: UpdatePasswordBody): Promise<void> {
+		await apiClient.patch("/me/password", body);
 	}
 }
