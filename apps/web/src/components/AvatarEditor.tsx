@@ -8,74 +8,45 @@ import {
 	ToggleButton,
 } from "@mui/material";
 import { Text, Muted } from "@/components/ui";
-import { createAvatar } from "@dicebear/core";
+import { Avatar } from "@dicebear/core";
 import { micahStyle } from "@/lib/avatar";
 import {
-	avatarSchemaProperties,
+	avatarFields,
 	propertyLabels,
 	getEnumOptions,
-	getDefaultValue,
 	getColorOptions,
 	isUnknownArray,
 } from "@/lib/avatarOptions";
 
-type AvatarOptions = Record<string, string | number | boolean | string[] | number[]>;
+type AvatarOptions = Record<string, string[]>;
 
 const PREVIEW_SIZE = 200;
-const OPTIONAL_COMPONENTS = ["hair", "earrings", "glasses", "facialHair"];
+const OPTIONAL_COMPONENTS = ["hairVariant", "earringsVariant", "glassesVariant", "facialHairVariant"];
 const NONE = "none";
+const TRANSPARENT = "transparent";
 
 const EDITOR_GROUPS: { title: string; keys: string[] }[] = [
-	{ title: "Visage", keys: ["baseColor", "ears", "eyebrows", "eyebrowsColor", "eyes", "eyesColor", "eyeShadowColor", "nose", "mouth", "mouthColor", "facialHair", "facialHairColor"] },
-	{ title: "Cheveux", keys: ["hair", "hairColor"] },
-	{ title: "Accessoires", keys: ["earrings", "earringColor", "glasses", "glassesColor"] },
-	{ title: "Vêtements", keys: ["shirt", "shirtColor"] },
-	{ title: "Fond", keys: ["backgroundColor", "backgroundType"] },
+	{ title: "Visage", keys: ["baseColor", "earsVariant", "eyebrowsVariant", "eyebrowsColor", "eyesVariant", "eyesColor", "eyeShadowColor", "noseVariant", "mouthVariant", "mouthColor", "facialHairVariant", "facialHairColor"] },
+	{ title: "Cheveux", keys: ["hairVariant", "hairColor"] },
+	{ title: "Accessoires", keys: ["earringsVariant", "earringColor", "glassesVariant", "glassesColor"] },
+	{ title: "Vêtements", keys: ["clothesVariant", "shirtColor"] },
+	{ title: "Fond", keys: ["backgroundColor", "backgroundColorFill"] },
 ];
 
-const PROBABILITY_KEYS = ["hairProbability", "glassesProbability", "earringsProbability", "facialHairProbability"];
+const EDITOR_KEYS = EDITOR_GROUPS.flatMap(({ keys }) => keys);
 
 function getOptionsFromSeed(seed: string): AvatarOptions {
-	const opts: AvatarOptions = { size: PREVIEW_SIZE };
+	const opts: AvatarOptions = {};
 	try {
-		const avatar = createAvatar(micahStyle, { seed, size: 1 });
-		const { extra } = avatar.toJson() as { extra?: Record<string, string | undefined> };
-		if (!extra) {return buildInitialOptions();}
-
-		const toHex = (v: string | undefined) =>
-			v && v !== "transparent" ? v.replace(/^#/, "") : undefined;
-
-		const componentKeys = ["base", "mouth", "eyebrows", "hair", "eyes", "nose", "ears", "shirt", "earrings", "glasses", "facialHair"];
-		for (const key of componentKeys) {
-			const val = extra[key];
-			if (val) {opts[key] = [val];}
+		const { options: resolved } = new Avatar(micahStyle, { seed, size: 1 }).toJSON();
+		for (const key of EDITOR_KEYS) {
+			const raw: unknown = resolved[key];
+			const val = isUnknownArray(raw) ? raw[0] : raw;
+			if (typeof val === "string") {opts[key] = [val];}
 			else if (OPTIONAL_COMPONENTS.includes(key)) {opts[key] = [NONE];}
 		}
-
-		const colorKeys = ["baseColor", "earringColor", "eyeShadowColor", "eyebrowsColor", "facialHairColor", "glassesColor", "hairColor", "mouthColor", "shirtColor", "eyesColor"];
-		for (const key of colorKeys) {
-			const hex = toHex(extra[key]);
-			if (hex) {opts[key] = [hex];}
-		}
-
-		const bgPrimary = toHex(extra.primaryBackgroundColor);
-		const bgSecondary = toHex(extra.secondaryBackgroundColor);
-		if (bgPrimary) {opts.backgroundColor = bgSecondary ? [bgPrimary, bgSecondary] : [bgPrimary];}
-		if (extra.backgroundType) {opts.backgroundType = [extra.backgroundType];}
 	} catch {
-		return buildInitialOptions();
-	}
-	return { ...buildInitialOptions(), ...opts };
-}
-
-function buildInitialOptions(): AvatarOptions {
-	const opts: AvatarOptions = { size: PREVIEW_SIZE };
-	for (const [key, prop] of Object.entries(avatarSchemaProperties)) {
-		if (PROBABILITY_KEYS.includes(key) || key === "seed") {continue;}
-		const def = getDefaultValue(prop);
-		if (def !== undefined) {
-			opts[key] = Array.isArray(def) ? (def as string[]) : (def as string | number | boolean);
-		}
+		return {};
 	}
 	return opts;
 }
@@ -84,22 +55,20 @@ export interface AvatarEditorProps {
 	seed?: string;
 }
 
-type UpdateOption = (key: string, value: string | number | boolean | string[] | number[]) => void;
+type UpdateOption = (key: string, value: string[]) => void;
 
 function renderControl(key: string, options: AvatarOptions, updateOption: UpdateOption) {
-	const prop = avatarSchemaProperties[key];
-	if (!prop) {return null;}
+	const field = avatarFields[key];
+	if (!field) {return null;}
 
 	const label = propertyLabels[key] ?? key;
-	const enumOpts = getEnumOptions(prop);
+	const enumOpts = getEnumOptions(field);
 
 	if (enumOpts) {
 		const hasNone = OPTIONAL_COMPONENTS.includes(key);
 		const choices = hasNone ? [NONE, ...enumOpts] : enumOpts;
-		// Une option est stockée tantôt en scalaire, tantôt en tableau d'un élément.
-		const stored: unknown = options[key] ?? getDefaultValue(prop);
-		const current = isUnknownArray(stored) ? stored[0] : stored;
-		const value = typeof current === "string" && choices.includes(current) ? current : choices[0];
+		const current = options[key]?.[0];
+		const value = current && choices.includes(current) ? current : choices[0];
 		return (
                 <Box key={key} sx={{ mb: 2, minWidth: 0, overflow: "hidden" }}>
                     <Muted
@@ -131,11 +100,9 @@ function renderControl(key: string, options: AvatarOptions, updateOption: Update
             );
 	}
 
-	if (prop.type === "array" && (prop.items as { pattern?: string })?.pattern) {
-		const colors = getColorOptions(prop);
-		const stored: unknown = options[key] ?? colors;
-		const current = isUnknownArray(stored) ? stored[0] : stored;
-		const value = typeof current === "string" ? current : colors[0];
+	if (field.type === "color") {
+		const colors = getColorOptions(key);
+		const value = options[key]?.[0] ?? colors[0];
 		return (
                 <Box key={key} sx={{ mb: 2, minWidth: 0, overflow: "hidden" }}>
                     <Muted
@@ -155,7 +122,7 @@ function renderControl(key: string, options: AvatarOptions, updateOption: Update
 								width: 28,
 								height: 28,
 								borderRadius: "50%",
-								bgcolor: c === "transparent" ? "transparent" : `#${c}`,
+								bgcolor: c,
 								border: "2px solid",
 								borderColor: value === c ? "primary.main" : "divider",
 								cursor: "pointer",
@@ -173,24 +140,23 @@ function renderControl(key: string, options: AvatarOptions, updateOption: Update
 }
 
 export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
-	const [options, setOptions] = useState<AvatarOptions>(() =>
-		seed ? getOptionsFromSeed(seed) : buildInitialOptions()
-	);
+	const [options, setOptions] = useState<AvatarOptions>(() => getOptionsFromSeed(seed));
 
 	const dataUrl = useMemo(() => {
 		const opts: Record<string, unknown> = { ...options, size: PREVIEW_SIZE };
-		const first = (value: unknown): unknown => (isUnknownArray(value) ? value[0] : undefined);
 
 		for (const key of OPTIONAL_COMPONENTS) {
-			const probKey = `${key}Probability`;
-			opts[probKey] = first(opts[key]) === NONE ? 0 : 100;
+			const none = options[key]?.[0] === NONE;
+			opts[key.replace(/Variant$/, "Probability")] = none ? 0 : 100;
+			if (none) {delete opts[key];}
 		}
+		if (options.backgroundColor?.[0] === TRANSPARENT) {delete opts.backgroundColor;}
 
-		const svg = createAvatar(micahStyle, opts as Record<string, string | number>).toString();
+		const svg = new Avatar(micahStyle, opts).toString();
 		return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 	}, [options]);
 
-	const updateOption = useCallback((key: string, value: string | number | boolean | string[] | number[]) => {
+	const updateOption = useCallback((key: string, value: string[]) => {
 		setOptions((prev) => ({ ...prev, [key]: value }));
 	}, []);
 
@@ -213,7 +179,7 @@ export default function AvatarEditor({ seed = "" }: AvatarEditorProps) {
 			</Box>
             <Box sx={{ flex: 1, minWidth: 0, maxWidth: "100%", minHeight: 0, overflowY: "auto", overflowX: "hidden", px: 2 }}>
 				{EDITOR_GROUPS.map(({ title, keys }) => {
-					const visibleKeys = keys.filter((k) => avatarSchemaProperties[k]);
+					const visibleKeys = keys.filter((k) => avatarFields[k]);
 					if (visibleKeys.length === 0) {return null;}
 					return (
                         <Box key={title} sx={{ mb: 3, minWidth: 0 }}>

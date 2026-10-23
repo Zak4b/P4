@@ -1,12 +1,12 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import { createAvatar } from "@dicebear/core";
-import { create, schema } from "@dicebear/micah";
+import { Avatar, Style } from "@dicebear/core";
+import micah from "@dicebear/styles/micah.json" with { type: "json" };
 import { userIdParamSchema } from "@p4/schemas/http";
 import { TAGS } from "../../config/api-tags.js";
 import { UserService } from "../user/user.service.js";
 import { HttpError } from "../../lib/HttpError.js";
 
-const micahStyle = { create, schema };
+const micahStyle = new Style(micah);
 
 export const avatarSvgRoutes: FastifyPluginAsyncZod = async (fastify) => {
 	fastify.get(
@@ -25,7 +25,7 @@ export const avatarSvgRoutes: FastifyPluginAsyncZod = async (fastify) => {
 			if (!user) {
 				throw HttpError.notFound();
 			}
-			const svg = createAvatar(micahStyle, { seed: user.login }).toString();
+			const svg = new Avatar(micahStyle, { seed: user.login }).toString();
 
 			reply.header("Content-Type", "image/svg+xml").send(svg);
 		},

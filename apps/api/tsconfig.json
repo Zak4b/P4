@@ -12,6 +12,7 @@
 		"verbatimModuleSyntax": true,
 		"erasableSyntaxOnly": true,
 		"esModuleInterop": true,
+		"resolveJsonModule": true,
 
 		/* Vérification de types */
 		"strict": true,

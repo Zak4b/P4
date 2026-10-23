@@ -14,7 +14,7 @@
     "@p4/schemas": "workspace:*",
     "@p4/leveling": "workspace:*",
     "@dicebear/core": "catalog:",
-    "@dicebear/micah": "catalog:",
+    "@dicebear/styles": "catalog:",
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "@mui/icons-material": "catalog:",

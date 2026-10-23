@@ -1,46 +1,36 @@
-import { schema as coreSchema } from "@dicebear/core";
-import { schema as micahSchema } from "@dicebear/micah";
+import { OptionsDescriptor } from "@dicebear/core";
+import { micahColors, micahStyle } from "@/lib/avatar";
 
-export const avatarSchemaProperties = {
-	...coreSchema.properties,
-	...micahSchema.properties,
-} as Record<string, AvatarSchemaProperty>;
+export type AvatarField = ReturnType<OptionsDescriptor["toJSON"]>[string];
 
-export type AvatarSchemaProperty =
-	| { type: "string" }
-	| { type: "boolean"; default?: boolean }
-	| { type: "integer"; minimum?: number; maximum?: number; default?: number }
-	| {
-			type: "array";
-			items?: { type: string; enum?: string[]; pattern?: string };
-			default?: unknown[];
-	  };
+export const avatarFields = new OptionsDescriptor(micahStyle).toJSON();
 
 export const propertyLabels: Record<string, string> = {
 	backgroundColor: "Couleur de fond",
-	backgroundType: "Type de fond",
-	base: "Base",
+	backgroundColorFill: "Type de fond",
 	baseColor: "Couleur de peau",
+	clothesVariant: "Haut",
 	earringColor: "Couleur des boucles",
-	earrings: "Boucles d'oreille",
-	ears: "Oreilles",
+	earringsVariant: "Boucles d'oreille",
+	earsVariant: "Oreilles",
 	eyeShadowColor: "Couleur fard à paupières",
-	eyebrows: "Sourcils",
+	eyebrowsVariant: "Sourcils",
 	eyebrowsColor: "Couleur sourcils",
-	eyes: "Yeux",
+	eyesVariant: "Yeux",
 	eyesColor: "Couleur des yeux",
-	facialHair: "Barbe / moustache",
+	facialHairVariant: "Barbe / moustache",
 	facialHairColor: "Couleur barbe",
-	glasses: "Lunettes",
+	glassesVariant: "Lunettes",
 	glassesColor: "Couleur lunettes",
-	hair: "Coiffure",
+	hairVariant: "Coiffure",
 	hairColor: "Couleur des cheveux",
-	mouth: "Bouche",
+	mouthVariant: "Bouche",
 	mouthColor: "Couleur bouche",
-	nose: "Nez",
-	shirt: "Haut",
+	noseVariant: "Nez",
 	shirtColor: "Couleur du haut",
 };
+
+const FALLBACK_COLORS = ["transparent", "#000000", "#ffffff", "#77311d", "#ac6651", "#f9c9b6", "#9287ff", "#6bd9e9"];
 
 /**
  * `Array.isArray` élargit un `unknown` en `any[]`, ce qui fait fuiter du `any`
@@ -50,37 +40,12 @@ export function isUnknownArray(value: unknown): value is unknown[] {
 	return Array.isArray(value);
 }
 
-export function getColorOptions(prop: AvatarSchemaProperty): string[] {
-	if (prop?.type === "array" && "default" in prop) {
-		const def = prop.default;
-		if (Array.isArray(def)) {
-			return def as string[];
-		}
-	}
-	return ["000000", "ffffff", "77311d", "ac6651", "f9c9b6", "9287ff", "6bd9e9"];
+/** `hairColor` → palette `hair` du style ; `backgroundColor` n'en a pas. */
+export function getColorOptions(key: string): string[] {
+	const palette = micahColors[key.replace(/Color$/, "")];
+	return palette && palette.length > 0 ? palette : FALLBACK_COLORS;
 }
 
-export function getEnumOptions(prop: AvatarSchemaProperty): string[] | null {
-	if (prop?.type === "array" && prop.items && "enum" in prop.items) {
-		return prop.items.enum ?? null;
-	}
-	return null;
-}
-
-export function getDefaultValue(prop: AvatarSchemaProperty): unknown {
-	if ("default" in prop && prop.default !== undefined) {
-		return prop.default;
-	}
-	if (prop?.type === "boolean") {
-		return false;
-	}
-	if (prop?.type === "integer") {
-		const p = prop as { minimum?: number; maximum?: number };
-		return p.minimum ?? 0;
-	}
-	if (prop?.type === "array" && "items" in prop) {
-		const items = prop.items as { enum?: string[] };
-		return items?.enum?.[0] ?? "000000";
-	}
-	return undefined;
+export function getEnumOptions(field: AvatarField): string[] | null {
+	return field.type === "enum" ? [...field.values] : null;
 }

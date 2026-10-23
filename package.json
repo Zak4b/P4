@@ -19,7 +19,7 @@
     "@eslint/js": "catalog:",
     "dotenv-cli": "^11.0.0",
     "eslint": "catalog:",
-    "turbo": "^2.10.8",
+    "turbo": "catalog:",
     "typescript-eslint": "catalog:"
   }
 }
