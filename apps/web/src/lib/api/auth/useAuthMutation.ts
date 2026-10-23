@@ -12,8 +12,8 @@ export function useLoginMutation() {
 
 export function useRegisterMutation() {
 	return useMutation({
-		mutationFn: ({ login, email, password }: { login: string; email: string; password: string }) =>
-			AuthApi.register(login, email, password),
+		mutationFn: ({ username, email, password }: { username: string; email: string; password: string }) =>
+			AuthApi.register(username, email, password),
 	});
 }
 

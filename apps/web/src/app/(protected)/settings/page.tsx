@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Stack, Container } from "@mui/material";
+import { Alert, Box, Stack, Container } from "@mui/material";
 import { Input, Button, Muted, PageHeader, Panel, Text } from "@/components/ui";
 import { useAuth } from "@/components/AuthContext";
 import { layoutStyles, textFieldStyles } from "@/lib/styles";
 import PasswordInput from "@/components/PasswordInput";
 import { passwordRules } from "@/lib/passwordRules";
+import { usernameField } from "@p4/schemas/auth";
+import { useUpdateUsernameMutation } from "@/lib/api/user/useUserMutation";
 
 export default function SettingsPage() {
 	const { user } = useAuth();
@@ -60,6 +62,8 @@ export default function SettingsPage() {
 			<PageHeader title="Paramètres" finding="Les informations de connexion de ton compte." />
 
 			<Stack spacing={4} data-motion="" sx={{ animation: "riseIn 420ms var(--ease-out) 60ms both" }}>
+				{user && <UsernameSection currentUsername={user.username} />}
+
 				<SettingsSection title="Email" description="L'adresse utilisée pour te connecter et récupérer ton compte.">
 					<Input
 						fullWidth
@@ -78,7 +82,10 @@ export default function SettingsPage() {
 					</Box>
 				</SettingsSection>
 
-				<SettingsSection title="Mot de passe" description="Choisis un mot de passe que tu n'utilises nulle part ailleurs.">
+				<SettingsSection
+					title="Mot de passe"
+					description="Choisis un mot de passe que tu n'utilises nulle part ailleurs."
+				>
 					<PasswordInput
 						label="Nouveau mot de passe"
 						value={password}
@@ -107,8 +114,59 @@ export default function SettingsPage() {
 	);
 }
 
+function UsernameSection({ currentUsername }: { currentUsername: string }) {
+	const [username, setUsername] = useState(currentUsername);
+	const updateUsername = useUpdateUsernameMutation();
+
+	const trimmed = username.trim();
+	const isChanged = trimmed !== currentUsername;
+	const validation = usernameField.safeParse(username);
+	const validationError = isChanged && !validation.success ? validation.error.issues[0]?.message : undefined;
+
+	const handleSave = () => {
+		if (!validation.success) {
+			return;
+		}
+		updateUsername.mutate(validation.data);
+	};
+
+	return (
+		<SettingsSection title="Pseudo" description="Le nom affiché aux autres joueurs.">
+			<Input
+				fullWidth
+				label="Pseudo"
+				value={username}
+				onChange={(e) => {
+					setUsername(e.target.value);
+					updateUsername.reset();
+				}}
+				disabled={updateUsername.isPending}
+				error={Boolean(validationError)}
+				helperText={validationError}
+				autoComplete="username"
+				sx={textFieldStyles.standard}
+			/>
+			{updateUsername.isError && <Alert severity="error">{updateUsername.error.message}</Alert>}
+			{updateUsername.isSuccess && <Alert severity="success">Pseudo mis à jour.</Alert>}
+			<Box sx={layoutStyles.flexEnd}>
+				<Button onClick={handleSave} disabled={!isChanged || !validation.success || updateUsername.isPending}>
+					Enregistrer
+				</Button>
+			</Box>
+		</SettingsSection>
+	);
+}
+
 /** Une section de réglages : le libellé et son explication à gauche, les champs à droite. */
-function SettingsSection({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
+function SettingsSection({
+	title,
+	description,
+	children,
+}: {
+	title: string;
+	description: string;
+	children: React.ReactNode;
+}) {
 	return (
 		<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "240px 1fr" }, gap: { xs: 1.5, md: 4 } }}>
 			<Box sx={{ pt: { md: 2.5 } }}>

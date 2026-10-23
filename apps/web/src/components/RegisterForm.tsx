@@ -9,14 +9,19 @@ import { buttonStyles, spacing } from "@/lib/styles";
 import AuthCard from "./auth/AuthCard";
 import AuthSwitchPrompt from "./auth/AuthSwitchPrompt";
 import RegisterFormFields, { type RegisterFormValues } from "./auth/RegisterFormFields";
+import { usernameField } from "@p4/schemas/auth";
 
 interface RegisterFormProps {
 	onRegister?: () => void;
 }
 
-export function validateRegistration({ login, email, password, confirmPassword }: RegisterFormValues): string | null {
-	if (!login.trim() || !email.trim() || !password.trim()) {
+export function validateRegistration({ username, email, password, confirmPassword }: RegisterFormValues): string | null {
+	if (!username.trim() || !email.trim() || !password.trim()) {
 		return "Tous les champs sont obligatoires";
+	}
+	const usernameResult = usernameField.safeParse(username);
+	if (!usernameResult.success) {
+		return `Pseudo invalide : ${usernameResult.error.issues[0]?.message ?? "format incorrect"}`;
 	}
 	if (password.length < 8) {
 		return "Le mot de passe doit contenir au moins 8 caractères";
@@ -27,7 +32,7 @@ export function validateRegistration({ login, email, password, confirmPassword }
 	return null;
 }
 
-const EMPTY_VALUES: RegisterFormValues = { login: "", email: "", password: "", confirmPassword: "" };
+const EMPTY_VALUES: RegisterFormValues = { username: "", email: "", password: "", confirmPassword: "" };
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 	const [values, setValues] = useState<RegisterFormValues>(EMPTY_VALUES);
@@ -50,7 +55,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
 		setError("");
 
 		try {
-			await register(values.login, values.email, values.password);
+			await register(values.username.trim(), values.email, values.password);
 			onRegister?.();
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "L'inscription a échoué");

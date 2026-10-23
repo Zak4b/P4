@@ -27,7 +27,7 @@ export function getSyncData(player: Player<typeof P4>): SyncData {
 type GameEndEvent = GameEndPayload & { room: Room<typeof P4> };
 
 function toGamePlayer(player: Player<typeof P4>): GamePlayer {
-	return { id: player.uuid, login: player.displayName, localId: player.localId };
+	return { id: player.uuid, username: player.displayName, localId: player.localId };
 }
 
 /** Envoie un `sync` individuel à chaque joueur de la partie : le playerId diffère d'un joueur à l'autre */

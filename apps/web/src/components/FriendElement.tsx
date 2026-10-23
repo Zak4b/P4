@@ -7,7 +7,7 @@ import UserActionsDropdown from "./UserActionsDropdown";
 
 export interface FriendUser {
 	id: string;
-	login: string;
+	username: string;
 	eloRating: number;
 }
 
@@ -36,7 +36,7 @@ const UserInfo = ({ user, avatarSize }: { user: FriendUser; avatarSize: number }
 			minWidth: 0,
 		}}
 	>
-		<UserAvatar userId={user.id} login={user.login} size={avatarSize} />
+		<UserAvatar userId={user.id} username={user.username} size={avatarSize} />
 		<Stack spacing={0} sx={{ minWidth: 0, flex: 1 }}>
 			<Text
 				size="md"
@@ -46,7 +46,7 @@ const UserInfo = ({ user, avatarSize }: { user: FriendUser; avatarSize: number }
 					color: "text.primary",
 				}}
 			>
-				{user.login}
+				{user.username}
 			</Text>
 			<Muted variant="caption">{user.eloRating} ELO</Muted>
 		</Stack>
@@ -69,7 +69,7 @@ export default function FriendElement({
 
 	const dropdown = (
 		<UserActionsDropdown
-			targetUser={{ id: user.id, login: user.login }}
+			targetUser={{ id: user.id, username: user.username }}
 			currentUserId={currentUserId}
 			showRemove={showRemove}
 			fullWidth={slot ? true : fullWidth}

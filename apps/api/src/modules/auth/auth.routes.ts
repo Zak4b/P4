@@ -1,6 +1,6 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { AuthService } from "./auth.service.js";
-import { cookieName } from "./request-auth.js";
+import { clearSessionCookie, setSessionCookie } from "./session-cookie.js";
 import { loginSchema, registerSchema } from "@p4/schemas/auth";
 import { userSchema } from "@p4/schemas/user";
 import {
@@ -12,16 +12,6 @@ import {
 } from "@p4/schemas/http";
 import { ENV } from "../../config/env.js";
 import { TAGS } from "../../config/api-tags.js";
-
-const COOKIE_OPTS = {
-	signed: false,
-	httpOnly: true,
-	secure: ENV.nodeEnv === "production",
-	sameSite: "lax",
-	path: "/",
-} as const;
-
-const COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 jours
 
 const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo";
 
@@ -44,9 +34,9 @@ export const authRoutes: FastifyPluginAsyncZod = async (fastify) => {
 			},
 		},
 		async (request, reply) => {
-			const { login, email, password } = request.body;
+			const { username, email, password } = request.body;
 
-			const result = await AuthService.register(login, email, password);
+			const result = await AuthService.register(username, email, password);
 
 			reply.status(201).send(result.user);
 		},
@@ -74,10 +64,7 @@ export const authRoutes: FastifyPluginAsyncZod = async (fastify) => {
 
 			const result = await AuthService.login(email, password);
 
-			reply.setCookie(cookieName, result.token, {
-				...COOKIE_OPTS,
-				maxAge: COOKIE_MAX_AGE,
-			});
+			setSessionCookie(reply, result.token);
 
 			reply.status(200).send(result.user);
 		},
@@ -148,9 +135,7 @@ export const authRoutes: FastifyPluginAsyncZod = async (fastify) => {
 
 				const result = await AuthService.loginWithGoogle(profile.id, email, profile.name || "");
 
-				reply
-					.setCookie(cookieName, result.token, { ...COOKIE_OPTS, maxAge: COOKIE_MAX_AGE })
-					.redirect(`${ENV.web.url}/play`);
+				setSessionCookie(reply, result.token).redirect(`${ENV.web.url}/play`);
 			} catch {
 				reply.redirect(`${ENV.web.url}/login?error=google_auth_failed`);
 			}
@@ -171,7 +156,7 @@ export const authRoutes: FastifyPluginAsyncZod = async (fastify) => {
 			},
 		},
 		async (_request, reply) => {
-			reply.clearCookie(cookieName, COOKIE_OPTS);
+			clearSessionCookie(reply);
 			reply.status(204).send();
 		},
 	);

@@ -1,7 +1,20 @@
 import { Prisma } from "../../generated/prisma/client.js";
 import { UserRepository } from "./user.repository.js";
 import { hashPassword, comparePassword } from "../auth/password.js";
+import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from "@p4/schemas/auth";
 import crypto from "node:crypto";
+
+const USERNAME_SUFFIX_LENGTH = 7;
+function generateUsername(raw: string): string {
+	const base = raw
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.replace(/[^a-zA-Z0-9_.-]+/g, "_")
+		.replace(/^_+|_+$/g, "")
+		.slice(0, USERNAME_MAX_LENGTH - USERNAME_SUFFIX_LENGTH);
+	const suffix = crypto.randomUUID().slice(0, USERNAME_SUFFIX_LENGTH - 1);
+	return `${base.length >= USERNAME_MIN_LENGTH ? base : "joueur"}_${suffix}`;
+}
 
 export class UserService {
 	static async find(where: Prisma.UserWhereUniqueInput) {
@@ -41,7 +54,7 @@ export class UserService {
 
 		return {
 			id: user.id,
-			login: user.login,
+			username: user.username,
 			email: user.email,
 			eloRating: user.eloRating,
 			xp: user.xp,
@@ -49,9 +62,9 @@ export class UserService {
 		};
 	}
 
-	static async create(login: string, email: string, passwordPlain: string) {
+	static async create(username: string, email: string, passwordPlain: string) {
 		const password = await hashPassword(passwordPlain);
-		const user = await UserRepository.createRecord(login, email, password);
+		const user = await UserRepository.createRecord(username, email, password);
 		return user;
 	}
 
@@ -81,17 +94,16 @@ export class UserService {
 			return await UserRepository.setGoogleId(user.id, googleId);
 		}
 
-		const baseLogin = (displayName || email.split("@")[0] || "user").replace(/\s+/g, "_").slice(0, 35);
-		let login = baseLogin;
-		let suffix = 0;
-		while (await UserService.find({ login })) {
-			login = `${baseLogin}_${++suffix}`.slice(0, 40);
-		}
+		const username = generateUsername((displayName || email.split("@")[0]) ?? "");
 
 		const randomPassword = crypto.randomBytes(32).toString("hex");
 		const password = await hashPassword(randomPassword);
 
-		return await UserRepository.createRecord(login, email, password, googleId);
+		return await UserRepository.createRecord(username, email, password, googleId);
+	}
+
+	static async changeUsername(id: string, username: string) {
+		return await UserRepository.updateUsername(id, username);
 	}
 
 	static async listAll() {

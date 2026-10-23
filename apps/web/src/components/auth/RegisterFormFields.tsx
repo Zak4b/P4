@@ -6,7 +6,7 @@ import { passwordRules } from "@/lib/passwordRules";
 import { spacing } from "@/lib/styles";
 
 export interface RegisterFormValues {
-	login: string;
+	username: string;
 	email: string;
 	password: string;
 	confirmPassword: string;
@@ -25,11 +25,12 @@ export default function RegisterFormFields({ values, disabled, onChange }: Regis
 				fullWidth
 				label="Pseudo"
 				type="text"
-				value={values.login}
-				onChange={(e) => onChange("login", e.target.value)}
+				value={values.username}
+				onChange={(e) => onChange("username", e.target.value)}
 				required
 				disabled={disabled}
 				autoComplete="username"
+				helperText="3 à 20 caractères : lettres, chiffres, _ , - , ."
 				margin="normal"
 				sx={spacing.mb2}
 			/>

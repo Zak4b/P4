@@ -8,7 +8,7 @@ import UserActionsDropdown from "@/components/UserActionsDropdown";
 
 interface LeaderboardPlayer {
 	id: string;
-	login: string;
+	username: string;
 	eloRating: number;
 	xp?: number;
 }
@@ -49,12 +49,12 @@ export default function LeaderboardEntry({ player, rank, isMe, currentUserId }: 
 				</Text>
 			</Box>
 			<Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
-				<UserActionsDropdown targetUser={{ id: player.id, login: player.login }} currentUserId={currentUserId}>
+				<UserActionsDropdown targetUser={{ id: player.id, username: player.username }} currentUserId={currentUserId}>
 					<Box sx={{ lineHeight: 0, cursor: "pointer" }}>
-						<UserAvatar userId={player.id} login={player.login} size={32} />
+						<UserAvatar userId={player.id} username={player.username} size={32} />
 					</Box>
 				</UserActionsDropdown>
-				<Text sx={{ fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{player.login}</Text>
+				<Text sx={{ fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{player.username}</Text>
 				{isMe && (
 					<Muted component="span" sx={{ fontSize: "0.8125rem", flex: "none" }}>
 						Toi

@@ -63,14 +63,14 @@ export default function ProfilePage({ userId }: ProfilePageProps) {
 		}
 	}
 	const resolvedUserId = isOwn ? currentUser?.id : userQuery.data?.id;
-	const login = isOwn ? currentUser?.login : userQuery.data?.login;
-	if (!resolvedUserId || !login) {
+	const username = isOwn ? currentUser?.username : userQuery.data?.username;
+	if (!resolvedUserId || !username) {
 		return null;
 	}
 
 	return (
         <Container maxWidth="lg" sx={layoutStyles.container}>
-            <PageHeader title={isOwn ? "Mon compte" : `Profil de ${login}`} />
+            <PageHeader title={isOwn ? "Mon compte" : `Profil de ${username}`} />
 
             <Grid container spacing={3} data-motion="" sx={{ animation: "riseIn 420ms var(--ease-out) 60ms both" }}>
 				<Grid size={{ xs: 12, md: 6 }}>

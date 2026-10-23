@@ -90,11 +90,11 @@ export class GameHistoryService {
 			id: game.id,
 			player1: {
 				id: game.player1Id,
-				login: game.player1.login,
+				username: game.player1.username,
 			},
 			player2: {
 				id: game.player2Id,
-				login: game.player2.login,
+				username: game.player2.username,
 			},
 			winner: game.winner,
 			time: game.createdAt.getTime(),

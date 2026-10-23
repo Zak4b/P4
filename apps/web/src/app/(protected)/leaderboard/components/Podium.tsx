@@ -44,11 +44,11 @@ function Step({ place, player, currentUserId }: { place: Place; player: Leaderbo
 					}}
 				>
 					{/* Clic sur le portrait : voir le profil, inviter… comme dans l'historique. */}
-					<UserActionsDropdown targetUser={{ id: player.id, login: player.login }} currentUserId={currentUserId}>
+					<UserActionsDropdown targetUser={{ id: player.id, username: player.username }} currentUserId={currentUserId}>
 						<Box sx={{ p: "4px", borderRadius: "50%", bgcolor: color, lineHeight: 0, cursor: "pointer" }}>
 							<UserAvatar
 								userId={player.id}
-								login={player.login}
+								username={player.username}
 								sx={{ width: avatar, height: avatar, border: "3px solid", borderColor: "background.paper" }}
 							/>
 						</Box>
@@ -64,7 +64,7 @@ function Step({ place, player, currentUserId }: { place: Place; player: Leaderbo
 							whiteSpace: "nowrap",
 						}}
 					>
-						{player.login}
+						{player.username}
 					</Typography>
 					<Typography
 						sx={{ color: "text.secondary", fontVariantNumeric: "tabular-nums", fontSize: { xs: "0.8125rem", sm: "0.9375rem" } }}

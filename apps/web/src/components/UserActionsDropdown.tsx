@@ -14,7 +14,7 @@ import RemoveFriendConfirm from "./RemoveFriendConfirm";
 
 export interface TargetUser {
 	id: string;
-	login: string;
+	username: string;
 }
 
 interface UserActionsDropdownProps {
@@ -76,7 +76,7 @@ export default function UserActionsDropdown({
 		size: "sm",
 		content: ({ close }) => (
 			<RemoveFriendConfirm
-				targetLogin={targetUser.login}
+				targetUsername={targetUser.username}
 				isRemoving={isRemoving || !onRemove}
 				onCancel={close}
 				onConfirm={() => {
@@ -106,7 +106,7 @@ export default function UserActionsDropdown({
 		setIsInviting(true);
 		try {
 			const roomName =
-				`Partie avec ${targetUser.login}`.replace(/[^a-zA-Z0-9_]/g, "_").slice(0, 20) || `room_${Date.now()}`;
+				`Partie avec ${targetUser.username}`.replace(/[^a-zA-Z0-9_]/g, "_").slice(0, 20) || `room_${Date.now()}`;
 			const players = currentUserId && targetUser.id ? [currentUserId, targetUser.id] : undefined;
 			const room = await createRoomMutation.mutateAsync({ name: roomName, invited: players });
 			onCloseParent?.();

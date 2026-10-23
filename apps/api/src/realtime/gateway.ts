@@ -18,7 +18,7 @@ export const websocketConnection = async (socket: AuthenticatedSocket): Promise<
 		socket.disconnect(true);
 		return;
 	}
-	const player = new Player<typeof P4>(socket, user.id, user.login);
+	const player = new Player<typeof P4>(socket, user.id, user.username);
 	await socket.join(userRoom(player.uuid));
 	await player.send({ type: "system:registered", data: player.uuid });
 

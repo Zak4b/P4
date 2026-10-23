@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const userSchema = z.object({
 	id: z.string().meta({ example: "f47ac10b-58cc-4372-a567-0e02b2c3d479" }),
-	login: z.string().meta({ example: "alice" }),
+	username: z.string().meta({ example: "alice" }),
 	eloRating: z.number().int().meta({ example: 412 }),
 	xp: z.number().int().meta({ example: 1250 }),
 });

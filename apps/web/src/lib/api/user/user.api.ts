@@ -1,4 +1,4 @@
-import type { User, UserStats } from "@p4/schemas/user";
+import type { Me, User, UserStats } from "@p4/schemas/user";
 import { apiClient } from "../api_client";
 
 export class UserApi {
@@ -14,6 +14,11 @@ export class UserApi {
 
 	static async leaderboard(): Promise<User[]> {
 		const { data } = await apiClient.get<User[]>("/leaderboard");
+		return data;
+	}
+
+	static async updateUsername(username: string): Promise<Me> {
+		const { data } = await apiClient.patch<Me>("/me/username", { username });
 		return data;
 	}
 }

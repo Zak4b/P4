@@ -9,14 +9,14 @@ import UserAvatar from "@/components/UserAvatar";
 
 interface ProfileDetailsProps {
 	userId: string;
-	login: string;
+	username: string;
 	onEditAvatar?: () => void;
 	actions?: ReactNode;
 }
 
-export function ProfileDetails({ userId, login, onEditAvatar, actions }: ProfileDetailsProps) {
+export function ProfileDetails({ userId, username, onEditAvatar, actions }: ProfileDetailsProps) {
 	const avatar = (
-		<UserAvatar userId={userId} login={login} sx={avatarStyles.large} />
+		<UserAvatar userId={userId} username={username} sx={avatarStyles.large} />
 	);
 
 	return (
@@ -70,7 +70,7 @@ export function ProfileDetails({ userId, login, onEditAvatar, actions }: Profile
 					avatar
 				)}
 				<Heading level={5} noWrap sx={{ fontWeight: 700, letterSpacing: "-0.01em" }}>
-					{login}
+					{username}
 				</Heading>
 			</Stack>
             {actions && (

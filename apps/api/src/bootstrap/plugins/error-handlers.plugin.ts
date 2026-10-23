@@ -1,6 +1,23 @@
 import type { FastifyError, FastifyInstance } from "fastify";
 import { hasZodFastifySchemaValidationErrors, isResponseSerializationError } from "fastify-type-provider-zod";
 import { HttpError } from "../../lib/HttpError.js";
+import { Prisma } from "../../generated/prisma/client.js";
+
+/**
+ * Champ en cause d'une violation d'unicité. Avec l'adapter MariaDB, Prisma ne renseigne pas
+ * `meta.target` mais le nom de l'index (`User_username_key`), dont on extrait le champ.
+ */
+function uniqueViolationField(error: Prisma.PrismaClientKnownRequestError): string | null {
+	const meta = error.meta as
+		| { driverAdapterError?: { cause?: { constraint?: { index?: string; fields?: string[] } } } }
+		| undefined;
+	const constraint = meta?.driverAdapterError?.cause?.constraint;
+	if (constraint?.fields?.[0]) {
+		return constraint.fields[0];
+	}
+	const match = constraint?.index ? /^[^_]+_(.+)_key$/.exec(constraint.index) : null;
+	return match?.[1] ?? null;
+}
 
 export function registerErrorHandlers(fastify: FastifyInstance): void {
 	fastify.setNotFoundHandler((request, reply) => {
@@ -27,6 +44,14 @@ export function registerErrorHandlers(fastify: FastifyInstance): void {
 					message: issue.message,
 				})),
 			});
+		}
+
+		// Contrainte d'unicité violée (pseudo déjà pris, doublon concurrent…)
+		if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+			request.log.warn({ err: error }, "Unique constraint violation");
+			const field = uniqueViolationField(error);
+			const label = field ? `${field.charAt(0).toUpperCase()}${field.slice(1)}` : "Resource";
+			return reply.status(409).send({ error: `${label} already exists` });
 		}
 
 		// La réponse ne correspond pas au schéma déclaré : bug côté serveur, on ne fuite rien au client

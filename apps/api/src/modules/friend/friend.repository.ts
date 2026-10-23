@@ -1,7 +1,7 @@
 import { prisma } from "../../lib/prisma.js";
 import type { FriendStatus } from "../../generated/prisma/enums.js";
 
-const FRIEND_USER_SELECT = { id: true, login: true, eloRating: true, xp: true } as const;
+const FRIEND_USER_SELECT = { id: true, username: true, eloRating: true, xp: true } as const;
 
 /** Les deux parties d'une demande, pour une représentation lisible dans les deux sens. */
 const REQUEST_PARTIES_INCLUDE = {

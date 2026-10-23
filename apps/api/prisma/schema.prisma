@@ -12,7 +12,7 @@ datasource db {
 
 model User {
   id               String          @id @default(uuid()) @db.Char(36)
-  login            String          @unique @db.VarChar(40)
+  username            String          @unique @db.VarChar(40)
   email            String          @unique @db.VarChar(255)
   password         String
   googleId         String?         @unique @db.VarChar(255)

@@ -5,18 +5,18 @@ import { useRemoveFriendMutation, useSendFriendRequestMutation } from "@/lib/api
 
 interface ProfileFriendActionsProps {
 	userId: string;
-	login: string;
+	username: string;
 	status: FriendStatus;
 	isLoading: boolean;
 }
 
-export function ProfileFriendActions({ userId, login, status, isLoading }: ProfileFriendActionsProps) {
+export function ProfileFriendActions({ userId, username, status, isLoading }: ProfileFriendActionsProps) {
 	const sendFriendRequestMutation = useSendFriendRequestMutation();
 	const removeFriendMutation = useRemoveFriendMutation();
 
 	return (
 		<FriendControls
-			targetLogin={login}
+			targetUsername={username}
 			status={status}
 			isLoading={isLoading}
 			onAddFriend={async () => {

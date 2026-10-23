@@ -1,7 +1,7 @@
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../../lib/prisma.js";
 
-const USER_SELECT = { id: true, login: true, eloRating: true, xp: true } as const;
+const USER_SELECT = { id: true, username: true, eloRating: true, xp: true } as const;
 
 export class UserRepository {
 	static async find(where: Prisma.UserWhereUniqueInput) {
@@ -47,9 +47,9 @@ export class UserRepository {
 		return stats ?? { totalGames: 0n, wins: 0n, losses: 0n, draws: 0n };
 	}
 
-	static async createRecord(login: string, email: string, password: string, googleId?: string) {
+	static async createRecord(username: string, email: string, password: string, googleId?: string) {
 		return await prisma.user.create({
-			data: { login, email, password, ...(googleId ? { googleId } : {}) },
+			data: { username, email, password, ...(googleId ? { googleId } : {}) },
 		});
 	}
 
@@ -57,6 +57,13 @@ export class UserRepository {
 		return await prisma.user.update({
 			where: { id },
 			data: { googleId },
+		});
+	}
+
+	static async updateUsername(id: string, username: string) {
+		return await prisma.user.update({
+			where: { id },
+			data: { username },
 		});
 	}
 

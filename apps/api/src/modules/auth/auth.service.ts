@@ -10,13 +10,13 @@ export class AuthService {
 		const token = generateToken({
 			id: userData.id,
 			email: userData.email,
-			login: userData.login,
+			username: userData.username,
 		});
 		return {
 			token,
 			user: {
 				id: userData.id,
-				login: userData.login,
+				username: userData.username,
 				eloRating: userData.eloRating,
 				xp: userData.xp,
 			},
@@ -24,13 +24,13 @@ export class AuthService {
 	}
 
 	/** Inscription */
-	static async register(login: string, email: string, password: string): Promise<AuthResult> {
+	static async register(username: string, email: string, password: string): Promise<AuthResult> {
 		const existingUser = await UserService.find({ email });
 		if (existingUser) {
 			throw HttpError.conflict("Email already exists");
 		}
 
-		const userData = await UserService.create(login, email, password);
+		const userData = await UserService.create(username, email, password);
 		return AuthService.buildAuthResult(userData);
 	}
 

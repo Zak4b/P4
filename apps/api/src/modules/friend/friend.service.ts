@@ -126,7 +126,7 @@ export class FriendService {
 
 		return accepted.map((fr) => {
 			const friend = fr.fromUserId === userId ? fr.toUser : fr.fromUser;
-			return { id: friend.id, login: friend.login, eloRating: friend.eloRating, xp: friend.xp };
+			return { id: friend.id, username: friend.username, eloRating: friend.eloRating, xp: friend.xp };
 		});
 	}
 }

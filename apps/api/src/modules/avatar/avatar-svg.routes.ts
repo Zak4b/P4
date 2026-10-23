@@ -25,7 +25,7 @@ export const avatarSvgRoutes: FastifyPluginAsyncZod = async (fastify) => {
 			if (!user) {
 				throw HttpError.notFound();
 			}
-			const svg = new Avatar(micahStyle, { seed: user.login }).toString();
+			const svg = new Avatar(micahStyle, { seed: user.username }).toString();
 
 			reply.header("Content-Type", "image/svg+xml").send(svg);
 		},

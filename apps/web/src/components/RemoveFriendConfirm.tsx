@@ -5,21 +5,21 @@ import { Button, Muted } from "@/components/ui";
 import { PersonRemove as PersonRemoveIcon } from "@mui/icons-material";
 
 interface RemoveFriendConfirmProps {
-	targetLogin: string;
+	targetUsername: string;
 	isRemoving: boolean;
 	onCancel: () => void;
 	onConfirm: () => void;
 }
 
 export default function RemoveFriendConfirm({
-	targetLogin,
+	targetUsername,
 	isRemoving,
 	onCancel,
 	onConfirm,
 }: RemoveFriendConfirmProps) {
 	return (
 		<Stack spacing={3}>
-			<Muted variant="body1">Voulez-vous retirer {targetLogin} de votre liste d&apos;amis ?</Muted>
+			<Muted variant="body1">Voulez-vous retirer {targetUsername} de votre liste d&apos;amis ?</Muted>
 			<Stack
 				direction="row"
 				spacing={2}

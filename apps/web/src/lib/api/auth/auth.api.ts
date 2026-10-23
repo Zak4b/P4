@@ -2,8 +2,8 @@ import type { Me, User } from "@p4/schemas/user";
 import { apiClient, API_BASE } from "../api_client";
 
 export class AuthApi {
-	static async register(login: string, email: string, password: string): Promise<User> {
-		const { data } = await apiClient.post<User>("/auth/register", { login, email, password });
+	static async register(username: string, email: string, password: string): Promise<User> {
+		const { data } = await apiClient.post<User>("/auth/register", { username, email, password });
 		return data;
 	}
 

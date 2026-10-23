@@ -11,7 +11,7 @@ interface AuthContextType {
 	/** `null` = non connecté. C'est la seule source de vérité, il n'y a pas de drapeau séparé. */
 	user: Me | null;
 	login: (email: string, password: string) => Promise<void>;
-	register: (login: string, email: string, password: string) => Promise<void>;
+	register: (username: string, email: string, password: string) => Promise<void>;
 	logout: () => Promise<void>;
 }
 
@@ -30,8 +30,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		await loginMutation.mutateAsync({ email, password });
 	};
 
-	const register = async (loginValue: string, email: string, password: string) => {
-		await registerMutation.mutateAsync({ login: loginValue, email, password });
+	const register = async (usernameValue: string, email: string, password: string) => {
+		await registerMutation.mutateAsync({ username: usernameValue, email, password });
 	};
 
 	const logout = async () => {

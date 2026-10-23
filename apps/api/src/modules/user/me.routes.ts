@@ -2,7 +2,8 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { UserService } from "./user.service.js";
 import { HttpError } from "../../lib/HttpError.js";
 import { meSchema } from "@p4/schemas/user";
-import { unauthorizedSchema } from "@p4/schemas/http";
+import { updateUsernameSchema } from "@p4/schemas/auth";
+import { badRequestSchema, conflictSchema, unauthorizedSchema } from "@p4/schemas/http";
 import { TAGS } from "../../config/api-tags.js";
 
 export const meRoutes: FastifyPluginAsyncZod = async (fastify) => {
@@ -27,6 +28,38 @@ export const meRoutes: FastifyPluginAsyncZod = async (fastify) => {
 			}
 
 			const me = await UserService.getMe(currentUser.id);
+			if (!me) {
+				throw HttpError.unauthorized("Session user no longer exists");
+			}
+			reply.send(me);
+		},
+	);
+
+	fastify.patch(
+		"/username",
+		{
+			schema: {
+				operationId: "updateMyUsername",
+				tags: [TAGS.me],
+				summary: "Changer de pseudo",
+				body: updateUsernameSchema,
+				response: {
+					200: meSchema,
+					400: badRequestSchema,
+					401: unauthorizedSchema,
+					409: conflictSchema,
+				},
+			},
+		},
+		async (request, reply) => {
+			const currentUser = request.user;
+			if (!currentUser) {
+				throw HttpError.unauthorized("Authentication required");
+			}
+
+			const user = await UserService.changeUsername(currentUser.id, request.body.username);
+
+			const me = await UserService.getMe(user.id);
 			if (!me) {
 				throw HttpError.unauthorized("Session user no longer exists");
 			}

@@ -38,11 +38,11 @@ function PlayerSide({ seat, game, currentUserId, selfLabel }: { seat: Seat; game
 			}}
 		>
 			<UserActionsDropdown
-				targetUser={{ id: person.id, login: person.login }}
+				targetUser={{ id: person.id, username: person.username }}
 				currentUserId={currentUserId}
 			>
 				<Box sx={{ p: "3px", borderRadius: "50%", bgcolor: TOKEN_VAR[seat], flex: "none", cursor: "pointer", lineHeight: 0 }}>
-					<UserAvatar userId={person.id} login={person.login} size={44} sx={{ width: { xs: 36, sm: 44 }, height: { xs: 36, sm: 44 } }} />
+					<UserAvatar userId={person.id} username={person.username} size={44} sx={{ width: { xs: 36, sm: 44 }, height: { xs: 36, sm: 44 } }} />
 				</Box>
 			</UserActionsDropdown>
 			<Box sx={{ minWidth: 0, textAlign: alignRight ? "right" : "left" }}>
@@ -55,7 +55,7 @@ function PlayerSide({ seat, game, currentUserId, selfLabel }: { seat: Seat; game
 						whiteSpace: "nowrap",
 					}}
 				>
-					{game.mySeat === seat && selfLabel ? selfLabel : person.login}
+					{game.mySeat === seat && selfLabel ? selfLabel : person.username}
 				</Text>
 				<Box
 					component="span"
@@ -85,7 +85,7 @@ function PlayerSide({ seat, game, currentUserId, selfLabel }: { seat: Seat; game
 interface HistoryRowProps {
 	game: GameView;
 	currentUserId?: string;
-	/** Nom affiché à la place du login du joueur suivi (« Toi » sur son propre profil). */
+	/** Nom affiché à la place du username du joueur suivi (« Toi » sur son propre profil). */
 	selfLabel?: string;
 }
 

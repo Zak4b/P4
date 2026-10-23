@@ -5,7 +5,7 @@ import { ENV } from "../../config/env.js";
 const jwtPayloadSchema = z.object({
 	id: z.string(),
 	email: z.string(),
-	login: z.string(),
+	username: z.string(),
 });
 
 export type JWTPayload = z.infer<typeof jwtPayloadSchema>;

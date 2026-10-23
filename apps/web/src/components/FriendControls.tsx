@@ -36,7 +36,7 @@ const statusConfig = {
 } as const;
 
 interface FriendControlsProps {
-	targetLogin: string;
+	targetUsername: string;
 	status: FriendStatus;
 	isLoading?: boolean;
 	onAddFriend: () => Promise<void>;
@@ -45,7 +45,7 @@ interface FriendControlsProps {
 }
 
 export default function FriendControls({
-	targetLogin,
+	targetUsername,
 	status,
 	isLoading = false,
 	onAddFriend,
@@ -72,7 +72,7 @@ export default function FriendControls({
 		size: "sm",
 		content: ({ close }) => (
 			<RemoveFriendConfirm
-				targetLogin={targetLogin}
+				targetUsername={targetUsername}
 				isRemoving={isRemoving}
 				onCancel={close}
 				onConfirm={() => {

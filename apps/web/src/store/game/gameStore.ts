@@ -48,8 +48,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
 	winDialogOpen: false,
 	winMessage: "",
 	players: [
-		{ localId: 1, id: null, login: null },
-		{ localId: 2, id: null, login: null },
+		{ localId: 1, id: null, username: null },
+		{ localId: 2, id: null, username: null },
 	],
 
 	handlePlay: (data: ServerMessageData<"game:p4:play">) => {
@@ -122,7 +122,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		set({
 			players: [1, 2].map((localId) => {
 				const player = seated.get(localId);
-				return { localId, id: player?.id ?? null, login: player?.login ?? null };
+				return { localId, id: player?.id ?? null, username: player?.username ?? null };
 			}),
 		});
 	},
@@ -137,11 +137,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 			const existing = state.players.find((p) => p.localId === localId);
 			if (existing) {
 				return {
-					players: state.players.map((p) => (p.localId === localId ? { ...p, id: data.id, login: data.login } : p)),
+					players: state.players.map((p) => (p.localId === localId ? { ...p, id: data.id, username: data.username } : p)),
 				};
 			}
 			return {
-				players: [...state.players, { localId, id: data.id, login: data.login }].sort((a, b) => a.localId - b.localId),
+				players: [...state.players, { localId, id: data.id, username: data.username }].sort((a, b) => a.localId - b.localId),
 			};
 		});
 	},

@@ -14,8 +14,8 @@ interface PlayerCardProps {
 
 const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 	const isPlayer1 = player.localId === 1;
-	const waitingForName = player.login === null;
-	const displayName = player.login ?? "En attente";
+	const waitingForName = player.username === null;
+	const displayName = player.username ?? "En attente";
 
 	// La carte est posée sur un panneau sombre (`surfaceInverse`) dans les deux
 	// modes : ses couleurs viennent du jeton du joueur, pas du fond de page.
@@ -42,7 +42,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
 		>
 			<UserAvatar
 				userId={player.id}
-				login={player.login}
+				username={player.username}
 				sx={{
 					width: { xs: 36, lg: 48 },
 					height: { xs: 36, lg: 48 },

@@ -41,8 +41,8 @@ export default function UserProfilePanel({ userId }: UserProfilePanelProps) {
 		);
 	}
 
-	const login = isOwnProfile ? currentUser?.login : userQuery.data?.login;
-	if (!login) {
+	const username = isOwnProfile ? currentUser?.username : userQuery.data?.username;
+	if (!username) {
 		return null;
 	}
 
@@ -55,19 +55,19 @@ export default function UserProfilePanel({ userId }: UserProfilePanelProps) {
 					{isOwnProfile && currentUser ? (
 						<ProfileDetails
 							userId={currentUser.id}
-							login={currentUser.login}
+							username={currentUser.username}
 							onEditAvatar={() => setAvatarModalOpen(true)}
 							actions={<ProfileEmailActions userId={currentUser.id} email={currentUser.email} />}
 						/>
 					) : (
 						<ProfileDetails
 							userId={userId}
-							login={login}
+							username={username}
 							actions={
 								showFriendControls ? (
 									<ProfileFriendActions
 										userId={userId}
-										login={login}
+										username={username}
 										status={friendStatusQuery.data?.status ?? "none"}
 										isLoading={friendStatusQuery.isFetching}
 									/>
@@ -78,8 +78,8 @@ export default function UserProfilePanel({ userId }: UserProfilePanelProps) {
 				</Stack>
 			</Panel>
 
-            {isOwnProfile && (
-				<AvatarEditModal open={avatarModalOpen} onClose={() => setAvatarModalOpen(false)} seed={login} />
+            {isOwnProfile && currentUser && (
+				<AvatarEditModal open={avatarModalOpen} onClose={() => setAvatarModalOpen(false)} seed={currentUser.id} />
 			)}
         </>
     );
