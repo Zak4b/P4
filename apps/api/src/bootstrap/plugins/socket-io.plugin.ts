@@ -28,13 +28,19 @@ class SocketServer {
 		// Authentifie la connexion avant l'évènement "connection" : rejette proprement
 		// (le client reçoit "connect_error") si le cookie de session est absent/invalide.
 		this.io.use((socket, next) => {
-			const user = getUserFromSocket(socket);
-			if (!user) {
-				next(new Error("Authentication required"));
-				return;
-			}
-			socket.data.user = user;
-			next();
+			getUserFromSocket(socket)
+				.then((user) => {
+					if (!user) {
+						next(new Error("Authentication required"));
+						return;
+					}
+					socket.data.user = user;
+					next();
+				})
+				.catch((err: unknown) => {
+					fastify.log.error({ err }, "Socket.IO authentication failed");
+					next(new Error("Authentication failed"));
+				});
 		});
 
 		this.io.on("connection", (socket) => {

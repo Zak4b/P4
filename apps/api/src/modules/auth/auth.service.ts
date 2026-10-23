@@ -6,12 +6,8 @@ import type { User } from "@p4/schemas/user";
 type AuthResult = { token: string; user: User };
 
 export class AuthService {
-	private static buildAuthResult(userData: User & { email: string }): AuthResult {
-		const token = generateToken({
-			id: userData.id,
-			email: userData.email,
-			username: userData.username,
-		});
+	private static buildAuthResult(userData: User): AuthResult {
+		const token = generateToken({ id: userData.id });
 		return {
 			token,
 			user: {
