@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Box, Stack } from "@mui/material";
 import { Button, Heading, Text } from "@/components/ui";
 
+import Footer from "@/components/layout/Footer";
 import { DemoBoard } from "./DemoBoard";
 
 /** Entrée décalée des éléments du héros : titre, phrase, action, puis le plateau. */
@@ -141,6 +142,8 @@ export default function HomeHero() {
 					<DemoBoard />
 				</Box>
 			</Box>
+
+			<Footer tone="brand" />
 		</Box>
 	);
 }

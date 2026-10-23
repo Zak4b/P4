@@ -1,6 +1,7 @@
 "use client";
 
 import { Container, Box } from "@mui/material";
+import Footer from "@/components/layout/Footer";
 
 export default function AuthLayout({
 	children,
@@ -15,9 +16,7 @@ export default function AuthLayout({
 				minHeight: "100vh",
 				backgroundColor: "board.frame",
 				display: "flex",
-				alignItems: "center",
-				justifyContent: "center",
-				py: 4,
+				flexDirection: "column",
 			}}
 		>
 			{/* Le même motif que l'accueil : deux jetons géants rognés par les bords. */}
@@ -49,13 +48,16 @@ export default function AuthLayout({
 					animation: "discIn 900ms var(--ease-out) 120ms both",
 				}}
 			/>
-			<Container
-				maxWidth="sm"
-				data-motion=""
-				sx={{ position: "relative", animation: "riseIn 520ms var(--ease-out) 160ms both" }}
-			>
-				{children}
-			</Container>
+			<Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", py: 4 }}>
+				<Container
+					maxWidth="sm"
+					data-motion=""
+					sx={{ position: "relative", animation: "riseIn 520ms var(--ease-out) 160ms both" }}
+				>
+					{children}
+				</Container>
+			</Box>
+			<Footer tone="brand" />
 		</Box>
 	);
 }

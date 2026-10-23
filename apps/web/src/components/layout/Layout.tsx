@@ -6,6 +6,7 @@ import { Container, Box } from "@mui/material";
 import RoomList from "../Rooms/RoomList";
 import LiveChat from "../LiveChat";
 import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 interface LayoutProps {
 	children: React.ReactNode;
@@ -42,6 +43,8 @@ export default function Layout({ children }: LayoutProps) {
 			>
 				{children}
 			</Container>
+
+			<Footer />
 
 			{/* Room list Drawer */}
 			<RoomList open={showRooms} onClose={() => setShowRooms(false)} />
